@@ -1,0 +1,158 @@
+@CHARSET "UTF-8";
+
+/**
+  * GENERAL
+  **/
+  
+.borderColor0 {
+	border-color:white;
+}
+
+.borderColor1 {
+	border-color:#6868C9;
+}
+
+.backgroundColor0 {
+	background-color:white;
+}
+
+.backgroundColor1 {
+	background-color:#B8B8F0;
+}
+.backgroundColor2 {
+	background-color:#D1D1FF;
+}
+
+.backgroundColor3 {
+	background-color:#E6E6FF;
+}
+
+.FormSeparatorWithLabel {
+	background-color:white;
+}
+/**
+  * ELEMENTS
+  **/
+  
+
+body {
+	background-color:#d8d8d8;
+	color:black;
+}
+
+a:link, a:active, a:visited {
+	color:black;
+}
+
+caption {
+	background-color:red;
+	color:black;
+}
+
+input, select, textarea, .AJAXUpload {
+	border-bottom-color:#9E9EF0;
+}
+
+/**
+  * SPECIAL
+  **/
+  
+.hasFocus {
+	background-color:white;
+	border-bottom-color:#9E9EF0;
+}
+
+/**
+  * FRAMES
+  **/
+  
+#wrapper {
+	border-color:#444444;
+	background-color:white;
+}
+
+#wrapperHandler {
+	color:white;
+	font-weight:bold;
+}
+
+#desktopWrapper #wrapper {
+	border-color:#6868C9;
+}
+
+#contentLeft table, #contentRight table, #windows table {
+	border-color:#B8B8F0;
+}
+
+#contentRight tr {
+	-moz-transition: background-color .3s;
+	-webkit-transition: background-color .3s;
+	-o-transition: background-color .3s;
+	transition: background-color .3s;
+}
+
+#contentRight tr:hover {
+	background-color:white;
+	
+	-moz-transition: background-color .3s;
+	-webkit-transition: background-color .3s;
+	-o-transition: background-color .3s;
+	transition: background-color .3s;
+}
+
+#contentScreen tr {
+	-moz-transition: background-color .3s;
+	-webkit-transition: background-color .3s;
+	-o-transition: background-color .3s;
+	transition: background-color .3s;
+}
+
+#contentScreen tr:hover {
+	background-color:white;
+	
+	-moz-transition: background-color .3s;
+	-webkit-transition: background-color .3s;
+	-o-transition: background-color .3s;
+	transition: background-color .3s;
+}
+
+#footer {
+	color:#555555;
+}
+
+/**
+  * NAVIGATION
+  **/
+
+.navBackgroundColor {
+	background-color:#7f7fdf/*#6868C9*/;
+}
+
+.navBorderColor {
+	border-color:#4e4e96;
+	border-bottom-color:#444444;
+}
+
+#navTabsWrapper .navTab:hover {
+	background-color:#9E9EF0;
+}
+
+#navigation div.theOne {
+	background-color:white;
+	border-color:#444444;
+	border-bottom-color:white;
+}
+
+.selectionBox:hover, .tableForSelection tr:hover {
+	background-color:white;
+	
+	-moz-transition: background-color .3s;
+	-webkit-transition: background-color .3s;
+	-o-transition: background-color .3s;
+	transition: background-color .3s;
+}
+
+.lastSelected {
+	/*background-color:rgba(255, 204, 0, 0.3);*/
+	background-color:rgba(255, 255, 255, 0.5);
+}

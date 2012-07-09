@@ -1,0 +1,127 @@
+#navigation {
+	background-image:url(../../images/navbg.png);
+	min-height:56px;
+	background-repeat:repeat-x;
+}
+
+#navTabsWrapper .navTab {
+	float:right;
+	letter-spacing:0.1em;
+	font-weight:bold;
+	font-size:1.0em;
+	cursor:pointer;
+	border-width:1px;
+	border-style: solid;
+	background-repeat:no-repeat;
+	margin-top:27px;
+	margin-right:30px;
+	margin-bottom:-1px;
+	height:28px;
+	-moz-user-select:none;
+	-moz-border-radius-topleft:3px;
+	-webkit-border-top-left-radius:3px;
+    -moz-border-radius-topright:3px;
+	-webkit-border-top-right-radius:3px;
+	border-top-left-radius:3px;
+	border-top-right-radius:3px;
+	
+	transition: background-color .3s;
+	-moz-transition: background-color .3s; /* Firefox 4 */
+	-webkit-transition: background-color .3s; /* Safari and Chrome */
+	-o-transition: background-color.3s; /* Opera */
+}
+
+#navTabsWrapper {
+	margin-left:130px;
+}
+
+#navigation div + img {
+	float:right;
+	margin-right:-16px;
+}
+
+#navigation > img {
+	margin-top:2px;
+}
+
+#appMenuContainer {
+	right:0px;
+	top:0px;
+	position:absolute;
+	width:210px;
+	border-left-width:1px;
+	border-left-style:solid;
+	border-bottom-width:1px;
+	border-bottom-style:solid;
+	padding-top:30px;
+	padding-bottom:10px;
+}
+
+#appMenuContainer ul {
+	list-style-type:none;
+}
+
+#appMenuContainer p {
+	padding:10px;
+}
+
+#appMenuContainer ul li {
+	height:35px;
+	width:200px;
+	border:0px;
+	margin:0px;
+	padding-left:10px;
+}
+
+#appMenuContainer ul li p {
+	padding:0px;
+	padding-top:10px;
+}
+
+#appMenuContainer ul li div {
+	height:35px;
+	cursor:pointer;
+	width:170px;
+	border:0px;
+	margin:0px;
+}
+
+#appMenuContainer ul li .appMenuHandle {
+	cursor:pointer;
+	margin-top:7px;
+	display:none;
+}
+
+#appMenuContainer ul li:hover .appMenuHandle {
+	display:block;
+}
+
+.tabImg {
+	float:left;
+	margin-top:-15px;
+	margin-left:-20px;
+	margin-right:5px;
+}
+
+.smallTab {
+	width:36px;
+}
+
+.smallTabImg {
+	float:left;
+	margin-top:-15px;
+	margin-left:0px;
+	margin-right:5px;
+}
+
+#navigation div.theOne {
+	border-style:solid;
+	border-width:1px;
+	
+	-moz-box-shadow: 1px -1px 2px #AAA;
+	-webkit-box-shadow: 1px -1px 2px #AAA;
+	box-shadow: 1px -1px 2px #AAA;
+}
+#navigation div.theOne:hover {
+	background-color:white;
+}

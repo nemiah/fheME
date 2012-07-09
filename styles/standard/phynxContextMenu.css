@@ -1,0 +1,56 @@
+.contextMenu {
+	position:absolute;
+	border-width: 1px;
+	margin-top:-1px;
+	border-style: solid;
+	width:200px;
+	top:0px;
+	left:0px;
+	z-index:3000;
+}
+.contextMenu table {
+	width:100%;
+}
+
+.contextMenu label {
+	text-align:left;
+	float:left;
+}
+
+#cMDiv p, .contextMenu p {
+	padding:5px;
+}
+
+#cMHeader, .cMHeader {
+	padding:5px;
+	cursor:move;
+}
+
+.closeContextMenu {
+	display:block;
+	
+	width:15px;
+	
+	float:right;
+	
+	text-align:center;
+	text-decoration:none;
+	
+	border-width:1px;
+	border-style: solid;
+	
+	margin-top:-2px;
+}
+
+#cMData table, #fakecMData table {
+	border:0px;
+	width:100%;
+}
+
+.closeContextMenu:hover {
+	background-color:transparent;
+}
+
+#windows p {
+	padding:5px;
+}

@@ -1,0 +1,78 @@
+@CHARSET "UTF-8";
+
+#dateContainer {
+	position:absolute;
+	float:right;
+	top:100px;
+	left:100px;
+	width:200px;
+	border-width:1px;
+	border-style: solid;
+}
+
+#dateMonat {
+	padding:5px;
+	cursor:move;
+}
+
+#dateContainer table {
+	width:100%;
+	padding:5px;
+}
+
+#tageTable td {
+	text-align:right;
+	width:14%;
+}
+
+#dateContainer th {
+	border-bottom-width:1px;
+	border-bottom-style: solid;
+	font-weight:normal;
+}
+
+#tageTable a {
+	display:block;
+	width:100%;
+}
+
+#tageTable td:hover {
+	background-color:white;	
+}
+
+.calendarIcon {
+	float:right;
+	/*margin-right:-25px;*/
+
+}
+
+.closeCalendar {
+	display:block;
+	width:15px;
+	float:right;
+	text-align:center;
+	text-decoration:none;
+	border-width:1px;
+	border-style: solid;
+}
+
+.closeCalendar:hover {
+	background-color:transparent;
+}
+
+#jahreSlider {
+	width: 10px;
+	height: 10px;
+	cursor: ew-resize;
+	left: 95px;
+	top:-2px;
+	position: relative;
+}
+
+#jahreTrack {
+	position:relative;
+	width: 200px;
+	height: 6px;
+	top:0px;
+	
+}

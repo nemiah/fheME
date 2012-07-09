@@ -1,0 +1,29 @@
+<?php
+/*
+ *  This file is part of phynx.
+
+ *  phynx is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 3 of the License, or
+ *  (at your option) any later version.
+
+ *  phynx is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ *  2007 - 2012, Rainer Furtmeier - Rainer@Furtmeier.de
+ */
+class CollectionOfNotSetException extends o3AException {
+
+	function __construct(){
+		parent::__construct();
+		$_SESSION["messages"]->addMessage("You need to set collectionOf with setCollectionOf of class HTMLGUI.");
+		$_SESSION["messages"]->addMessage("\$gui->setCollectionOf(\$this->collectionOf,\$this->collectionOf); should do the trick in most cases. The second argument is the name displayed in the GUI.");
+	}
+
+}
+?>

@@ -1,0 +1,102 @@
+@CHARSET "UTF-8";
+
+/**
+  * GENERAL
+  **/
+  
+.borderColor0 {
+	border-color:white;
+}
+
+.borderColor1 {
+	border-color:#b66200;
+}
+
+.backgroundColor0 {
+	background-color:white;
+}
+
+.backgroundColor1 {
+	background-color:#fdd10e;
+}
+.backgroundColor2 {
+	background-color:#ffffb6;
+}
+
+.backgroundColor3 {
+	background-color:#ffffdd;
+}
+
+.FormSeparatorWithLabel {
+	background-color:white;
+}
+/**
+  * ELEMENTS
+  **/
+  
+
+body {
+	background-color:#d8d8d8;
+	color:black;
+}
+
+a:link, a:active, a:visited {
+	color:black;
+}
+
+input, select, textarea {
+	border-bottom-color:#c57b23;
+}
+
+/**
+  * SPECIAL
+  **/
+  
+.hasFocus {
+	background-color:white;
+	border-bottom-color:#c57b23;
+}
+
+/**
+  * FRAMES
+  **/
+  
+#wrapper {
+	border-color:#111111;
+	background-color:white;
+}
+
+#contentLeft table, #contentRight table, #windows table {
+	border-color:#ed9022;
+}
+
+#contentRight tr:hover {
+	background-color:white;
+}
+
+#footer {
+	color:#555555;
+}
+
+/**
+  * NAVIGATION
+  **/
+
+.navBackgroundColor {
+	background-color:#fcffa6;
+}
+
+.navBorderColor {
+	border-color:#b66200;
+	border-bottom-color:#111111;
+}
+
+#navTabsWrapper .navTab:hover {
+	background-color:#fdd10e;
+}
+
+#navigation div.theOne {
+	background-color:white;
+	border-color:#111111;
+	border-bottom-color:white;
+}

@@ -1,0 +1,17 @@
+@CHARSET "UTF-8";
+
+.AutoComplete {
+	position:absolute;
+	border-width: 1px;
+	margin-top:-1px;
+	border-style: solid;
+	width:300px;
+	z-index:100000;
+}
+.AutoComplete tr:hover {
+	background-color:white;
+}
+
+.ACHandler {
+	padding:5px;
+}
