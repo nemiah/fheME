@@ -30,6 +30,6 @@ Installation
 fheME Entwickler HowTo
 ======================
 
-* Installiere zunächst die Version für Anwender wie oben beschrieben. Das sort dafür, dass alle Tabellen vorhanden sind.
+* Installiere zunächst die Version für Anwender wie oben beschrieben. Das sorgt dafür, dass alle Tabellen vorhanden sind.
 * git clone https://github.com/nemiah/fheME.git
-* Trage die gleichen Datenbank-Zugangsdaten wie in der Anwenderversion ein
+* Trage die gleichen Datenbank-Zugangsdaten wie in der Anwenderversion ein.
