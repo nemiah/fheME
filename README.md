@@ -22,14 +22,14 @@ Voraussetzungen
 Installation
 ------------
 
-* Bitte lade dir im [Download-Bereich](https://github.com/nemiah/fheME/downloads) die aktuelle Version herunter.
-* Entpacke das Archiv in ein Verzeichnis auf deinem Server.
-* Rufe das Verzeichnis im Browser auf, das System erklärt alle weiteren Schritte.
+* Bitte laden Sie im [Download-Bereich](https://github.com/nemiah/fheME/downloads) die aktuelle Version herunter.
+* Entpacken Sie das Archiv in ein Verzeichnis auf Ihrem Server.
+* Rufen Sie das Verzeichnis im Browser auf, das System erklärt alle weiteren Schritte.
 
 
 fheME Entwickler HowTo
 ======================
 
-* Installiere zunächst die Version für Anwender wie oben beschrieben. Das sorgt dafür, dass alle Tabellen vorhanden sind.
+* Installieren Sie zunächst die Version für Anwender wie oben beschrieben. Das sorgt dafür, dass alle Tabellen vorhanden sind.
 * git clone https://github.com/nemiah/fheME.git
-* Trage die gleichen Datenbank-Zugangsdaten wie in der Anwenderversion ein.
+* Tragen Sie die gleichen Datenbank-Zugangsdaten wie in der Anwenderversion ein.
