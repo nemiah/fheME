@@ -26,7 +26,7 @@
 		<icon>./fheME/Gericht/Gericht.png</icon>
 		<folder>Gericht</folder>
 		
-		<version>0.4</version>
+		<version>0.5</version>
 		<deploy>
 			<table name="Gericht" />
 		</deploy>

@@ -31,7 +31,7 @@ class fheMEApplication {
 	}
 	
 	public function registerVersion(){
-		return "0.4";
+		return "0.5";
 	}
 }
 ?>

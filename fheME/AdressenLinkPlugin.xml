@@ -25,7 +25,7 @@
 		
 		<icon>./images/navi/address.png</icon>
 		<folder>../open3A/Adressen</folder>
-		<version>0.4</version>
+		<version>0.5</version>
 		
 		<adminOnly>false</adminOnly>
 	</plugin>

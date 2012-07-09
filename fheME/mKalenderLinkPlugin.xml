@@ -23,6 +23,7 @@
 		<menuName>Kalender</menuName>
 		<collection>mKalender</collection>
 		<javascript>Kalender.js</javascript>
+		<version>0.5</version>
 		
 		<icon>./ubiquitous/Kalender/Calendar.png</icon>
 		<folder>../ubiquitous/Kalender</folder>

@@ -25,7 +25,7 @@
 		
 		<icon>./fheME/Fhem/fhem.png</icon>
 		<folder>Fhem</folder>
-		<version>0.4</version>
+		<version>0.5</version>
 		
 		<javascript>Fhem.js</javascript>
 
