@@ -14,7 +14,7 @@
 
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  *  2007 - 2012, Rainer Furtmeier - Rainer@Furtmeier.de
  */
 var Fhem = {
@@ -28,18 +28,18 @@ var Fhem = {
 	sliderUpDownValues: ["off", "none", "on"],
 	updater: null,
 	lastStates: null,
-	
+
 	initUpdater: function(){
 		if(Fhem.updater != null)
 			window.clearInterval(Fhem.updater);
-		
+
 		Fhem.updater = window.setInterval(function(){
 			Fhem.refreshControls();
 		}, 20 * 1000);
-	
+
 		//new PeriodicalExecuter(Fhem.refreshControls, 20);
 	},
-	
+
 	refreshControls: function(){
 		if(!$('mFhemMenuEntry')) return;
 		if(lastLoadedLeftPlugin != "FhemControl") {
@@ -49,16 +49,16 @@ var Fhem = {
 			}
 			return;
 		}
-		
+
 		if(!Fhem.isUpdate)
 			Fhem.requestUpdate();
-	
+
 	},
-	
+
 	requestUpdate: function(){
 		contentManager.rmePCR('FhemControl','','updateGUI','','Fhem.updateControls(transport);');
 	},
-	
+
 	updateControls: function(transport){
 		var json = jQuery.parseJSON(transport.responseText);
 		Fhem.lastStates = json;
@@ -74,13 +74,13 @@ var Fhem = {
 			cID = e;
 			cModel = json[e].model;
 			cValue = json[e].state;
-			
+
 			if(cValue == "???") continue;
 			if(cValue == "dimupdown") continue;
 			if(cValue == "toggle") continue;
 			if(cModel == "fs20rsu")
 				continue;
-			
+
 			if(cModel == "web"){
 				if(!Fhem.controlsRGB["R"+cID]) continue;
 
@@ -92,11 +92,11 @@ var Fhem = {
 
 				continue;
 			}
-			
-			if(cModel == "fht80b" || cModel == "fs20du" || cModel == "fs20st"){
+
+			if(cModel == "fht80b" || cModel == "fs20du" || cModel == "fs20st" || cModel == "itswitch" || cModel == "itdimmer" || cModel == "switch" || cModel == "dimmer"){
 				if(!$("FhemID_"+cID))
 					continue;
-				
+
 				$("FhemID_"+cID).update(cValue);
 				continue;
 			}
@@ -109,28 +109,46 @@ var Fhem = {
 			if(cValue == "off") cValue = 0;
 			//}
 			//console.log(cID+": "+cValue);
-			
+
+			//if(cModel == "itdimmer"){
+			cValue = cValue.replace("dim","").replace("%","");
+			//} else if(cModel == "itswitch"){
+
+			if(cValue == "on") cValue = 100;
+			if(cValue == "off") cValue = 0;
+			//}
+			//console.log(cID+": "+cValue);
+
+			//if(cModel == "dimmer"){
+			cValue = cValue.replace("dim","").replace("%","");
+			//} else if(cModel == "switch"){
+
+			if(cValue == "on") cValue = 100;
+			if(cValue == "off") cValue = 0;
+			//}
+			//console.log(cID+": "+cValue);
+
 			if(!Fhem.controls[cID]) continue;
 
 			var availableValues = null;
-			
+
 			if(Fhem.controls[cID] == "full")
 				availableValues = Fhem.sliderFullValues
-			
+
 			if(Fhem.controls[cID] == "onOff")
 				availableValues = Fhem.sliderOnOffValues
-			
+
 			for(j = 0; j < availableValues.length; j++)
 				if(availableValues[j] == cValue)
 					cValue = j;
-				
-			
+
+
 			$j('#track'+cID).slider("option", "value", cValue);
 		}
 
 		Fhem.isUpdate = false;
 	},
-	
+
 	startSlider: function(cID/*, startValue*/){
 		$j('#track'+cID).slider({
 			orientation: "vertical",
@@ -146,11 +164,11 @@ var Fhem = {
 	},
 
 	startRGBSlider: function(cID, startValue){
-		
+
 	},
-	
+
 	startSliderUpDown: function(cID){
-		
+
 		$j('#track'+cID).slider({
 			orientation: "vertical",
 			range: "min",
@@ -161,7 +179,7 @@ var Fhem = {
 				Fhem.onChangeUpDownSlider(cID, Fhem.sliderUpDownValues[ui.value]);
 			}
 		});
-		
+
 		Fhem.controls[cID] = "upDown";
 	},
 
@@ -180,7 +198,7 @@ var Fhem = {
 
 	onChangeUpDownSlider: function(cID, value){
 		if(Fhem.isUpdate) return;
-		
+
 		contentManager.rmePCR('FhemControl','','setDevice', Array(cID, value), " ");
 		Fhem.isUpdate = true;
 		$j('#track'+cID).slider("option", "value", 1);
@@ -196,11 +214,11 @@ var Fhem = {
 		if(Fhem.isUpdate) return;
 		contentManager.rmePCR('FhemControl','','setDevice', Array(cID, value),' ');
 	},
-	
+
 	startSliderOnOff: function(cID, startValue, returnOff){
 		if(typeof returnOff == "undefined") returnOff = false;
-		
-		
+
+
 		$j('#track'+cID).slider({
 			orientation: "vertical",
 			range: "min",
@@ -211,10 +229,10 @@ var Fhem = {
 				Fhem.onChangeSlider(cID, Fhem.sliderOnOffValues[ui.value]);
 			}
 		});
-		
+
 		Fhem.controls[cID] = "onOff";
 	},
-	
+
 	onChangeSliderOnOff: function(cID, value, returnOff){
 		if(typeof returnOff == "undefined") returnOff = false;
 
@@ -225,7 +243,7 @@ var Fhem = {
 		}
 		if(Fhem.isUpdate) return;
 		//if(value < 10) value = "0"+value;
-		
+
 		if(value == 0) contentManager.rmePCR('FhemControl','','setDevice', Array(cID, 'off'),' ');
 		else contentManager.rmePCR('FhemControl','','setDevice', Array(cID, 'on'),' '+(returnOff ? "Fhem.controls["+cID+"].setValue(0);" : ""));
 	}
