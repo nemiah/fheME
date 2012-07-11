@@ -32,4 +32,5 @@ fheME Entwickler HowTo
 
 * Installieren Sie zunächst die Version für Anwender wie oben beschrieben. Das sorgt dafür, dass alle Tabellen vorhanden sind.
 * git clone https://github.com/nemiah/fheME.git
+* Führen Sie die SQL-Befehle aus der Datei /SQL/0.5To0.6.sql auf Ihrer Datenbank aus.
 * Tragen Sie die gleichen Datenbank-Zugangsdaten wie in der Anwenderversion ein.
