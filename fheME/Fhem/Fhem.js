@@ -93,7 +93,7 @@ var Fhem = {
 				continue;
 			}
 
-			if(cModel == "fht80b" || cModel == "fs20du" || cModel == "fs20st" || cModel == "itswitch" || cModel == "itdimmer" || cModel == "switch" || cModel == "dimmer"){
+			if(cModel == "fht80b" || cModel == "fs20du" || cModel == "fs20st" || cModel == "itswitch" || cModel == "itdimmer" || cModel == "switch" || cModel == "dimmer" || cModel == "emem"){
 				if(!$("FhemID_"+cID))
 					continue;
 

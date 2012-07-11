@@ -66,6 +66,7 @@ class FhemControlGUI implements iGUIHTML2 {
 		$ac->addOrderV3("FhemModel");
 		$ac->addOrderV3("FhemITModel");
 		$ac->addOrderV3("FhemHMModel");
+		$ac->addOrderV3("FhemEMModel");
 
 		return $ac;
 	}
@@ -83,6 +84,7 @@ class FhemControlGUI implements iGUIHTML2 {
 		$ac->addOrderV3("FhemModel");
 		$ac->addOrderV3("FhemITModel");
 		$ac->addOrderV3("FhemHMModel");
+		$ac->addOrderV3("FhemEMModel");
 
 		return $ac;
 	}
@@ -331,6 +333,24 @@ class FhemControlGUI implements iGUIHTML2 {
 				break;
 			}
 
+		if($f->A("FhemType") == "ELV EM")
+			switch($f->A("FhemEMModel")){
+
+				case "emem":
+				
+				$B = new Button("", "./fheME/Fhem/fhem.png", "icon");
+				$B->style("float:left;margin-left:-10px;margin-top:-13px;margin-right:3px;");
+				
+					$html = "<div onclick=\"\$j('.fhemeControl:not(#controls_D".$f->getID().")').hide(); \$j('#controls_D".$f->getID()."').toggle();\" style=\"cursor:pointer;width:200px;float:left;min-height:15px;border-radius:5px;border-width:1px;border-style:solid;margin:5px;padding:5px;\" class=\"borderColor1\">
+							$B$controls
+							<div id=\"FhemID_".$f->getID()."\">
+								<b>".$f->A("FhemName")."</b>
+							</div>
+						</div>";
+
+				break;
+			}
+
 		if($f->A("FhemType") == "RGB")
 			$html = "
 					<script type=\"text/javascript\">
@@ -500,6 +520,7 @@ class FhemControlGUI implements iGUIHTML2 {
 		$this->registerType($tab, "FHT");
 		$this->registerType($tab, "Intertechno");
 		$this->registerType($tab, "HomeMatic");
+		$this->registerType($tab, "ELV EM");
 		$this->registerType($tab, "dummy");
 
 		$oldServer = "";
@@ -670,6 +691,24 @@ class FhemControlGUI implements iGUIHTML2 {
 								#echo $F->getID().":".$F->A("FhemHMModel").":".$v->attributes()->state."\n";
 							}
 
+						if(isset($x->CUL_EM_LIST->CUL_EM) AND count($x->CUL_EM_LIST->CUL_EM) > 0)
+							foreach($x->CUL_EM_LIST->CUL_EM AS $em){
+								$F = anyC::get("Fhem", "FhemServerID", $s->getID());
+								$F->addAssocV3("FhemName", "=", $em->attributes()->name);
+
+								$F = $F->getNextEntry();
+								if($F == null) continue;
+
+								foreach($em->STATE AS $state){
+									if($state->attributes()->key == "current")
+										$current = $state->attributes()->value;
+
+								$result[$F->getID()] = array("model" => $F->A("FhemEMModel"), "state" => "<b>".$F->A("FhemAlias")."</b> ".$current."");
+
+								#echo $F->getID().":".$F->A("FhemEMModel").":".$em->attributes()->current."\n";
+							}
+					break;
+
 						if(isset($x->FHT_LIST->FHT) AND count($x->FHT_LIST->FHT) > 0)
 							foreach($x->FHT_LIST->FHT AS $fht){
 								$F = anyC::get("Fhem", "FhemServerID", $s->getID());
@@ -739,7 +778,7 @@ class FhemControlGUI implements iGUIHTML2 {
 					break;*/
 				}
 			}
-
+ }
 			echo json_encode($result);
 		} catch(NoServerConnectionException $e) {
 			die("message:'Fhem-server unreachable'");
