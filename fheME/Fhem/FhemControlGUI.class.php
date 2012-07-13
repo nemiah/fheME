@@ -310,7 +310,7 @@ class FhemControlGUI implements iGUIHTML2 {
 						$values = array("on" => "on", "off" => "off");
 
 					if($f->A("FhemHMModel") == "dimmer")
-						$values = array("off" => "off", /*6, 12, 18,*/ "dim25%" => "25%", /*31, 37, 43,*/ "dim50%" => "50%", /*56, 62, 68,*/ "dim75%" => "75%", /*81, 87, 93,*/ "dim100%" => "100%");
+						$values = array("off" => "off", /*6, 12, 18,*/ "25%" => "25%", /*31, 37, 43,*/ "50%" => "50%", /*56, 62, 68,*/ "75%" => "75%", /*81, 87, 93,*/ "100%" => "100%");
 
 					$controls = $this->getSetTable("D".$f->getID(), $values);
 
@@ -787,6 +787,86 @@ class FhemControlGUI implements iGUIHTML2 {
 									$HM->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
 								}
 
+								if($state == "6%"){
+									$HM = new Button("", "./fheME/Fhem/6.png", "icon");
+									$HM->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
+								}
+
+								if($state == "12%"){
+									$HM = new Button("", "./fheME/Fhem/12.png", "icon");
+									$HM->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
+								}
+
+								if($state == "18%"){
+									$HM = new Button("", "./fheME/Fhem/18.png", "icon");
+									$HM->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
+								}
+
+								if($state == "25%"){
+									$HM = new Button("", "./fheME/Fhem/25.png", "icon");
+									$HM->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
+								}
+
+								if($state == "31%"){
+									$HM = new Button("", "./fheME/Fhem/31.png", "icon");
+									$HM->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
+								}
+
+								if($state == "37%"){
+									$HM = new Button("", "./fheME/Fhem/37.png", "icon");
+									$HM->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
+								}
+
+								if($state == "43%"){
+									$HM = new Button("", "./fheME/Fhem/43.png", "icon");
+									$HM->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
+								}
+
+								if($state == "50%"){
+									$HM = new Button("", "./fheME/Fhem/50.png", "icon");
+									$HM->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
+								}
+
+								if($state == "56%"){
+									$HM = new Button("", "./fheME/Fhem/56.png", "icon");
+									$HM->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
+								}
+
+								if($state == "62%"){
+									$HM = new Button("", "./fheME/Fhem/62.png", "icon");
+									$HM->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
+								}
+
+								if($state == "68%"){
+									$HM = new Button("", "./fheME/Fhem/68.png", "icon");
+									$HM->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
+								}
+
+								if($state == "75%"){
+									$HM = new Button("", "./fheME/Fhem/75.png", "icon");
+									$HM->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
+								}
+
+								if($state == "81%"){
+									$HM = new Button("", "./fheME/Fhem/81.png", "icon");
+									$HM->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
+								}
+
+								if($state == "87%"){
+									$HM = new Button("", "./fheME/Fhem/87.png", "icon");
+									$HM->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
+								}
+
+								if($state == "93%"){
+									$HM = new Button("", "./fheME/Fhem/93.png", "icon");
+									$HM->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
+								}
+
+								if($state == "100%"){
+									$HM = new Button("", "./fheME/Fhem/100.png", "icon");
+									$HM->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
+								}
+								
 								$result[$F->getID()] = array("model" => $F->A("FhemHMModel"), "state" => "$HM<b>".$F->A("FhemAlias")."</b> ");
 
 								#echo $F->getID().":".$F->A("FhemHMModel").":".$v->attributes()->state."\n";
