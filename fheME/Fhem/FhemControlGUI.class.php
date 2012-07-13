@@ -168,10 +168,7 @@ class FhemControlGUI implements iGUIHTML2 {
 
 					$controls = $this->getSetTable("D".$f->getID(), $values);
 
-					$B = new Button("", "./fheME/Fhem/fhem.png", "icon");
-					$B->style("float:left;margin-left:-10px;margin-top:-13px;margin-right:3px;");
-
-					$html = "<div onclick=\"\$j('.fhemeControl:not(#controls_D".$f->getID().")').hide(); \$j('#controls_D".$f->getID()."').toggle();\" style=\"cursor:pointer;width:200px;float:left;min-height:15px;border-radius:5px;border-width:1px;border-style:solid;margin:5px;padding:5px;\" class=\"borderColor1\">
+					$html = "<div onclick=\"\$j('.fhemeControl:not(#controls_D".$f->getID().")').hide(); \$j('#controls_D".$f->getID()."').toggle();\" style=\"cursor:pointer;width:210px;float:left;min-height:15px;border-radius:5px;border-width:1px;border-style:solid;margin:5px;padding:5px;\" class=\"borderColor1\">
 							$B$controls
 							<div id=\"FhemID_".$f->getID()."\">
 								<b>".$f->A("FhemName")."</b>
@@ -270,10 +267,7 @@ class FhemControlGUI implements iGUIHTML2 {
 
 					$controls = $this->getSetTable("D".$f->getID(), $values);
 
-					$B = new Button("", "./fheME/Fhem/fhem.png", "icon");
-					$B->style("float:left;margin-left:-10px;margin-top:-13px;margin-right:3px;");
-
-					$html = "<div onclick=\"\$j('.fhemeControl:not(#controls_D".$f->getID().")').hide(); \$j('#controls_D".$f->getID()."').toggle();\" style=\"cursor:pointer;width:200px;float:left;min-height:15px;border-radius:5px;border-width:1px;border-style:solid;margin:5px;padding:5px;\" class=\"borderColor1\">
+					$html = "<div onclick=\"\$j('.fhemeControl:not(#controls_D".$f->getID().")').hide(); \$j('#controls_D".$f->getID()."').toggle();\" style=\"cursor:pointer;width:210px;float:left;min-height:15px;border-radius:5px;border-width:1px;border-style:solid;margin:5px;padding:5px;\" class=\"borderColor1\">
 							$B$controls
 							<div id=\"FhemID_".$f->getID()."\">
 								<b>".$f->A("FhemName")."</b>
@@ -320,10 +314,7 @@ class FhemControlGUI implements iGUIHTML2 {
 
 					$controls = $this->getSetTable("D".$f->getID(), $values);
 
-					$B = new Button("", "./fheME/Fhem/fhem.png", "icon");
-					$B->style("float:left;margin-left:-10px;margin-top:-13px;margin-right:3px;");
-
-					$html = "<div onclick=\"\$j('.fhemeControl:not(#controls_D".$f->getID().")').hide(); \$j('#controls_D".$f->getID()."').toggle();\" style=\"cursor:pointer;width:200px;float:left;min-height:15px;border-radius:5px;border-width:1px;border-style:solid;margin:5px;padding:5px;\" class=\"borderColor1\">
+					$html = "<div onclick=\"\$j('.fhemeControl:not(#controls_D".$f->getID().")').hide(); \$j('#controls_D".$f->getID()."').toggle();\" style=\"cursor:pointer;width:210px;float:left;min-height:15px;border-radius:5px;border-width:1px;border-style:solid;margin:5px;padding:5px;\" class=\"borderColor1\">
 							$B$controls
 							<div id=\"FhemID_".$f->getID()."\">
 								<b>".$f->A("FhemName")."</b>
@@ -337,11 +328,8 @@ class FhemControlGUI implements iGUIHTML2 {
 			switch($f->A("FhemEMModel")){
 
 				case "emem":
-				
-				$B = new Button("", "./fheME/Fhem/fhem.png", "icon");
-				$B->style("float:left;margin-left:-10px;margin-top:-13px;margin-right:3px;");
-				
-					$html = "<div onclick=\"\$j('.fhemeControl:not(#controls_D".$f->getID().")').hide(); \$j('#controls_D".$f->getID()."').toggle();\" style=\"cursor:pointer;width:200px;float:left;min-height:15px;border-radius:5px;border-width:1px;border-style:solid;margin:5px;padding:5px;\" class=\"borderColor1\">
+
+					$html = "<div onclick=\"\$j('.fhemeControl:not(#controls_D".$f->getID().")').hide(); \$j('#controls_D".$f->getID()."').toggle();\" style=\"cursor:pointer;width:210px;float:left;min-height:15px;border-radius:5px;border-width:1px;border-style:solid;margin:5px;padding:5px;\" class=\"borderColor1\">
 							$B$controls
 							<div id=\"FhemID_".$f->getID()."\">
 								<b>".$f->A("FhemName")."</b>
@@ -648,7 +636,98 @@ class FhemControlGUI implements iGUIHTML2 {
 
 								$state = str_replace("dim", "", $state);
 
-								$result[$F->getID()] = array("model" => $F->A("FhemModel"), "state" => "<b>".$F->A("FhemAlias")."</b> ".$state."");
+								$FS = "";
+								if($state == "An" || $state == "an" || $state == "On" || $state == "on"){
+									$FS = new Button("", "./fheME/Fhem/on.png", "icon");
+									$FS->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
+								}
+
+								if($state == "Aus" || $state == "aus" || $state == "Off" || $state == "off"){
+									$FS = new Button("", "./fheME/Fhem/off.png", "icon");
+									$FS->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
+								}
+
+								if($state == "6%"){
+									$FS = new Button("", "./fheME/Fhem/6.png", "icon");
+									$FS->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
+								}
+
+								if($state == "12%"){
+									$FS = new Button("", "./fheME/Fhem/12.png", "icon");
+									$FS->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
+								}
+
+								if($state == "18%"){
+									$FS = new Button("", "./fheME/Fhem/18.png", "icon");
+									$FS->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
+								}
+
+								if($state == "25%"){
+									$FS = new Button("", "./fheME/Fhem/25.png", "icon");
+									$FS->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
+								}
+
+								if($state == "31%"){
+									$FS = new Button("", "./fheME/Fhem/31.png", "icon");
+									$FS->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
+								}
+
+								if($state == "37%"){
+									$FS = new Button("", "./fheME/Fhem/37.png", "icon");
+									$FS->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
+								}
+
+								if($state == "43%"){
+									$FS = new Button("", "./fheME/Fhem/43.png", "icon");
+									$FS->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
+								}
+
+								if($state == "50%"){
+									$FS = new Button("", "./fheME/Fhem/50.png", "icon");
+									$FS->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
+								}
+
+								if($state == "56%"){
+									$FS = new Button("", "./fheME/Fhem/56.png", "icon");
+									$FS->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
+								}
+
+								if($state == "62%"){
+									$FS = new Button("", "./fheME/Fhem/62.png", "icon");
+									$FS->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
+								}
+
+								if($state == "68%"){
+									$FS = new Button("", "./fheME/Fhem/68.png", "icon");
+									$FS->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
+								}
+
+								if($state == "75%"){
+									$FS = new Button("", "./fheME/Fhem/75.png", "icon");
+									$FS->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
+								}
+
+								if($state == "81%"){
+									$FS = new Button("", "./fheME/Fhem/81.png", "icon");
+									$FS->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
+								}
+
+								if($state == "87%"){
+									$FS = new Button("", "./fheME/Fhem/87.png", "icon");
+									$FS->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
+								}
+
+								if($state == "93%"){
+									$FS = new Button("", "./fheME/Fhem/93.png", "icon");
+									$FS->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
+								}
+
+								if($state == "100%"){
+									$FS = new Button("", "./fheME/Fhem/100.png", "icon");
+									$FS->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
+								}
+								
+								$result[$F->getID()] = array("model" => $F->A("FhemModel"), "state" => "$FS<b>".$F->A("FhemAlias")."</b> ");
 
 								#echo $F->getID().":".$F->A("FhemModel").":".$v->attributes()->state."\n";
 							}
@@ -667,7 +746,18 @@ class FhemControlGUI implements iGUIHTML2 {
 
 								$state = str_replace("dim", "", $state);
 
-								$result[$F->getID()] = array("model" => $F->A("FhemITModel"), "state" => "<b>".$F->A("FhemAlias")."</b> ".$state."");
+								$IT = "";
+								if($state == "An" || $state == "an" || $state == "On" || $state == "on"){
+									$IT = new Button("", "./fheME/Fhem/on.png", "icon");
+									$IT->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
+								}
+
+								if($state == "Aus" || $state == "aus" || $state == "Off" || $state == "off"){
+									$IT = new Button("", "./fheME/Fhem/off.png", "icon");
+									$IT->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
+								}
+
+								$result[$F->getID()] = array("model" => $F->A("FhemITModel"), "state" => "$IT<b>".$F->A("FhemAlias")."</b> ");
 
 								#echo $F->getID().":".$F->A("FhemITModel").":".$v->attributes()->state."\n";
 							}
@@ -686,7 +776,18 @@ class FhemControlGUI implements iGUIHTML2 {
 
 								$state = str_replace("dim", "", $state);
 
-								$result[$F->getID()] = array("model" => $F->A("FhemHMModel"), "state" => "<b>".$F->A("FhemAlias")."</b> ".$state."");
+								$HM = "";
+								if($state == "An" || $state == "an" || $state == "On" || $state == "on"){
+									$HM = new Button("", "./fheME/Fhem/on.png", "icon");
+									$HM->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
+								}
+
+								if($state == "Aus" || $state == "aus" || $state == "Off" || $state == "off"){
+									$HM = new Button("", "./fheME/Fhem/off.png", "icon");
+									$HM->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
+								}
+
+								$result[$F->getID()] = array("model" => $F->A("FhemHMModel"), "state" => "$HM<b>".$F->A("FhemAlias")."</b> ");
 
 								#echo $F->getID().":".$F->A("FhemHMModel").":".$v->attributes()->state."\n";
 							}
@@ -695,15 +796,15 @@ class FhemControlGUI implements iGUIHTML2 {
 							foreach($x->CUL_EM_LIST->CUL_EM AS $em){
 								$F = anyC::get("Fhem", "FhemServerID", $s->getID());
 								$F->addAssocV3("FhemName", "=", $em->attributes()->name);
-
 								$F = $F->getNextEntry();
+
 								if($F == null) continue;
 
 								foreach($em->STATE AS $state){
 									if($state->attributes()->key == "current")
 										$current = $state->attributes()->value;
 
-								$result[$F->getID()] = array("model" => $F->A("FhemEMModel"), "state" => "<b>".$F->A("FhemAlias")."</b> ".$current."");
+								$result[$F->getID()] = array("model" => $F->A("FhemEMModel"), "state" => "<b>".$F->A("FhemAlias")."</b><b style=\"float:right;\">".$current."</b>");
 
 								#echo $F->getID().":".$F->A("FhemEMModel").":".$em->attributes()->current."\n";
 							}
