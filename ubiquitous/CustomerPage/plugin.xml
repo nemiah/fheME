@@ -30,8 +30,5 @@
 		
 		<version>0.1</version>
 
-		<deploy>
-			<table name="CustomerPage" />
-		</deploy>
 	</plugin>
 </phynx>
