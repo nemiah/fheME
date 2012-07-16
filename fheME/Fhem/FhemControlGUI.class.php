@@ -138,6 +138,7 @@ class FhemControlGUI implements iGUIHTML2 {
 					<script type=\"text/javascript\">
 						Fhem.startSlider('".$f->getID()."', ".($f->getID() != "timer" ? "100" : "0.00001").");
 					</script>
+					
 
 					<fieldset
 						style=\"
@@ -908,7 +909,6 @@ class FhemControlGUI implements iGUIHTML2 {
 
 								#echo $F->getID().":".$F->A("FhemEMModel").":".$em->attributes()->current."\n";
 							}
-					break;
 
 						if(isset($x->FHT_LIST->FHT) AND count($x->FHT_LIST->FHT) > 0)
 							foreach($x->FHT_LIST->FHT AS $fht){
