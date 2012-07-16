@@ -727,7 +727,12 @@ class FhemControlGUI implements iGUIHTML2 {
 									$FS->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
 								}
 								
-								$result[$F->getID()] = array("model" => $F->A("FhemModel"), "state" => "$FS<b>".$F->A("FhemAlias")."</b> ");
+                                if($F->A("FhemAlias") == null){
+								$result[$F->getID()] = array("model" => $F->A("FhemModel"), "state" => "$FS<b>".$F->A("FhemName")."</b> ");
+                                }
+                                else{
+                                $result[$F->getID()] = array("model" => $F->A("FhemModel"), "state" => "$FS<b>".$F->A("FhemAlias")."</b> ");
+                                }
 
 								#echo $F->getID().":".$F->A("FhemModel").":".$v->attributes()->state."\n";
 							}
@@ -756,8 +761,13 @@ class FhemControlGUI implements iGUIHTML2 {
 									$IT = new Button("", "./fheME/Fhem/off.png", "icon");
 									$IT->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
 								}
-
+                                
+                                if($F->A("FhemAlias") == null){
+								$result[$F->getID()] = array("model" => $F->A("FhemITModel"), "state" => "$IT<b>".$F->A("FhemName")."</b> ");
+								}
+								else{
 								$result[$F->getID()] = array("model" => $F->A("FhemITModel"), "state" => "$IT<b>".$F->A("FhemAlias")."</b> ");
+								}
 
 								#echo $F->getID().":".$F->A("FhemITModel").":".$v->attributes()->state."\n";
 							}
@@ -866,8 +876,13 @@ class FhemControlGUI implements iGUIHTML2 {
 									$HM = new Button("", "./fheME/Fhem/100.png", "icon");
 									$HM->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
 								}
-								
+
+                                if($F->A("FhemAlias") == null){
+								$result[$F->getID()] = array("model" => $F->A("FhemHMModel"), "state" => "$HM<b>".$F->A("FhemName")."</b> ");
+								}
+								else{
 								$result[$F->getID()] = array("model" => $F->A("FhemHMModel"), "state" => "$HM<b>".$F->A("FhemAlias")."</b> ");
+								}
 
 								#echo $F->getID().":".$F->A("FhemHMModel").":".$v->attributes()->state."\n";
 							}
@@ -884,7 +899,12 @@ class FhemControlGUI implements iGUIHTML2 {
 									if($state->attributes()->key == "current")
 										$current = $state->attributes()->value;
 
+                                if($F->A("FhemAlias") == null){
+								$result[$F->getID()] = array("model" => $F->A("FhemEMModel"), "state" => "<b>".$F->A("FhemName")."</b><b style=\"float:right;\">".$current."</b>");
+								}
+								else{
 								$result[$F->getID()] = array("model" => $F->A("FhemEMModel"), "state" => "<b>".$F->A("FhemAlias")."</b><b style=\"float:right;\">".$current."</b>");
+								}
 
 								#echo $F->getID().":".$F->A("FhemEMModel").":".$em->attributes()->current."\n";
 							}
@@ -942,7 +962,12 @@ class FhemControlGUI implements iGUIHTML2 {
 									$B->style("float:right;");
 								}
 
+                                if($F->A("FhemAlias") == null){
 								$result[$F->getID()] = array("model" => $F->A("FhemFHTModel"), "state" => "$M<b>".$F->A("FhemName")."</b> {$measuredTemp}/{$desiredTemp} <small>({$actuator})</small>".($warnings != "none" ? "<br />$B{$warnings}" : ""));
+								}
+								else{
+								$result[$F->getID()] = array("model" => $F->A("FhemFHTModel"), "state" => "$M<b>".$F->A("FhemAlias")."</b> {$measuredTemp}/{$desiredTemp} <small>({$actuator})</small>".($warnings != "none" ? "<br />$B{$warnings}" : ""));
+								}
 
 								#echo $F->getID().":".$F->A("FhemFHTModel").":$B<b>".$F->A("FhemName")."</b> {$measuredTemp}/{$desiredTemp} <small>({$actuator})</small>".($warnings != "none" ? "<br />{$warnings}" : "")."\n";
 
