@@ -107,15 +107,15 @@ class FhemControlGUI implements iGUIHTML2 {
 	}
 
 	function getFHTControl(Fhem $f){
-		$B = new Button("", "./fheME/Fhem/fhemFHT.png", "icon");
-		$B->style("float:left;margin-left:-10px;margin-top:-13px;margin-right:3px;");
+		#$B = new Button("", "./fheME/Fhem/fhemFHT.png", "icon");
+		#$B->style("float:left;margin-left:-10px;margin-top:-13px;margin-right:3px;");
 
-		$values = array("desired-temp 17.0" => "17.0°", "desired-temp 18.0" => "18.0°", "desired-temp 21.0" => "21.0°", "desired-temp 21.5" => "21.5°", "desired-temp 22.0" => "22.0°", "desired-temp 23.0" => "23.0°", "desired-temp 24.0" => "24.0°");
+		$values = array("desired-temp 5.5" => "off", "desired-temp 17.0" => "17.0°", "desired-temp 18.0" => "18.0°", "desired-temp 21.0" => "21.0°", "desired-temp 21.5" => "21.5°", "desired-temp 22.0" => "22.0°", "desired-temp 23.0" => "23.0°", "desired-temp 24.0" => "24.0°");
 
 		$controls = $this->getSetTable("H".$f->getID(), $values);
 
-		return "<div onclick=\"\$j('.fhemeControl:not(#controls_H".$f->getID().")').hide(); \$j('#controls_H".$f->getID()."').toggle();\" style=\"cursor:pointer;width:200px;float:left;min-height:15px;border-radius:5px;border-width:1px;border-style:solid;margin:5px;padding:5px;\" class=\"borderColor1\">
-				$B$controls
+		return "<div onclick=\"\$j('.fhemeControl:not(#controls_H".$f->getID().")').hide(); \$j('#controls_H".$f->getID()."').toggle();\" style=\"cursor:pointer;width:210px;float:left;min-height:15px;border-radius:5px;border-width:1px;border-style:solid;margin:5px;padding:5px;\" class=\"borderColor1\">
+				$controls
 				<div id=\"FhemID_".$f->getID()."\">
 					<b>".$f->A("FhemName")."</b>
 				</div>
@@ -170,7 +170,7 @@ class FhemControlGUI implements iGUIHTML2 {
 					$controls = $this->getSetTable("D".$f->getID(), $values);
 
 					$html = "<div onclick=\"\$j('.fhemeControl:not(#controls_D".$f->getID().")').hide(); \$j('#controls_D".$f->getID()."').toggle();\" style=\"cursor:pointer;width:210px;float:left;min-height:15px;border-radius:5px;border-width:1px;border-style:solid;margin:5px;padding:5px;\" class=\"borderColor1\">
-							$B$controls
+							$controls
 							<div id=\"FhemID_".$f->getID()."\">
 								<b>".$f->A("FhemName")."</b>
 							</div>
@@ -269,7 +269,7 @@ class FhemControlGUI implements iGUIHTML2 {
 					$controls = $this->getSetTable("D".$f->getID(), $values);
 
 					$html = "<div onclick=\"\$j('.fhemeControl:not(#controls_D".$f->getID().")').hide(); \$j('#controls_D".$f->getID()."').toggle();\" style=\"cursor:pointer;width:210px;float:left;min-height:15px;border-radius:5px;border-width:1px;border-style:solid;margin:5px;padding:5px;\" class=\"borderColor1\">
-							$B$controls
+							$controls
 							<div id=\"FhemID_".$f->getID()."\">
 								<b>".$f->A("FhemName")."</b>
 							</div>
@@ -340,7 +340,7 @@ class FhemControlGUI implements iGUIHTML2 {
 				break;
 			}
 
-		if($f->A("FhemType") == "RGB")
+		/*if($f->A("FhemType") == "RGB")
 			$html = "
 					<script type=\"text/javascript\">
 						Fhem.startRGBSlider('".$f->getID()."', 256);
@@ -351,8 +351,6 @@ class FhemControlGUI implements iGUIHTML2 {
 						style=\"
 							float:left;
 							margin-left:".($f->getID() != "timer" ? "50px" : "0").";
-							/*border-style:dashed;
-							border-width:1px;*/
 							padding:10px;
 							width:125px;\"
 						class=\"\">
@@ -369,7 +367,7 @@ class FhemControlGUI implements iGUIHTML2 {
 						<div id=\"trackb".$f->getID()."\" style=\"float:left;margin:auto;width:30px;height:300px;\" class=\"backgroundColor3\">
 							<div id=\"sliderb".$f->getID()."\" style=\"width:40px;height:40px;margin-left:-5px;border-width:1px;border-style:solid;\" class=\"ui-slider-handle borderColor1 backgroundColor1\"></div>
 						</div>
-					</fieldset>";
+					</fieldset>";*/
 		return $html;
 	}
 
@@ -610,385 +608,176 @@ class FhemControlGUI implements iGUIHTML2 {
 	public function updateGUI(){
 		$result = array();
 		$S = new mFhemServerGUI();
-		#$S->addAssocV3("FhemServerType", "=", "0");
-		try {
-			while($s = $S->getNextEntry()){
-				switch($s->A("FhemServerType")){
-					case "0":
-						$T = new Telnet($s->getA()->FhemServerIP, $s->getA()->FhemServerPort);
-						$T->setPrompt("</FHZINFO>");
-						$answer = $T->fireAndGet("xmllist")."</FHZINFO>";
-
-						$x = simplexml_load_string($answer);
-
-						if(isset($x->FS20_LIST->FS20) AND count($x->FS20_LIST->FS20) > 0)
-							foreach($x->FS20_LIST->FS20 AS $k => $v){
-								$F = new mFhemGUI();
-								$F->addAssocV3("FhemServerID","=",$s->getID());
-								$F->addAssocV3("FhemName","=",$v->attributes()->name);
-
-								$F = $F->getNextEntry();
-								if($F == null)
-									continue;
-
-								$state = $v->attributes()->state;
-
-								if($F->A("FhemModel") == "fs20irf") $state = "off";
-
-								$state = str_replace("dim", "", $state);
-
-								$FS = "";
-								if($state == "An" || $state == "an" || $state == "On" || $state == "on"){
-									$FS = new Button("", "./fheME/Fhem/on.png", "icon");
-									$FS->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
-								}
-
-								if($state == "Aus" || $state == "aus" || $state == "Off" || $state == "off"){
-									$FS = new Button("", "./fheME/Fhem/off.png", "icon");
-									$FS->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
-								}
-
-								if($state == "6%"){
-									$FS = new Button("", "./fheME/Fhem/6.png", "icon");
-									$FS->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
-								}
-
-								if($state == "12%"){
-									$FS = new Button("", "./fheME/Fhem/12.png", "icon");
-									$FS->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
-								}
-
-								if($state == "18%"){
-									$FS = new Button("", "./fheME/Fhem/18.png", "icon");
-									$FS->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
-								}
-
-								if($state == "25%"){
-									$FS = new Button("", "./fheME/Fhem/25.png", "icon");
-									$FS->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
-								}
-
-								if($state == "31%"){
-									$FS = new Button("", "./fheME/Fhem/31.png", "icon");
-									$FS->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
-								}
-
-								if($state == "37%"){
-									$FS = new Button("", "./fheME/Fhem/37.png", "icon");
-									$FS->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
-								}
-
-								if($state == "43%"){
-									$FS = new Button("", "./fheME/Fhem/43.png", "icon");
-									$FS->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
-								}
-
-								if($state == "50%"){
-									$FS = new Button("", "./fheME/Fhem/50.png", "icon");
-									$FS->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
-								}
-
-								if($state == "56%"){
-									$FS = new Button("", "./fheME/Fhem/56.png", "icon");
-									$FS->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
-								}
-
-								if($state == "62%"){
-									$FS = new Button("", "./fheME/Fhem/62.png", "icon");
-									$FS->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
-								}
-
-								if($state == "68%"){
-									$FS = new Button("", "./fheME/Fhem/68.png", "icon");
-									$FS->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
-								}
-
-								if($state == "75%"){
-									$FS = new Button("", "./fheME/Fhem/75.png", "icon");
-									$FS->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
-								}
-
-								if($state == "81%"){
-									$FS = new Button("", "./fheME/Fhem/81.png", "icon");
-									$FS->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
-								}
-
-								if($state == "87%"){
-									$FS = new Button("", "./fheME/Fhem/87.png", "icon");
-									$FS->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
-								}
-
-								if($state == "93%"){
-									$FS = new Button("", "./fheME/Fhem/93.png", "icon");
-									$FS->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
-								}
-
-								if($state == "100%"){
-									$FS = new Button("", "./fheME/Fhem/100.png", "icon");
-									$FS->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
-								}
-								
-                                if($F->A("FhemAlias") == null){
-								$result[$F->getID()] = array("model" => $F->A("FhemModel"), "state" => "$FS<b>".$F->A("FhemName")."</b> ");
-                                }
-                                else{
-                                $result[$F->getID()] = array("model" => $F->A("FhemModel"), "state" => "$FS<b>".$F->A("FhemAlias")."</b> ");
-                                }
-
-								#echo $F->getID().":".$F->A("FhemModel").":".$v->attributes()->state."\n";
-							}
-
-						if(isset($x->IT_LIST->IT) AND count($x->IT_LIST->IT) > 0)
-							foreach($x->IT_LIST->IT AS $k => $v){
-								$F = new mFhemGUI();
-								$F->addAssocV3("FhemServerID","=",$s->getID());
-								$F->addAssocV3("FhemName","=",$v->attributes()->name);
-
-								$F = $F->getNextEntry();
-								if($F == null)
-									continue;
-
-								$state = $v->attributes()->state;
-
-								$state = str_replace("dim", "", $state);
-
-								$IT = "";
-								if($state == "An" || $state == "an" || $state == "On" || $state == "on"){
-									$IT = new Button("", "./fheME/Fhem/on.png", "icon");
-									$IT->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
-								}
-
-								if($state == "Aus" || $state == "aus" || $state == "Off" || $state == "off"){
-									$IT = new Button("", "./fheME/Fhem/off.png", "icon");
-									$IT->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
-								}
-                                
-                                if($F->A("FhemAlias") == null){
-								$result[$F->getID()] = array("model" => $F->A("FhemITModel"), "state" => "$IT<b>".$F->A("FhemName")."</b> ");
-								}
-								else{
-								$result[$F->getID()] = array("model" => $F->A("FhemITModel"), "state" => "$IT<b>".$F->A("FhemAlias")."</b> ");
-								}
-
-								#echo $F->getID().":".$F->A("FhemITModel").":".$v->attributes()->state."\n";
-							}
-
-						if(isset($x->CUL_HM_LIST->CUL_HM) AND count($x->CUL_HM_LIST->CUL_HM) > 0)
-							foreach($x->CUL_HM_LIST->CUL_HM AS $k => $v){
-								$F = new mFhemGUI();
-								$F->addAssocV3("FhemServerID","=",$s->getID());
-								$F->addAssocV3("FhemName","=",$v->attributes()->name);
-
-								$F = $F->getNextEntry();
-								if($F == null)
-									continue;
-
-								$state = $v->attributes()->state;
-
-								$state = str_replace("dim", "", $state);
-
-								$HM = "";
-								if($state == "An" || $state == "an" || $state == "On" || $state == "on"){
-									$HM = new Button("", "./fheME/Fhem/on.png", "icon");
-									$HM->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
-								}
-
-								if($state == "Aus" || $state == "aus" || $state == "Off" || $state == "off"){
-									$HM = new Button("", "./fheME/Fhem/off.png", "icon");
-									$HM->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
-								}
-
-								if($state == "6%"){
-									$HM = new Button("", "./fheME/Fhem/6.png", "icon");
-									$HM->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
-								}
-
-								if($state == "12%"){
-									$HM = new Button("", "./fheME/Fhem/12.png", "icon");
-									$HM->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
-								}
-
-								if($state == "18%"){
-									$HM = new Button("", "./fheME/Fhem/18.png", "icon");
-									$HM->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
-								}
-
-								if($state == "25%"){
-									$HM = new Button("", "./fheME/Fhem/25.png", "icon");
-									$HM->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
-								}
-
-								if($state == "31%"){
-									$HM = new Button("", "./fheME/Fhem/31.png", "icon");
-									$HM->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
-								}
-
-								if($state == "37%"){
-									$HM = new Button("", "./fheME/Fhem/37.png", "icon");
-									$HM->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
-								}
-
-								if($state == "43%"){
-									$HM = new Button("", "./fheME/Fhem/43.png", "icon");
-									$HM->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
-								}
-
-								if($state == "50%"){
-									$HM = new Button("", "./fheME/Fhem/50.png", "icon");
-									$HM->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
-								}
-
-								if($state == "56%"){
-									$HM = new Button("", "./fheME/Fhem/56.png", "icon");
-									$HM->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
-								}
-
-								if($state == "62%"){
-									$HM = new Button("", "./fheME/Fhem/62.png", "icon");
-									$HM->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
-								}
-
-								if($state == "68%"){
-									$HM = new Button("", "./fheME/Fhem/68.png", "icon");
-									$HM->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
-								}
-
-								if($state == "75%"){
-									$HM = new Button("", "./fheME/Fhem/75.png", "icon");
-									$HM->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
-								}
-
-								if($state == "81%"){
-									$HM = new Button("", "./fheME/Fhem/81.png", "icon");
-									$HM->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
-								}
-
-								if($state == "87%"){
-									$HM = new Button("", "./fheME/Fhem/87.png", "icon");
-									$HM->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
-								}
-
-								if($state == "93%"){
-									$HM = new Button("", "./fheME/Fhem/93.png", "icon");
-									$HM->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
-								}
-
-								if($state == "100%"){
-									$HM = new Button("", "./fheME/Fhem/100.png", "icon");
-									$HM->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
-								}
-
-                                if($F->A("FhemAlias") == null){
-								$result[$F->getID()] = array("model" => $F->A("FhemHMModel"), "state" => "$HM<b>".$F->A("FhemName")."</b> ");
-								}
-								else{
-								$result[$F->getID()] = array("model" => $F->A("FhemHMModel"), "state" => "$HM<b>".$F->A("FhemAlias")."</b> ");
-								}
-
-								#echo $F->getID().":".$F->A("FhemHMModel").":".$v->attributes()->state."\n";
-							}
-
-						if(isset($x->CUL_EM_LIST->CUL_EM) AND count($x->CUL_EM_LIST->CUL_EM) > 0)
-							foreach($x->CUL_EM_LIST->CUL_EM AS $em){
-								$F = anyC::get("Fhem", "FhemServerID", $s->getID());
-								$F->addAssocV3("FhemName", "=", $em->attributes()->name);
-								$F = $F->getNextEntry();
-
-								if($F == null) continue;
-
-								foreach($em->STATE AS $state){
-									if($state->attributes()->key == "current")
-										$current = $state->attributes()->value;
-
-                                if($F->A("FhemAlias") == null){
-								$result[$F->getID()] = array("model" => $F->A("FhemEMModel"), "state" => "<b>".$F->A("FhemName")."</b><b style=\"float:right;\">".$current."</b>");
-								}
-								else{
-								$result[$F->getID()] = array("model" => $F->A("FhemEMModel"), "state" => "<b>".$F->A("FhemAlias")."</b><b style=\"float:right;\">".$current."</b>");
-								}
-
-								#echo $F->getID().":".$F->A("FhemEMModel").":".$em->attributes()->current."\n";
-							}
-
-						if(isset($x->FHT_LIST->FHT) AND count($x->FHT_LIST->FHT) > 0)
-							foreach($x->FHT_LIST->FHT AS $fht){
-								$F = anyC::get("Fhem", "FhemServerID", $s->getID());
-								$F->addAssocV3("FhemName", "=", $fht->attributes()->name);
-
-								$F = $F->getNextEntry();
-								if($F == null) continue;
-
-								$measuredTemp = 0;
-								$warnings = "";
-								$actuator = "";
-								$desiredTemp = "";
-								$mode = "";
-								foreach($fht->STATE AS $state){
-									if($state->attributes()->key == "measured-temp")
-										$measuredTemp = str_replace(" (Celsius)", "", $state->attributes()->value);
-
-									if($state->attributes()->key == "warnings")
-										$warnings = $state->attributes()->value;
-
-									if($state->attributes()->key == "actuator")
-										$actuator = $state->attributes()->value;
-
-									if($state->attributes()->key == "desired-temp")
-										$desiredTemp = $state->attributes()->value;
-
-									if($state->attributes()->key == "mode")
-										$mode = $state->attributes()->value;
-								}
-
-								$M = "";
-								if($mode == "holiday_short"){
-									$M = new Button("", "./fheME/Fhem/modeHoliday.png", "icon");
-									$M->style("float:right;margin-top:-12px;margin-right:-9px;");
-								}
-
-								$B = "";
-								if($warnings == "Temperature too low"){
-									$B = new Button("", "./fheME/Fhem/tooCold.png", "icon");
-									$B->style("float:right;");
-								}
-
-								if($warnings == "Window open"){
-									$B = new Button("", "./fheME/Fhem/windowOpen.png", "icon");
-									$B->style("float:right;");
-								}
-
-								if($warnings == "Battery low"){
-									$B = new Button("", "./fheME/Fhem/batteryLow.png", "icon");
-									$B->style("float:right;");
-								}
-
-                                if($F->A("FhemAlias") == null){
-								$result[$F->getID()] = array("model" => $F->A("FhemFHTModel"), "state" => "$M<b>".$F->A("FhemName")."</b> {$measuredTemp}/{$desiredTemp} <small>({$actuator})</small>".($warnings != "none" ? "<br />$B{$warnings}" : ""));
-								}
-								else{
-								$result[$F->getID()] = array("model" => $F->A("FhemFHTModel"), "state" => "$M<b>".$F->A("FhemAlias")."</b> {$measuredTemp}/{$desiredTemp} <small>({$actuator})</small>".($warnings != "none" ? "<br />$B{$warnings}" : ""));
-								}
-
-								#echo $F->getID().":".$F->A("FhemFHTModel").":$B<b>".$F->A("FhemName")."</b> {$measuredTemp}/{$desiredTemp} <small>({$actuator})</small>".($warnings != "none" ? "<br />{$warnings}" : "")."\n";
-
-							}
-					break;
-
-					/*case "1":
-						$F = new mFhemGUI();
-						$F->addAssocV3("FhemServerID","=",$s->getID());
-
-						while($D = $F->getNextEntry())
-							echo $D->getID().":web:".file_get_contents($s->A("FhemServerURL")."?device=".$D->A("FhemName")."&getStatus=true")."\n";
-
-					break;*/
+		$S->addAssocV3("FhemServerType", "=", "0");
+
+		while($s = $S->getNextEntry()){
+			try {
+				$T = new Telnet($s->getA()->FhemServerIP, $s->getA()->FhemServerPort);
+				$T->setPrompt("</FHZINFO>");
+				$answer = $T->fireAndGet("xmllist")."</FHZINFO>";
+			} catch(NoServerConnectionException $e) {
+				continue;
+			}
+			
+			$x = simplexml_load_string($answer);
+
+			if(isset($x->FS20_LIST->FS20) AND count($x->FS20_LIST->FS20) > 0)
+				foreach($x->FS20_LIST->FS20 AS $k => $v){
+					$F = new mFhemGUI();
+					$F->addAssocV3("FhemServerID","=",$s->getID());
+					$F->addAssocV3("FhemName","=",$v->attributes()->name);
+
+					$F = $F->getNextEntry();
+					if($F == null)
+						continue;
+
+					$state = $v->attributes()->state;
+
+					if($F->A("FhemModel") == "fs20irf") $state = "off";
+
+					$state = strtolower(str_replace("dim", "", $state));
+
+					$FS = new Button("", "./fheME/Fhem/off.png", "icon");
+					$FS->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
+
+					if($state != "off" && $state != "aus")
+						$FS->image("./fheME/Fhem/on.png");
+
+					if(!is_numeric(str_replace("%", "", $state)))
+						$state = "";
+
+
+					$result[$F->getID()] = array("model" => $F->A("FhemModel"), "state" => "$FS<b>".($F->A("FhemAlias") == "" ? $F->A("FhemName") : $F->A("FhemAlias"))."</b> <small style=\"color:grey;\">$state</small>");
+				}
+
+			if(isset($x->IT_LIST->IT) AND count($x->IT_LIST->IT) > 0)
+				foreach($x->IT_LIST->IT AS $k => $v){
+					$F = new mFhemGUI();
+					$F->addAssocV3("FhemServerID","=",$s->getID());
+					$F->addAssocV3("FhemName","=",$v->attributes()->name);
+
+					$F = $F->getNextEntry();
+					if($F == null)
+						continue;
+
+					$state = $v->attributes()->state;
+
+					$state = strtolower(str_replace("dim", "", $state));
+
+					$IT = new Button("", "./fheME/Fhem/off.png", "icon");
+					$IT->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
+					if($state != "off" && $state != "aus")
+						$IT->image("./fheME/Fhem/on.png");
+
+
+					$result[$F->getID()] = array("model" => $F->A("FhemITModel"), "state" => "$IT<b>".($F->A("FhemAlias") == "" ? $F->A("FhemName") : $F->A("FhemAlias"))."</b> ");
+
+				}
+
+			if(isset($x->CUL_HM_LIST->CUL_HM) AND count($x->CUL_HM_LIST->CUL_HM) > 0)
+				foreach($x->CUL_HM_LIST->CUL_HM AS $k => $v){
+					$F = new mFhemGUI();
+					$F->addAssocV3("FhemServerID","=",$s->getID());
+					$F->addAssocV3("FhemName","=",$v->attributes()->name);
+
+					$F = $F->getNextEntry();
+					if($F == null)
+						continue;
+
+					$state = $v->attributes()->state;
+
+					$state = strtolower(str_replace("dim", "", $state));
+
+					$HM = new Button("", "./fheME/Fhem/off.png", "icon");
+					$HM->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
+
+					if($state != "off" && $state != "aus")
+						$HM->image("./fheME/Fhem/on.png");
+
+
+					$result[$F->getID()] = array("model" => $F->A("FhemHMModel"), "state" => "$HM<b>".($F->A("FhemAlias") == "" ? $F->A("FhemName") : $F->A("FhemAlias"))."</b> ");
+				}
+
+			if(isset($x->CUL_EM_LIST->CUL_EM) AND count($x->CUL_EM_LIST->CUL_EM) > 0)
+				foreach($x->CUL_EM_LIST->CUL_EM AS $em){
+					$F = anyC::get("Fhem", "FhemServerID", $s->getID());
+					$F->addAssocV3("FhemName", "=", $em->attributes()->name);
+					$F = $F->getNextEntry();
+
+					if($F == null) continue;
+
+					foreach($em->STATE AS $state)
+						if($state->attributes()->key == "current")
+							$current = $state->attributes()->value;
+
+
+					$result[$F->getID()] = array("model" => $F->A("FhemEMModel"), "state" => "<b>".($F->A("FhemAlias") == "" ? $F->A("FhemName") : $F->A("FhemAlias"))."</b><small style=\"color:grey;\">".$current."</small>");
+
+				}
+
+			if(isset($x->FHT_LIST->FHT) AND count($x->FHT_LIST->FHT) > 0){
+				foreach($x->FHT_LIST->FHT AS $fht){
+					$F = anyC::get("Fhem", "FhemServerID", $s->getID());
+					$F->addAssocV3("FhemName", "=", $fht->attributes()->name);
+
+					$F = $F->getNextEntry();
+					if($F == null) continue;
+
+					$measuredTemp = 0;
+					$warnings = "";
+					$actuator = "";
+					$desiredTemp = "";
+					$mode = "";
+					foreach($fht->STATE AS $state){
+						if($state->attributes()->key == "measured-temp")
+							$measuredTemp = str_replace(" (Celsius)", "", $state->attributes()->value);
+
+						if($state->attributes()->key == "warnings")
+							$warnings = $state->attributes()->value;
+
+						if($state->attributes()->key == "actuator")
+							$actuator = $state->attributes()->value;
+
+						if($state->attributes()->key == "desired-temp")
+							$desiredTemp = $state->attributes()->value;
+
+						if($state->attributes()->key == "mode")
+							$mode = $state->attributes()->value;
+					}
+
+					$M = "";
+					if($mode == "holiday_short"){
+						$M = new Button("", "./fheME/Fhem/modeHoliday.png", "icon");
+						$M->style("float:right;margin-top:-12px;margin-right:-9px;");
+					}
+
+					$B = "";
+					if($warnings == "Temperature too low"){
+						$B = new Button("", "./fheME/Fhem/tooCold.png", "icon");
+						$B->style("float:left;");
+					}
+
+					if($warnings == "Window open"){
+						$B = new Button("", "./fheME/Fhem/windowOpen.png", "icon");
+						$B->style("float:left;");
+					}
+
+					if($warnings == "Battery low"){
+						$B = new Button("", "./fheME/Fhem/batteryLow.png", "icon");
+						$B->style("float:left;");
+					}
+
+
+					$Icon = new Button("", "./fheME/Fhem/fhemFHT.png", "icon");
+					$Icon->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
+
+
+					$result[$F->getID()] = array("model" => $F->A("FhemFHTModel"), "state" => "$Icon$M<b>".($F->A("FhemAlias") == "" ? $F->A("FhemName") : $F->A("FhemAlias"))."</b><small style=\"color:grey;\"> {$measuredTemp}/{$desiredTemp} <small>({$actuator})</small>".($warnings != "none" ? "<br />$B{$warnings}" : ""));
 				}
 			}
- }
-			echo json_encode($result);
-		} catch(NoServerConnectionException $e) {
-			die("message:'Fhem-server unreachable'");
 		}
+		
+		echo json_encode($result);
 	}
 
 	public function resetServers(){

@@ -35,7 +35,7 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 		return $gui->getBrowserHTML($id);
 	}
 	
-	public function addEAN($EAN){
+	public function addEAN($EAN, $echo = true){
 		$OEAN = new mopenEANGUI();
 		$artikel = $OEAN->startSeach($EAN);
 		
@@ -57,7 +57,8 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 			}
 		}
 		
-		echo $this->getOverviewListEntry($name, time());
+		if($echo)
+			echo $this->getOverviewListEntry($name, time());
 	}
 	
 	public function getOverviewListEntry($name, $time){

@@ -2,3 +2,4 @@
 /system/IECache/**/*
 /plugins/Merlin
 /applications/ubiquitousApplication.class.php
+/applications/open3AApplication.class.php

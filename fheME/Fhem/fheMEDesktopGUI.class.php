@@ -32,7 +32,7 @@ class fheMEDesktopGUI extends ADesktopGUI implements iGUIHTML2 {
 		
 		switch($id){
 			case "1":
-				return OnEvent::script('contentManager.loadPlugin("contentScreen", "mfheOverview");');
+				//return OnEvent::script('contentManager.loadPlugin("contentScreen", "mfheOverview");');
 				
 				/*return "
 				<script type=\"text/javascript\">

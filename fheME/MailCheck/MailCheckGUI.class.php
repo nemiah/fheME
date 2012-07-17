@@ -52,7 +52,7 @@ class MailCheckGUI extends MailCheck implements iGUIHTML2 {
 		$result = array_reverse($result);
 		foreach ($result as $overview) {
 			#print_r($overview);
-			$T->addRow(array("<small style=\"color:grey;float:right;\">".Util::CLDateParser($overview->udate)."</small>".$overview->from."<br /><small style=\"color:grey;\">".($this->decodeBlubb($overview->subject))."</small>"));
+			$T->addRow(array("<small style=\"color:grey;float:right;\">".Util::CLDateParser($overview->udate)."</small>".$this->decodeBlubb($overview->from)."<br /><small style=\"color:grey;\">".($this->decodeBlubb($overview->subject))."</small>"));
 		}
 		imap_close($mbox);
 		#echo "</pre></div>";

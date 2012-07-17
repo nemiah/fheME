@@ -92,7 +92,10 @@ var fheOverview = {
 	}
 }
 
-//contentManager.loadPlugin("contentScreen", "mfheOverview");
+contentManager.rmePCR("mfheOverview", "-1", "checkAdmin", "", function(transport){
+	if(transport.responseText == "0")
+		contentManager.loadPlugin("contentScreen", "mfheOverview");
+});
 
 $j(window).ready(function(){
 	$j('#footer').hide();

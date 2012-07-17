@@ -148,6 +148,12 @@ class mfheOverviewGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 		$C = new mEinkaufszettelGUI();
 		$C->getOverviewContent();
 	}
-
+	
+	public function checkAdmin(){
+		if(Session::isUserAdminS())
+			echo "1";
+		else
+			echo "0";
+	}
 }
 ?>

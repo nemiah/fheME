@@ -66,7 +66,7 @@ var Fhem = {
 		var c = null;
 
 		Fhem.isUpdate = true;
-
+		//console.log(json);
 		//for(i = 0; i < values.length - 1;i++){
 		for (var e in json) {
 			//sub = values[i].split(":");
