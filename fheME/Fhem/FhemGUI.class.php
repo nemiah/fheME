@@ -46,7 +46,6 @@ class FhemGUI extends Fhem implements iGUIHTML2 {
 		$gui->label("FhemLocationID","Location");
 		$gui->label("FhemInOverview","In Overview?");
 		$gui->label("FhemFHTDefaultDayTemp","day-temp");
-		$gui->label("FhemHauscode","Hauscode");
 
 		$gui->type("FhemInOverview","checkbox");
 		$gui->type("FhemModel", "select", array("" => "none", "fs20du" => "FS20 DU","fs20s4u" => "FS20 S4U","fs20st" => "FS20 ST","fs20di" => "FS20 DI","fs20irf" => "FS20 IRF", "fs20rsu" => "FS20 RSU"));
@@ -74,13 +73,13 @@ class FhemGUI extends Fhem implements iGUIHTML2 {
 
 		$gui->inputStyle("FhemCommand","height:300px;font-size:8px;");
 
-		$gui->attributes(array("FhemServerID", "FhemLocationID", "FhemName", "FhemAlias", "FhemInOverview", "FhemType", "FhemModel", "FhemITModel", "FhemHMModel", "FhemEMModel", "FhemSpecific", "FhemHauscode", "FhemRunOn", "FhemCommand", "FhemFHTModel"/*, "FhemFHTDefaultDayTemp"*/));
+		$gui->attributes(array("FhemServerID", "FhemLocationID", "FhemName", "FhemAlias", "FhemInOverview", "FhemType", "FhemModel", "FhemITModel", "FhemHMModel", "FhemEMModel", "FhemSpecific", "FhemRunOn", "FhemCommand", "FhemFHTModel"/*, "FhemFHTDefaultDayTemp"*/));
 
 		$gui->space("FhemType");
 
-		$gui->toggleFieldsInit("FhemType", array("FhemModel", "FhemITModel", "FhemHMModel", "FhemEMModel", "FhemSpecific", "FhemHauscode", "FhemRunOn", "FhemCommand", "FhemFHTModel", "FhemFHTDefaultDayTemp"));
+		$gui->toggleFieldsInit("FhemType", array("FhemModel", "FhemITModel", "FhemHMModel", "FhemEMModel", "FhemSpecific", "FhemRunOn", "FhemCommand", "FhemFHTModel", "FhemFHTDefaultDayTemp"));
 		$gui->toggleFields("FhemType", "FHZ", array("FhemSpecific"));
-		$gui->toggleFields("FhemType", "FS20", array("FhemModel", "FhemSpecific", "FhemHauscode"));
+		$gui->toggleFields("FhemType", "FS20", array("FhemModel", "FhemSpecific"));
 		$gui->toggleFields("FhemType", "notify", array("FhemRunOn", "FhemCommand"));
 		$gui->toggleFields("FhemType", "Intertechno", array("FhemITModel", "FhemSpecific"));
 		$gui->toggleFields("FhemType", "HomeMatic", array("FhemHMModel", "FhemSpecific"));
