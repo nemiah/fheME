@@ -46,14 +46,15 @@ class FhemGUI extends Fhem implements iGUIHTML2 {
 		$gui->label("FhemLocationID","Location");
 		$gui->label("FhemInOverview","In Overview?");
 		$gui->label("FhemFHTDefaultDayTemp","day-temp");
+		$gui->label("FhemHauscode","Hauscode");
 
 		$gui->type("FhemInOverview","checkbox");
 		$gui->type("FhemModel", "select", array("" => "none", "fs20du" => "FS20 DU","fs20s4u" => "FS20 S4U","fs20st" => "FS20 ST","fs20di" => "FS20 DI","fs20irf" => "FS20 IRF", "fs20rsu" => "FS20 RSU"));
 
         $gui->type("FhemITModel", "select", array("" => "none", "itdimmer" => "IT-Dimmer", "itswitch" => "IT-Switch"));
 
-        $gui->type("FhemHMModel", "select", array("" => "none", "dimmer" => "Dimmer", "switch" => "Switch"));
-        
+        $gui->type("FhemHMModel", "select", array("" => "none", "dimmer" => "Dimmer", "switch" => "Switch", "HM-LC-Dim1L-CV" => "HM-LC-Dim1L-CV", "HM-LC-Dim1L-Pl" => "HM-LC-Dim1L-Pl", "HM-LC-Dim1PBU-FM" => "HM-LC-Dim1PBU-FM", "HM-LC-Dim1T-CV" => "HM-LC-Dim1T-CV", "HM-LC-Dim1T-Pl" => "HM-LC-Dim1T-Pl", "HM-LC-Dim2L-SM" => "HM-LC-Dim2L-SM", "HM-LC-Dim2T-SM" => "HM-LC-Dim2T-SM", "HM-LC-Sw1-FM" => "HM-LC-Sw1-FM", "HM-LC-Sw1-Pl" => "HM-LC-Sw1-Pl", "HM-LC-Sw1-SM" => "HM-LC-Sw1-SM", "HM-LC-Sw1PB-FM" => "HM-LC-Sw1PB-FM", "HM-LC-Sw1PBU-FM" => "HM-LC-Sw1PBU-FM", "HM-LC-Sw2-FM" => "HM-LC-Sw2-FM", "HM-LC-Sw4-WM" => "HM-LC-Sw4-WM"));
+
         $gui->type("FhemEMModel", "select", array("" => "none", "emem" => "EM 1000-EM"));
 
 		$gui->type("FhemFHTModel", "select", array("" => "none", "fht80b" => "80B"));
@@ -73,13 +74,13 @@ class FhemGUI extends Fhem implements iGUIHTML2 {
 
 		$gui->inputStyle("FhemCommand","height:300px;font-size:8px;");
 
-		$gui->attributes(array("FhemServerID", "FhemLocationID", "FhemName", "FhemAlias", "FhemInOverview", "FhemType", "FhemModel", "FhemITModel", "FhemHMModel", "FhemEMModel", "FhemSpecific", "FhemRunOn", "FhemCommand", "FhemFHTModel"/*, "FhemFHTDefaultDayTemp"*/));
+		$gui->attributes(array("FhemServerID", "FhemLocationID", "FhemName", "FhemAlias", "FhemInOverview", "FhemType", "FhemModel", "FhemITModel", "FhemHMModel", "FhemEMModel", "FhemSpecific", "FhemHauscode", "FhemRunOn", "FhemCommand", "FhemFHTModel"/*, "FhemFHTDefaultDayTemp"*/));
 
 		$gui->space("FhemType");
 
-		$gui->toggleFieldsInit("FhemType", array("FhemModel", "FhemITModel", "FhemHMModel", "FhemEMModel", "FhemSpecific", "FhemRunOn", "FhemCommand", "FhemFHTModel", "FhemFHTDefaultDayTemp"));
+		$gui->toggleFieldsInit("FhemType", array("FhemModel", "FhemITModel", "FhemHMModel", "FhemEMModel", "FhemSpecific", "FhemHauscode", "FhemRunOn", "FhemCommand", "FhemFHTModel", "FhemFHTDefaultDayTemp"));
 		$gui->toggleFields("FhemType", "FHZ", array("FhemSpecific"));
-		$gui->toggleFields("FhemType", "FS20", array("FhemModel", "FhemSpecific"));
+		$gui->toggleFields("FhemType", "FS20", array("FhemModel", "FhemSpecific", "FhemHauscode"));
 		$gui->toggleFields("FhemType", "notify", array("FhemRunOn", "FhemCommand"));
 		$gui->toggleFields("FhemType", "Intertechno", array("FhemITModel", "FhemSpecific"));
 		$gui->toggleFields("FhemType", "HomeMatic", array("FhemHMModel", "FhemSpecific"));

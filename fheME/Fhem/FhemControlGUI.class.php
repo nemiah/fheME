@@ -138,7 +138,7 @@ class FhemControlGUI implements iGUIHTML2 {
 					<script type=\"text/javascript\">
 						Fhem.startSlider('".$f->getID()."', ".($f->getID() != "timer" ? "100" : "0.00001").");
 					</script>
-					
+
 
 					<fieldset
 						style=\"
@@ -281,6 +281,7 @@ class FhemControlGUI implements iGUIHTML2 {
 		if($f->A("FhemType") == "HomeMatic")
 			switch($f->A("FhemHMModel")){
 				/*case "dimmer":
+				  case "HM-LC-Dim1PBU-FM":
 					$html = "
 					<script type=\"text/javascript\">
 						Fhem.startSlider('".$f->getID()."', ".($f->getID() != "timer" ? "100" : "0.00001").");
@@ -305,12 +306,27 @@ class FhemControlGUI implements iGUIHTML2 {
 				break;*/
 
 				case "dimmer":
+				case "HM-LC-Dim1L-CV":
+				case "HM-LC-Dim1L-Pl":
+				case "HM-LC-Dim1PBU-FM":
+				case "HM-LC-Dim1T-CV":
+				case "HM-LC-Dim1T-Pl":
+				case "HM-LC-Dim2L-SM":
+				case "HM-LC-Dim2T-SM":
 				case "switch":
+				case "HM-LC-Sw1-FM":
+			    case "HM-LC-Sw1-Pl":
+			    case "HM-LC-Sw1-SM":
+			    case "HM-LC-Sw1PB-FM":
+			    case "HM-LC-Sw1PBU-FM":
+			    case "HM-LC-Sw2-FM":
+			    case "HM-LC-Sw4-WM":
 					$onclick = "";
-					if($f->A("FhemHMModel") == "switch")
+		
+					if($f->A("FhemHMModel") == "switch" || $f->A("FhemHMModel") == "HM-LC-Sw1-Pl" || $f->A("FhemHMModel") == "HM-LC-Sw1-FM"  || $f->A("FhemHMModel") == "HM-LC-Sw1PB-FM" || $f->A("FhemHMModel") == "HM-LC-Sw1-SM" || $f->A("FhemHMModel") == "HM-LC-Sw1PBU-FM" || $f->A("FhemHMModel") == "HM-LC-Sw4-WM" || $f->A("FhemHMModel") == "HM-LC-Sw2-FM")
 						$values = array("on" => "on", "off" => "off");
 
-					if($f->A("FhemHMModel") == "dimmer")
+					if($f->A("FhemHMModel") == "dimmer" || $f->A("FhemHMModel") == "HM-LC-Dim1PBU-FM"  || $f->A("FhemHMModel") == "HM-LC-Dim1T-Pl" || $f->A("FhemHMModel") == "HM-LC-Dim1L-Pl" || $f->A("FhemHMModel") == "HM-LC-Dim1L-CV" || $f->A("FhemHMModel") == "HM-LC-Dim1T-CV" || $f->A("FhemHMModel") == "HM-LC-Dim2T-SM" || $f->A("FhemHMModel") == "HM-LC-Dim2L-SM")
 						$values = array("off" => "off", /*6, 12, 18,*/ "25%" => "25%", /*31, 37, 43,*/ "50%" => "50%", /*56, 62, 68,*/ "75%" => "75%", /*81, 87, 93,*/ "100%" => "100%");
 
 					$controls = $this->getSetTable("D".$f->getID(), $values);
@@ -618,7 +634,7 @@ class FhemControlGUI implements iGUIHTML2 {
 			} catch(NoServerConnectionException $e) {
 				continue;
 			}
-			
+
 			$x = simplexml_load_string($answer);
 
 			if(isset($x->FS20_LIST->FS20) AND count($x->FS20_LIST->FS20) > 0)
@@ -645,7 +661,6 @@ class FhemControlGUI implements iGUIHTML2 {
 
 					if(!is_numeric(str_replace("%", "", $state)))
 						$state = "";
-
 
 					$result[$F->getID()] = array("model" => $F->A("FhemModel"), "state" => "$FS<b>".($F->A("FhemAlias") == "" ? $F->A("FhemName") : $F->A("FhemAlias"))."</b> <small style=\"color:grey;\">$state</small>");
 				}
@@ -694,8 +709,10 @@ class FhemControlGUI implements iGUIHTML2 {
 					if($state != "off" && $state != "aus")
 						$HM->image("./fheME/Fhem/on.png");
 
+					if(!is_numeric(str_replace("%", "", $state)))
+						$state = "";
 
-					$result[$F->getID()] = array("model" => $F->A("FhemHMModel"), "state" => "$HM<b>".($F->A("FhemAlias") == "" ? $F->A("FhemName") : $F->A("FhemAlias"))."</b> ");
+					$result[$F->getID()] = array("model" => $F->A("FhemHMModel"), "state" => "$HM<b>".($F->A("FhemAlias") == "" ? $F->A("FhemName") : $F->A("FhemAlias"))."</b> <small style=\"color:grey;\">$state</small>");
 				}
 
 			if(isset($x->CUL_EM_LIST->CUL_EM) AND count($x->CUL_EM_LIST->CUL_EM) > 0)
@@ -776,7 +793,7 @@ class FhemControlGUI implements iGUIHTML2 {
 				}
 			}
 		}
-		
+
 		echo json_encode($result);
 	}
 
