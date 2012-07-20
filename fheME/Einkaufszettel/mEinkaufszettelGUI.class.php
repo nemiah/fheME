@@ -32,7 +32,23 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 		$gui->parser("EinkaufszettelBought", "Util::catchParser");
 		$gui->attributes(array("EinkaufszettelBought", "EinkaufszettelName"));
 		
+		$B = $gui->addSideButton("EAN\nprüfen", "lieferschein");
+		$B->popup("", "EAN prüfen", "mEinkaufszettel", "-1", "checkEANPopup");
+		
 		return $gui->getBrowserHTML($id);
+	}
+	
+	public function checkEANPopup(){
+		$F = new HTMLInput("EAN", "text", "");
+		$F->onEnter(OnEvent::rme($this, "checkEAN", array("this.value"), "function(transport){ \$j('#EANResult').html(transport.responseText); }"));
+		echo $F."<pre id=\"EANResult\"></pre>";
+	}
+	
+	public function checkEAN($EAN){
+		$OEAN = new mopenEANGUI();
+		$artikel = $OEAN->startSeach($EAN);
+		
+		print_r($artikel);
 	}
 	
 	public function addEAN($EAN, $echo = true){

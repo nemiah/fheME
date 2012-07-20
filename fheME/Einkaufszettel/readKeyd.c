@@ -15,13 +15,12 @@
 #include <curl/curl.h>
 #include <curl/easy.h>
 
-//compile with gcc -std=c99 -o addFromRemote addFromRemote.c -lcurl
+//compile with gcc -std=c99 -o readKeyd readKeyd.c -lcurl
 
 void sendString(char data[], int length){
-	char url[200] = "http://192.168.7.77/fheME/fheME/Einkaufszettel/addToList.php?data=";
-    CURL *curl;
-	FILE *fp;
+	char url[200] = "http://192.168.7.77/fheME/fheME/Einkaufszettel/addToList.php?data="; //change this to fit your needs
 	strcat(url, data);
+	CURL *curl;
 
 	curl = curl_easy_init();
 	if(curl) {
@@ -57,7 +56,7 @@ int main (int argc, char *argv[]){
 
 	//Print Device Name
 	ioctl(fd, EVIOCGNAME (sizeof (name)), name);
-	printf("Reading From : %s (%s)\n", device, name);
+	//printf("Reading From : %s (%s)\n", device, name);
 	
 	char buffer[50];
 	int cursor = 0;
@@ -79,6 +78,8 @@ int main (int argc, char *argv[]){
 		if(ev[1].code == 28){ //Enter
 			if(cursor == 0)
 				continue;
+
+			buffer[cursor] = '\0';
 			
 			sendString(buffer, cursor);
 			
@@ -86,7 +87,7 @@ int main (int argc, char *argv[]){
 		} else {
 			int zahl = ev[1].code - 1;
 			
-			if(zahl == 10) //null
+			if(zahl == 10) //zero
 				zahl = 0;
 			
 			zahl += 48; //make ASCII
