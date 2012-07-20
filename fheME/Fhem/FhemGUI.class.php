@@ -52,8 +52,8 @@ class FhemGUI extends Fhem implements iGUIHTML2 {
 
         $gui->type("FhemITModel", "select", array("" => "none", "itdimmer" => "IT-Dimmer", "itswitch" => "IT-Switch"));
 
-        $gui->type("FhemHMModel", "select", array("" => "none", "dimmer" => "Dimmer", "switch" => "Switch"));
-        
+        $gui->type("FhemHMModel", "select", array("" => "none", "dimmer" => "Dimmer", "switch" => "Switch", "HM-LC-Dim1L-CV" => "HM-LC-Dim1L-CV", "HM-LC-Dim1L-Pl" => "HM-LC-Dim1L-Pl", "HM-LC-Dim1PBU-FM" => "HM-LC-Dim1PBU-FM", "HM-LC-Dim1T-CV" => "HM-LC-Dim1T-CV", "HM-LC-Dim1T-Pl" => "HM-LC-Dim1T-Pl", "HM-LC-Dim2L-SM" => "HM-LC-Dim2L-SM", "HM-LC-Dim2T-SM" => "HM-LC-Dim2T-SM", "HM-LC-Sw1-FM" => "HM-LC-Sw1-FM", "HM-LC-Sw1-Pl" => "HM-LC-Sw1-Pl", "HM-LC-Sw1-SM" => "HM-LC-Sw1-SM", "HM-LC-Sw1PB-FM" => "HM-LC-Sw1PB-FM", "HM-LC-Sw1PBU-FM" => "HM-LC-Sw1PBU-FM", "HM-LC-Sw2-FM" => "HM-LC-Sw2-FM", "HM-LC-Sw4-WM" => "HM-LC-Sw4-WM"));
+
         $gui->type("FhemEMModel", "select", array("" => "none", "emem" => "EM 1000-EM"));
 
 		$gui->type("FhemFHTModel", "select", array("" => "none", "fht80b" => "80B"));

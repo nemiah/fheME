@@ -93,7 +93,7 @@ var Fhem = {
 				continue;
 			}
 
-			if(cModel == "fht80b" || cModel == "fs20du" || cModel == "fs20st" || cModel == "itswitch" || cModel == "itdimmer" || cModel == "switch" || cModel == "dimmer" || cModel == "emem"){
+			if(cModel == "fht80b" || cModel == "fs20du" || cModel == "fs20st" || cModel == "itswitch" || cModel == "itdimmer" || cModel == "switch" || cModel == "dimmer" || cModel == "emem" || cModel == "HM-LC-Sw1-Pl" || cModel == "HM-LC-Sw1-FM" || cModel == "HM-LC-Sw1PB-FM" || cModel == "HM-LC-Sw1-SM" || cModel == "HM-LC-Sw1PBU-FM" || cModel == "HM-LC-Dim1PBU-FM" || cModel == "HM-LC-Dim1T-Pl" || cModel == "HM-LC-Dim1L-Pl" || cModel == "HM-LC-Dim1L-CV" || cModel == "HM-LC-Dim1T-CV" || cModel == "HM-LC-Sw4-WM" || cModel == "HM-LC-Sw2-FM" || cModel == "HM-LC-Dim2T-SM" || cModel == "HM-LC-Dim2L-SM"){
 				if(!$("FhemID_"+cID))
 					continue;
 
@@ -119,9 +119,9 @@ var Fhem = {
 			//}
 			//console.log(cID+": "+cValue);
 
-			//if(cModel == "dimmer"){
+			//if(cModel == "dimmer" || cModel == "HM-LC-Dim1PBU-FM" || cModel == "HM-LC-Dim1T-Pl" || cModel == "HM-LC-Dim1L-Pl" || cModel == "HM-LC-Dim1L-CV" || cModel == "HM-LC-Dim1T-CV" || cModel == "HM-LC-Dim2T-SM" || cModel == "HM-LC-Dim2L-SM"){
 			cValue = cValue.replace("dim","").replace("%","");
-			//} else if(cModel == "switch"){
+			//} else if(cModel == "switch" || cModel == "HM-LC-Sw1-Pl" || cModel == "HM-LC-Sw1-FM" || cModel == "HM-LC-Sw1PB-FM" || cModel == "HM-LC-Sw1-SM" || cModel == "HM-LC-Sw1PBU-FM" || cModel == "HM-LC-Sw4-WM" || cModel == "HM-LC-Sw2-FM"){
 
 			if(cValue == "on") cValue = 100;
 			if(cValue == "off") cValue = 0;

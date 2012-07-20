@@ -100,7 +100,7 @@ class Fhem extends PersistentObject implements iCloneable {
 			break;
 
 		switch($this->A->FhemHMModel){
-			case "dimmer":
+			case "dimmer" || "HM-LC-Dim1PBU-FM" || "HM-LC-Dim1T-Pl" || "HM-LC-Dim1L-Pl" || "HM-LC-Dim1L-CV" || "HM-LC-Dim1T-CV" || "HM-LC-Dim2T-SM" || "HM-LC-Dim2L-SM":
 				return array(
 				"On" => "on",
 				"100%" => "dim100%",
@@ -123,7 +123,7 @@ class Fhem extends PersistentObject implements iCloneable {
 
 			break;
 
-			case "switch":
+			case "switch" || "HM-LC-Sw1-Pl" || "HM-LC-Sw1-FM" || "HM-LC-Sw1-SM"  || "HM-LC-Sw1PB-FM"  || "HM-LC-Sw1PBU-FM" || "HM-LC-Sw4-WM" || "HM-LC-Sw2-FM":
 				return array(
 				"On" => "on",
 				"Off" => "off");
@@ -174,7 +174,7 @@ class Fhem extends PersistentObject implements iCloneable {
 
 		if($this->A("FhemType") == "notify")
 			$target = $simpleXML->notify_LIST->notify;
-		
+
 		if(isset($target))
 			foreach($target AS $fht){
 				if($fht->attributes()->name != $this->A("FhemName"))
