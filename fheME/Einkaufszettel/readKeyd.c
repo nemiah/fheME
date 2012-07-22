@@ -54,6 +54,8 @@ int main (int argc, char *argv[]){
 		exit(0);
 	}
 
+	//grab device exclusively
+	ioctl(fd, EVIOCGRAB, 1);
 	//Print Device Name
 	ioctl(fd, EVIOCGNAME (sizeof (name)), name);
 	//printf("Reading From : %s (%s)\n", device, name);
