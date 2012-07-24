@@ -231,7 +231,7 @@ class FhemControlGUI implements iGUIHTML2 {
 				break;
 			}
 
-		if($f->A("FhemType") == "Intertechno")
+		if($f->A("FhemType") == "IT")
 			switch($f->A("FhemITModel")){
 				/*case "itdimmer":
 					$html = "
@@ -278,7 +278,7 @@ class FhemControlGUI implements iGUIHTML2 {
 				break;
 			}
 
-		if($f->A("FhemType") == "HomeMatic")
+		if($f->A("FhemType") == "CUL_HM")
 			switch($f->A("FhemHMModel")){
 				/*case "dimmer":
 				  case "HM-LC-Dim1PBU-FM":
@@ -322,7 +322,7 @@ class FhemControlGUI implements iGUIHTML2 {
 			    case "HM-LC-Sw2-FM":
 			    case "HM-LC-Sw4-WM":
 					$onclick = "";
-		
+
 					if($f->A("FhemHMModel") == "switch" || $f->A("FhemHMModel") == "HM-LC-Sw1-Pl" || $f->A("FhemHMModel") == "HM-LC-Sw1-FM"  || $f->A("FhemHMModel") == "HM-LC-Sw1PB-FM" || $f->A("FhemHMModel") == "HM-LC-Sw1-SM" || $f->A("FhemHMModel") == "HM-LC-Sw1PBU-FM" || $f->A("FhemHMModel") == "HM-LC-Sw4-WM" || $f->A("FhemHMModel") == "HM-LC-Sw2-FM")
 						$values = array("on" => "on", "off" => "off");
 
@@ -341,10 +341,10 @@ class FhemControlGUI implements iGUIHTML2 {
 				break;
 			}
 
-		if($f->A("FhemType") == "ELV EM")
+		if($f->A("FhemType") == "CUL_EM")
 			switch($f->A("FhemEMModel")){
 
-				case "emem":
+				case "EMEM":
 
 					$html = "<div onclick=\"\$j('.fhemeControl:not(#controls_D".$f->getID().")').hide(); \$j('#controls_D".$f->getID()."').toggle();\" style=\"cursor:pointer;width:210px;float:left;min-height:15px;border-radius:5px;border-width:1px;border-style:solid;margin:5px;padding:5px;\" class=\"borderColor1\">
 							$B$controls
@@ -521,9 +521,9 @@ class FhemControlGUI implements iGUIHTML2 {
 		$this->registerType($tab, "FHZ");
 		$this->registerType($tab, "FS20");
 		$this->registerType($tab, "FHT");
-		$this->registerType($tab, "Intertechno");
-		$this->registerType($tab, "HomeMatic");
-		$this->registerType($tab, "ELV EM");
+		$this->registerType($tab, "IT");
+		$this->registerType($tab, "CUL_HM");
+		$this->registerType($tab, "CUL_EM");
 		$this->registerType($tab, "dummy");
 
 		$oldServer = "";

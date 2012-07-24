@@ -93,7 +93,7 @@ var Fhem = {
 				continue;
 			}
 
-			if(cModel == "fht80b" || cModel == "fs20du" || cModel == "fs20st" || cModel == "itswitch" || cModel == "itdimmer" || cModel == "switch" || cModel == "dimmer" || cModel == "emem" || cModel == "HM-LC-Sw1-Pl" || cModel == "HM-LC-Sw1-FM" || cModel == "HM-LC-Sw1PB-FM" || cModel == "HM-LC-Sw1-SM" || cModel == "HM-LC-Sw1PBU-FM" || cModel == "HM-LC-Dim1PBU-FM" || cModel == "HM-LC-Dim1T-Pl" || cModel == "HM-LC-Dim1L-Pl" || cModel == "HM-LC-Dim1L-CV" || cModel == "HM-LC-Dim1T-CV" || cModel == "HM-LC-Sw4-WM" || cModel == "HM-LC-Sw2-FM" || cModel == "HM-LC-Dim2T-SM" || cModel == "HM-LC-Dim2L-SM"){
+			if(cModel == "fht80b" || cModel == "fs20du" || cModel == "fs20st" || cModel == "itswitch" || cModel == "itdimmer" || cModel == "switch" || cModel == "dimmer" || cModel == "EMEM" || cModel == "HM-LC-Sw1-Pl" || cModel == "HM-LC-Sw1-FM" || cModel == "HM-LC-Sw1PB-FM" || cModel == "HM-LC-Sw1-SM" || cModel == "HM-LC-Sw1PBU-FM" || cModel == "HM-LC-Dim1PBU-FM" || cModel == "HM-LC-Dim1T-Pl" || cModel == "HM-LC-Dim1L-Pl" || cModel == "HM-LC-Dim1L-CV" || cModel == "HM-LC-Dim1T-CV" || cModel == "HM-LC-Sw4-WM" || cModel == "HM-LC-Sw2-FM" || cModel == "HM-LC-Dim2T-SM" || cModel == "HM-LC-Dim2L-SM"){
 				if(!$("FhemID_"+cID))
 					continue;
 

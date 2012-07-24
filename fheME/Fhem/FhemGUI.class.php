@@ -35,11 +35,14 @@ class FhemGUI extends Fhem implements iGUIHTML2 {
 		$gui->label("FhemName","Name in FHEM");
 		$gui->label("FhemAlias","Zu zeigender Name");
 		$gui->label("FhemType","Type");
-		$gui->label("FhemSpecific","Specific");
+		$gui->label("FhemSpecific","Adresscode");
+		$gui->label("FhemRoom","Raumname");
 		$gui->label("FhemModel","Model");
 		$gui->label("FhemFHTModel","Model");
 		$gui->label("FhemITModel","Model");
 		$gui->label("FhemHMModel","Model");
+		$gui->label("FhemHMSub","Sub-Type");
+		$gui->label("FhemHMClass","hmClass");
 		$gui->label("FhemEMModel","Model");
 		$gui->label("FhemRunOn","run on");
 		$gui->label("FhemCommand","Command");
@@ -51,14 +54,18 @@ class FhemGUI extends Fhem implements iGUIHTML2 {
 		$gui->type("FhemModel", "select", array("" => "none", "fs20du" => "FS20 DU","fs20s4u" => "FS20 S4U","fs20st" => "FS20 ST","fs20di" => "FS20 DI","fs20irf" => "FS20 IRF", "fs20rsu" => "FS20 RSU"));
 
         $gui->type("FhemITModel", "select", array("" => "none", "itdimmer" => "IT-Dimmer", "itswitch" => "IT-Switch"));
-
+    
         $gui->type("FhemHMModel", "select", array("" => "none", "dimmer" => "Dimmer", "switch" => "Switch", "HM-LC-Dim1L-CV" => "HM-LC-Dim1L-CV", "HM-LC-Dim1L-Pl" => "HM-LC-Dim1L-Pl", "HM-LC-Dim1PBU-FM" => "HM-LC-Dim1PBU-FM", "HM-LC-Dim1T-CV" => "HM-LC-Dim1T-CV", "HM-LC-Dim1T-Pl" => "HM-LC-Dim1T-Pl", "HM-LC-Dim2L-SM" => "HM-LC-Dim2L-SM", "HM-LC-Dim2T-SM" => "HM-LC-Dim2T-SM", "HM-LC-Sw1-FM" => "HM-LC-Sw1-FM", "HM-LC-Sw1-Pl" => "HM-LC-Sw1-Pl", "HM-LC-Sw1-SM" => "HM-LC-Sw1-SM", "HM-LC-Sw1PB-FM" => "HM-LC-Sw1PB-FM", "HM-LC-Sw1PBU-FM" => "HM-LC-Sw1PBU-FM", "HM-LC-Sw2-FM" => "HM-LC-Sw2-FM", "HM-LC-Sw4-WM" => "HM-LC-Sw4-WM"));
+        
+        $gui->type("FhemHMSub", "select", array("" => "none", "AlarmControl" => "AlarmControl", "KFM100" => "KFM100", "THSensor" => "THSensor", "blindActuator" => "blindActuator", "dimmer" => "dimmer", "keyMatic" => "keyMatic", "motionDetector" => "motionDetector", "pushButton" => "pushButton", "remote" => "remote", "sensor" => "sensor", "smokeDetector" => "smokeDetector", "swi" => "swi", "switch" => "switch", "threeStateSensor" => "threeStateSensor", "winMatic" => "winMatic"));
+        
+        $gui->type("FhemHMClass", "select", array("" => "none", "receiver" => "Empf&aumlnger", "sender" => "Sender"));
 
-        $gui->type("FhemEMModel", "select", array("" => "none", "emem" => "EM 1000-EM"));
+        $gui->type("FhemEMModel", "select", array("" => "none", "EMEM" => "EM 1000-EM"));
 
 		$gui->type("FhemFHTModel", "select", array("" => "none", "fht80b" => "80B"));
 
-		$gui->type("FhemType", "select", array("" => "none", "FS20" => "FS20","FHZ" => "FHZ", "FHT" => "FHT", "HomeMatic" => "HomeMatic", "Intertechno" => "Intertechno", "ELV EM" => "ELV EM", "notify" => "notify", "dummy" => "dummy"/*,"RGB" => "RGB"*/));
+		$gui->type("FhemType", "select", array("" => "none", "FS20" => "FS20","FHZ" => "FHZ", "FHT" => "FHT", "CUL_HM" => "HomeMatic", "IT" => "Intertechno", "CUL_EM" => "ELV EM", "notify" => "notify", "dummy" => "dummy"/*,"RGB" => "RGB"*/));
 
 		$B = $gui->addSideButton("Show\ndata", "./fheME/Fhem/showData.png");
 		$B->popup("", "Show data", "Fhem", $this->getID(), "showData");
@@ -73,18 +80,19 @@ class FhemGUI extends Fhem implements iGUIHTML2 {
 
 		$gui->inputStyle("FhemCommand","height:300px;font-size:8px;");
 
-		$gui->attributes(array("FhemServerID", "FhemLocationID", "FhemName", "FhemAlias", "FhemInOverview", "FhemType", "FhemModel", "FhemITModel", "FhemHMModel", "FhemEMModel", "FhemSpecific", "FhemRunOn", "FhemCommand", "FhemFHTModel"/*, "FhemFHTDefaultDayTemp"*/));
+		$gui->attributes(array("FhemServerID", "FhemLocationID", "FhemName", "FhemAlias", "FhemInOverview", "FhemType", "FhemModel", "FhemITModel", "FhemHMModel", "FhemEMModel", "FhemFHTModel", "FhemSpecific", "FhemHMSub", "FhemHMClass", "FhemRoom", "FhemRunOn", "FhemCommand"/*, "FhemFHTDefaultDayTemp"*/));
 
 		$gui->space("FhemType");
 
-		$gui->toggleFieldsInit("FhemType", array("FhemModel", "FhemITModel", "FhemHMModel", "FhemEMModel", "FhemSpecific", "FhemRunOn", "FhemCommand", "FhemFHTModel", "FhemFHTDefaultDayTemp"));
-		$gui->toggleFields("FhemType", "FHZ", array("FhemSpecific"));
-		$gui->toggleFields("FhemType", "FS20", array("FhemModel", "FhemSpecific"));
-		$gui->toggleFields("FhemType", "notify", array("FhemRunOn", "FhemCommand"));
-		$gui->toggleFields("FhemType", "Intertechno", array("FhemITModel", "FhemSpecific"));
-		$gui->toggleFields("FhemType", "HomeMatic", array("FhemHMModel", "FhemSpecific"));
-		$gui->toggleFields("FhemType", "ELV EM", array("FhemEMModel", "FhemSpecific"));
-		$gui->toggleFields("FhemType", "FHT", array("FhemFHTModel", "FhemSpecific"/*, "FhemFHTDefaultDayTemp"*/));
+		$gui->toggleFieldsInit("FhemType", array("FhemModel", "FhemITModel", "FhemHMModel", "FhemEMModel","FhemSpecific", "FhemHMSub", "FhemHMClass", "FhemRoom", "FhemRunOn", "FhemCommand", "FhemFHTModel", "FhemFHTDefaultDayTemp"));
+		$gui->toggleFields("FhemType", "FHZ", array("FhemSpecific", "FhemRoom"));
+		$gui->toggleFields("FhemType", "FS20", array("FhemModel", "FhemSpecific", "FhemRoom"));
+		$gui->toggleFields("FhemType", "notify", array("FhemRunOn", "FhemCommand", "FhemRoom"));
+		$gui->toggleFields("FhemType", "IT", array("FhemITModel", "FhemSpecific", "FhemRoom"));
+		$gui->toggleFields("FhemType", "CUL_HM", array("FhemHMModel", "FhemSpecific", "FhemHMSub", "FhemHMClass", "FhemRoom"));
+		$gui->toggleFields("FhemType", "CUL_EM", array("FhemEMModel", "FhemSpecific", "FhemRoom"));
+		$gui->toggleFields("FhemType", "FHT", array("FhemFHTModel", "FhemSpecific", "FhemRoom"/*, "FhemFHTDefaultDayTemp"*/));
+		$gui->toggleFields("FhemType", "dummy", array("FhemRoom"));
 
 		$gui->type("FhemServerID", "select", new mFhemServerGUI(), "FhemServerName");
 
