@@ -34,15 +34,14 @@ class MailCheckGUI extends MailCheck implements iGUIHTML2 {
 	}
 	
 	public function check($touch = false){
-		$mbox = imap_open("{".$this->A("MailCheckServer").":".$this->A("MailCheckPort")."/".$this->A("MailCheckProtocol")."}INBOX", $this->A("MailCheckUsername"), $this->A("MailCheckPassword"));
-		if(!$mbox)
-			die("<p style=\"color:red;\">".imap_last_error()."</p>");
+		$mbox = $this->connection();
 
 		#echo "<h1>Nachrichten in INBOX</h1><div style=\"overflow:auto;max-height:400px;\"><pre>";
 		$MC = imap_check($mbox);
 
 		$T = new HTMLTable(1, $touch ? "Mails" : "");
 		$T->setTableStyle("font-size:10px;");
+		$T->useForSelection();
 		
 		$start = $MC->Nmsgs - 10;
 		if($start < 1)
@@ -53,6 +52,7 @@ class MailCheckGUI extends MailCheck implements iGUIHTML2 {
 		foreach ($result as $overview) {
 			#print_r($overview);
 			$T->addRow(array("<small style=\"color:grey;float:right;\">".Util::CLDateParser($overview->udate)."</small>".$this->decodeBlubb($overview->from)."<br /><small style=\"color:grey;\">".($this->decodeBlubb($overview->subject))."</small>"));
+			$T->addCellEvent(1, "click", OnEvent::popup("Mail anzeigen", "MailCheck", $this->getID(), "showMail", array($overview->uid, $touch ? "1" : "0"), "", "{width:1000, top:20, left:20}", "showMail"));
 		}
 		imap_close($mbox);
 		#echo "</pre></div>";
@@ -71,7 +71,49 @@ class MailCheckGUI extends MailCheck implements iGUIHTML2 {
 		
 		echo $T;
 	}
+	
+	public function showMail($uid, $touch){
+		if($touch){
+			$BC = new Button("Fenster\nschließen", "stop");
+			$BC->style("float:right;margin:10px;");
+			$BC->onclick(OnEvent::closePopup("MailCheck", "showMail"));
+			
+			echo $BC;
+		}
+		
+		echo "<iframe style=\"border:0px;width:830px;height:450px;\" src=\"./interface/rme.php?class=MailCheck&constructor=".$this->getID()."&method=showMailBody&parameters='$uid'\"></iframe>";
+	}
+	
+	public function showMailBody($uid){
+		$mbox = $this->connection();
+		
+		
+		$body = trim($this->get_part($mbox, $uid, "TEXT/HTML"));
+		
+		if($body == ""){
+			$text = trim($this->get_part($mbox, $uid, "TEXT/PLAIN"));
+			echo "<!doctype html>
+				<html class=\"noLetter\">
+					<head>
+					</head>
+					<link rel=\"stylesheet\" type=\"text/css\" href=\"../fheME/MailCheck/email.css\">
+					
+					<body class=\"noLetter\">".preg_replace("/\n|\r\n/", "<br />", $text)."
+					</body>
+				</html>";
+		} else
+			echo $body;
+	}
 
+	private function connection(){
+		$mbox = imap_open("{".$this->A("MailCheckServer").":".$this->A("MailCheckPort")."/".$this->A("MailCheckProtocol")."/novalidate-cert}INBOX", $this->A("MailCheckUsername"), $this->A("MailCheckPassword"));
+		
+		if(!$mbox)
+			die("<p style=\"color:red;\">".imap_last_error()."</p>");
+		
+		return $mbox;
+	}
+	
 	private function decodeBlubb($text){
 		$textDecode = imap_mime_header_decode($text);
 		$decoded = "";
@@ -84,7 +126,75 @@ class MailCheckGUI extends MailCheck implements iGUIHTML2 {
 			$decoded .= mb_convert_encoding($S->text, "UTF-8", $S->charset);
 		}
 
-		return stripslashes($decoded);
+		return trim(stripslashes($decoded));
+	}
+	
+	/**
+	 * Thanks to http://www.linuxscope.net/articles/mailAttachmentsPHP.html
+	 * 
+	 * @param type $stream
+	 * @param type $uid
+	 * @param type $mime_type
+	 * @param type $structure
+	 * @param string $part_number
+	 * @return boolean 
+	 */
+	function get_part($stream, $uid, $mime_type, $structure = false, $part_number = false) {
+		
+		if(!$structure)
+			$structure = imap_fetchstructure($stream, $uid, FT_UID);
+		
+		if($structure) {
+			if($mime_type == $this->get_mime_type($structure)) {
+				if(!$part_number)
+					$part_number = "1";
+				
+				$text = imap_fetchbody($stream, $uid, $part_number, FT_UID);
+				
+				$charset = "UTF7-IMAP";
+				foreach($structure->parameters AS $k => $v)
+					if(strtolower($v->attribute) == "charset")
+						$charset = $v->value;
+				
+				if($structure->encoding == 3)
+					$text = imap_base64($text);
+				
+				if($structure->encoding == 4)
+					$text = imap_qprint($text);
+				
+				return mb_convert_encoding($text, "UTF-8", $charset);
+				
+			}
+
+			if($structure->type == 1) /* multipart */ {
+				$prefix = "";
+				while(list($index, $sub_structure) = each($structure->parts)) {
+					if($part_number)
+						$prefix = $part_number . '.';
+					
+					$data = $this->get_part($stream, $uid, $mime_type, $sub_structure, $prefix . ($index + 1));
+					if($data)
+						return $data;
+					
+				}
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * Thanks to http://www.linuxscope.net/articles/mailAttachmentsPHP.html
+	 * 
+	 * @param type $structure
+	 * @return string 
+	 */
+	function get_mime_type($structure) {
+		$primary_mime_type = array("TEXT", "MULTIPART", "MESSAGE", "APPLICATION", "AUDIO", "IMAGE", "VIDEO", "OTHER");
+		
+		if($structure->subtype)
+			return $primary_mime_type[(int) $structure->type] . '/' . $structure->subtype;
+		
+		return "TEXT/PLAIN";
 	}
 }
 ?>
