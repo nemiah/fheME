@@ -25,7 +25,7 @@
 		
 		<icon>./images/navi/edit.png</icon>
 		<folder>../ubiquitous/Todo</folder>
-		<version>0.5</version>
+		<version>0.6</version>
 		
 		<javascript>Todo.js</javascript>
 		<registry>Kalender;mTodoGUI::getCalendarData;events</registry>
