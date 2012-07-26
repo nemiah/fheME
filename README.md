@@ -9,6 +9,8 @@ fheME ist eine Web-Oberfläche für Tablets und bietet
 * RSS Feed anzeige
 * Einkaufsliste
 
+Bei Fragen zur Benutzung und Entwicklung, nutzen Sie bitte das [Forum](http://forum.phynx.de/viewforum.php?f=15)
+
 fheME Anwender HowTo
 ====================
 
