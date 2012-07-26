@@ -95,6 +95,7 @@ class mfheOverviewGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 		$this->addPlugin(0, "mFhemGUI", 120, "function(){".OnEvent::rme(new FhemControlGUI(-1), "updateGUI", "", "function(transport){ fheOverview.updateTime('mFhemGUI'); Fhem.updateControls(transport); }")."}");		
 		$this->addPlugin(0, "mRSSParserGUI", 3600);
 		$this->addPlugin(0, "mWetterGUI", 1800);
+		$this->addPlugin(0, "mEinkaufszettelGUI", 300);
 		
 		#$D[] = "mRSSParserGUI";
 		#$L[] = 3600;
@@ -124,7 +125,7 @@ class mfheOverviewGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 	
 	public function getOverviewContentCol3(){
 		$C = new mRSSParserGUI();
-		echo "<div id=\"fheOverviewContentmRSSParserGUI_getOverviewContent\" style=\"height:260px;\">";
+		echo "<div id=\"fheOverviewContentmRSSParserGUI_getOverviewContent\" style=\"height:249px;overflow:hidden;margin-bottom:11px;\">";
 		$C->getOverviewContent();
 		echo "</div>";
 		
@@ -141,12 +142,14 @@ class mfheOverviewGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 	
 	public function getOverviewContentCol4(){
 		$C = new mWetterGUI();
-		echo "<div id=\"fheOverviewContentmWetterGUI_getOverviewContent\" style=\"height:320px;\">";
+		echo "<div id=\"fheOverviewContentmWetterGUI_getOverviewContent\" style=\"height:360px;\">";
 		$C->getOverviewContent();
 		echo "</div>";
 		
 		$C = new mEinkaufszettelGUI();
+		echo "<div id=\"fheOverviewContentmEinkaufszettelGUI_getOverviewContent\">";
 		$C->getOverviewContent();
+		echo "</div>";
 	}
 	
 	public function checkAdmin(){

@@ -21,7 +21,7 @@
 var Einkaufszettel = {
 
 }
-
+/*
 $j(window).keydown(function(event){
 	if(!$j('#EinkaufszettelInput'))
 		return;
@@ -48,4 +48,4 @@ $j(window).keydown(function(event){
 			$j('#EinkaufszettelLastAdded').prepend(transport.responseText);
 		}
 	);
-});
+});*/

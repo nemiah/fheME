@@ -82,15 +82,15 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 	}
 
 	public function getOverviewContent(){
-		$html = "<div class=\"Tab backgroundColor1\"><span class=\"lastUpdate\" id=\"lastUpdatemGerichtGUI\"></span><p><b>Einkaufen</b></p></div>
+		$html = "<div class=\"Tab backgroundColor1\"><span class=\"lastUpdate\" id=\"lastUpdatemEinkaufszettelGUI\">asd</span><p><b>Einkaufen</b></p></div>
 			<div style=\"padding:10px;\">";
 
 		$B = new Button("Aktuelle Liste anzeigen", "./fheME/Einkaufszettel/Einkaufszettel.png", "icon");
 		$B->popup("", "Einkaufsliste", "mEinkaufszettel", "-1", "showCurrentList");
 		$B->style("float:right;");
-		
-		$html .= "$B<div style=\"border-bottom-width:1px;border-bottom-style:dotted;margin-right:45px;height:20px;margin-bottom:5px;\" id=\"EinkaufszettelInput\" class=\"borderColor1\"></div>";
-		$html .= "<small style=\"color:grey;\">Zuletzt hinzugefügt:</small><div id=\"EinkaufszettelLastAdded\"><div class=\"emptyElement\" style=\"padding:3px;\">";
+		#<div style=\"border-bottom-width:1px;border-bottom-style:dotted;margin-right:45px;height:20px;margin-bottom:5px;\" id=\"EinkaufszettelInput\" class=\"borderColor1\"></div>
+		$html .= "$B";#<small style=\"color:grey;\">Zuletzt hinzugefügt:</small>
+		$html .= "<div id=\"EinkaufszettelLastAdded\"><div class=\"emptyElement\" style=\"padding:3px;\">";
 		
 		$AC = anyC::get("Einkaufszettel", "EinkaufszettelBought", "0");
 		$AC->addOrderV3("EinkaufszettelTime", "DESC");
@@ -99,7 +99,7 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 			$html .= $this->getOverviewListEntry($E->A("EinkaufszettelName"), $E->A("EinkaufszettelTime"));
 		
 		if($AC->numLoaded() == 0)
-			$html .= "<span style=\"color:grey;\">nichts</span></div>";
+			$html .= "<span style=\"color:grey;\">Der Einkaufszettel ist leer</span></div>";
 		$html .= "</div></div>";
 		echo $html;
 	}

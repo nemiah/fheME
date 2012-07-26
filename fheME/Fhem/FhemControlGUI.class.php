@@ -771,17 +771,17 @@ class FhemControlGUI implements iGUIHTML2 {
 					$B = "";
 					if($warnings == "Temperature too low"){
 						$B = new Button("", "./fheME/Fhem/tooCold.png", "icon");
-						$B->style("float:left;");
+						$B->style("float:left;margin-right:5px;");
 					}
 
 					if($warnings == "Window open"){
 						$B = new Button("", "./fheME/Fhem/windowOpen.png", "icon");
-						$B->style("float:left;");
+						$B->style("float:left;margin-right:5px;");
 					}
 
 					if($warnings == "Battery low"){
 						$B = new Button("", "./fheME/Fhem/batteryLow.png", "icon");
-						$B->style("float:left;");
+						$B->style("float:left;margin-right:5px;");
 					}
 
 
