@@ -46,7 +46,7 @@ class mMailCheckGUI extends anyC implements iGUIHTMLMP2 {
 		
 		while($MC = $AC->getNextEntry()){
 			$B = new Button("Mails abholen", "./fheME/MailCheck/MailCheck.png", "icon");
-			$B->popup("", "Mails abholen", "MailCheck", $MC->getID(), "check", "1");
+			$B->popup("", "Mails abholen", "MailCheck", $MC->getID(), "check", "1", "", "{width:1000, top:20, left:20}");
 			
 			$html .= "<div style=\"display:inline-block;width:80px;text-align:center;\">".$B."<br /><small>".$MC->A("MailCheckName")."</small></div>";
 		}

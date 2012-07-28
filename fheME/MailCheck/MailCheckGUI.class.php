@@ -40,7 +40,7 @@ class MailCheckGUI extends MailCheck implements iGUIHTML2 {
 		$MC = imap_check($mbox);
 
 		$T = new HTMLTable(1, $touch ? "Mails" : "");
-		$T->setTableStyle("font-size:10px;");
+		$T->setTableStyle("font-size:11px;");
 		$T->useForSelection();
 		
 		$start = $MC->Nmsgs - 10;
@@ -51,28 +51,38 @@ class MailCheckGUI extends MailCheck implements iGUIHTML2 {
 		$result = array_reverse($result);
 		foreach ($result as $overview) {
 			#print_r($overview);
-			$T->addRow(array("<small style=\"color:grey;float:right;\">".Util::CLDateParser($overview->udate)."</small>".$this->decodeBlubb($overview->from)."<br /><small style=\"color:grey;\">".($this->decodeBlubb($overview->subject))."</small>"));
-			$T->addCellEvent(1, "click", OnEvent::popup("Mail anzeigen", "MailCheck", $this->getID(), "showMail", array($overview->uid, $touch ? "1" : "0"), "", "{width:1000, top:20, left:20}", "showMail"));
+			$T->addRow(array("
+				<small style=\"color:grey;float:right;\">".Util::CLDateParser($overview->udate)."</small>
+				".str_replace("\"", "", $this->decodeBlubb($overview->from))."<br />
+				<small style=\"color:grey;\">".substr($this->decodeBlubb($overview->subject), 0, 50)."</small>"));
+			$T->addCellEvent(1, "click", "\$j('#MailFrame').attr('src', './interface/rme.php?class=MailCheck&constructor=".$this->getID()."&method=showMailBody&parameters=\'$overview->uid\'');");
 		}
 		imap_close($mbox);
 		#echo "</pre></div>";
 		
+		$BC = "";
 		if($touch){
-			
-			$BC = new Button("Popup schließen", "stop", "icon");
+			$BC = new Button("Fenster\nschließen", "stop");
 			$BC->style("float:right;margin:10px;");
 			$BC->onclick(OnEvent::closePopup("MailCheck"));
-			
-			echo $BC;
-			
 		}
 		
+
+		echo "<div style=\"float:right;width:300px;\">";
+		echo $BC;
 		echo "<p>$MC->Nmsgs Nachricht".($MC->Nmsgs == 1 ? "" : "en")."</p><div style=\"clear:both;\"></div>";
 		
 		echo $T;
+		echo "</div>";
+		
+		echo "
+			<div style=\"border-right-style:solid;border-right-width:1px;width:699px;\" class=\"borderColor1\">
+				<iframe id=\"MailFrame\" style=\"border:0px;width:699px;height:520px;\" src=\"./fheME/MailCheck/Home/index.html\"></iframe>
+			</div>";
+		echo "<div style=\"clear:both;\"></div>";
 	}
 	
-	public function showMail($uid, $touch){
+	/*public function showMail($uid, $touch){
 		if($touch){
 			$BC = new Button("Fenster\nschließen", "stop");
 			$BC->style("float:right;margin:10px;");
@@ -82,7 +92,7 @@ class MailCheckGUI extends MailCheck implements iGUIHTML2 {
 		}
 		
 		echo "<iframe style=\"border:0px;width:830px;height:450px;\" src=\"./interface/rme.php?class=MailCheck&constructor=".$this->getID()."&method=showMailBody&parameters='$uid'\"></iframe>";
-	}
+	}*/
 	
 	public function showMailBody($uid){
 		$mbox = $this->connection();
