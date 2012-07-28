@@ -55,9 +55,10 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 		$OEAN = new mopenEANGUI();
 		$artikel = $OEAN->startSeach($EAN);
 		
+		$fullname = "";
 		$name = "";
 		if(isset($artikel["fullname"]))
-			$name = $artikel["fullname"];
+			$fullname = $name = $artikel["fullname"];
 		
 		if(isset($artikel["name"]) AND $artikel["name"] != "")
 			$name = $artikel["name"];
@@ -69,6 +70,8 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 			if(!$F->exists()){
 				$F->sA("EinkaufszettelEAN", $EAN);
 				$F->sA("EinkaufszettelTime", time());
+				if($fullname != $name)
+					$F->sA("EinkaufszettelNameDetails", $fullname);
 				$F->store();
 			}
 		}
@@ -86,8 +89,8 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 			<div style=\"padding:10px;\">";
 
 		$B = new Button("Aktuelle Liste anzeigen", "./fheME/Einkaufszettel/Einkaufszettel.png", "icon");
-		$B->popup("", "Einkaufsliste", "mEinkaufszettel", "-1", "showCurrentList");
-		$B->style("float:right;");
+		$B->popup("", "Einkaufsliste", "mEinkaufszettel", "-1", "showCurrentList", "", "", "{top:20, hPosition:'right'}");
+		$B->style("float:right;margin-left:10px;");
 		#<div style=\"border-bottom-width:1px;border-bottom-style:dotted;margin-right:45px;height:20px;margin-bottom:5px;\" id=\"EinkaufszettelInput\" class=\"borderColor1\"></div>
 		$html .= "$B";#<small style=\"color:grey;\">Zuletzt hinzugefügt:</small>
 		$html .= "<div id=\"EinkaufszettelLastAdded\"><div class=\"emptyElement\" style=\"padding:3px;\">";

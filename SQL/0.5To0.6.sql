@@ -8,3 +8,4 @@ ALTER TABLE `Fhem` ADD `FhemHMSub` varchar(20) NOT NULL;
 ALTER TABLE `Fhem` ADD `FhemHMClass` varchar(20) NOT NULL;
 ALTER TABLE `Fhem` ADD `FhemEMModel` varchar(20) NOT NULL;
 ALTER TABLE `Fhem` ADD `FhemRoom` varchar(20) NOT NULL;
+ALTER TABLE `Einkaufszettel` ADD `EinkaufszettelNameDetails` VARCHAR( 250 ) NOT NULL;
