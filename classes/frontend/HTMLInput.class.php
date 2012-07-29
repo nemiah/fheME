@@ -27,7 +27,7 @@ class HTMLInput {
 	#private $onblur = null;
 	protected $style = null;
 	private $id = null;
-	private $onkeyup = null;
+	private $onkeyup = "";
 	private $onkeydown = null;
 	private $hasFocusEvent = false;
 	private $isSelected = false;
@@ -119,7 +119,7 @@ class HTMLInput {
 	}
 
 	public function onkeyup($function){
-		$this->onkeyup = $function;
+		$this->onkeyup .= $function;
 	}
 
 	public function onkeydown($function){
@@ -138,7 +138,7 @@ class HTMLInput {
 	}
 	
 	public function onEnter($function){
-		$this->onkeyup = "if(event.keyCode == 13) ".$function;
+		$this->onkeyup .= "if(event.keyCode == 13) { ".$function." }";
 	}
 
 	public function hasFocusEvent($bool){

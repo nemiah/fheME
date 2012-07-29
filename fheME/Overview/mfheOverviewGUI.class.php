@@ -147,7 +147,7 @@ class mfheOverviewGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 		echo "</div>";
 		
 		$C = new mEinkaufszettelGUI();
-		echo "<div id=\"fheOverviewContentmEinkaufszettelGUI_getOverviewContent\">";
+		echo "<div id=\"fheOverviewContentmEinkaufszettelGUI_getOverviewContent\" style=\"height:145px;overflow:hidden;\">";
 		$C->getOverviewContent();
 		echo "</div>";
 	}
