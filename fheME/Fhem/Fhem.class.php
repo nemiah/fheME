@@ -32,35 +32,35 @@ class Fhem extends PersistentObject implements iCloneable {
 
 		$tel13 = "";
 		if($this->A("FhemRoom") == true)
-		$tel13 = "attr ".$this->A("FhemName")." "."room"." ".$this->A("FhemRoom");
+			$tel13 = "attr ".$this->A("FhemName")." "."room"." ".$this->A("FhemRoom");
 
 		$tel14 = "";
 		if($this->A("FhemType") == "FS20")
-	    $tel14 = ($this->A("FhemModel"));
+			$tel14 = ($this->A("FhemModel"));
 
 		if($this->A("FhemType") == "IT")
-		$tel14 = ($this->A("FhemITModel"));
+			$tel14 = ($this->A("FhemITModel"));
 
 		if($this->A("FhemType") == "CUL_HM")
-		$tel14 = ($this->A("FhemHMModel"));
+			$tel14 = ($this->A("FhemHMModel"));
 
 		if($this->A("FhemType") == "CUL_EM")
-		$tel14 = ($this->A("FhemEMModel"));
+			$tel14 = ($this->A("FhemEMModel"));
 
 		if($this->A("FhemType") == "FHT")
-		$tel14 = ($this->A("FhemFHTModel"));
+			$tel14 = ($this->A("FhemFHTModel"));
 
 		$tel15 = "";
 		if($this->A("FhemModel") || $this->A("FhemITModel") || $this->A("FhemHMModel") || $this->A("FhemEMModel") || $this->A("FhemFHTModel") == true)
-		$tel15 = "attr ".$this->A("FhemName")." "."model"." ".$tel14;
+			$tel15 = "attr ".$this->A("FhemName")." "."model"." ".$tel14;
 
 		$tel16 = "";
 		if($this->A("FhemHMSub") == true)
-		$tel16 = "attr ".$this->A("FhemName")." "."subType"." ".$this->A("FhemHMSub");
+			$tel16 = "attr ".$this->A("FhemName")." "."subType"." ".$this->A("FhemHMSub");
 
 		$tel17 = "";
 		if($this->A("FhemHMClass") == true)
-		$tel17 = "attr ".$this->A("FhemName")." "."hmClass"." ".$this->A("FhemHMClass");
+			$tel17 = "attr ".$this->A("FhemName")." "."hmClass"." ".$this->A("FhemHMClass");
 	
 		if($this->A("FhemType") == "notify")
 			return array("define ".$this->A("FhemName")." notify ".$this->A("FhemRunOn")." ".str_replace("\n"," ",$this->A("FhemCommand")), $tel13);
@@ -79,6 +79,8 @@ class Fhem extends PersistentObject implements iCloneable {
 		    		    			
         if($this->A("FhemType") == "CUL_HM")
 		    return array("define ".$this->A("FhemName")." ".$this->A("FhemType")." ".$this->A("FhemSpecific"), $tel2, $tel13, $tel15, $tel16, $tel17);
+		
+		return array("define ".$this->A("FhemName")." ".$this->A("FhemType")." ".$this->A("FhemSpecific"), $tel2);
 	}
 
 	function getAvailableOptions(){
