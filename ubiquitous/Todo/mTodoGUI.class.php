@@ -77,7 +77,7 @@ class mTodoGUI extends mTodo implements iGUIHTMLMP2, iKalender {
 		$T = new TodoGUI($id);
 		$T->GUI = new HTMLGUIX($T);
 		$T->GUI->displayMode("popupC");
-		
+		$T->GUI->requestFocus("TodoKunde", "TodoName");
 		#if($id == -1)
 		$T->GUI->addToEvent("onSave", OnEvent::popup("Event", "mKalender", "-1", "getInfo", array("'mTodoGUI'", "transport.responseText", "'$date'")));
 		
@@ -165,7 +165,7 @@ class mTodoGUI extends mTodo implements iGUIHTMLMP2, iKalender {
 			if($T->A("TodoType") == "1" AND Session::isPluginLoaded("mAkquise")){
 				$B = new Button("Akquise", "./lightCRM/Akquise/callTel.png");
 				$B->doBefore(OnEvent::rme($T, "setStatus", array("'2'"), OnEvent::closePopup("mKalender").OnEvent::reload("Left"))." %AFTER");
-				$B->popup("", "Akquise", "mAkquise", "-1", "showTelPopup", array($T->A("TodoClassID")), "", "{width: 800, top:20, left:20}");
+				$B->popup("", "Akquise", "mAkquise", "-1", "showTelPopup", array($T->A("TodoClassID")), "", "{width: 950, top:20, left:20}");
 				
 				$KE->addTopButton($B);
 			}
@@ -206,7 +206,7 @@ class mTodoGUI extends mTodo implements iGUIHTMLMP2, iKalender {
 
 		$KE->location($T->A("TodoLocation"));
 
-		$KE->repeat($T->A("TodoRepeat") != "", $T->A("TodoRepeat"));
+		$KE->repeat($T->A("TodoRepeat") != "", $T->A("TodoRepeat"), $T->A("TodoRepeatWeekOfMonth") * 1);
 
 		$KE->UID("TodoID".$T->getID()."@".substr(Util::eK(), 0, 20));
 		
@@ -310,13 +310,30 @@ class mTodoGUI extends mTodo implements iGUIHTMLMP2, iKalender {
 	}
 	
 	public function editRepeatable($todoID){
-		$F = new HTMLForm("RepeatableForm", array("TodoRepeat"), "Wiederholungen");
+		$F = new HTMLForm("RepeatableForm", array("TodoRepeat", "TodoRepeatWeekOfMonth"), "Wiederholungen");
 		$F->getTable()->setColWidth(1, 120);
 		
-		$F->setValues(new Todo($todoID));
+		$T = new Todo($todoID);
+		
+		$F->setValues($T);
 		
 		$F->setLabel("TodoRepeat","Wiederholen");
+		$F->setLabel("TodoRepeatWeekOfMonth", "Tag");
+		
+		#$currentWeek = ceil((date("d", $T->A("TodoFromDay")) - date("w", $T->A("TodoFromDay")) - 1) / 7) + 1;
+		#echo $currentWeek;
+		
+		$D = new Datum($T->A("TodoFromDay"));
+		$nthDay = $D->getNthDayOfMonth();
+		if($nthDay > 4)
+			$nthDay = 4;
+		
+		$weeks = array(0 => "am ".date("d", $T->A("TodoFromDay")).". jeden Monats");
+		$weeks[$nthDay] = "jeden $nthDay. ".Util::CLWeekdayName(date("w", $T->A("TodoFromDay")))." des Monats";
 		$F->setType("TodoRepeat", "select", "", Todo::$repeatTypes);
+		$F->setType("TodoRepeatWeekOfMonth", "select", "", $weeks);
+		
+		$F->hideIf("TodoRepeat", "!=", "monthly", "onchange", array("TodoRepeatWeekOfMonth"));
 		
 		$F->setSaveClass("Todo", $todoID, "function(){ /*\$j('#eventAdditionalContent').slideUp();*/ contentManager.reloadFrame('contentLeft'); Kalender.refreshInfoPopup(); }", "Aktivität");
 		

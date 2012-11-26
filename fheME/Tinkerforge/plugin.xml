@@ -1,5 +1,5 @@
-/*
- *
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- 
  *  This file is part of phynx.
 
  *  phynx is free software; you can redistribute it and/or modify
@@ -13,19 +13,26 @@
  *  GNU General Public License for more details.
 
  *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with this program.  If not, see <http://www.gnu.org/licenses></http:>.
  * 
  *  2007 - 2012, Rainer Furtmeier - Rainer@Furtmeier.de
- */
+-->
+<phynx>
+	<plugin>
+		<name>Tinkerforge</name>
+		<menuName>Tinkerforge</menuName>
+		<collection>mTinkerforge</collection>
+		
+		<icon>./fheME/Tinkerforge/Tinkerforge.png</icon>
+		<folder>Tinkerforge</folder>
 
-var Kalender = {
-	popupOptions: {
-		hPosition: "right",
-		remember: true
-	},
-	
-	refreshInfoPopup: function(){
-		Popup.refresh('mKalender');
-		Popup.close('Util', 'edit');
-	}
-}
+		<adminOnly>false</adminOnly>
+		
+		<version>0.6</version>
+
+		<deploy>
+			<table name="Tinkerforge" />
+			<table name="TinkerforgeData" />
+		</deploy>
+	</plugin>
+</phynx>

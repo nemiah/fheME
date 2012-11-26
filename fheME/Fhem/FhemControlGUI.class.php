@@ -160,16 +160,23 @@ class FhemControlGUI implements iGUIHTML2 {
 
 				case "fs20du":
 				case "fs20st":
-					$onclick = "";
-					if($f->A("FhemModel") == "fs20st")
+					$togggle = false;
+					$onclick = "\$j('.fhemeControl:not(#controls_D".$f->getID().")').hide(); \$j('#controls_D".$f->getID()."').toggle();";
+					if($f->A("FhemModel") == "fs20st"){
 						$values = array("on" => "on", "off" => "off");
-
+						$togggle = true;
+						$onclick = OnEvent::rme($this, "toggleDevice", $f->getID(), "Fhem.requestUpdate();");
+					}
+					
 					if($f->A("FhemModel") == "fs20du")
 						$values = array("off" => "off", /*6, 12, 18,*/ "dim25%" => "25%", /*31, 37, 43,*/ "dim50%" => "50%", /*56, 62, 68,*/ "dim75%" => "75%", /*81, 87, 93,*/ "dim100%" => "100%");
 
 					$controls = $this->getSetTable("D".$f->getID(), $values);
 
-					$html = "<div onclick=\"\$j('.fhemeControl:not(#controls_D".$f->getID().")').hide(); \$j('#controls_D".$f->getID()."').toggle();\" style=\"cursor:pointer;width:210px;float:left;min-height:15px;border-radius:5px;border-width:1px;border-style:solid;margin:5px;padding:5px;\" class=\"borderColor1\">
+					if($togggle)
+						$controls = "";
+					
+					$html = "<div id=\"FhemControlID_".$f->getID()."\" onclick=\"$onclick\" style=\"cursor:pointer;width:210px;float:left;min-height:15px;border-radius:5px;border-width:1px;border-style:solid;margin:5px;padding:5px;\" class=\"borderColor1\">
 							$controls
 							<div id=\"FhemID_".$f->getID()."\">
 								<b>".$f->A("FhemName")."</b>
@@ -415,15 +422,13 @@ class FhemControlGUI implements iGUIHTML2 {
 			return;
 		}
 		$F = new Fhem($id);
-		$F->loadMe();
 
-		$S = new FhemServer($F->getA()->FhemServerID);
-		$S->loadMe();
+		$S = new FhemServer($F->A("FhemServerID"));
 
 		switch($S->A("FhemServerType")){
 			case "0":
 				try {
-					$T = new Telnet($S->getA()->FhemServerIP, $S->getA()->FhemServerPort);
+					$T = new Telnet($S->A("FhemServerIP"), $S->A("FhemServerPort"));
 				} catch(NoServerConnectionException $e){
 					die("error:'The connection to the server with IP-address ".$S->getA()->FhemServerIP." could not be established!'");
 				}
@@ -438,6 +443,19 @@ class FhemControlGUI implements iGUIHTML2 {
 				#fopen($url, "r");
 			break;
 		}
+	}
+	
+	public function toggleDevice($FhemID){
+		$status = $this->getDeviceStatus($FhemID);
+		
+		if($status == null)
+			$this->setDevice($FhemID, "off");
+		
+		if($status == "on")
+			$this->setDevice($FhemID, "off");
+		
+		if($status == "off")
+			$this->setDevice($FhemID, "on");
 	}
 
 	public function setTimer($id, $action, $type, $stunden, $minuten, $deviceName){
@@ -621,6 +639,31 @@ class FhemControlGUI implements iGUIHTML2 {
 		echo $tab;
 	}
 
+	private function getDeviceStatus($FhemID){
+		$F = new Fhem($FhemID);
+		$S = new FhemServer($F->A("FhemServerID"));
+		
+		try {
+			$T = new Telnet($S->A("FhemServerIP"), $S->A("FhemServerPort"));
+			$T->setPrompt("</FHZINFO>");
+			$answer = $T->fireAndGet("xmllist")."</FHZINFO>";
+		} catch(Exception $e) {
+			return null;
+		}
+		
+		$x = simplexml_load_string($answer);
+		
+		if(isset($x->FS20_LIST->FS20) AND count($x->FS20_LIST->FS20) > 0)
+			foreach($x->FS20_LIST->FS20 AS $k => $v){
+				if($v->attributes()->name != $F->A("FhemName"))
+					continue;
+				
+				return $v->attributes()->state;
+			}
+			
+		return null;
+	}
+	
 	public function updateGUI(){
 		$result = array();
 		$S = new mFhemServerGUI();

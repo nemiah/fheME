@@ -36,8 +36,8 @@ class Todo extends PersistentObject {
 	public function saveMe($checkUserData = true, $output = false) {
 		$old = new Todo($this->getID());
 		$old->loadMe();
-		$fromDay = date("Y-m-d", Util::CLDateParser($this->A("TodoFromDay"), "store"));
-		$fromTime = Util::formatTime("de_DE", Util::CLTimeParser($this->A("TodoFromTime"), "store"));
+		#$fromDay = date("Y-m-d", Util::CLDateParser($this->A("TodoFromDay"), "store"));
+		#$fromTime = Util::formatTime("de_DE", Util::CLTimeParser($this->A("TodoFromTime"), "store"));
 		#die($this->getID());
 		
 		$this->changeA("TodoLastChange", time());
@@ -45,8 +45,17 @@ class Todo extends PersistentObject {
 		#$name = $this->getOwnerObject()->getCalendarTitle();
 		
 		if($this->A("TodoAllDay")){
-			$this->changeA ("TodoFromTime", Util::CLTimeParser(0));
-			$this->changeA ("TodoTillTime", Util::CLTimeParser(0));
+			$this->changeA("TodoFromTime", Util::CLTimeParser(0));
+			$this->changeA("TodoTillTime", Util::CLTimeParser(0));
+		}
+		
+		if($this->A("TodoRepeatWeekOfMonth") > 0){
+			$D = new Datum($this->hasParsers ? Util::CLDateParser($this->A("TodoFromDay"), "store") : $this->A("TodoFromDay"));
+			$nthDay = $D->getNthDayOfMonth();
+			if($nthDay > 4)
+				$nthDay = 4;
+			
+			$this->changeA("TodoRepeatWeekOfMonth", $nthDay);
 		}
 		
 		parent::saveMe($checkUserData, false);
@@ -131,6 +140,23 @@ class Todo extends PersistentObject {
 
 	public function getCalendarTitle(){
 		return trim($this->A("TodoName"));
+	}
+	
+	public static function newFromKalenderEvent(KalenderEvent $KE){
+		$T = new Todo(-1);
+		$T->loadMeOrEmpty();
+		
+		$T->changeA("TodoFromDay", Kalender::parseDay($KE->getDay()));
+		$T->changeA("TodoFromTime", Kalender::parseTime($KE->getTime()));
+		$T->changeA("TodoTillDay", Kalender::parseDay($KE->getEndDay()));
+		$T->changeA("TodoTillTime", Kalender::parseTime($KE->getEndTime()));
+		$T->changeA("TodoType", "1");
+		$T->changeA("TodoName", $KE->title());
+		$T->changeA("TodoClass", $KE->ownerClass());
+		$T->changeA("TodoClassID", $KE->ownerClassID());
+		$T->changeA("TodoUserID", Session::currentUser()->getID());
+		
+		$T->newMe();
 	}
 }
 ?>

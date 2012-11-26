@@ -49,6 +49,16 @@ var P2J = {
 	}
 }
 
+String.prototype.makeHTML = function() {
+	if(this.substr(0, 3) == '<p ' || this.substr(0, 3) == '<p>')
+		return this;
+	
+	if(this == "")
+		return "<p><br /></p>";
+	
+    return "<p>"+this.replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1<br />$2')+"</p>";
+}
+
 function $(something){
 	var E = document.getElementById(something);
 	
@@ -255,15 +265,74 @@ var qTipSharedRed = {
 	}
 }
 
-$j('img[title]').live('mouseover', function(event) {
+var qTipSharedYellow = $j.extend({}, qTipSharedRed, {
+	style: {
+		classes: 'ui-tooltip-rounded ui-tooltip-shadow'
+	}
+})
+
+if(Modernizr.touch){
+	var currentHTMLMethod = jQuery.fn.html;
+	jQuery.fn.html = function(){
+		currentHTMLMethod.apply(this, arguments);
+		$j("[onclick]").on("touchstart", function(){
+			$j(this).addClass("highlight");
+		}).on("touchend", function(){
+			$j(this).removeClass("highlight");
+		}).each(function(i, e){
+			$j(this).attr("ontouchend", $j(this).attr("onclick")).removeAttr("onclick");//prop("ontouchend", $j(e).prop("onclick"))
+		});
+	}
+}
+
+if(!Modernizr.touch)
+	$j(document).on('mouseover', 'img[title], span.iconic[title]', function(event) {
+		if($j(this).attr('title') == "")
+			return;
+
+		$j(this).qtip({
+			overwrite: false,
+			show: {
+				event: event.type,
+				ready: true,
+				delay: 1000
+			},
+
+			position: {
+				viewport: true,
+				adjust: {
+					method: 'flip'
+				}
+			},
+
+			style : {
+				tip: true,
+				classes: 'ui-tooltip-rounded ui-tooltip-shadow'
+			}
+
+		}, event);
+	})/*.each(function(i) {
+	   $j.prop(this, 'oldtitle', $j.prop(this, 'title'));
+	   this.removeAttribute('title');
+	   this.removeAttribute('alt');
+	})*/;
+
+$j('.bigButton').live('mouseover', function(event) {
+	if($j(document).width() > 1200)
+		return;
+		
 	$j(this).qtip({
 		overwrite: false,
 		show: {
 			event: event.type,
 			ready: true,
-			delay: 1000
+			delay: 500
 		},
-		
+		content: {
+			text: function() {
+				return $j(this).prop('value');
+			}
+		},
 		position: {
 			viewport: true,
 			adjust: {
@@ -277,18 +346,10 @@ $j('img[title]').live('mouseover', function(event) {
 		}
 		
 	}, event);
-}).each(function(i) {
-   $j.attr(this, 'oldtitle', $j.attr(this, 'title'));
-   this.removeAttribute('title');
-   this.removeAttribute('alt');
-});
+})
 
-$j(document).ready(function()
-{
-   /*$('button').click(function() {
-      // Check if it should be persistent (can set to a normal bool if you like!)
-      createGrowl( $(this).hasClass('persistent') );
-   });*/
+/*
+$j(document).ready(function(){
    
    window.createGrowl = function(message, persistent) {
 	   persistent = false;
@@ -299,11 +360,7 @@ $j(document).ready(function()
       $j(document.body).qtip({
          // Any content config you want here really.... go wild!
          content: {
-            text: message/*,
-            title: {
-               text: 'Attention!',
-               button: true
-            }*/
+            text: message
          },
          position: {
 			//container: $j('#growlContainer'),
@@ -378,4 +435,4 @@ $j(document).ready(function()
  
    // Utilise delegate so we don't have to rebind for every qTip!
    $j(document).delegate('.qtip.jgrowl', 'mouseover mouseout', timer);
-});
+});*/

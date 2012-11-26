@@ -173,29 +173,72 @@ class KalenderEvent extends KalenderEntry {
 				break;
 				
 				case "monthly":
-
-					$monthDay = date("d", $pDay);
 					$D = new Datum($startDay);
-					while($D->time() <= $endDay){
-						$newStamp = Kalender::formatDay($D->time());
-						$newDay = date("d", $D->time());
-						$D->addDay();
+					
+					if($this->repeatWeekOfMonth > 0){
+						$c = -1;
+						$weekDay = date("w", $pDay);
 						
-						if($newStamp == $this->day)
+						if(date("d", $D->time()) > 1 AND date("d", $D->time()) < 20)
+							$c = 0;
+							
+						while($D->time() <= $endDay){
+							$newStamp = Kalender::formatDay($D->time());
+							$newDay = date("d", $D->time());
+							$newWeekDay = date("w", $D->time());
+
+							if(date("d", $D->time()) == 1)
+								$c = 0;
+							
+							$D->addDay();
+							
+							if($c < 0)
 								continue;
-						
-						if($newDay != $monthDay)
-							continue;
 
-						if(isset($this->exceptions[$newDay.$this->time]))
-							continue;
-						
-						$W = new stdClass();
-						$W->day = $newStamp;
-						$W->endDay = $newStamp;
-						$W->time = $this->time;
-						$when[] = $W;
+							if($newWeekDay != $weekDay)
+								continue;
+							
+							$c++;
+							
+							if($newStamp == $this->day)
+								continue;
+							
+							if($c != $this->repeatWeekOfMonth)
+								continue;
+							
+							if(isset($this->exceptions[$newDay.$this->time]))
+								continue;
 
+							$W = new stdClass();
+							$W->day = $newStamp;
+							$W->endDay = $newStamp;
+							$W->time = $this->time;
+							$when[] = $W;
+
+						}
+					} else {
+						$monthDay = date("d", $pDay);
+						while($D->time() <= $endDay){
+							$newStamp = Kalender::formatDay($D->time());
+							$newDay = date("d", $D->time());
+							$D->addDay();
+
+							if($newStamp == $this->day)
+									continue;
+
+							if($newDay != $monthDay)
+								continue;
+
+							if(isset($this->exceptions[$newDay.$this->time]))
+								continue;
+
+							$W = new stdClass();
+							$W->day = $newStamp;
+							$W->endDay = $newStamp;
+							$W->time = $this->time;
+							$when[] = $W;
+
+						}
 					}
 				break;
 				
@@ -535,6 +578,23 @@ class KalenderEvent extends KalenderEntry {
 		$C = new $C(-1); //its a collection (quite sure)
 		
 		return $C->getAdresse($this->classID);
+	}
+	
+	public static function fromICal($iCal){
+		$VC = new vcalendar();
+		$VC->parse($iCal);
+
+		$event = $VC->getComponent("vevent");
+
+		$dayStart = $event->getProperty("DTSTART");
+		$dayEnd = $event->getProperty("DTEND");
+		
+		$KE = new KalenderEvent("iCal", "-1", $dayStart["day"].$dayStart["month"].$dayStart["year"], $dayStart["hour"].$dayStart["min"], $event->getProperty("SUMMARY"));
+		
+		$KE->endDay($dayEnd["day"].$dayEnd["month"].$dayEnd["year"]);
+		$KE->endTime($dayEnd["hour"].$dayEnd["min"]);
+		
+		return $KE;
 	}
 }
 ?>

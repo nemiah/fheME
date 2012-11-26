@@ -279,6 +279,7 @@ if($_SESSION["S"]->checkIfUserLoggedIn() == false) $_SESSION["CurrentAppPlugins"
 		<script type="text/javascript" src="./libraries/jstorage.js"></script>
 		<script type="text/javascript" src="./libraries/webtoolkit.base64.js"></script>
 		<script type="text/javascript" src="./libraries/webtoolkit.sha1.js"></script>
+		<script type="text/javascript" src="./libraries/modernizr.custom.js"></script>
 
 
 		<script type="text/javascript" src="./javascript/P2J.js?r=<?php echo $build; ?>"></script>

@@ -104,7 +104,6 @@ class TodoGUI extends Todo implements iGUIHTML2 {
 		$gui->label("TodoStatus","Status");
 		$gui->label("TodoRemind","Erinnerung");
 		$gui->label("TodoName","Betreff");
-		#$gui->label("TodoIsPublic","Öffentlich?");
 
 		$gui->label("TodoRepeat","Wiederholen");
 		#$gui->label("TodoRepeatInterval","Intervall");
@@ -114,10 +113,7 @@ class TodoGUI extends Todo implements iGUIHTML2 {
 		$gui->label("TodoAllDay", "Ganzer Tag");
 		
 		$gui->space("TodoRemind", "Optionen");
-		#$gui->space("TodoTillTime", "Ende");
 		$gui->space("TodoFromDay", "Zeit");
-
-		#$gui->addFieldEvent("TodoFromDay", "onChange", "$('editTodoGUI').TodoTillDay.value = $('editTodoGUI').TodoFromDay.value;");
 
 		if($this->A("TodoFromDay") == "01.01.1970" AND $this->A("TodoFromTime") == "00:00"){
 			$this->changeA("TodoFromDay", $this->A("TodoTillDay"));
@@ -145,37 +141,22 @@ class TodoGUI extends Todo implements iGUIHTML2 {
 
 		$gui->type("TodoType","select", TodoGUI::types());
 		
-		#$gui->autoComplete("TodoClassID", "mWAdresse", "");
-		
-		#$gui->type("TodoRepeat","checkbox");
-		#$gui->type("TodoRepeat","select", array("" => "nicht Wiederholen", "weekly" => "Wöchentlich", "monthly" => "Monatlich"));
 		$gui->type("TodoRemind","select", array("-1" => "keine Erinnerung", "60" => "1 Minute vorher", "300" => "5 Minuten vorher", "600" => "10 Minuten vorher", "900" => "15 Minuten vorher", "1800" => "30 Minuten vorher", "2700" => "45 Minuten vorher", "3600" => "1 Stunde vorher"));
 
 		$gui->type("TodoClass","hidden");
-		#$gui->type("TodoClassID","hidden");
 		$gui->type("TodoDescription","textarea");
 		$gui->type("TodoAllDay", "checkbox");
-		#$gui->type("TodoTillDay","date");
-		#$gui->type("TodoFromDay","date");
-		#$gui->type("TodoIsPublic","checkbox");
 
 		$gui->addFieldEvent("TodoAllDay", "onchange", "\$j('#TodoFromTimeDisplay').css('display', this.checked ? 'none' : 'inline'); \$j('#TodoTillTimeDisplay').css('display', this.checked ? 'none' : 'inline');");
 		
 		$gui->parser("TodoFromDay", "TodoGUI::dayFromParser");
 		$gui->parser("TodoTillDay", "TodoGUI::dayTillParser");
-		#$gui->parser("TodoFromTime", "TodoGUI::timeFromParser");
-		#$gui->parser("TodoTillTime", "TodoGUI::timeTillParser");
-		
-		#$gui->toggleFields("TodoRepeat", "1", "TodoRepeatInterval");
-		
-		#$gui->space("TodoTillDay");
-		#$gui->space("TodoStatus");
 
 		$allowed = array();
 		$ACS = anyC::get("Userdata", "name", "shareCalendarTo".Session::currentUser()->getID());
 		while($Share = $ACS->getNextEntry())
-			$allowed[$Share->A("UserID")] = $Share->A("wert");#$AC->addAssocV3("TodoUserID", "=", $Share->A("UserID"), "OR", "2");
-		#print_r($allowed);
+			$allowed[$Share->A("UserID")] = $Share->A("wert");
+		
 		$ac = Users::getUsers();
 		$users = array();
 		while($u = $ac->getNextEntry()){
@@ -248,13 +229,15 @@ class TodoGUI extends Todo implements iGUIHTML2 {
 			$up += 15 * 60;
 		}
 
-		$I = new HTMLInput($f, "text", $w);
+		$I = new HTMLInput($f, "time", $w);
 		$I->style("width:50px;text-align:right;");
 		$I->id($f);
+		if($f == "TodoFromTime")
+			$I->connectTo("TodoTillTime");
 
 		$values = array($down - 900 * 2, $down - 900, $down, $up, $up + 900);
 		if($f == "TodoFromTime")
-			$values = array($down, $up, $up + 900 * 2, $up + 900 * 3, $up + 900 * 4);
+			$values = array($down, $up, $up + 900, $up + 900 * 2, $up + 900 * 3);
 			
 		$T = new HTMLTable(count($values));
 		$T->setTableStyle("margin-top:5px;display:none;");
@@ -338,7 +321,7 @@ class TodoGUI extends Todo implements iGUIHTML2 {
 		Aspect::joinPoint("before", null, __METHOD__, $MArgs);
 		// </editor-fold>
 
-		$types = array("Aufgabe","Anruf","Termin");
+		$types = array(1 => "Anruf", 2 => "Termin");
 
 		if($nr == null) return $types;
 		else return $types[$nr];

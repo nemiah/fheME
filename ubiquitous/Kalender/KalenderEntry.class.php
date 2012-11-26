@@ -34,6 +34,7 @@ class KalenderEntry {
 
 	protected $repeat = false;
 	protected $repeatInterval;
+	protected $repeatWeekOfMonth = 0;
 
 	protected $remind = -1;
 	
@@ -84,10 +85,11 @@ class KalenderEntry {
 		return $this->title;
 	}
 
-	function repeat($activate = null, $interval = null){
+	function repeat($activate = null, $interval = null, $weekOfMonth = 0){
 		if($activate != null){
 			$this->repeat = $activate;
 			$this->repeatInterval = $interval;
+			$this->repeatWeekOfMonth = $weekOfMonth;
 		}
 
 		if($this->repeat === false)
