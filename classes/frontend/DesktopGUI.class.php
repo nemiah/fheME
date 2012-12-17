@@ -25,10 +25,18 @@ class DesktopGUI extends UnpersistentClass implements iGUIHTML2 {
 			return $D->getHTML($id);
 		}
 		
-		$c = $_SESSION["applications"]->getActiveApplication()."DesktopGUI";
+		$c = Applications::activeApplication()."DesktopGUI";
 
 		try {
 			$c = new $c();
+			
+			if($id == "1")
+				return "
+					<div style=\"float:right;width:33.3333%;\"><div id=\"desktopRight\" style=\"padding:10px;\">".$c->getHTML($id)."</div></div>
+					<div style=\"float:right;width:33.3333%;\"><div id=\"desktopMiddle\" style=\"padding:10px;width:90%;margin:auto;\"></div></div>
+					<div style=\"float:right;width:33.3333%;\"><div id=\"desktopLeft\" style=\"padding:10px;\"></div></div>
+					".OnEvent::script(OnEvent::frame("desktopLeft", "Desktop", "2").OnEvent::frame("desktopMiddle", "Desktop", "3"));
+			
 			return $c->getHTML($id);
 		} catch(ClassNotFoundException $e) {}
 	}

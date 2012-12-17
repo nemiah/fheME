@@ -155,7 +155,7 @@ class propertyC extends anyC {
 			$gui->addTopButton($B);
 
 		if($this->allowEdit)
-			$gui->activateFeature("editInPopup", $this);
+			$gui->activateFeature("editInPopup", $this, "{remember:true}");
 		
 
 		$gui->options($this->allowDelete, $this->allowEdit, false, false);

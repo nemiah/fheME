@@ -86,33 +86,51 @@ class TempFile {
 		
 		#echo "Speicher start 1: ".Util::formatByte(memory_get_usage(true),2)."<br />";
 		
-		$win = false;
+		/*$win = false;
 		if($newLine == "Windows") {
 			$newLine = "\r\n";
 			$win = true;
 		}
-		if($newLine == "Unix") $newLine = "\n";
-
-		if($codepage != "UTF-8") $makeUTF = true;
-		else $makeUTF = false;
+		if($newLine == "Unix")
+			$newLine = "\n";*/
+		
+		ini_set("auto_detect_line_endings", true);
+		
+		$makeUTF = false;
+		if($codepage != "UTF-8")
+			$makeUTF = true;
 
 		$handle = fopen($this->Attributes->filename, "r");
-		$bugger = "";
+		#$bugger = "";
 
-		while (!feof($handle))
-		    $bugger .= fgets($handle, 4096);
+		#while (!feof($handle))
+		 #   $bugger .= fgets($handle, 4096);
 		    
-		fclose ($handle);
+		#fclose ($handle);
 		#echo "Speicher start 3: ".Util::formatByte(memory_get_usage(true),2)."<br />";
-		$bugger = trim($bugger);
+		#$bugger = trim($bugger);
 		
-		if(strpos($bugger, $newLine) === false AND $win){
+		/*if(strpos($bugger, $newLine) === false AND $win){
 			echo "Keine Windows-Zeilenumbrüche gefunden, verwende Unix!";
 			$newLine = "\n";
 			$win = false;
-		}
-		    
+		}*/
+		   
 		$line = array();
+		#$row = 1;
+		
+		while(($data = fgetcsv($handle, 0, $sep, $textSep)) !== FALSE) {
+			
+			if($makeUTF)
+				foreach($data AS $k => $v)
+					$data[$k] = utf8_encode ($v);
+					
+			$line[] = $data;
+		}
+		fclose($handle);
+		
+		return $line;
+		/*$line = array();
 		$line[0] = array();
 		$line[0][0] = "";
 		$mode = "outside";
@@ -146,7 +164,7 @@ class TempFile {
 			}
 		}
 		#echo "Speicher ende: ".Util::formatByte(memory_get_usage(true),2)."<br />";
-		return $line;
+		return $line;*/
 	}
 
 	public function makeUpload($A){

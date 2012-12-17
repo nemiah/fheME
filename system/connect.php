@@ -21,12 +21,19 @@
 /**
  * Entfernen Sie das #-Zeichen vor der nächsten Zeile, um MySQLi zu deaktivieren
  */
-#define("PHYNX_MAIN_STORAGE","MySQLo");
+#define("PHYNX_MAIN_STORAGE", "MySQLo");
 
 /**
  * Entfernen Sie das #-Zeichen vor der nächsten Zeile, um MSSQL (experimentell) zu aktivieren
  */
-#define("PHYNX_MAIN_STORAGE","MSSQL");
+#define("PHYNX_MAIN_STORAGE", "MSSQL");
+
+/**
+ * Entfernen Sie das #-Zeichen vor der nächsten Zeile, um mod_security zu umgehen (experimentell)
+ */
+#define("PHYNX_QUERY_PARSER", true);
+
+
 header('P3P:CP="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT"');
 require_once dirname(__FILE__)."/basics.php";
 
@@ -38,6 +45,10 @@ if(!defined("PHYNX_MAIN_STORAGE"))
 
 $GLOBALS["phynxLogPhpErrors"] = true;
 
+
+if(defined("PHYNX_QUERY_PARSER"))
+	$_GET = phynxParseStr($_SERVER["QUERY_STRING"]);
+
 $physion = "default";
 if(isset($_GET["physion"]))
 	$physion = $_GET["physion"];
@@ -45,13 +56,15 @@ if(isset($_GET["physion"]))
 if(session_name() == get_cfg_var("session.name"))
 	session_name("phynx_".sha1(__FILE__).($physion != "default" ? "_$physion" : ""));
 
+spl_autoload_register("phynxAutoloader");
 
-if(!is_writable(session_save_path()) AND (!file_exists(__DIR__."/session") OR !is_writable(__DIR__."/session")))
-	emoFatalError("Sitzungs-Erstellung fehlgeschlagen", "Das Sitzungs-Verzeichnis (".session_save_path().") Ihres Webservers ist leider nicht beschreibbar.<br />Bitte melden Sie dies Ihrem Webhoster.<br /><br />Um das Problem ohne Webhoster zu l&ouml;sen, erstellen Sie das Verzeichnis /system/session<br />im Verzeichnis dieser Anwendung und machen es durch den Webserver beschreibbar (Modus 666).<br />Stellen Sie dabei sicher, dass es von Au&szlig;erhalb nicht erreichbar ist (zum Beispiel durch eine .htaccess-Datei).", "Sitzungs-Fehler", true);
+if(ini_get("open_basedir") == "" OR strpos(ini_get("open_basedir"), ini_get("session.save_path")) !== false){
+	if(!is_writable(session_save_path()) AND (!file_exists(dirname(__FILE__)."/session") OR !is_writable(dirname(__FILE__)."/session")))
+		emoFatalError("Sitzungs-Erstellung fehlgeschlagen", "Das Sitzungs-Verzeichnis (".session_save_path().") Ihres Webservers ist leider nicht beschreibbar.<br />Bitte melden Sie dies Ihrem Webhoster.<br /><br />Um das Problem ohne Webhoster zu l&ouml;sen, erstellen Sie das Verzeichnis /system/session<br />im Verzeichnis dieser Anwendung und machen es durch den Webserver beschreibbar (Modus 666).<br />Stellen Sie dabei sicher, dass es von Au&szlig;erhalb nicht erreichbar ist (zum Beispiel durch eine .htaccess-Datei).", "Sitzungs-Fehler", true);
 
-if(!is_writable(session_save_path()))
-	session_save_path(__DIR__."/session");
-
+	if(!is_writable(session_save_path()))
+		session_save_path(dirname(__FILE__)."/session");
+}
 
 if((isset($_POST["class"]) AND isset($_POST["method"]) AND $_POST["class"] == "Users" AND $_POST["method"] == "doLogin")
 	OR (isset($_GET["class"]) AND isset($_GET["method"]) AND $_GET["class"] == "Users" AND $_GET["method"] == "doLogin"))
@@ -69,10 +82,11 @@ if(!defined("PHYNX_NO_SESSION_RELOCATION")
 	session_start();
 	if(basename($_SERVER["SCRIPT_FILENAME"]) == "index.php") {
 		setcookie("phynx_relocate", time(), time() + 600);
-		if($_SERVER["HTTP_HOST"] != "cloud.furtmeier.it")
-			header("location: index.php");
+		$CH = Util::getCloudHost();
+		if($CH AND isset($CH->appPrefix))#$_SERVER["HTTP_HOST"] != "cloud.furtmeier.it"
+			header("location: /".$CH->appPrefix."_$_GET[cloud]");
 		else
-			header("location: /wolke_$_GET[cloud]");
+			header("location: index.php");
 		exit();
 	} else die("SESSION EXPIRED");
 }
@@ -83,12 +97,15 @@ ini_set("display_errors", "On");
 header("Content-Type: text/html; charset=UTF-8");
 error_reporting(E_ALL);
 set_error_handler("log_error");
+
 if(function_exists('date_default_timezone_set'))
 	date_default_timezone_set('Europe/Berlin');
 
+if(function_exists('mb_internal_encoding'))
+	mb_internal_encoding("UTF-8");
 
-if(!function_exists("array_fill_keys"))
-	emoFatalError("I'm sorry, but your PHP version is too old.", "You need at least PHP version 5.2.0 to run this program.<br />You are using ".phpversion().". Please talk to your provider about this.", "phynx");
+#if(!function_exists("array_fill_keys")) // in index.php as of 01.10.2012
+#	emoFatalError("I'm sorry, but your PHP version is too old.", "You need at least PHP version 5.2.0 to run this program.<br />You are using ".phpversion().". Please talk to your provider about this.", "phynx");
 
 function log_error($errno, $errmsg, $filename, $linenum) {
 	if(!$GLOBALS["phynxLogPhpErrors"]) return;
@@ -125,18 +142,26 @@ function log_error($errno, $errmsg, $filename, $linenum) {
 	} catch(Exception $e){}
 }
 
+register_shutdown_function('fatalErrorShutdownHandler');
+function fatalErrorShutdownHandler() {
+	$last_error = error_get_last();
+	if ($last_error['type'] !== E_ERROR) 
+		return;
+	
+	log_error(E_ERROR, $last_error['message'], $last_error['file'], $last_error['line']);
+}
+
 session_start();
 
-if(isset($_COOKIE["phynx_customer"]) AND isset($_GET["cloud"]) AND $_COOKIE["phynx_customer"] != $_GET["cloud"]){ //if someone switches the cloud, kick him and reinitialize
+if(isset($_SESSION["phynx_customer"]) AND isset($_GET["cloud"]) AND $_SESSION["phynx_customer"] != $_GET["cloud"]){ //if someone switches the cloud, kick him and reinitialize
 	session_destroy();
 	session_start();
 }
 
 if(!isset($_SESSION["classPaths"])) 
 	$_SESSION["classPaths"] = array();
-	
 
-function __autoload($class_name) {
+function phynxAutoloader($class_name) {
 	try {
 		return findClass($class_name);
 	} catch (ClassNotFoundException $e){

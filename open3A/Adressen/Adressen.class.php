@@ -27,7 +27,7 @@ class Adressen extends anyC implements iPluginSpecificRestrictions {
 	}
 	
 	function getPluginSpecificRestrictions(){
-		return array("pluginSpecificCanUse1xAdresse" => "kann vorhandene und 1x-Adressen verwenden");
+		return array("pluginSpecificCanUse1xAdresse" => "kann NUR vorhandene und 1x-Adressen verwenden");
 	}
 }
 ?>

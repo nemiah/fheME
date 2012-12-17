@@ -153,6 +153,9 @@ var Popup = {
 			
 			if(options.persistent)
 				persistent = options.persistent;
+			
+			if(options.blackout)
+				Overlay.showDark();
 		}
 		
 		if(persistent)
@@ -169,6 +172,14 @@ var Popup = {
 		//	right = size[0] - width - left;
 			
 		//if($(targetContainer).firstChild == null) Popup.windowsOpen = 0;
+		
+		if(typeof options == "object" && options.remember && $j.jStorage.get('phynxPopupPosition'+type+'Details'+ID, null) !== null){
+			var pos = $j.jStorage.get('phynxPopupPosition'+type+'Details'+ID);
+			right = null;
+			left = pos.left;
+			top = pos.top;
+		}
+		
 		var element = Builder.node(
 			"div",
 			{
@@ -179,12 +190,31 @@ var Popup = {
 				Builder.node("div", {"class": "backgroundColor1 cMHeader", id: type+'DetailsHandler'+ID}, [
 					Builder.node("a", {id: type+"DetailsCloseWindow"+ID, "class": "closeContextMenu backgroundColor0 borderColor0", style:"cursor:pointer;"+(hasX ? "" : "display:none;")}, ["X"])
 					, name]),
-				Builder.node("div", {"class": "backgroundColor0", style: "clear:both;", id: type+'DetailsContent'+ID})
+				Builder.node("div", {"class": "backgroundColor0", style: "clear:both;", id: type+'DetailsContentWrapper'+ID}, [
+					Builder.node("div", {id: type+'DetailsContent'+ID})
+				])
+				
 			]);
 
 		$(targetContainer).appendChild(element);
 		
-		new Draggable($(type+'Details'+ID), {handle: $(type+'DetailsHandler'+ID)});
+		//new Draggable($(type+'Details'+ID), {handle: $(type+'DetailsHandler'+ID)});
+		$j("#"+type+'Details'+ID).draggable({
+			handle: $j('#'+type+'DetailsHandler'+ID),
+			start: function(){
+				$j('#'+type+'DetailsContentWrapper'+ID).css('height', $j('#'+type+'DetailsContent'+ID).height());
+				$j('#'+type+'DetailsContent'+ID).fadeOut("fast");
+			},
+			stop: function(){
+				$j('#'+type+'DetailsContent'+ID).fadeIn("fast", function(){
+					$j('#'+type+'DetailsContentWrapper'+ID).css('height', '');
+				});
+					
+				if(typeof options == "object" && options.remember)
+					$j.jStorage.set('phynxPopupPosition'+type+'Details'+ID, $j("#"+type+'Details'+ID).position());
+				
+			}
+		});
 		Event.observe(type+'DetailsCloseWindow'+ID, 'click', function() {Popup.close(ID, type);});
 		//Event.observe(type+'Details'+ID, 'click', function(event) {Popup.updateZ(event.target);});
 
@@ -197,6 +227,11 @@ var Popup = {
 			tinyMCE.execCommand("mceFocus", false, hasTinyMCE.attr("id"));                    
 			tinyMCE.execCommand("mceRemoveControl", false, hasTinyMCE.attr("id"));
 		}
+		
+		var hasNicEdit = $j("#"+type+'Details'+ID+" textarea[name=nicEdit]");
+		if(hasNicEdit.length)
+			new nicEditor().removeInstance("nicEdit");
+		
 		
 		Popup.sidePanelClose(ID, type);
 		

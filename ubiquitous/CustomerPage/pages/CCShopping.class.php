@@ -63,7 +63,7 @@ class CCShopping implements iCustomContent {
 			<div id=\"einkaufsliste\">";
 		
 		while($E = $AC->getNextEntry()){
-			$html .= "<div id=\"entry".$E->getID()."\" onclick=\"CustomerPage.rme('setBought', [".$E->getID()."], function(){ $('#entry".$E->getID()."').remove(); if($('#einkaufsliste .nonEmpty').length == 0) $('#emptyEntry').show(); });\" class=\"nonEmpty entry backgroundColor1 borderColor1\">".$E->A("EinkaufszettelName")."".($E->A("EinkaufszettelNameDetails") != "" ? "<br /><small style=\"color:grey;\">".$E->A("EinkaufszettelNameDetails")."</small>" : "")."</div>";
+			$html .= "<div id=\"entry".$E->getID()."\" onclick=\"CustomerPage.rme('setBought', [".$E->getID()."], function(){ $('#entry".$E->getID()."').remove(); if($('#einkaufsliste .nonEmpty').length == 0) $('#emptyEntry').show(); });\" class=\"nonEmpty entry backgroundColor1 borderColor1\">".$E->A("EinkaufszettelName")."</div>";
 		}
 		
 		$html .= "<div style=\"".($AC->numLoaded() == 0 ? "" : "display:none;")."\" class=\"entry backgroundColor1 borderColor1\" id=\"emptyEntry\">Die Einkaufsliste enthält keine Einträge.<br /><small style=\"color:grey;\">".Util::CLDateParser(time())."</small></div>";

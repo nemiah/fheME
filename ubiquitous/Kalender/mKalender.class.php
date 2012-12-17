@@ -52,6 +52,7 @@ Freundliche Grüße
 		
 		$parameters = explode("::", $parameters);
 		
+		$action = $parameters[0];
 		$className = $parameters[1];
 		$classID = $parameters[2];
 		$time = $parameters[3];
@@ -68,40 +69,33 @@ Freundliche Grüße
 	    $mail->setFrom(utf8_decode($fromName." <".$from.">"));
 	    if(!ini_get('safe_mode')) $mail->setReturnPath($from);
 	    $mail->setSubject(utf8_decode($subject));
-		/*
-		$ics = "BEGIN:VCALENDAR
+
+		/*if($action == "reply"){
+			$ics = "BEGIN:VCALENDAR
+PRODID:-//lightCRM Kalender
 VERSION:2.0
-PRODID:http://www.furtmeier.it
-METHOD:PUBLISH
-BEGIN:VTIMEZONE
-TZID:Europe/Berlin
-X-LIC-LOCATION:Europe/Berlin
-BEGIN:DAYLIGHT
-TZOFFSETFROM:+0100
-TZOFFSETTO:+0200
-TZNAME:CEST
-DTSTART:19700329T020000
-RRULE:FREQ=YEARLY;INTERVAL=1;BYDAY=-1SU;BYMONTH=3
-END:DAYLIGHT
-BEGIN:STANDARD
-TZOFFSETFROM:+0200
-TZOFFSETTO:+0100
-TZNAME:CET
-DTSTART:19701025T030000
-RRULE:FREQ=YEARLY;INTERVAL=1;BYDAY=-1SU;BYMONTH=10
-END:STANDARD
-END:VTIMEZONE
+METHOD:REPLY
 BEGIN:VEVENT
-UID:".$data->UID()."
-ORGANIZER;CN=\"$fromName\":MAILTO:$from
-SUMMARY:".$data->title()."
-DESCRIPTION:".str_replace("<br />\n", "\n  ", $data->summary())."
-CLASS:PUBLIC
-DTSTART;TZID=Europe/Berlin:".date("Ymd", Kalender::parseDay($data->getDay()))."T".$data->getTime()."00
-DTEND;TZID=Europe/Berlin:".date("Ymd", Kalender::parseDay($data->getEndDay()))."T".$data->getEndTime()."00
-DTSTAMP:".date("Ymd")."T".date("His")."Z
+CREATED:20121130T004454Z
+LAST-MODIFIED:20121201T143509Z
+DTSTAMP:20121201T143509Z
+UID:7715ie5i20hvm0b71p18vhgj70@google.com
+SUMMARY:Test
+STATUS:CONFIRMED
+ORGANIZER;CN=rainer.furtmeier@googlemail.com:mailto:rainer.furtmeier@googl
+ email.com
+ATTENDEE;CN=nemi@2sins.de;PARTSTAT=ACCEPTED;CUTYPE=INDIVIDUAL;ROLE=REQ-PAR
+ TICIPANT;X-NUM-GUESTS=0:mailto:nemi@2sins.de
+DTSTART:20121206T123000Z
+DTEND:20121206T133000Z
+DESCRIPTION:
+SEQUENCE:5
+TRANSP:OPAQUE
 END:VEVENT
-END:VCALENDAR";*/
+END:VCALENDAR";
+		}*/
+		
+		if($action == "notification")
 		$ics = "BEGIN:VCALENDAR
 PRODID:-//lightCRM Kalender
 VERSION:2.0
@@ -126,9 +120,9 @@ END:STANDARD
 END:VTIMEZONE
 BEGIN:VEVENT
 LAST-MODIFIED:20120629T094018Z
-DTSTAMP:".date("Ymd")."T".date("His")."Z
+DTSTAMP:".date("Ymd")."T".date("His")."
 UID:".$data->UID()."
-SUMMARY:Test3
+SUMMARY:".$data->summary()."
 ORGANIZER;CN=\"$fromName\":MAILTO:$from
 DTSTART;TZID=Europe/Berlin:".date("Ymd", Kalender::parseDay($data->getDay()))."T".$data->getTime()."00
 DTEND;TZID=Europe/Berlin:".date("Ymd", Kalender::parseDay($data->getEndDay()))."T".$data->getEndTime()."00
@@ -145,7 +139,11 @@ END:VCALENDAR";
 		$adresse->replaceByAnsprechpartner($recipientID);
 		$body = str_replace("{Anrede}", Util::formatAnrede($_SESSION["S"]->getUserLanguage(), $adresse), $body);
 		
-		$mail->setCalendar($ics, "REQUEST");
+		if($action == "notification")
+			$mail->setCalendar($ics, "REQUEST");
+		#if($action == "reply")
+		#	$mail->setCalendar($ics, "REPLY");
+		
 		$mail->setTextCharset("UTF-8");
 		$mail->setCalendarCharset("UTF-8");
 		$mail->setText($body);

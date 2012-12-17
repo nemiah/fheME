@@ -44,18 +44,15 @@ class UsersGUI extends Users implements iGUIHTML2{
 		$I = new HTMLInput("AppServer", "text", mUserdata::getGlobalSettingValue("AppServer", ""));
 		$I->onEnter("contentManager.rmePCR('Users', '-1', 'saveAppServer', [this.value], ' ');");
 		if($allowedUsers === null)
-			$T->addRow($I."<br /><small>Wenn Sie einen Application Server bertreiben, tragen Sie hier bitte die URL ein, um die Benutzer mit diesem Server zu authorisieren.</small>");
+			$T->addRow($I."<br /><small>Wenn Sie einen Application Server betreiben, tragen Sie hier bitte die URL ein, um die Benutzer mit diesem Server zu authentifizieren.</small>");
 
 		$gui = new HTMLGUI();
 		$gui->setObject($this);
 		$gui->setName("Benutzer");
 		$gui->setCollectionOf($this->collectionOf,"Benutzer");
-		#$gui->setObject($this);
+
 		$gui->setParser("isAdmin","UsersGUI::isAdminParser");
 		$gui->setColWidth("isAdmin","20px");
-		#$gui->hideAttribute("password");
-		#$gui->hideAttribute("SHApassword");
-		#$gui->hideAttribute("language");
 		
 		$gui->setShowAttributes(array("name","username","isAdmin"));
 		
@@ -83,6 +80,10 @@ class UsersGUI extends Users implements iGUIHTML2{
 	
 	function doCertificateLogin($application, $sprache, $cert) {
 		echo parent::doCertificateLogin($application, $sprache, $cert);
+	}
+	
+	function doPersonaLogin($application, $sprache, $assertion) {
+		echo parent::doPersonaLogin($application, $sprache, $assertion);
 	}
 	
 	function doLogin($ps){

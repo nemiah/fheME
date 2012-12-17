@@ -51,7 +51,6 @@ class Environment {
 	}
 	
 	/**
-	 *
 	 * @return iCorporateDesign
 	 */
 	public static function getCorporateDesign(){
@@ -65,6 +64,8 @@ class Environment {
 				$CD = new $c();
 				break;
 			}
+			
+			#throw new ClassNotFoundException();
 		} catch (ClassNotFoundException $e){
 			$CD = new CorporateDesign();
 		}
@@ -94,7 +95,7 @@ class Environment {
 				$dbData["password"] = $ex[2];
 				$dbData["httpHost"] = "*";
 				$dbData["datab"] = $ex[3];
-
+				
 				$return = $dbData;
 			break;
 			
@@ -113,6 +114,7 @@ class Environment {
 			break;
 			
 			case "customizer":
+			case "customizerExtra":
 				if($return == null)
 					return $default;
 				

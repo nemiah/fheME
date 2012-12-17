@@ -32,12 +32,6 @@ class AdresseGUI extends Adresse implements /*iFPDF, */iGUIHTML2 {
 		$forReload = "";
 		$displayMode = null;
 		$AuftragID = -1;
-
-		/*$_SESSION["BPS"]->setActualClass("adressenMode");
-		$bpsMode = $_SESSION["BPS"]->getAllProperties();
-
-		if($bpsMode != -1 AND isset($bpsMode["adressenMode"]))
-			$mode = $bpsMode["adressenMode"];*/
 		
 		$bps = $this->getMyBPSData();
 		if($bps != -1 AND isset($bps["AuftragID"]))
@@ -68,29 +62,22 @@ class AdresseGUI extends Adresse implements /*iFPDF, */iGUIHTML2 {
 
 			try {
 				$K = new Kunden();
-				if($displayMode == null AND $this->A->type == "default") //Or else a lieferAdresse will get a Kundennummer
+				if($displayMode == null AND $this->A("type") == "default") //Or else a lieferAdresse will get a Kundennummer
 					$K->createKundeToAdresse($id,false);
 			} catch(ClassNotFoundException $e) {}
 
 			$forReload = "<script type=\"text/javascript\">lastLoadedLeft = $id; lastLoadedLeftPlugin = 'Adresse';</script>";
-/*
-			if($mode != "adressenK") {
-				$id = $this->newMe(true, false);
-				$this->forceReload();
-				
-				try {
-					$K = new Kunden();
-					$K->createKundeToAdresse($id,false);
-				} catch(ClassNotFoundException $e) {}
-				
-				$forReload = "<script type=\"text/javascript\">lastLoadedLeft = $id; lastLoadedLeftPlugin = 'Adresse';</script>";
-			}*/
-
 
 		}
 		
 		$OptTab = new HTMLSideTable("right");
 
+		if(Session::isPluginLoaded("Kunden") AND $this->A->AuftragID == -1){
+			$B = new Button("Kundendaten","kunden");
+			$B->loadFrame("contentLeft", "Kunde", "-1", "0", "KundeGUI;AdresseID:{$this->getID()};action:Kappendix");
+			$OptTab->addRow($B);
+		}
+		
 		if($_SESSION["applications"]->getActiveApplication() == "open3A"){
 			if($displayMode != null)
 				$OptTab->setTableStyle("width:160px;margin:0px;margin-left:-170px;float:left;");
@@ -106,12 +93,17 @@ class AdresseGUI extends Adresse implements /*iFPDF, */iGUIHTML2 {
 			}
 
 			if($id != -1 AND Session::isPluginLoaded("Kundenpreise") AND $this->A->AuftragID == -1 AND $this->A->type == "default"){
-				$ButtonKundenpreise = new Button("Kundenpreise\nfestlegen","package");
+				$ButtonKundenpreise = new Button("Kundenpreise","package");
 				$ButtonKundenpreise->onclick("contentManager.loadFrame('contentLeft','Kunde', -1, 0, 'KundeGUI;AdresseID:$this->ID;action:Kundenpreise');");
 
 				$OptTab->addRow($ButtonKundenpreise);
 			}
-
+		
+			if($this->A->AuftragID == -1 AND (Session::isPluginLoaded("mAnsprechpartner") OR Session::isPluginLoaded("mOSM"))){
+				$OptTab->addRow("");
+				$OptTab->addCellStyle(1, "height:30px;");
+			}
+			
 			if($id != -1 AND Session::isPluginLoaded("mAnsprechpartner") AND $this->A->AuftragID == -1)
 				$OptTab->addRow(Ansprechpartner::getButton("Adresse", $this->getID()));
 			
@@ -119,7 +111,10 @@ class AdresseGUI extends Adresse implements /*iFPDF, */iGUIHTML2 {
 				$OptTab->addRow(OpenLayers::getButton("Adresse", $this->getID()));
 			
 		}
-
+		
+		if(Session::isPluginLoaded("mklickTel") AND $this->A->AuftragID == -1)
+			$OptTab->addRow(klickTel::getButton($this->getID()));
+		
 
 		$this->loadMeOrEmpty();
 
@@ -137,9 +132,9 @@ class AdresseGUI extends Adresse implements /*iFPDF, */iGUIHTML2 {
 			"vorname",
 			"nachname",
 			"strasse",
-			"nr",
+			/*"nr",*/
 			"zusatz1",
-			"plz",
+			#"plz",
 			"ort",
 			"land",
 			"tel",
@@ -154,6 +149,7 @@ class AdresseGUI extends Adresse implements /*iFPDF, */iGUIHTML2 {
 			"type",
 			"geb",
 			"bemerkung");
+		
 		if(Session::isPluginLoaded("mLDAP"))
 			$fields[] = "exportToLDAP";
 
@@ -186,12 +182,17 @@ class AdresseGUI extends Adresse implements /*iFPDF, */iGUIHTML2 {
 		$gui->setType("type","hidden");
 
 		#$gui->setLabel("geb","Jahrestag");
-		$gui->setLabel("plz","PLZ");
-		$gui->setLabel("strasse","Straße");
+		$gui->setLabel("ort","PLZ/Ort");
+		$gui->setLabel("strasse","Straße/Hausnr.");
+		$gui->setLabel("tel","Telefon");
+		$gui->setLabel("email","E-Mail");
 		$gui->setLabel("exportToLDAP","LDAP-Export?");
 		
-		$gui->useAutoCompletion("plz", (Session::isPluginLoaded("Postleitzahlen") ? "Postleitzahlen" : "Adressen"));
-		if(Session::isPluginLoaded("mStammdaten")){
+		$gui->setParser("strasse", "AdresseGUI::parserStrasse", array($this->A("nr")));
+		$gui->setParser("ort", "AdresseGUI::parserOrt", array($this->A("plz")));
+		
+		#$gui->useAutoCompletion("plz", (Session::isPluginLoaded("Postleitzahlen") ? "Postleitzahlen" : "Adressen"));
+		if(Session::isPluginLoaded("mStammdaten") OR Applications::activeApplication() == "MMDB"){
 			/*if($this->A("land") == ""){
 				$S = Stammdaten::getActiveStammdaten();
 				if($S->A("land") == "D") $S->changeA("land","DE");
@@ -205,14 +206,14 @@ class AdresseGUI extends Adresse implements /*iFPDF, */iGUIHTML2 {
 			$values = array_merge(array("" => ""), $countries);
 			$gui->setOptions("land", array_values($values), array_values($labels));
 
-			if($this->A("land") != ISO3166::getCountryToCode("GB")) {
+			if($this->A("land") != ISO3166::getCountryToCode("GB") AND $this->A("land") != ISO3166::getCountryToCode("US") AND $this->A("land") != ISO3166::getCountryToCode("CH")) {
 				$gui->setLineStyle("zusatz1", "display:none;");
 				$gui->setLineStyle("position", "display:none;");
 			}
 
 			$gui->setLabel("zusatz1", "Zusatz 1");
-
-			$gui->setInputJSEvent("land", "onchange", "contentManager.toggleFormFields((this.value == '".ISO3166::getCountryToCode("GB")."' || this.value == '".ISO3166::getCountryToCode("US")."') ? 'show' : 'hide', ['zusatz1', 'position'])");
+			
+			$gui->setInputJSEvent("land", "onchange", "contentManager.toggleFormFields((this.value == '".ISO3166::getCountryToCode("GB")."' || this.value == '".ISO3166::getCountryToCode("US")."' || this.value == '".ISO3166::getCountryToCode("CH")."') ? 'show' : 'hide', ['zusatz1', 'position']);");
 		}
 
 		if(Session::isPluginLoaded("mGemeinschaft")){
@@ -220,6 +221,7 @@ class AdresseGUI extends Adresse implements /*iFPDF, */iGUIHTML2 {
 			$gui->activateFeature("addCustomButton", $this, "mobil", Gemeinschaft::getCallButton($this->A("mobil"), "mobile"));
 		}
 
+		
 		$kat = new Kategorien();
 		$kat->addAssocV3("type","=",($displayMode != "" ? $displayMode : "1" ));
 		$keys = $kat->getArrayWithKeys();
@@ -228,7 +230,7 @@ class AdresseGUI extends Adresse implements /*iFPDF, */iGUIHTML2 {
 		$values = $kat->getArrayWithValues();
 		$values[] = "bitte auswählen";
 		
-		$gui->setOptions("KategorieID",$keys,$values);
+		$gui->setOptions("KategorieID", $keys, $values);
 		$gui->setType("bemerkung","textarea");
 		
 		$gui->setLabel("KategorieID","Kategorie");
@@ -240,7 +242,6 @@ class AdresseGUI extends Adresse implements /*iFPDF, */iGUIHTML2 {
 			$gui->setType("tel","hidden");
 			$gui->setType("fax","hidden");
 			$gui->insertSpaceAbove("email");
-			#$gui->setType("email","hidden");
 			$gui->setType("homepage","hidden");
 			$gui->setType("exportToLDAP","hidden");
 			$gui->setType("mobil","hidden");
@@ -265,25 +266,36 @@ class AdresseGUI extends Adresse implements /*iFPDF, */iGUIHTML2 {
 
 		Aspect::joinPoint("buttons", $this, __METHOD__, $OptTab);
 		
-		#if($AuftragID == -1)
-		#	$gui->setStandardSaveButton($this, $displayMode != "" ? $displayMode : "Adressen");
-		#else
 		$gui->setStandardSaveButton($this, "Adressen");
 		
 		$gui->customize($this->customizer);
-		
-		if($_SESSION["S"]->checkForPlugin("Kunden") AND $this->A->AuftragID == -1 AND $this->A("type") =="default"/* AND $displayMode != "mLieferant"*/){
-			$_SESSION["BPS"]->registerClass("KundeGUI");
-			$_SESSION["BPS"]->setACProperty("AdresseID",$this->ID);
-			$_SESSION["BPS"]->setACProperty("action","Kappendix");
-			$_SESSION["BPS"]->setACProperty("mode","short");
-			
-			$KG = new KundeGUI(-1);
-			return $forReload.$OptTab.$gui->getEditHTML()."<div style=\"height:30px;\"></div>".$KG->getHTML("","","","");
-		}
+
 		return $forReload.$OptTab.$gui->getEditHTML();
 	}
 
+	public static function parserStrasse($w, $l, $p){
+		$I1 = new HTMLInput("strasse", "text", $w);
+		$I1->style("width:185px;margin-right:10px;");
+		$I1->id("strasse");
+		
+		$I2 = new HTMLInput("nr", "text", $p);
+		$I2->style("width:50px;text-align:right;");
+		$I2->id("nr");
+		
+		return $I1.$I2;
+	}
+
+	public static function parserOrt($w, $l, $p){
+		$I1 = new HTMLInput("ort", "text", $w);
+		$I1->style("width:185px;");
+		$I1->id("ort");
+		
+		$I2 = new HTMLInput("plz", "text", $p);
+		$I2->style("width:50px;text-align:right;margin-right:10px;");
+		$I2->id("plz");
+		
+		return $I2.$I1;
+	}
 	
 	public function saveMe($checkUserData = true, $output = false, $deleteBPS = true){
 		if($deleteBPS){
@@ -293,10 +305,6 @@ class AdresseGUI extends Adresse implements /*iFPDF, */iGUIHTML2 {
 			
 		parent::saveMe($checkUserData, $output);
 	}
-	
-	#public function getFPDF(FPDF $fpdf, GRLBM $GRLBM){
-	#	$fpdf->addAddress($this);
-	#}
 	
 	public function getXML(){
 		$xml = parent::getXML();
@@ -319,6 +327,10 @@ class AdresseGUI extends Adresse implements /*iFPDF, */iGUIHTML2 {
 			echo $A;
 		
 		return $A;
+	}
+	
+	public function ACLabel(){
+		return $this->getShortAddress();
 	}
 }
 ?>

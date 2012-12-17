@@ -31,7 +31,20 @@ class OnEvent {
 	 */
 	public static function window($targetObject, $targetMethod, $targetMethodParameters = "", $bps = null, $target = null){
 		
-		return "windowWithRme('".str_replace("GUI", "", get_class($targetObject))."', ".$targetObject->getID().", '$targetMethod', ".(is_array($targetMethodParameters) ? "['".implode("','", $targetMethodParameters)."']" : "'$targetMethodParameters'").($bps != null ? ", '$bps'" : "").($target != null ? ", '$target'" : "")."); ";
+		return "windowWithRme('".str_replace("GUI", "", get_class($targetObject))."', ".($targetObject->getID() == "" ? "-1" : $targetObject->getID()).", '$targetMethod', ".(is_array($targetMethodParameters) ? "['".implode("','", $targetMethodParameters)."']" : "'$targetMethodParameters'").($bps != null ? ", '$bps'" : "").($target != null ? ", '$target'" : "")."); ";
+	}
+	
+	public static function selectCustom($targtFrame, $callingPluginID, $selectPlugin, $selectJSFunction, $addBPS = "", $options = ""){
+		return "contentManager.backupFrame('$targtFrame','selectionOverlay'); contentManager.customSelection('$targtFrame', '$callingPluginID', '$selectPlugin', '$selectJSFunction', '$addBPS', ".($options == "" ? "{}" : $options).");";
+	}
+	
+	public static function context($plugin, $identifier, $title, $leftOrRight = "right", $upOrDown = "down", $options = "{}"){
+		return "phynxContextMenu.start(this, '$plugin','$identifier','$title', '$leftOrRight', '$upOrDown', $options);";
+	}
+	
+	public static function iframe($targetObject, $targetMethod, $targetMethodParameters = "", $targetFrame, $bps = null){
+		
+		return "contentManager.iframeRme('".str_replace("GUI", "", get_class($targetObject))."', ".$targetObject->getID().", '$targetMethod', ".(is_array($targetMethodParameters) ? "['".implode("','", $targetMethodParameters)."']" : "'$targetMethodParameters'").", '$targetFrame'".($bps != null ? ", '$bps'" : "")."); ";
 	}
 	
 	public static function popupSidePanel($targetClass, $targetClassId, $targetMethod, $targetMethodParameters = "", $popupName = "edit"){
@@ -146,7 +159,7 @@ class OnEvent {
 	}
 	
 	public static function popup($title, $targetClass, $targetClassId, $targetMethod, $targetMethodParameters = "", $bps = "", $popupOptions = null, $popupName = "edit"){
-		return "Popup.load('$title', '$targetClass', '$targetClassId', '$targetMethod', Array(".(is_array($targetMethodParameters) ? implode(",",$targetMethodParameters) : "'".$targetMethodParameters."'")."), '$bps', '$popupName'".($popupOptions != null ? ", '$popupOptions'" : "").");";
+		return "Popup.load('$title', '$targetClass', '$targetClassId', '$targetMethod', Array(".(is_array($targetMethodParameters) ? implode(",",$targetMethodParameters) : "'".$targetMethodParameters."'")."), '$bps', '$popupName'".($popupOptions != null ? ", '".addslashes($popupOptions)."'" : "").");";
 	}
 }
 ?>

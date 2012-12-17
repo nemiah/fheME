@@ -24,14 +24,14 @@ class KalenderEntry {
 	protected $onClick;#"contentManager.rmePCR('mKalender', '-1', 'getInfo', ['%%CLASSNAME%%', '%%CLASSID%%', '%%TIME%%'], function(transport) { Popup.displayNamed('edit', 'Event', transport, 'mKalender'); });";
 	#private $duration;
 	protected $bgColor;
-	protected $bgColors = array("#536ca6", "#d47f1e", "#3c995b", "#7ec225", "#4585a3", "#9643a5", "#8a2d38", "#a59114");
+	public static $bgColors = array("#536ca6", "#d47f1e", "#3c995b", "#7ec225", "#4585a3", "#9643a5", "#8a2d38", "#a59114");
 	protected $className;
 	protected $classID;
 	protected $values = array();
 	protected $editable;
 	protected $location;
 	protected $UID;
-
+	protected $organizer;
 	protected $repeat = false;
 	protected $repeatInterval;
 	protected $repeatWeekOfMonth = 0;
@@ -55,6 +55,16 @@ class KalenderEntry {
 			$this->UID = $UID;
 		
 		return $this->UID;
+	}
+
+	function organizer($organizerName = null, $organizerEMail = null){
+		if($organizerName != null)
+			$this->organizer = $organizerName.($organizerEMail != null ? " <$organizerEMail>" : "");
+		
+		if($organizerName != null AND $organizerEMail != null AND $organizerEMail == $organizerName)
+			$this->organizer = $organizerEMail;
+		
+		return $this->organizer;
 	}
 	
 	/*function __construct($className, $classID, $firstDay, $lastDay, $title) {

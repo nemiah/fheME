@@ -51,10 +51,11 @@ class FormattedTextPDF extends FPDI {
 	private $FontLnH = array("h1" => 10, "h2" => 8, "h3" => 7, "h4" => 5, "h5" => 5, "h6" => 5);
 
 	private $styleStack = array();
-	private $sizeStack = array(9);
+	private $sizeStack = array();
 	private $colorStack = array("000000");
 	private $alignStack = array("left");
-	private $heightStack = array(5);
+	protected $heightStack = array(3);
+	protected $paragraph = 0;
 	private $fontStack = array("Helvetica");
 
 	private function translateXML($xml){
@@ -78,8 +79,12 @@ class FormattedTextPDF extends FPDI {
 
 	private function startTag($xml){
 		if($xml->getName() == "p"){
-			$this->Ln($this->heightStack[count($this->heightStack) - 1] * 2);
+			if($this->paragraph > 0)
+				$this->Ln($this->heightStack[count($this->heightStack) - 1] * 2);
+			
 			array_push($this->heightStack, $this->findMaxStyle("font-size", $xml));
+			
+			$this->paragraph++;
 		}
 
 		if(preg_match_all("/h([0-9])/", $xml->getName(), $m)){
@@ -91,8 +96,17 @@ class FormattedTextPDF extends FPDI {
 		if($xml->getName() == "strong")
 			array_push($this->styleStack, "B");
 
+		if($xml->getName() == "b")
+			array_push($this->styleStack, "B");
+
 		if($xml->getName() == "em")
 			array_push($this->styleStack, "I");
+
+		if($xml->getName() == "i")
+			array_push($this->styleStack, "I");
+
+		if($xml->getName() == "u")
+			array_push($this->styleStack, "U");
 
 		foreach($xml->attributes() AS $k => $a){
 			if($k == "style"){
@@ -125,13 +139,27 @@ class FormattedTextPDF extends FPDI {
 	}
 
 	private function endTag($xml){
+		if($xml->getName() == "br"){
+			$this->ln(5);
+			return;
+		}
+		
 		if($xml->getName() == "p")
 			array_pop($this->heightStack);
 
 		if($xml->getName() == "strong")
 			array_pop($this->styleStack);
 
+		if($xml->getName() == "b")
+			array_pop($this->styleStack);
+
 		if($xml->getName() == "em")
+			array_pop($this->styleStack);
+
+		if($xml->getName() == "i")
+			array_pop($this->styleStack);
+
+		if($xml->getName() == "u")
 			array_pop($this->styleStack);
 
 		if(preg_match_all("/h([0-9])/", $xml->getName(), $m)){
@@ -168,8 +196,12 @@ class FormattedTextPDF extends FPDI {
 	public function WriteHTML($html) {
 		if(trim($html) == "") return;
 
-		$bad = array("&gt;", "&lt;");
-		$good = array("::gt::", "::lt::");
+		$this->sizeStack[] = $this->getFontSize();
+		
+		$html = str_replace("\n", "", $html);
+		
+		$bad = array("&gt;", "&lt;", "&amp;");
+		$good = array("::gt::", "::lt::", "::amp::");
 		$this->translateXML(new SimpleXMLElement(str_replace($good, $bad, "<phynx>".html_entity_decode(str_replace($bad, $good, $html), ENT_NOQUOTES, "UTF-8")."</phynx>")));
 	}
 

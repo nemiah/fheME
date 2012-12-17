@@ -39,10 +39,48 @@ class HTMLTable extends UnifiedTable implements iUnifiedTable  {
 
 	private $maxHeight;
 	private $tableClass = "";
-
+	private $appendJS = "";
+	private $weight = "heavy";
+	
 	function __construct($numCols = 0, $caption = null){
 		$this->numCols = $numCols;
 		$this->caption = $caption;
+	}
+	
+	function sortable($saveTo, $handleClass){
+		if($this->tableID == null)
+			$this->tableID = "RNDTable".rand (1, 99999999);
+		
+		$this->appendJS = "\$j('#$this->tableID tbody').sortable({
+				helper: function(e, ui) {
+					ui.children().each(function() {
+						\$j(this).width(\$j(this).width());
+					});
+
+					return ui;
+				},
+				update: function(){
+					var newOrder = \$j(this).sortable('serialize', {expression: /([a-zA-Z]+)_([0-9]+)/}).replace(/\[\]=/g, '').replace(/&/g, ';').replace(/[a-zA-Z]*/g, '');
+					contentManager.rmePCR('$saveTo', '-1', 'saveOrder', newOrder);
+				},
+				axis: 'y'".($handleClass != null ? ",
+				handle: \$j('.$handleClass')" : "")."
+			});";
+	}
+	
+	/**
+	 * @param type $weight possible values: heavy, light
+	 */
+	function weight($weight = "heavy"){
+		$this->weight = $weight;
+		$this->addTableClass("tableWeight".ucfirst($weight));
+		
+		for($i = 0; $i < $this->numCols; $i++)
+			$this->setColClass ($i+1, "");
+		
+		#if($weight == "light"){
+		#	$this->appendJS .= "\$j('.tableWeightLight tr').hover(function(){ \$j(this).addClass('backgroundColor2'); }, function(){ \$j(this).removeClass('backgroundColor2'); });";
+		#}
 	}
 	
 	function useForSelection($fixCols = true){
@@ -163,6 +201,11 @@ class HTMLTable extends UnifiedTable implements iUnifiedTable  {
 		else $this->colStyles[$colNumber] .= $style;
 	}
 
+	function setColStyle($colNumber, $style){
+		if(!isset($this->colStyles[$colNumber])) $this->colStyles[$colNumber] = $style;
+		else $this->colStyles[$colNumber] = $style;
+	}
+
 	function setRowStyles($styles){
 		$this->rowStyles = $styles;
 	}
@@ -178,7 +221,7 @@ class HTMLTable extends UnifiedTable implements iUnifiedTable  {
 	}
 	
 	function addTableClass($class){
-		$this->tableClass = $class;
+		$this->tableClass .= $class." ";
 	}
 
 	function getHTMLForUpdate($addTR = false){
@@ -302,11 +345,14 @@ class HTMLTable extends UnifiedTable implements iUnifiedTable  {
 		if(preg_match("/width:([0-9 ]*)px;/", $this->tableStyle, $regs))
 			$divStyle = "style=\"".$regs[0]."\"";
 		
-
+		$tabClass = "backgroundColor1 Tab";
+		if($this->weight == "light")
+			$tabClass = "lightTab borderColor1";
+		
 		$R = "
 		".($this->caption != null ? "
 			<div>
-			<div class=\"backgroundColor1 Tab\" $divStyle>
+			<div class=\"$tabClass\" $divStyle>
 				<p>$this->caption</p>
 			</div></div>" : "");
 		
@@ -323,7 +369,7 @@ class HTMLTable extends UnifiedTable implements iUnifiedTable  {
 		if($this->tab > 1) $R .= "
 		</form>
 		</div>";
-		return $R;
+		return $R.($this->appendJS != "" ? OnEvent::script($this->appendJS) : "");
 	}
 }
 ?>

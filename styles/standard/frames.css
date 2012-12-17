@@ -124,7 +124,7 @@
 }
 
 #contentLeft .Tab {
-	margin-right:20px;
+	margin-right:10px;
 }
 /*
 #contentLeft caption div {
@@ -148,7 +148,7 @@
 }
 
 #contentRight .Tab {
-	margin-left:10px;
+	/*margin-left:10px;*/
 }
 
 #contentScreen table {
@@ -159,6 +159,21 @@
 #contentScreen td {
 	padding:1px;
 	padding-left:3px;
+	padding-right:3px;
+}
+
+#contentBelow {
+	padding-top:20px;
+}
+
+#contentBelow p {
+	line-height:1.5;
+	color:#333;
+	font-size:15px;
+}
+
+#contentBelowContent {
+	border-top-width: 1px;
 }
 
 caption[onclick] {
@@ -215,4 +230,10 @@ caption {
 	
 	transition: width .5s, padding-left 1s, background-color 1s;
 	transition-delay: .3s;
+}
+/*
+  For flot diagrams
+*/
+#contentScreen .legend table {
+	width: auto;
 }

@@ -57,6 +57,8 @@ class FileBrowser {
 	
 	private function searchFolder($dir){
 		$fp = opendir($dir);
+		if(!$fp)
+			return;
 		while(($file = readdir($fp)) !== false) {
 			if(is_dir("$dir/$file") AND !$this->isRecursive) continue;
 			elseif($this->isRecursive AND is_dir("$dir/$file") AND $file{0} != ".")
@@ -108,6 +110,10 @@ class FileBrowser {
 		}
 		if($sorted) ksort($labeled);
 		return $labeled;
+	}
+	
+	public function getAsOptionsArray($interface, $extension){
+		return array_flip($this->getAsLabeledArray($interface, $extension, true));
 	}
 }
  ?>

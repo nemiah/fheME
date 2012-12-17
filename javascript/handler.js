@@ -36,7 +36,7 @@ Ajax.Responders.register({
 	},
 
 	onFailure: function(transport) {
-		console.log(transport);
+		//console.log(transport);
 		showMessage("<b style=\"color:red\">Server nicht<br />erreichbar</b>");
 		Interface.endLoading();
 		//alert("An error occured: "+transport);
@@ -79,11 +79,11 @@ function checkResponse(transport, hideError) {
 		else alert(message);
 		return true;
 	}
-	if(transport.responseText.search(/^Fatal error/) > -1){
+	if(transport.responseText.search(/^\s*Fatal error/) > -1 || transport.responseText.search(/^\s*Parse error/) > -1 || transport.responseText.search(/^<br \/>\s*<b>Fatal error<\/b>/) > -1){
 		if(!hideError) alert(transport.responseText.replace(/<br \/>/g,"\n").replace(/<b>/g,"").replace(/<\/b>/g,"").replace(/&gt;/g,">").replace(/^\s+/, '').replace(/\s+$/, ''));
 		return false;
 	}
-	if(transport.responseText.search(/^FPDF error:/) > -1){
+	if(transport.responseText.search(/^\s*FPDF error:/) > -1){
 		alert(transport.responseText.replace("FPDF error:","").replace(/<br \/>/g,"\n").replace(/<b>/g,"").replace(/<\/b>/g,"").replace(/<code>/g,"").replace(/<\/code>/g,"").replace(/&gt;/g,">").replace(/^\s+/, '').replace(/\s+$/, ''));
 		return false;
 	}
@@ -153,8 +153,8 @@ function windowWithRme(targetClass, targetClassId, targetMethod, targetMethodPar
 }
 
 
-function saveClass(className, id, onSuccessFunction, formName){
-	formID = "AjaxForm";
+function saveClass(className, id, onSuccessFunction, formName, callback){
+	var formID = "AjaxForm";
 	if(formName) formID = formName;
 	
 	if(!$(formID)) alert("Kein Formular gefunden!");
@@ -171,8 +171,13 @@ function saveClass(className, id, onSuccessFunction, formName){
 	onSuccess: function(transport) {
 		if(checkResponse(transport)) {
 			//showMessage(transport.responseText);
+			$j('#'+formID+" .recentlyChanged").removeClass("recentlyChanged");
+			
 			if(typeof onSuccessFunction == "function")
 				onSuccessFunction(transport);
+			
+			if(typeof callback == "function")
+				callback(id);
 		}
 	}});
 }

@@ -481,10 +481,12 @@ class KalenderEvent extends KalenderEntry {
 		$BD = "";
 		$BDS = "";
 		if($this->editable != null){
-			$BE = new Button("Bearbeiten", "edit", "icon");
-			$BE->style("margin:10px;float:right;");
-			$BE->popup("", "Kalendereintrag bearbeiten", "mKalender", $this->classID, "editInPopup", array("'".$this->className."'", $this->classID, "'{$this->editable[0]}'"));
-
+			if($this->editable[0] != null){
+				$BE = new Button("Bearbeiten", "edit", "icon");
+				$BE->style("margin:10px;float:right;");
+				$BE->popup("", "Kalendereintrag bearbeiten", "mKalender", $this->classID, "editInPopup", array("'".$this->className."'", $this->classID, "'{$this->editable[0]}'"));
+			}
+			
 			$BD = new Button("Dieses Event Löschen", "trash", "icon");
 			$BD->style("float:right;margin:10px;");
 			$BD->onclick("if(confirm('Löschen?')) ");
@@ -515,6 +517,9 @@ class KalenderEvent extends KalenderEntry {
 			$T->addLV("Uhrzeit","Ganzer Tag");
 		
 		$T->addLV("Details", $this->summary);
+		
+		if($this->organizer)
+			$T->addLV("Organisator", $this->organizer);
 		
 		if(count($this->values) > 0)
 			$T->insertSpaceAbove();
@@ -567,9 +572,13 @@ class KalenderEvent extends KalenderEntry {
 		$zeit = "<b>".$this->formatTime($this->time)."</b>";
 		if($startTime < $time AND $this->repeat == "0")
 			$zeit = "";
+		
+		if($this->allDay)
+			$zeit = "";
+		
 		return "
 			<div onclick=\"$onClick\" style=\"".($this->status == 2 ? "color:grey;" : "")."clear:left;padding:2px;padding-left:4px;cursor:pointer;".($grey ? "color:grey;" : "")."\">
-				$zeit&nbsp;$this->title
+				".(($grey AND isset(mKalenderGUI::$colors[$this->owner])) ? "<div style=\"display:inline-block;margin-right:3px;width:5px;background-color:".mKalenderGUI::$colors[$this->owner].";\">&nbsp;</div>" : "")."$zeit&nbsp;$this->title
 			</div>";
 	}
 	
@@ -578,23 +587,6 @@ class KalenderEvent extends KalenderEntry {
 		$C = new $C(-1); //its a collection (quite sure)
 		
 		return $C->getAdresse($this->classID);
-	}
-	
-	public static function fromICal($iCal){
-		$VC = new vcalendar();
-		$VC->parse($iCal);
-
-		$event = $VC->getComponent("vevent");
-
-		$dayStart = $event->getProperty("DTSTART");
-		$dayEnd = $event->getProperty("DTEND");
-		
-		$KE = new KalenderEvent("iCal", "-1", $dayStart["day"].$dayStart["month"].$dayStart["year"], $dayStart["hour"].$dayStart["min"], $event->getProperty("SUMMARY"));
-		
-		$KE->endDay($dayEnd["day"].$dayEnd["month"].$dayEnd["year"]);
-		$KE->endTime($dayEnd["hour"].$dayEnd["min"]);
-		
-		return $KE;
 	}
 }
 ?>

@@ -95,12 +95,20 @@ class Applications {
 		}
 	}
 
+	public static function isAppLoaded($App){
+		return in_array($App, self::getList());
+	}
+	
 	public static function getList(){
 		return $_SESSION[self::$sessionVariable]->getApplicationsList();
 	}
 
 	public static function activeApplication(){
 		return $_SESSION[self::$sessionVariable]->getActiveApplication();
+	}
+	
+	public static function activeVersion(){
+		return $_SESSION[self::$sessionVariable]->getRunningVersion();
 	}
 
 	public function getApplicationsList(){

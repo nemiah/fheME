@@ -798,9 +798,10 @@ function PMBP_save_to_file($backupfile,$zip,&$fileData,$mode) {
 
     // save to a plain text file (uncompressed)
     } else {
-        if ($zp=@fopen($backupfile,$mode)) {
-            @fwrite($zp,$fileData);
-            @fclose($zp);
+        if ($zp=fopen($backupfile,$mode)) {
+			#echo "::Test";
+            fwrite($zp,$fileData);
+            fclose($zp);
             return $backupfile;
         } else {
             return FALSE;

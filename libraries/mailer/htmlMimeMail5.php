@@ -104,7 +104,7 @@ class htmlMimeMail5 {
 	 */
 	private $sendmail_path;
 	private $default_method = null;
-
+	private $dsn;
 	public $errors;
 	
 	/**
@@ -231,6 +231,10 @@ class htmlMimeMail5 {
 		if (!defined('MAIL_MIMEPART_CRLF')) {
 			define('MAIL_MIMEPART_CRLF', $crlf, true);
 		}
+	}
+	
+	public function setDSN($Success, $Delay, $Failure){
+		$this->dsn = array($Success, $Delay, $Failure);
 	}
 
 	/**
@@ -394,6 +398,15 @@ class htmlMimeMail5 {
 	 */
 	public function setReturnPath($return_path) {
 		$this->return_path = $return_path;
+	}
+
+	/**
+	 * Accessor to set the replay to header
+	 * 
+	 * @param string $reply_to email address to use
+	 */
+	public function setReplyTo($reply_to) {
+		$this->headers["Reply-To"] = $reply_to;
 	}
 
 	/**
@@ -645,7 +658,7 @@ class htmlMimeMail5 {
 			$message->addSubpart($value->data, $params);
 		}
 	}
-
+	
 	/**
 	 * Builds the multipart message.
 	 */
@@ -755,6 +768,7 @@ class htmlMimeMail5 {
 			$this->headers['Message-ID'] = $message_id;
 
 			$this->is_built = true;
+			
 			return true;
 		} else {
 			return false;
@@ -858,6 +872,8 @@ class htmlMimeMail5 {
 				require_once(dirname(__FILE__) . '/RFC822.php');
 				$smtp = new smtp();
 				$smtp->connect($this->smtp_params);
+				if($this->dsn !== null)
+					$smtp->dsn($this->dsn[0], $this->dsn[1], $this->dsn[2]);
 				#print_r($con);
 				#die();
 				#if($con)

@@ -35,7 +35,7 @@ class GUIFactory {
 	private $referenceLine = null;
 
 	private $functionNew = "contentManager.backupFrame('contentLeft','lastPage'); contentManager.newClassButton('%CLASSNAME',  function(transport){ /*ADD*/ }, 'contentLeft', '%CLASSNAMEGUI;edit:ok');";
-	private $functionDelete = "deleteClass('%CLASSNAME','%CLASSID', function() { contentManager.reloadFrame('contentRight'); /*ADD*/ },'Eintrag wirklich löschen?');";
+	private $functionDelete = "deleteClass('%CLASSNAME','%CLASSID', function() { contentManager.reloadFrame('%TARGETFRAME'); /*ADD*/ },'Eintrag wirklich löschen?');";
 	private $functionEdit = "contentManager.loadFrame('contentLeft','%CLASSNAME', '%CLASSID', '0');";
 	private $functionSelect;
 	private $functionAbort;
@@ -51,7 +51,8 @@ class GUIFactory {
 	#private $features;
 
 	private $blacklists = array();
-
+	private $targetFrame;
+	
 	function  __construct($className, $collectionName = null) {
 		$this->className = $className;
 
@@ -92,7 +93,10 @@ class GUIFactory {
 			if($m[0] == "customSelection"){
 				$this->functionSelect = $m[1]."('$m[2]','%CLASSID')";#"contentManager.saveSelection('$m[1]','$m[2]','$m[3]','%CLASSID','contentLeft');";
 				$this->functionAbort = "contentManager.restoreFrame('contentRight','selectionOverlay');";
+				if(in_array("noExitButton", $m))
+					$this->functionAbort = null;
 				$this->isSelection = true;
+
 				/*$this->selectionFunctions = $m[1]."('$m[2]','%%VALUE%%')";
 
 				$B = new Button("Auswahl hinzufügen","./images/i2/cart.png");
@@ -150,12 +154,15 @@ class GUIFactory {
 	 * @param string $image
 	 * @return Button
 	 */
-	private function getButton($label, $image){
+	private function getButton($label, $image, $type = "bigButton"){
 		if($this->mode == "HTML")
-			return new Button($label, $image);
+			return new Button($label, $image, $type);
 	}
 
 	private function getAbortButton(){
+		if($this->functionAbort == null)
+			return "";
+		
 		$B = new Button("Auswahl\nbeenden","stop");
 		$B->onclick(str_replace(array("%CLASSNAME"),array($this->className), $this->functionAbort));
 		$B->style("margin-left:10px;margin-bottom:10px;");
@@ -175,15 +182,22 @@ class GUIFactory {
 		$B = $this->getButton("Eintrag bearbeiten", "./images/i2/edit.png");
 		$B->type("icon");
 		$B->className("editButton");
-		$B->onclick("contentManager.selectRow(this); ".str_replace(array("%COLLECTIONNAME","%CLASSNAME", "%CLASSID"), array($this->collectionName,$this->className, $this->classID), $this->functionEdit));
+		$B->onclick("if(typeof contentManager.selectRow == 'function') contentManager.selectRow(this); ".str_replace(array("%COLLECTIONNAME","%CLASSNAME", "%CLASSID"), array($this->collectionName,$this->className, $this->classID), $this->functionEdit));
 
 		return $B;
 	}
 
 	private function getDeleteButton(){
-		$B = $this->getButton("Eintrag löschen", "./images/i2/delete.gif");
-		$B->type("icon");
-		$B->onclick(str_replace(array("%COLLECTIONNAME","%CLASSNAME", "%CLASSID"), array($this->collectionName, $this->className, $this->classID), $this->functionDelete));
+		$targetFrame = "contentRight";
+		
+		if($this->tableMode == "screen")
+			$targetFrame = "contentScreen";
+		
+		if($this->targetFrame != null)
+			$targetFrame = $this->targetFrame;
+		
+		$B = $this->getButton("Eintrag löschen", "trash_stroke", "iconic");
+		$B->onclick(str_replace(array("%COLLECTIONNAME","%CLASSNAME", "%CLASSID", "%TARGETFRAME"), array($this->collectionName, $this->className, $this->classID, $targetFrame), $this->functionDelete));
 		
 		return $B;
 	}
@@ -204,16 +218,15 @@ class GUIFactory {
 	}
 
 	private function getSettingsButton(){
-		$B = $this->getButton("Einstellungen anzeigen", "./images/i2/settings.png");
-		$B->type("icon");
+		$B = $this->getButton("Einstellungen anzeigen", "wrench", "iconic");
 		$B->onclick("phynxContextMenu.start(this, 'HTML','multiPageSettings:$this->collectionName','Einstellungen:');");
 
 		return $B;
 	}
 	
 	private function getQuicksearchButton(){
-		$B = $this->getButton("Suche-Details anzeigen", "./images/i2/search.png");
-		$B->type("icon");
+		$B = $this->getButton("Suche-Details anzeigen", "info", "iconic");
+		#$B->type("icon");
 		$B->onclick("phynxContextMenu.start(this, '$this->collectionName','searchHelp','Suche:','left');");
 		$B->style("cursor: help;");
 
@@ -223,25 +236,28 @@ class GUIFactory {
 	public function getPageBrowser(){
 		if($this->multiPageDetails["total"] == null) return;
 		
+		if($this->targetFrame != null)
+			$this->multiPageDetails["target"] = $this->targetFrame;
+		
 		$pages = ceil($this->multiPageDetails["total"] / $this->multiPageDetails["perPage"]);
 
 		$pageLinks = $pages." Seite".($pages != 1 ? "n" : "").": ";
+		
+		if($this->multiPageDetails["page"] != 0)
+			$pageLinks .= "<a href=\"javascript:".str_replace(array("%TARGET","%PAGE"), array($this->multiPageDetails["target"], 0), $this->functionPageFirst)."\"><span class=\"iconic arrow_left\" style=\"border-left-width:2px;\"></span></a> ";
+		else $pageLinks .= "<span class=\"iconic arrow_left inactive\" style=\"border-left-width:2px;\"></span> ";
 
 		if($this->multiPageDetails["page"] != 0)
-			$pageLinks .= "<a href=\"javascript:".str_replace(array("%TARGET","%PAGE"), array($this->multiPageDetails["target"], 0), $this->functionPageFirst)."\">&nbsp;&lt;&lt;&nbsp;</a> ";
-		else $pageLinks .= "&nbsp;&lt;&lt;&nbsp; ";
-
-		if($this->multiPageDetails["page"] != 0)
-			$pageLinks .= "<a href=\"javascript:".str_replace(array("%TARGET","%PAGE"), array($this->multiPageDetails["target"], $this->multiPageDetails["page"] - 1), $this->functionPagePrevious)."\">&nbsp;&lt;&nbsp;</a> ";
-		else $pageLinks .= "&nbsp;&lt;&nbsp; ";
+			$pageLinks .= "<a href=\"javascript:".str_replace(array("%TARGET","%PAGE"), array($this->multiPageDetails["target"], $this->multiPageDetails["page"] - 1), $this->functionPagePrevious)."\"><span class=\"iconic arrow_left\" style=\"margin-right:7px;\"></span></a> ";
+		else $pageLinks .= "<span class=\"iconic arrow_left inactive\" style=\"margin-right:7px;\"></span> ";
 
 		if($this->multiPageDetails["page"] != $pages - 1)
-			$pageLinks .= "<a href=\"javascript:".str_replace(array("%TARGET","%PAGE"), array($this->multiPageDetails["target"], $this->multiPageDetails["page"] + 1), $this->functionPageNext)."\">&nbsp;&gt;&nbsp;</a> ";
-		else $pageLinks .= "&nbsp;&gt;&nbsp; ";
+			$pageLinks .= "<a href=\"javascript:".str_replace(array("%TARGET","%PAGE"), array($this->multiPageDetails["target"], $this->multiPageDetails["page"] + 1), $this->functionPageNext)."\"><span class=\"iconic arrow_right\" style=\"margin-left:7px;\"></span></a> ";
+		else $pageLinks .= "<span class=\"iconic arrow_right inactive\" style=\"margin-left:7px;\"></span> ";
 
 		if($this->multiPageDetails["page"] != $pages - 1)
-			$pageLinks .= "<a href=\"javascript:".str_replace(array("%TARGET","%PAGE"), array($this->multiPageDetails["target"], $pages - 1), $this->functionPageLast)."\">&nbsp;&gt;&gt;&nbsp;</a> | ";
-		else $pageLinks .= "&nbsp;&gt;&gt;&nbsp; | ";
+			$pageLinks .= "<a href=\"javascript:".str_replace(array("%TARGET","%PAGE"), array($this->multiPageDetails["target"], $pages - 1), $this->functionPageLast)."\"><span class=\"iconic arrow_right\" style=\"border-right-width:2px;\"></span></a> | ";
+		else $pageLinks .= "<span class=\"iconic arrow_right inactive\" style=\"border-right-width:2px;\"></span> | ";
 
 		$start = $this->multiPageDetails["page"] - 3;
 		if($start < 0) $start = 0;
@@ -265,8 +281,22 @@ class GUIFactory {
 		$I->autocompleteBrowser(false);
 		$I->onfocus("focusMe(this); ACInputHasFocus=true; AC.start(this); if(this.value != '') AC.update('10', this, '$this->collectionName', 'quickSearchLoadFrame');");
 		$I->onblur("blurMe(this); ACInputHasFocus=false; AC.end(this);");
+		$I->placeholder("Suche");
+		
+		$B = "";
+		$showSF = PMReflector::implementsInterface($this->collectionName."GUI","iSearchFilter");
+		if($showSF){
+			$B = new Button("Suche als Filter anwenden","./images/i2/searchFilter.png", "icon");
+			$B->style("float:right;");
+			$B->rme("HTML","","saveContextMenu", array("'searchFilter'","'$this->collectionName;:;'+$('quickSearch$this->collectionName').value"),"if(checkResponse(transport)) contentManager.reloadFrameRight();");
 
-		return $I;
+			$mU = new mUserdata();
+			$K = $mU->getUDValue("searchFilterInHTMLGUI".$this->collectionName);
+			$I->setValue($K);
+			$I->style("width:90%;");
+		}
+		
+		return $B.$I;
 	}
 
 	/**
@@ -323,7 +353,7 @@ class GUIFactory {
 			return "
 			<div id=\"subFrameContainer$this->collectionName\" style=\"margin-top:20px;\">
 				<div style=\"width:$widths[0]px;\" class=\"backgroundColor1 Tab\">
-					<p>$newButton<span style=\"float:right;\">$pageBrowser</span>$caption</p>
+					<p>$newButton<span style=\"float:right;font-weight:normal;\">$pageBrowser</span>$caption</p><div style=\"clear:both;\"></div>
 				</div>
 				<div id=\"subFrameEdit$this->collectionName\" style=\"display:none;width:$widths[0]px;padding-bottom:15px;\"></div>
 				<div id=\"subFrame$this->collectionName\" style=\"width:$widths[0]px;margin-left:10px;\">
@@ -390,6 +420,7 @@ class GUIFactory {
 	public function getRightButtons(&$List){
 		switch($this->tableMode){
 			case "popup":
+			case "screen":
 			case "BrowserRight":
 				if($this->classID == null AND $this->showTrash) {
 					$List[] = "%TRASH";
@@ -471,35 +502,56 @@ class GUIFactory {
 		if($this->multiPageDetails["total"] == null) return;
 		if(!$this->showFlipPage) return;
 
-		$I = new HTMLInput("targetPage", "text", $this->multiPageDetails["page"] + 1);
-		$I->onEnter("javascript:contentManager.loadPage('".$this->multiPageDetails["target"]."', this.value - 1);");
-		$I->style("width: 30px; float: right; text-align: right;");
-		$I->hasFocusEvent(true);
+		#$I = new HTMLInput("targetPage", "text", $this->multiPageDetails["page"] + 1);
+		#$I->onEnter("javascript:contentManager.loadPage('".$this->multiPageDetails["target"]."', this.value - 1);");
+		#$I->style("width: 30px; float: right; text-align: right;");
+		#$I->hasFocusEvent(true);
 
-		$wholeLine2 = array($this->getPageBrowser());
+		$wholeLine2 = $this->getPageBrowser();
 		
-		if($where == "top"){# OR $where == "bottom") {
+		if($where == "bottom"){
+			$this->table->addRow("");
+			$this->table->addRowColspan(1, count($this->referenceLine));
+			$this->table->addRowClass("backgroundColor0 browserSeparatorBottom");
+		}
+		
+		#if($where == "top"){# OR $where == "bottom") {
 			if($this->tableMode == "BrowserRight"){
-				$wholeLine1 = array($this->getSettingsButton(), $I."<span style=\"float:left;\">".$this->multiPageDetails["total"]." ".($this->multiPageDetails["total"] != 1 ? "Einträge" : "Eintrag")."</span>");
+				$wholeLine1 = array($this->getSettingsButton(), "".$this->multiPageDetails["total"]." ".($this->multiPageDetails["total"] != 1 ? "Einträge" : "Eintrag").", $wholeLine2");
 
 				$this->table->addRow($wholeLine1);
 				$this->table->addRowColspan(2, count($this->referenceLine) -1);
+				$this->table->addRowClass("backgroundColorHeader");
 			}
-			if($this->tableMode == "BrowserLeft"){
-				$wholeLine1 = array($I."<span style=\"float:left;\">".$this->multiPageDetails["total"]." ".($this->multiPageDetails["total"] != 1 ? "Einträge" : "Eintrag")."</span>");
+			if($this->tableMode == "BrowserLeft" OR $this->tableMode == "screen"){
+				$wholeLine1 = array($this->multiPageDetails["total"]." ".($this->multiPageDetails["total"] != 1 ? "Einträge" : "Eintrag").", $wholeLine2");
 				$wholeLine1 = array_pad($wholeLine1, count($this->referenceLine) - 1, "");
-				$wholeLine1[] = $this->getSettingsButton();
-
+				if($this->multiPageDetails["perPage"] === "0")
+					$wholeLine1[] = $this->getSettingsButton();
+				else
+					$wholeLine1[] = "";
+				
 				$this->table->addRow($wholeLine1);
 				$this->table->addRowColspan(1, count($this->referenceLine) -1);
+				$this->table->addRowClass("backgroundColorHeader");
+				$this->table->addCellStyle(count($wholeLine1), "text-align:right;");
 
-				$this->setColStyle($this->referenceLine[count($this->referenceLine) - 1], "width:20px;");
+				if($this->showTrash)
+					$this->setColStyle($this->referenceLine[count($this->referenceLine) - 1], "width:20px;");
 			}
 
-		}
-		if($this->multiPageDetails["total"] > $this->multiPageDetails["perPage"]){
+		#}
+			
+		/*if($this->multiPageDetails["total"] > $this->multiPageDetails["perPage"]){
+			
 			$this->table->addRow($wholeLine2);
 			$this->table->addRowColspan(1, count($this->referenceLine));
+			$this->table->addRowClass("backgroundColorHeader");
+		}*/
+		if($where == "top"){
+			$this->table->addRow("");
+			$this->table->addRowColspan(1, count($this->referenceLine));
+			$this->table->addRowClass("backgroundColor0 browserSeparatorTop");
 		}
 	}
 	// </editor-fold>
@@ -545,6 +597,7 @@ class GUIFactory {
 			$wholeLine2 = array($this->getQuicksearchButton(), $this->getQuicksearchInput());
 			$this->table->addRow($wholeLine2);
 			$this->table->addRowColspan(2, count($this->referenceLine) - 1);
+			$this->table->addRowClass("backgroundColorHeader");
 			
 			$this->setColStyle(1, "width:20px;");
 		}
@@ -555,6 +608,7 @@ class GUIFactory {
 
 			$this->table->addRow($wholeLine2);
 			$this->table->addRowColspan(1, count($this->referenceLine) - 1);
+			$this->table->addRowClass("backgroundColorHeader");
 
 			$this->setColStyle($this->referenceLine[count($this->referenceLine) - 1], "width:20px;");
 		}
@@ -616,6 +670,10 @@ class GUIFactory {
 	}
 	// </editor-fold>
 
+	public function targetFrame($frame){
+		$this->targetFrame = $frame;
+	}
+	
 	// <editor-fold defaultstate="collapsed" desc="setColStyle">
 	public function setColStyle($colName, $style){
 		$col = array_search($colName, $this->referenceLine) + 1;
@@ -658,6 +716,65 @@ class GUIFactory {
 				".($text != "" ? "<div style=\"padding:7px;height:130px;overflow:auto;\">$text</div>" : "")."
 			</div>
 		</div>";
+	}
+	
+	public static function editFormOnchangeTest($FormID){
+		$js = OnEvent::script("
+			if(\$j('#$FormID input[name=currentSaveButton]').length > 0) {
+				
+				\$j('#$FormID input[type=text], #$FormID textarea').keyup(function(event){ 
+					\$j(event.currentTarget).addClass('recentlyChanged'); 
+					\$j('#$FormID input[name=currentSaveButton]').closest('tr').addClass('recentlyChanged');
+				}).change(function(event){ 
+					\$j(event.currentTarget).addClass('recentlyChanged'); 
+					\$j('#$FormID input[name=currentSaveButton]').closest('tr').addClass('recentlyChanged');
+				});
+
+				\$j('#$FormID input[type=checkbox]').change(function(event){ 
+					\$j(event.currentTarget).addClass('recentlyChanged'); 
+					\$j('#$FormID input[name=currentSaveButton]').closest('tr').addClass('recentlyChanged');
+				});
+
+				\$j('#$FormID select').change(function(event){
+					\$j(event.currentTarget).addClass('recentlyChanged');
+					\$j('#$FormID input[name=currentSaveButton]').closest('tr').addClass('recentlyChanged');
+				});
+			
+			}");
+		
+		return $js;
+	}
+	
+	public static function filesTree($tree, $depth = 0){
+		$html = "<ul style=\"list-style-type:none;".($depth > 0 ? "display:none;" : "")."\">";
+		
+		$folder = new Button("Datei", "folder_stroke", "iconic");
+		$folder->style("color:#333;");
+		
+		$file = new Button("Datei", "document_alt_stroke", "iconic");
+		$file->style("color:#888;");
+		
+		$files = array();
+		foreach($tree AS $k => $content){
+			
+			if(is_array($content))
+				$html .= "<li style=\"margin-top:0px;-moz-user-select: -moz-none;-webkit-user-select: none;\"><div class=\"folder\" style=\"cursor:pointer;margin-right:10px;padding:3px;\" onclick=\"\$j(this).parent().children('ul:first').toggle();\">".$folder." ".$k."</div>".self::filesTree($content, $depth + 1)."</li>";
+			else {
+				$size = mb_substr($content, mb_strrpos($content, "_") + 1);
+				$name = mb_substr($content, 0, mb_strrpos($content, "_"));
+				
+				$files[] = $file." ".$name."<small style=\"color:#555;margin-right:30px;\"> (".Util::formatByte($size).")</small>";
+			}
+			
+		}
+		
+		foreach($files AS $content){
+			$html .= "<li>$content</li>";
+		}
+		
+		$html .= "</ul>".OnEvent::script("\$j('.folder').hover(function(){ \$j(this).css('background-color', '#999'); }, function(){ \$j(this).css('background-color', ''); });");
+		
+		return $html;
 	}
 }
 ?>

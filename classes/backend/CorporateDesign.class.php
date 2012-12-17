@@ -25,5 +25,9 @@ class CorporateDesign implements iCorporateDesign {
 	public function getLogoPath() {
 		return null;
 	}
+	
+	public function getBackgroundColor(){
+		return array(245, 255, 197);
+	}
 }
 ?>

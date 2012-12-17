@@ -43,14 +43,26 @@ var Overlay = {
 			Overlay.loginBox = true;
 			
 			setTimeout("$('loginUsername').focus()",300);
-			var data = cookieManager.getCookie('userLoginData');
-			if(data != -1) {
-				data = data.split(":");
-				$('loginUsername').value = data[0];
-				$('loginPassword').value = ";;cookieData;;";
-				$('loginSHAPassword').value = data[1];
-				$('saveLoginData').checked = true;
-			}
+			var data = $j.jStorage.get('phynxUserData', null);
+			//var data = cookieManager.getCookie('userLoginData');
+			if(data != null) {
+				//data = data.split(":");
+				$j('#loginUsername').val(data.username);
+				$j('#loginPassword').val(";;cookieData;;");
+				$j('#loginSHAPassword').val(data.password);
+				$j('#saveLoginData').prop("checked", true);
+				$j('#anwendung').val(data.application);
+				$j('#doAutoLogin').prop("checked", data.autologin);
+				
+				$j('#doAutoLoginContainer').fadeIn();
+				
+				if(data.autologin)
+					userControl.autoLogin();
+			} else
+				$j('#doAutoLoginContainer').fadeOut();
+			
+			if(!$j.jStorage.storageAvailable())
+				$j('#saveLoginDataContainer').hide();
 		}
 		if(!Overlay.white && !Overlay.initWhite) {
 			new Effect.Appear($('lightOverlay'), {duration: 0.5});

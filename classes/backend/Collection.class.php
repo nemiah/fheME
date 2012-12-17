@@ -39,6 +39,10 @@ abstract class Collection {
 	protected $loadedPerPage;
 	protected $isFiltered = false;
 	
+	function __clone() {
+		$this->Adapter = clone $this->Adapter;
+	}
+	
 	/**
 	 * If active, customizes this class.
 	 *
@@ -155,9 +159,9 @@ abstract class Collection {
 	}
 	
 	/**
-	 * Creates a Database Table using the Informatio of the associated Database File.
+	 * Creates a Database Table using the information of the associated database file.
 	 */
-	function createMyTable() {
+	function createMyTable($quiet = false) {
 		$_SESSION["messages"]->addMessage("Creating table for ".get_class($this).". Using file ".$this->getMyDBFolder()."CI.pfdb.php...");
 		#if(!$this->checkIfMyTableExists()) {
 
@@ -169,7 +173,7 @@ abstract class Collection {
 				$CIA = $CI->getA();
 				$CIA->MySQL = str_replace("%%&ESCSLASH%%&","\'",$CIA->MySQL);
 				$CIA->MSSQL = str_replace("%%&ESCSLASH%%&","\'",$CIA->MSSQL);
-				$message .= "<code style=\"font-size:8px;\">".nl2br(htmlentities($CIA->MySQL))."</code>";
+				$message .= htmlentities($CIA->MySQL);
 
 				$connection = $this->Adapter->createMyTable($CIA);
 				if($connection == null and PHYNX_MAIN_STORAGE == "MySQLo"){
@@ -181,10 +185,10 @@ abstract class Collection {
 				$message .= "<br /><br />Anzahl betroffener Datensätze: ".$connection->affected_rows."<br />";
 				if($connection->error) $message .= "<span style=\"color:red;\">Es ist ein SQL-Fehler aufgetreten: ".$connection->error."</span><br />";
 				else $message .= "<span style=\"color:green;\">Es ist kein MySQL-Fehler aufgetreten</span><br />";
-				$message .= "<br /><br />";
+				#$message .= "<br /><br />";
 			}
 		#} else $message = "Diese Tabelle wurde bereits angelegt";
-		echo "
+		$html = $message;/*"
 		<div class=\"backgroundColor1 Tab\"><p>Installations-Informationen</p></div>
 		<table>
 			<colgroup>
@@ -193,14 +197,19 @@ abstract class Collection {
 			<tr>
 				<td>$message</td>
 			</tr>
-		</table>";
+		</table>";*/
+		
+		if(!$quiet)
+			echo $html;
+		
+		return $html;
 	}
 
 	/**
 	 * Prints out the number of changes between the data in the Database, accessed by Adapter,
 	 * and the data in the Database File.
 	 */
-	function checkMyTables(){
+	function checkMyTables($quiet = false){
 		$_SESSION["messages"]->addMessage("Checking tables of ".get_class($this).".");
 		
 		$creates = $this->getMyTablesInfos();
@@ -221,9 +230,13 @@ abstract class Collection {
 				#else return -1;
 			}
 		} catch(TableDoesNotExistException $e){
-			$this->createMyTable();
+			$this->createMyTable($quiet);
 		}
-		echo $changes;
+		
+		if(!$quiet)
+			echo $changes;
+		
+		return $changes;
 	}
 	
 	/**
@@ -650,12 +663,14 @@ abstract class Collection {
 		
 		$mU = new mUserdata();
 
-		$K = $mU->getUDValue("searchFilterInHTMLGUI".$this->getClearClass());
+		$K = mUserdata::getUDValueS("searchFilterInHTMLGUI".$this->getClearClass());
 		$F = $this->getSearchedFields();
-		if($K == null OR $K == "") return $fC;
-		else 
-			foreach($F as $k => $v)
-				$this->addAssocV3("$v","LIKE",'%'.$K.'%',($k == 0 ? "AND" : "OR"),"sfs");
+		
+		if($K == null)
+			return $fC;
+		 
+		foreach($F as $k => $v)
+			$this->addAssocV3("$v","LIKE",'%'.$K.'%',($k == 0 ? "AND" : "OR"),"sfs");
 			
 		$this->isFiltered = true;
 		return true;

@@ -28,7 +28,7 @@
 	transition: background-color .3s;
 	-moz-transition: background-color .3s; /* Firefox 4 */
 	-webkit-transition: background-color .3s; /* Safari and Chrome */
-	-o-transition: background-color.3s; /* Opera */
+	-o-transition: background-color .3s; /* Opera */
 }
 
 #navTabsWrapper {

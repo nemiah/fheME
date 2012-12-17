@@ -38,7 +38,7 @@ class AdressenGUI extends Adressen implements iGUIHTMLMP2, iAutoCompleteHTML, ic
 		}
 
 		$this->gui = new HTMLGUI();
-		if($bps != -1 AND isset($bps["selectionMode"]) AND (strpos($bps["selectionMode"], "Vertrag") !== false OR strpos($bps["selectionMode"], "Statistik") !== false OR strpos($bps["selectionMode"], "Bestellung") !== false OR strpos($bps["selectionMode"], "CloudKunde") !== false OR strpos($bps["selectionMode"], "Einsatzort") !== false)){
+		if($bps != -1 AND isset($bps["selectionMode"]) AND (strpos($bps["selectionMode"], "Vertrag") !== false OR strpos($bps["selectionMode"], "Bestellung") !== false OR strpos($bps["selectionMode"], "CloudKunde") !== false OR strpos($bps["selectionMode"], "Einsatzort") !== false)){
 			$this->gui = new HTMLGUI2();
 			$this->gui->setDisplaySide("right");
 		}
@@ -58,10 +58,10 @@ class AdressenGUI extends Adressen implements iGUIHTMLMP2, iAutoCompleteHTML, ic
 		$gui->setObject($this);
 		$gui->tip();
 
-		$gui->setParser("firma","AdressenGUI::firmaParser",array("\$sc->vorname","\$sc->nachname","\$aid", "\$type", "\$tel", "\$fax", "\$email", "\$mobil", "\$homepage"));
+		$gui->setParser("firma","AdressenGUI::firmaParser",array("\$sc->vorname","\$sc->nachname","\$aid", "\$type", "\$tel", "\$fax", "\$email", "\$mobil", "\$homepage", __CLASS__));
 
 		$gui->customize($this->customizer);
-		$gesamt = $this->loadMultiPageMode($id, $page, 20);
+		$gesamt = $this->loadMultiPageMode($id, $page, 0);
 
 		if(get_class($this) == "AdressenGUI"){
 			$_SESSION["BPS"]->setActualClass("adressenMode");
@@ -73,7 +73,7 @@ class AdressenGUI extends Adressen implements iGUIHTMLMP2, iAutoCompleteHTML, ic
 			$tab = mAdressBuchGUI::getSelectionMenu($this);
 		
 		$gui->isQuickSearchable(str_replace("GUI","",get_class($this)));
-		$gui->setMultiPageMode($gesamt, $page, 20, "contentRight", str_replace("GUI","",get_class($this)));
+		$gui->setMultiPageMode($gesamt, $page, 0, "contentRight", str_replace("GUI","",get_class($this)));
 		if($this->collector != null) $gui->setAttributes($this->collector);
 		
 		$gui->setDisplayGroup("KategorieID");
@@ -90,7 +90,7 @@ class AdressenGUI extends Adressen implements iGUIHTMLMP2, iAutoCompleteHTML, ic
 		return ($id == -1 ? $tab : "").$gui->getBrowserHTML($id);
 	}
 	
-	public static function DGParser($w,$l,$p){
+	public static function DGParser($w, $l, $p = null){
 		if($w == 0)
 			return "-";
 		
@@ -99,9 +99,8 @@ class AdressenGUI extends Adressen implements iGUIHTMLMP2, iAutoCompleteHTML, ic
 	}
 
 	public static function getContactButton($kundennummer){
-		$BKontakt = new Button("Kontaktdaten anzeigen", "./images/i2/telephone.png");
+		$BKontakt = new Button("Kontaktdaten anzeigen", "./images/i2/telephone.png", "icon");
 		$BKontakt->style("float:right;");
-		$BKontakt->type("icon");
 		$BKontakt->popup("name", "Kontaktdaten", "Adressen", -1, "getContactPopup", $kundennummer);
 
 		return $BKontakt;
@@ -147,7 +146,9 @@ class AdressenGUI extends Adressen implements iGUIHTMLMP2, iAutoCompleteHTML, ic
 		$this->setFieldsV3(array("firma AS label", "AdresseID AS value", "vorname", "nachname", "CONCAT(strasse, ' ', nr, ', ', plz, ' ', ort) AS description","email", "firma"));
 		$this->setLimitV3("10");
 		$this->setParser("label", "AdressenGUI::parserACLabel");
-		$this->setParser("email", "AdressenGUI::parserACEmail");
+		if($attributeName == "SendMailTo")
+			$this->addAssocV3 ("email", "!=", "");
+		#$this->setParser("email", "AdressenGUI::parserACEmail");
 		
 		Aspect::joinPoint("query", $this, __METHOD__, $this);
 		
@@ -189,6 +190,7 @@ class AdressenGUI extends Adressen implements iGUIHTMLMP2, iAutoCompleteHTML, ic
 				echo $gui->getACHTMLBrowser();
 			break;
 			case "quickSearchAdressen":
+			case "quickSearchmAdresse":
 				$mode = "quickSearchLoadFrame";
 				$hasNr = false;
 				if(is_numeric($query)){
@@ -261,7 +263,14 @@ class AdressenGUI extends Adressen implements iGUIHTMLMP2, iAutoCompleteHTML, ic
 	public function saveContextMenu($identifier, $key){}
 	
 	public static function firmaParser($w,$a,$p){
-		$s = HTMLGUI::getArrayFromParametersString($p);
+		if(!is_array($p))
+			$s = HTMLGUI::getArrayFromParametersString($p);
+		else
+			$s = $p;
+		
+		$SM = BPS::getProperty("AdressenGUI", "selectionMode", false);
+		if($s[9] == "mAdresseGUI")
+			$SM = BPS::getProperty("mAdresseGUI", "selectionMode", false);
 		
 		$symbols = "";
 		if($s[8] != "") $symbols .= "<a href=\"$s[8]\" target=\"_blank\"><img class=\"mouseoverFade\" style=\"float:right;margin-left:4px;\" src=\"./images/i2/flowers.gif\" title=\"$s[8]\" /></a>";
@@ -283,9 +292,9 @@ class AdressenGUI extends Adressen implements iGUIHTMLMP2, iAutoCompleteHTML, ic
 			} else
 				$symbols .= "<img class=\"mouseoverFade\" style=\"float:right;margin-left:4px;\" src=\"./images/i2/telephone.png\" title=\"$s[4]\" />";
 		}
-		return $symbols.(($_SESSION["S"]->checkForPlugin("Kunden") AND $s[3] == "default") ? 
-		"<img src=\"./images/i2/kunde.png\" title=\"Kundendaten anzeigen/erstellen\" onclick=\"contentManager.loadFrame('contentLeft', 'Kunde', -1, 0, 'KundeGUI;AdresseID:$s[2];action:Kappendix');\" style=\"float:left;margin-right:4px;\" class=\"mouseoverFade\" />" : "")
-		.(($_SESSION["S"]->checkForPlugin("Kundenpreise") AND $s[3] == "default") ? "<img src=\"./images/i2/kundenpreis.png\" title=\"Kundenpreise festlegen\" onclick=\"contentManager.loadFrame('contentLeft','Kunde', -1, 0,'KundeGUI;AdresseID:$s[2];action:Kundenpreise');\" style=\"float:left;margin-right:4px;\" class=\"mouseoverFade\" />" : "")
+		return $symbols.(($_SESSION["S"]->checkForPlugin("Kunden") AND $s[3] == "default" AND !$SM) ? 
+		"<img src=\"./images/i2/kunde.png\" title=\"Kundendaten anzeigen/erstellen\" onclick=\"contentManager.selectRow(this); contentManager.loadFrame('contentLeft', 'Kunde', -1, 0, 'KundeGUI;AdresseID:$s[2];action:Kappendix');\" style=\"float:left;margin-right:4px;\" class=\"mouseoverFade\" />" : "")
+		.(($_SESSION["S"]->checkForPlugin("Kundenpreise") AND $s[3] == "default" AND !$SM) ? "<img src=\"./images/i2/kundenpreis.png\" title=\"Kundenpreise festlegen\" onclick=\"contentManager.selectRow(this); contentManager.loadFrame('contentLeft','Kunde', -1, 0,'KundeGUI;AdresseID:$s[2];action:Kundenpreise');\" style=\"float:left;margin-right:4px;\" class=\"mouseoverFade\" />" : "")
 		.(($_SESSION["S"]->checkForPlugin("labelPrinter") AND $s[3] == "default") ? "<img src=\"./images/i2/printer.png\" title=\"Etikette mit Adresse drucken\" onclick=\"rme('labelPrinter','','printEtikette','$s[2]');\" style=\"float:left;margin-right:4px;\" class=\"mouseoverFade\" />" : "")
 		.($w != "" ? stripslashes($w).(($s[1] != "" OR $s[0] != "") ? "<br /><small>$s[0] $s[1]</small>" : "") : $s[0]." ".$s[1]);
 	}

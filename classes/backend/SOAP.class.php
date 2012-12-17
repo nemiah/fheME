@@ -20,28 +20,38 @@
 
 class SOAP {
 	private $client = null;
-
+	private $key;
+	
 	public function startServer($className){
 		$server = new SoapServer(NULL, array('uri' => "http://".$_SERVER["HTTP_HOST"]."/"));
 		$server->setClass($className);
 		$server->handle();
 	}
 
+	public function authKey($key){
+		$this->key = $key;
+	}
+	
 	public function startClient($serverURL){
-
-		$this->client = new SoapClient(NULL,
-		array(
+		$options = array(
 		"location" => $serverURL,
 		"uri" => "urn:phynxSOAP",
 		"style" => SOAP_RPC,
-		"use" => SOAP_ENCODED
-		));
+		"use" => SOAP_ENCODED);
+		
+		if($this->key != null){
+			$options["login"] = "SOAPUser";
+			$options["password"] = $this->key;
+		}
+		$this->client = new SoapClient(NULL, $options);
+		
+		return $this->client;
 	}
 
 	function  __call($name,  $arguments) {
 		$parameters = array();
 		foreach($arguments as $K => $V)
-			$parameters[] = new SoapParam("$V", "par$K");
+			$parameters[] = new SoapParam($V, "par$K");
 
 		$result = $this->client->__call(
 		$name,

@@ -293,6 +293,11 @@ class DBStorage {
 		return $value;
 	}
 	
+	/**
+	 * @deprecated since version 31.10.2012
+	 * @param string $value
+	 * @return string
+	 */
 	public static function findNonUft8($value){
 		$value = str_replace("Ä", "Ã„", $value);
 		$value = str_replace("Ö", "Ã–", $value);

@@ -20,12 +20,74 @@
 	background-color:#B8B8F0;
 }
 .backgroundColor2 {
-	background-color:#D1D1FF;
+	background-color:#ddddff;/*#D1D1FF;*/
 }
 
 .backgroundColor3 {
 	background-color:#E6E6FF;
 }
+
+.backgroundColorHeader td:not(.ACCell) {
+	background-color:white;
+}
+
+.backgroundColorHeader .iconic {
+	color:#DDD;
+}
+
+.backgroundColorHeader, .backgroundColorHeader a:visited, .backgroundColorHeader a:link, .backgroundColorHeader a:active {
+	color:#444;
+}
+
+.browserSeparatorBottom td {
+	border-bottom:1px solid #DDD;
+}
+
+.browserSeparatorTop td {
+	border-top:1px solid #DDD;
+}
+
+.seamlessButton {
+	padding:3px;
+	padding-left:5px;
+	padding-bottom:1px;
+	display:inline-block;
+	border:1px solid #BBB;
+	border-radius:3px;
+	cursor:pointer;
+	-moz-transition: background-color .3s;
+	-webkit-transition: background-color .3s;
+	-o-transition: background-color .3s;
+	transition: background-color .3s;
+	margin-left:5px;
+	margin-right:5px;
+}
+
+.seamlessButton:hover {
+	background-color:rgba(0,0,0,0.1);
+	
+	-moz-transition: background-color .3s;
+	-webkit-transition: background-color .3s;
+	-o-transition: background-color .3s;
+	transition: background-color .3s;
+}
+
+.seamlessButton:hover .iconic, .lastSelected .iconic {
+	color:#555;
+	opacity:1;
+}
+
+.seamlessButton:active  {
+	background-color:rgba(0,0,0,0.2);
+}
+
+.highlight {
+	background-color:rgba(255,204,0,0.3);
+}
+
+/*.backgroundColorHeader td + td {
+	background-color:#FCFCFC;
+}*/
 
 .FormSeparatorWithLabel {
 	background-color:white;
@@ -51,6 +113,11 @@ caption {
 
 input, select, textarea, .AJAXUpload {
 	border-bottom-color:#9E9EF0;
+	
+	-moz-transition: background-color 1s;
+	-webkit-transition: background-color 1s;
+	-o-transition: background-color 1s;
+	transition: background-color 1s;
 }
 
 /**
@@ -60,6 +127,26 @@ input, select, textarea, .AJAXUpload {
 .hasFocus {
 	background-color:white;
 	border-bottom-color:#9E9EF0;
+}
+
+.recentlyChanged {
+	/*background-color:#b8de9a;*/
+	background-color: rgba(184, 222, 154, 0.5);
+	
+	-moz-transition: background-color .3s;
+	-webkit-transition: background-color .3s;
+	-o-transition: background-color .3s;
+	transition: background-color .3s;
+}
+
+::-webkit-input-placeholder {
+	color:#999;
+}
+:-moz-placeholder {
+	color:#999;
+}
+:-ms-input-placeholder {
+	color:#999;
 }
 
 /**
@@ -84,22 +171,8 @@ input, select, textarea, .AJAXUpload {
 	border-color:#B8B8F0;
 }
 
-#contentRight tr {
-	-moz-transition: background-color .3s;
-	-webkit-transition: background-color .3s;
-	-o-transition: background-color .3s;
-	transition: background-color .3s;
-}
-
-#contentRight tr:hover {
-	background-color:white;
-	
-	-moz-transition: background-color .3s;
-	-webkit-transition: background-color .3s;
-	-o-transition: background-color .3s;
-	transition: background-color .3s;
-}
-
+#contentRight .contentBrowser tr,
+#contentLeft .contentBrowser tr,
 #contentScreen tr {
 	-moz-transition: background-color .3s;
 	-webkit-transition: background-color .3s;
@@ -107,6 +180,8 @@ input, select, textarea, .AJAXUpload {
 	transition: background-color .3s;
 }
 
+#contentRight .contentBrowser tr:hover,
+#contentLeft .contentBrowser tr:hover,
 #contentScreen tr:hover {
 	background-color:white;
 	
@@ -114,6 +189,38 @@ input, select, textarea, .AJAXUpload {
 	-webkit-transition: background-color .3s;
 	-o-transition: background-color .3s;
 	transition: background-color .3s;
+}
+
+#contentRight .contentBrowser tr:hover .iconic,
+#contentLeft .contentBrowser tr:hover .iconic,
+.Tab:hover .iconic, #contentScreen tr:hover .iconic, .popup tr:hover .iconic {
+	color:#777;
+	border-color:#777;
+	
+	-moz-transition: color .7s, border-color .7s;
+	-webkit-transition: color .7s, border-color .7s;
+	-o-transition: color .7s, border-color .7s;
+	transition: color .7s, border-color .7s;
+}
+
+#contentRight .contentBrowser tr:hover .iconic.inactive,
+#contentLeft .contentBrowser tr:hover .iconic.inactive,
+.Tab:hover .iconic.inactive,
+#contentScreen tr:hover .iconic.inactive {
+	color:#ffb587;
+	border-color:#ffb587;
+	
+	-moz-transition: color .7s, border-color .7s;
+	-webkit-transition: color .7s, border-color .7s;
+	-o-transition: color .7s, border-color .7s;
+	transition: color .7s, border-color .7s;
+}
+
+
+#contentBelowContent {
+	border-top-color:#DDD;
+	border-top-style:solid;
+	background-color:#EEE;
 }
 
 #footer {
@@ -157,6 +264,20 @@ input, select, textarea, .AJAXUpload {
 	background-color:rgba(255, 255, 255, 0.5);
 }
 
-.highlight {
-	background-color:rgba(255,204,0,0.3);
+
+.topBG {
+	background-image: linear-gradient(bottom, rgb(183,185,180) 0%, rgb(220,222,216) 1%, rgb(255,255,255) 5%);
+	background-image: -o-linear-gradient(bottom, rgb(183,185,180) 0%, rgb(220,222,216) 1%, rgb(255,255,255) 5%);
+	background-image: -moz-linear-gradient(bottom, rgb(183,185,180) 0%, rgb(220,222,216) 1%, rgb(255,255,255) 5%);
+	background-image: -webkit-linear-gradient(bottom, rgb(183,185,180) 0%, rgb(220,222,216) 1%, rgb(255,255,255) 5%);
+	background-image: -ms-linear-gradient(bottom, rgb(183,185,180) 0%, rgb(220,222,216) 1%, rgb(255,255,255) 5%);
+
+	background-image: -webkit-gradient(
+		linear,
+		left bottom,
+		left top,
+		color-stop(0, rgb(183,185,180)),
+		color-stop(0.01, rgb(220,222,216)),
+		color-stop(0.05, rgb(255,255,255))
+	);
 }

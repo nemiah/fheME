@@ -48,7 +48,8 @@ class HTMLForm {
 	protected $onChange = array();
 	protected $onBlur = array();
 	protected $onKeyup = array();
-
+	protected $onFocus = array();
+	
 	private $spaces;
 	private $spaceLines;
 
@@ -71,6 +72,7 @@ class HTMLForm {
 	
 	private $autocomplete = array();
 	private $printColon = true;
+	private $callbacks = "";
 	
 	public function printColon($b){
 		$this->printColon = $b;
@@ -87,6 +89,11 @@ class HTMLForm {
 			case "onblur":
 				if(!isset($this->onBlur[$fieldName])) $this->onBlur[$fieldName] = "";
 				$this->onBlur[$fieldName] .= $function;
+			break;
+			case "onFocus":
+			case "onfocus":
+				if(!isset($this->onFocus[$fieldName])) $this->onFocus[$fieldName] = "";
+				$this->onFocus[$fieldName] .= $function;
 			break;
 			case "onKeyup":
 			case "onkeyup":
@@ -242,7 +249,7 @@ class HTMLForm {
 				$gui->setFieldDescription($k, $v);*/
 	}
 
-	public function setSaveMultiCMS($saveButtonLabel, $saveButtonBGIcon, $class, $action = "", $onSuccessFuntion = ""){
+	public function setSaveMultiCMS($saveButtonLabel, $saveButtonBGIcon, $class, $action = "", $onSuccessFuntion = "", $checkIfValid = false){
 		$this->saveMode = "multiCMS";
 		$this->saveButtonLabel = $saveButtonLabel;
 		$this->saveButtonBGIcon = $saveButtonBGIcon;
@@ -251,7 +258,8 @@ class HTMLForm {
 			$this->saveAction = $action;
 		else
 			$this->saveAction = $this->id;
-		$this->onSubmit = "multiCMS.formHandler('$this->id'".($onSuccessFuntion != "" ? ", $onSuccessFuntion" : "")."); return false;";
+		$this->saveButtonSubmit = ($checkIfValid ? "if($('#$this->id').valid()) " : "")."multiCMS.formHandler('$this->id'".($onSuccessFuntion != "" ? ", $onSuccessFuntion" : "").");";
+		$this->onSubmit = "return false;";
 	}
 
 	public function setSaveRMEP($saveButtonLabel, $saveButtonBGIcon, $targetClass, $targetClassId, $targetMethod, $onSuccessFunction){
@@ -385,7 +393,7 @@ class HTMLForm {
 		$this->saveButtonBGIcon = "";
 		$this->saveClass = "";
 		$this->saveAction = "";
-		$this->saveButtonOnclick = "saveBericht('".get_class($berichtClass)."');";
+		$this->saveButtonOnclick = "saveBericht('".get_class($berichtClass)."', '$this->id');";
 	}
 
 	public function isEditable($editable){
@@ -398,7 +406,7 @@ class HTMLForm {
 		$this->saveButtonBGIcon = "./images/i2/save.gif";
 		$this->saveClass = "";
 		$this->saveAction = "";
-		$this->saveButtonSubmit = "saveClass('$className', '$classID', $onSuccessFunction, '$this->id')";
+		$this->saveButtonSubmit = "saveClass('$className', '$classID', $onSuccessFunction, '$this->id', function(id) { /*CALLBACKS*/ })";
 	}
 
 	public function insertSpaceAbove($fieldName, $label = ""){
@@ -428,7 +436,7 @@ class HTMLForm {
 	private function getInput($v){
 		if(!isset($this->types[$v]) OR $this->types[$v] != "parser"){
 			
-			if(isset($this->types[$v]) AND ($this->types[$v] == "tinyMCE" OR $this->types[$v] == "TextEditor")){
+			if(isset($this->types[$v]) AND ($this->types[$v] == "tinyMCE" OR $this->types[$v] == "TextEditor" OR $this->types[$v] == "nicEdit")){
 				$options = array($this->id, $v);
 				if(isset($this->options[$v]))
 					$options[] = $this->options[$v][0];
@@ -448,6 +456,9 @@ class HTMLForm {
 			if(isset($this->onBlur[$v]))
 				$Input->onblur($this->onBlur[$v]);
 
+			if(isset($this->onFocus[$v]))
+				$Input->onfocus($this->onFocus[$v]);
+
 			if(isset($this->onKeyup[$v]))
 				$Input->onkeyup($this->onKeyup[$v]);
 
@@ -458,7 +469,6 @@ class HTMLForm {
 				$Input->autocomplete($this->autocomplete[$v][0], $this->autocomplete[$v][1]);
 			
 			$Input->isDisplayMode(!$this->editable);
-
 		} else {
 			$method = explode("::", $this->options[$v][0]);
 			$Input = Util::invokeStaticMethod($method[0], $method[1], array(isset($this->values[$v]) ? $this->values[$v] : null, "", isset($this->options[$v][1]) ? $this->options[$v][1] : null));
@@ -472,7 +482,7 @@ class HTMLForm {
 		if(!isset($this->types[$v]) OR $this->types[$v] != "parser"){
 			if(isset($this->buttons[$v])) {
 				$B = $this->buttons[$v];
-				if(!isset($this->types[$v]) OR $this->types[$v] == "text" OR $this->types[$v] == "select")
+				if(!isset($this->types[$v]) OR $this->types[$v] == "text" OR $this->types[$v] == "select" OR $this->types[$v] == "readonly")
 					$Input->style("width:87%;");
 			}
 		}
@@ -510,13 +520,20 @@ class HTMLForm {
 
 				$Input = $this->getInput($v);
 				$B = $this->getCustomButton($v, $Input);
-
-
+				
+				if(is_object($Input) AND $Input instanceof HTMLInput){
+					$InputS = $Input->__toString();
+				
+					$this->callbacks .= $Input->getCallback();
+				} else
+					$InputS = $Input;
+				
+				
 				if(!isset($this->types[$v]) OR $this->types[$v] != "hidden"){
 
 					if($this->cols == 2) $this->table->addLV(
 						(isset($this->labels[$v]) ? $this->labels[$v] : ucfirst($v)).($this->printColon ? ":" : ""),
-						$B.$Input.(isset($this->descriptionField[$v]) ? "<br /><small>".$this->descriptionField[$v]."</small>" : ""));
+						$B.$InputS.(isset($this->descriptionField[$v]) ? "<br /><small style=\"color:grey;\">".$this->descriptionField[$v]."</small>" : ""));
 
 					if($this->cols == 1) {
 						$this->table->addRow(
@@ -524,14 +541,14 @@ class HTMLForm {
 						$this->table->addRowClass("backgroundColor3");
 
 						$this->table->addRow(
-						$B.$Input.(isset($this->descriptionField[$v]) ? "<br /><small>".$this->descriptionField[$v]."</small>" : ""));
+						$B.$InputS.(isset($this->descriptionField[$v]) ? "<br /><small style=\"color:grey;\">".$this->descriptionField[$v]."</small>" : ""));
 						$this->table->addRowClass("backgroundColor0");
 					}
 
 					if(isset($this->inputLineSyles[$v]))
 						$this->table->addRowStyle($this->inputLineSyles[$v]);
 				}
-				else $hiddenFields .= $Input;
+				else $hiddenFields .= $InputS;
 			}
 
 		if($this->cols == 4){
@@ -616,7 +633,7 @@ class HTMLForm {
 						$S->style("background-image:url($this->saveButtonBGIcon);background-position:98% 50%;background-repeat:no-repeat;");
 
 					if($this->saveButtonSubmit != null)
-						$S->onclick($this->saveButtonSubmit);
+						$S->onclick(str_replace("/*CALLBACKS*/", $this->callbacks, $this->saveButtonSubmit));
 
 					$this->table->addRow(array($S));
 					$this->table->addRowColspan(1, $this->cols);
@@ -627,6 +644,9 @@ class HTMLForm {
 					if($this->saveButtonBGIcon != "")
 						$S->style("background-image:url($this->saveButtonBGIcon);background-position:98% 50%;background-repeat:no-repeat;");
 
+					if($this->saveButtonSubmit != null)
+						$S->onclick(str_replace("/*CALLBACKS*/", $this->callbacks, $this->saveButtonSubmit));
+					
 					$action = new HTMLInput("action", "hidden", $this->saveAction);
 					$handler = new HTMLInput("HandlerName", "hidden", $this->saveClass);
 					$return = new HTMLInput("returnP", "hidden", "/".$_GET["permalink"]);

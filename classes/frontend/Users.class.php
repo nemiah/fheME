@@ -36,6 +36,11 @@ class Users extends anyC {
 		return $U;
 	}
 
+	public static function login($username, $password, $application, $language = "default"){
+		$U = new Users();
+		return $U->doLogin(array("loginUsername" => $username, "loginSHAPassword" => $password, "anwendung" => $application, "loginSprache" => $language)) > 0;
+	}
+	
 	public function getUser($username, $password, $isSHA = false){
 		if($password == ";;;-1;;;") return null;
 		
@@ -132,7 +137,43 @@ class Users extends anyC {
 		return $this->doLogin(array("loginUsername" => $foundU->A("username"), "loginSHAPassword" => $foundU->A("SHApassword"), "anwendung" => $application, "loginSprache" => $sprache));
 	}
 	
-	protected function doLogin($ps){
+	protected function doPersonaLogin($application, $sprache, $assertion){
+		$ch = curl_init();
+
+		curl_setopt($ch,CURLOPT_URL, "https://verifier.login.persona.org/verify");
+		curl_setopt($ch,CURLOPT_POST, 2);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($ch,CURLOPT_POSTFIELDS, "assertion=$assertion&audience=".$_SERVER["HTTP_HOST"]);
+
+		$result = json_decode(curl_exec($ch));
+		
+		curl_close($ch);
+		
+		if($result->status != "okay")
+			return 0;
+		
+		try {
+			$Users = self::getUsers();
+			$foundU = null;
+			while($U = $Users->getNextEntry())
+				if(strtolower(trim($U->A("UserEmail"))) === strtolower(trim($result->email))) {
+					$foundU = $U;
+					break;
+				}
+
+			if($foundU == null)
+				return 0;
+		} catch (Exception $e){
+			return 2;
+		}
+		
+		if(Session::currentUser() != null AND Session::currentUser()->A("UserEmail") == strtolower(trim($result->email)))
+			return 2;
+		
+		return $this->doLogin(array("loginUsername" => $foundU->A("username"), "loginSHAPassword" => $foundU->A("SHApassword"), "anwendung" => $application, "loginSprache" => $sprache));
+	}
+	
+	public function doLogin($ps){
 		$validUntil = Environment::getS("validUntil", null);
 		if($validUntil != null and $validUntil < time())
 			Red::errorD("Diese Version ist abgelaufen. Bitte wenden Sie sich an den Support.");
@@ -177,6 +218,9 @@ class Users extends anyC {
 		$_SESSION["S"]->setLoggedInUser($U);
 		$_SESSION["S"]->initApp($p["anwendung"]);
 
+		if(isset($_COOKIE["phynx_customer"]))
+			$_SESSION["phynx_customer"] = $_COOKIE["phynx_customer"];
+		
 		#if($_SESSION["S"]->checkIfUserLoggedIn()) die("Beim Einloggen ist ein Fehler aufgetreten.\nBitte drücken Sie F5 (aktualisieren) und melden Sie sich erneut an.");
 		return 1;
 	}

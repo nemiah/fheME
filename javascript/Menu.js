@@ -21,84 +21,16 @@
 mouseIsOver = new Array();
 lastHighLight = null;
 
-/*
-var appMenu = {
-	isInit: false,
-
-	show: function(){
-		if(!appMenu.isInit)
-			appMenu.init();
-
-		$("appMenuContainer").style.display = "";
-	},
-
-	hide: function(){
-		$("appMenuContainer").style.display = "none";
-		$('appMenuDisplayedContainer').style.display = 'none';
-	},
-
-	init: function(){
-		Sortable.create("appMenuHidden", {
-			handle: "appMenuHandle",
-			constraint: "vertical",
-			containment: ["appMenuDisplayed", "appMenuHidden"],
-			dropOnEmpty:true,
-			onUpdate: appMenu.update,
-			onChange: appMenu.change
-		});
-		Sortable.create("appMenuDisplayed", {
-			handle: "appMenuHandle",
-			constraint: "vertical",
-			containment: ["appMenuDisplayed", "appMenuHidden"],
-			dropOnEmpty:true,
-			onUpdate: appMenu.update,
-			onChange: appMenu.change
-		});
-	},
-
-	change: function(){
-		if($('appMenuHidden').children.length == 1)
-			$('appMenu_emptyList').style.display = "";
-		else
-			$('appMenu_emptyList').style.display = "none";
-	},
-
-	update: function(element){
-		
-		var eid = element.id ? element.id : element.target.id; //added for compatibility with jQuery
-		
-		var entries = null;
-
-		entries = Sortable.serialize(eid).replace(/appMenuHidden/g,"").replace(/appMenuDisplayed/g,"").replace(/appMenu/g,"").replace(/&/g,";").replace(/\[\]\=/g,"");
-
-		
-		if(eid == "appMenuHidden"){
-			var fore = entries.split(";");
-
-			for(var i = 0; i < fore.length; i++)
-				if($(fore[i]+'MenuEntry')) {
-					$(fore[i]+'MenuEntry').style.display = 'none';
-					$(fore[i]+'TabMinimizer').style.display = 'none';
-				}
-
-		}
-		if(eid == "appMenuDisplayed"){
-			var fore = entries.split(";");
-
-			for(var i = 0; i < fore.length; i++)
-				if($(fore[i]+'MenuEntry')) {
-					$(fore[i]+'MenuEntry').style.display = 'block';
-					$(fore[i]+'TabMinimizer').style.display = 'block';
-				}
-		}
-		
-		rmeP("Menu", "", "saveAppMenuOrder", [eid, entries]);
-	}
-}*/
-
 var Menu = {
 	refresh: function(onSuccessFunction){
-		new Ajax.Request("./interface/loadFrame.php?p=Menu&id=-1", {
+		contentManager.loadFrame("navigation", "Menu", -1, 0, "bps", function(){
+			
+			setHighLight($(lastHighLight.id));
+			
+			if(typeof onSuccessFunction == "function")
+				onSuccessFunction();
+		});
+		/*new Ajax.Request("./interface/loadFrame.php?p=Menu&id=-1", {
 		method: 'get',
 		onSuccess: function(transport) {
 			$('navigation').update(transport.responseText);
@@ -106,7 +38,7 @@ var Menu = {
 			
 			if(typeof onSuccessFunction == "function")
 				onSuccessFunction();
-		}});
+		}});*/
 	},
 	
 	showTab: function(plugin){
@@ -150,7 +82,36 @@ function querySt(ji) {
 }
 
 function loadMenu(){
-	new Ajax.Request("./interface/loadFrame.php?p=Menu&id=-1", {
+	contentManager.loadFrame("navigation", "Menu", -1, 0, "", function(transport){
+		//$('contentLeft').update('');
+		//Popup.closeNonPersistent();
+		contentManager.emptyFrame("contentLeft");
+		
+		if(transport.responseText == "-1"){
+			userControl.doTestLogin();
+			Overlay.show();
+			return;
+		} else Overlay.hide();
+		
+    	//if(!checkResponse(transport)) return;
+    	
+    	//$j('#navigation').html(transport.responseText);
+    	
+    	if($('morePluginsMenuEntry')){
+    		contentManager.loadFrame('contentLeft','morePlugins', -1, 0,'morePluginsGUI;-');
+    		setHighLight($('morePluginsMenuEntry'));
+    	}
+    	
+    	if(typeof querySt('plugin') != 'undefined'){
+			$j("#"+querySt('plugin')+'MenuEntry div').trigger("click");
+    	} else
+			contentManager.loadDesktop();
+    	
+		contentManager.loadJS();
+		contentManager.loadTitle();
+	});
+	
+	/*new Ajax.Request("./interface/loadFrame.php?p=Menu&id=-1", {
 	method: 'get',
 	onSuccess: function(transport) {
 		$('contentLeft').update('');
@@ -181,7 +142,7 @@ function loadMenu(){
 		contentManager.loadTitle();
     	//if($('messageLayer')) 
     	//if(typeof loadMessages == 'function') loadMessages();
-	}});
+	}});*/
 }
 
 

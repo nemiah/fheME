@@ -48,7 +48,7 @@ if(!PMReflector::implementsInterface($n,"iGUIHTMLMP2")
 		Red::errorD ("Class $_GET[p]GUI needs to implement the interface iGUIHTML2 or iGUIHTMLMP2!");
 		
 try {
-	echo $b->getHTML((isset($_GET["id"]) ? $_GET["id"] : "-1"), isset($_GET["page"]) ? $_GET["page"] : 0);
+	echo $b->getHTML((isset($_GET["id"]) ? $_GET["id"] : "-1"), isset($_GET["page"]) ? $_GET["page"] : 0, isset($_GET["frame"]) ? $_GET["frame"] : null);
 } catch (TableDoesNotExistException $e) {
 	Red::errorD("Die Datenbank-Tabelle (".$e->getTable().") dieses Plugins wurde noch nicht angelegt. Bitte verwenden Sie das Installations-Plugin im Administrationsbereich.");
 } catch (DatabaseNotSelectedException $e) {

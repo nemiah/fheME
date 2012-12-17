@@ -36,13 +36,8 @@ class mRSSParserGUI extends anyC implements iGUIHTMLMP2 {
 	public function getOverviewContent($echo = true){
 		$html = "";
 		$i = 0;
-		$c = 0;
 		while($RSS = $this->getNextEntry()){
-			$html .= "<div class=\"Tab backgroundColor1\">
-				".($c == 0 ? "<span class=\"lastUpdate\" id=\"lastUpdatemRSSParserGUI\"></span>" : "")."
-				<p>".$RSS->A("RSSParserName")."</p>
-				</div>
-				<div style=\"padding:10px;\">";
+			$html .= "<div class=\"Tab backgroundColor1\"><span class=\"lastUpdate\" id=\"lastUpdatemRSSParserGUI\"></span><p>".$RSS->A("RSSParserName")."</p></div><div style=\"padding:10px;\">$html";
 			
 			$list = new HTMLList();
 			$list->addListStyle("list-style-type:none;");
@@ -62,7 +57,7 @@ class mRSSParserGUI extends anyC implements iGUIHTMLMP2 {
 				
 				$i++;
 			}
-			$c++;
+			
 			$html .= $list."</div>";
 		}
 		

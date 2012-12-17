@@ -37,11 +37,16 @@ class HTMLInput {
 	private $multiEditOptions;
 	private $autocompleteBrowser = true;
 	protected $onblur;
+	protected $onenter;
 	private $onfocus;
 	private $className;
 	private $requestFocus = "";
 	private $autocomplete;
-
+	private $connectTo;
+	private $placeholder;
+	private $callback;
+	private $maxlength;
+	
 	public function __construct($name, $type = "text", $value = null, $options = null){
 		$this->name = $name;
 		$this->type = $type;
@@ -49,12 +54,24 @@ class HTMLInput {
 		$this->options = $options;
 	}
 
+	public function maxlength($length){
+		$this->maxlength = $length;
+	}
+	
 	public function autocomplete($targetClass, $onSelectionFunction = null, $hideOnSelection = false, $getACData3rdParameter = null, Button $ButtonEmptyValues = null){
-		$this->autocomplete = array($targetClass, $onSelectionFunction, $hideOnSelection, $getACData3rdParameter == null ? "null" : $getACData3rdParameter, $ButtonEmptyValues);
+		$cal = new Button("Suche", "./images/i2/details.png", "icon");
+					
+		$this->autocomplete = array($targetClass, $onSelectionFunction, $hideOnSelection, $getACData3rdParameter == null ? "null" : $getACData3rdParameter, $ButtonEmptyValues, $cal);
+		
+		return $cal;
 	}
 	
 	public function setType($type){
 		$this->type = $type;
+	}
+	
+	public function placeholder($text){
+		$this->placeholder = $text;
 	}
 
 	public function setClass($className){
@@ -139,6 +156,7 @@ class HTMLInput {
 	
 	public function onEnter($function){
 		$this->onkeyup .= "if(event.keyCode == 13) { ".$function." }";
+		$this->onenter = $function;
 	}
 
 	public function hasFocusEvent($bool){
@@ -153,8 +171,16 @@ class HTMLInput {
 		$this->value = $v;
 	}
 
+	public function getCallback(){
+		return $this->callback;
+	}
+	
 	public function isDisabled($bool){
 		$this->isDisabled = $bool;
+	}
+	
+	public function connectTo($elementID){
+		$this->connectTo = $elementID;
 	}
 
 	public function  __toString() {
@@ -165,6 +191,32 @@ class HTMLInput {
 		switch($this->type){
 			case "audio":
 				return "<audio controls preload=\"auto\" autobuffer style=\"$this->style\"><source src=\"$this->value\"></audio>";
+			break;
+		
+			case "search":
+				$currentId = ($this->id != null ? $this->id : $this->name.rand(100, 100000000));
+				$enter = "if(\$j('#$currentId').val() != ''){ \$j('#SB$currentId').fadeOut(200, function(){ \$j('#SA$currentId').fadeIn();}); } else { \$j('#SA$currentId').fadeOut(200, function(){ \$j('#SB$currentId').fadeIn(); }); }";
+				
+				$I = new HTMLInput($this->name, "text", $this->value, $this->options);
+				$I->style($this->style);
+				$I->placeholder($this->placeholder);
+				$I->onEnter($this->onenter.$enter);
+				#$I->onEnter(" ");
+				$I->id($currentId);
+				
+				$BSearch = new Button("Suchen", "question_mark", "iconicG");
+				$BSearch->style("margin-left:5px;");
+				$BSearch->id("SB$currentId");
+				$BSearch->onclick($this->onenter.$enter);
+				#$BSearch->id("searchMailsInfo");
+
+				$BSearchClear = new Button("Suche beenden", "x_alt", "iconicR");
+				$BSearchClear->style("margin-left:5px;display:none;");
+				$BSearchClear->id("SA$currentId");
+				$BSearchClear->onclick("\$j('#$currentId').val('').trigger('blur'); $this->onenter$enter");
+				#$BSearchClear->id("searchMailsClear");
+
+				return $I.$BSearch.$BSearchClear;
 			break;
 		
 			case "HTMLEditor":
@@ -185,6 +237,22 @@ class HTMLInput {
 				$ITA = new HTMLInput($this->name, "textarea", $this->value);
 				$ITA->id($this->name);
 				$ITA->style("display:none;");
+				
+				return $B->__toString().$ITA;
+			break;
+		
+			case "nicEdit":
+				$BO = array("'{$this->options[0]}'", "'{$this->options[1]}'");
+				if(isset($this->options[2]))
+					$BO[] = "'{$this->options[2]}'";
+					
+				$B = new Button("in Editor\nbearbeiten","editor");
+				#$B->windowRme("Wysiwyg","","getEditor","","WysiwygGUI;FieldClass:{$this->options[0]};FieldClassID:{$this->options[1]};FieldName:{$this->options[2]}");
+				$B->doBefore("Overlay.showDark(); %AFTER");
+				$B->popup("", "Editor", "nicEdit", "-1", "editInPopup", $BO, "", "Popup.presets.large");
+				$B->className("backgroundColor2");
+
+				$ITA = new HTMLInput($this->name, "hidden", $this->value);
 				
 				return $B->__toString().$ITA;
 			break;
@@ -232,9 +300,9 @@ class HTMLInput {
 
 				if($this->multiEditOptions != null){
 					$this->id($this->name."ID".$this->multiEditOptions[1]);
-					$this->onfocus .= " oldValue = this.value;";
+					$this->onfocus .= " contentManager.oldValue = this.value;";
 					$this->onkeyup .= "if(event.keyCode == 13) saveMultiEditInput('".$this->multiEditOptions[0]."','".$this->multiEditOptions[1]."','".$this->name."'".($this->multiEditOptions[2] != null ? ", ".$this->multiEditOptions[2] : "").");";
-					$this->onblur .= "if(oldValue != this.value) saveMultiEditInput('".$this->multiEditOptions[0]."','".$this->multiEditOptions[1]."','".$this->name."'".($this->multiEditOptions[2] != null ? ", ".$this->multiEditOptions[2] : "").");";
+					$this->onblur .= "if(contentManager.oldValue != this.value) saveMultiEditInput('".$this->multiEditOptions[0]."','".$this->multiEditOptions[1]."','".$this->name."'".($this->multiEditOptions[2] != null ? ", ".$this->multiEditOptions[2] : "").");";
 				
 					if($this->hasFocusEvent) {
 						$this->onfocus .= "focusMe(this);";
@@ -244,6 +312,7 @@ class HTMLInput {
 				}
 
 				return "<textarea
+					".($this->placeholder != null ? " placeholder=\"$this->placeholder\"" : "")."
 					".($this->style != null ? " style=\"$this->style\"" : "")."
 					name=\"$this->name\"
 					".($this->className != null ? "class=\"$this->className\"" : "")."
@@ -259,14 +328,19 @@ class HTMLInput {
 				$physion = Session::physion();
 
 				$currentId = ($this->id != null ? $this->id : $this->name).rand(100, 100000000);
+				
+				if(isset($this->options["autoUpload"]) AND !$this->options["autoUpload"])
+					$this->callback = "QQUploader$currentId.uploadStoredFiles();";
+				
 				return "
 					<div id=\"progress_$currentId\" style=\"height:10px;width:95%;display:none;\" class=\"\">
 						<div id=\"progressBar_$currentId\" style=\"height:10px;width:0%;\" class=\"backgroundColor1\"></div>
 					</div>
-					<div id=\"$currentId\" style=\"width:100%;\"></div>
+					<div id=\"$currentId\" style=\"width:100%;$this->style\"></div>
 					<script type=\"text/javascript\">
-						var QQUploader = new qq.FileUploader({
+						QQUploader$currentId = new qq.FileUploader({
 							maxSizePossible: '".ini_get("upload_max_filesize")."B',
+							sizeLimit: ".Util::toBytes(ini_get("upload_max_filesize")).",
 							element: \$j('#$currentId')[0],
 							action: './interface/set.php',
 							params: {
@@ -275,14 +349,25 @@ class HTMLInput {
 								".(($this->options != null AND isset($this->options["path"])) ? ",'path':'".$this->options["path"]."'" : "")."
 								".($physion ? ",'physion':'$physion[0]'" : "")."
 							},
+							".((isset($this->options["autoUpload"])) ? "autoUpload: ".($this->options["autoUpload"] ? "true" : "false")."," : "")."
+							".((isset($this->options["multiple"])) ? "multiple: ".($this->options["multiple"] ? "true" : "false")."," : "")."
 							onSubmit: function(id, fileName){ \$j('#progress_$currentId').css('display', 'block');},
-							onComplete: function(id, fileName, transport){ \$j('progress_$currentId').css('display', 'none'); if(checkResponse(transport)) { $this->onchange } },
+							onComplete: function(id, fileName, transport){ \$j('progress_$currentId').css('display', 'none'); $this->onchange },
 							onProgress: function(id, fileName, loaded, total){ \$j('#progressBar_$currentId').css('width', Math.ceil((loaded / total) * 100)+'%'); }});
 					</script>";
 			break;
 
+			case "time":
+				$this->type = "text";
+				#$this->onkeyup .= "if(\$j(this).val().length == 2 && \$j(this).val().lastIndexOf(':') == -1) \$j(this).val(\$j(this).val()+':'); ";
+				if($this->connectTo)
+					$this->onkeyup .= "contentManager.connectedTimeInput(event, '$this->id', '$this->connectTo'); ";
+				else
+					$this->onkeyup .= "contentManager.timeInput(event, '$this->id'); ";
+				
 			case "radio1":
 			case "date":
+			case "email":
 			case "text":
 			case "hidden":
 			case "submit":
@@ -290,9 +375,14 @@ class HTMLInput {
 			case "password":
 			case "checkbox":
 			case "readonly":
+			case "fileold":
 				$JS = "";
 				if($this->type == "radio1")
 					$this->type = "radio";
+				
+				if($this->type == "fileold")
+					$this->type = "file";
+				
 				if($this->isDisplayMode) {
 					if($this->type == "checkbox") return Util::catchParser($this->value);
 					if($this->type == "hidden") return "";
@@ -309,10 +399,9 @@ class HTMLInput {
 				if($this->type == "date") {
 					if($this->id == null) $this->id = rand(10000,90000);
 
-					$cal = new Button("","./images/i2/calendar.gif");
+					$cal = new Button("Kalender anzeigen","calendar", "iconic");
 					$cal->onclick("\$j('#$this->id').focus();");
-					$cal->type("icon");
-					$cal->className("calendarIcon");
+					$cal->style("float:right;");
 
 					$JS = "<script type=\"text/javascript\">\$j('#$this->id').datepicker();</script>";
 					
@@ -344,29 +433,30 @@ class HTMLInput {
 					$this->autocompleteBrowser = false;
 					
 					
-					$cal = new Button("Suche", "./images/i2/details.png");
+					$cal = $this->autocomplete[5];#new Button("Suche", "./images/i2/details.png");
 					$cal->onclick("$('$this->id').style.display = ''; $('$this->id').value = ''; $('$this->id').focus();");
-					$cal->type("icon");
-					$cal->className("calendarIcon");
+					if($cal->getStyle() == "")
+						$cal->style("float:right;");
 					
 					if($this->autocomplete[4] != null){
 						$B2 = $this->autocomplete[4];
 						$B2->style("float:right;margin-left:5px;");
 						$this->style .= "width:80%";
 					} else {
-						$this->style .= "width:87%";
+						if(strpos($this->style, "width") === false)
+							$this->style .= "width:87%";
 					}
 						
 					
 					if($this->autocomplete[1] == null){
-						$cal->onclick("$('{$this->id}Display').style.display = ''; $('{$this->id}Display').value = ''; $('{$this->id}Display').focus();");
+						$cal->onclick("$('{$this->id}Display').style.display = ''; $('{$this->id}Display').value = ''; $('{$this->id}').value = ''; $('{$this->id}Display').focus();");
 						
 						$IN = new HTMLInput($this->name, "hidden", htmlspecialchars($this->value));
 						$IN->id($this->name);
 						$JS .= $IN;
 						
 						$this->autocomplete[1] = "function(selection){ $('$this->id').value = selection.value; $('{$this->id}Display').value = selection.label; return false; }";
-
+						
 						if($this->value != ""){
 							$C = substr($this->autocomplete[0], 1)."GUI";
 							$C = new $C($this->value);
@@ -393,6 +483,8 @@ class HTMLInput {
 				}
 				
 				return "$B2$cal<input
+					".($this->maxlength != null ? " maxlength=\"$this->maxlength\"" : "")."
+					".($this->placeholder != null ? " placeholder=\"$this->placeholder\"" : "")."
 					".($this->style != null ? " style=\"$this->style\"" : "")."
 					".(!$this->autocompleteBrowser ? "autocomplete=\"off\"" : "")."
 					".($this->className != null ? "class=\"$this->className\"" : "")."

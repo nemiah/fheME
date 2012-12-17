@@ -108,10 +108,9 @@ class Todo extends PersistentObject {
 		if(Session::isPluginLoaded("mGoogle") AND $this->updateGoogle)
 			if($this->A("TodoUserID") == Session::currentUser()->getID())
 				Google::calendarCreateEvent(mTodoGUI::getCalendarDetails("Todo", $id));
-
+			
 		if($this->A("TodoClass") == "DBMail" AND Session::isPluginLoaded("mMail")){
-			$M = new Mail(-1);
-			$M->assignMail("Todo", $id, $this->A("TodoClassID"));
+			Mail::assign("Todo", $id, $this->A("TodoClassID"));
 		}
 			
 		return $id;
@@ -125,10 +124,9 @@ class Todo extends PersistentObject {
 		while($T = $AC->getNextEntry())
 			$T->deleteMe();
 		
-		if($this->A("TodoClass") == "DBMail" AND Session::isPluginLoaded("mMail")){
-			$M = new Mail(-1);
-			$M->revokeAssignMail("Todo", $this->getID(), $this->A("TodoClassID"));
-		}
+		if($this->A("TodoClass") == "DBMail" AND Session::isPluginLoaded("mMail"))
+			Mail::assignRevoke("Todo", $this->getID(), $this->A("TodoClassID"));
+		
 		
 		parent::deleteMe();
 	}
@@ -150,13 +148,14 @@ class Todo extends PersistentObject {
 		$T->changeA("TodoFromTime", Kalender::parseTime($KE->getTime()));
 		$T->changeA("TodoTillDay", Kalender::parseDay($KE->getEndDay()));
 		$T->changeA("TodoTillTime", Kalender::parseTime($KE->getEndTime()));
-		$T->changeA("TodoType", "1");
+		$T->changeA("TodoType", "2");
 		$T->changeA("TodoName", $KE->title());
 		$T->changeA("TodoClass", $KE->ownerClass());
 		$T->changeA("TodoClassID", $KE->ownerClassID());
 		$T->changeA("TodoUserID", Session::currentUser()->getID());
+		$T->changeA("TodoOrganizer", $KE->organizer());
 		
-		$T->newMe();
+		return $T->newMe();
 	}
 }
 ?>

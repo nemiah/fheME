@@ -50,22 +50,40 @@ class UtilGUI extends Util {
 		$tab = new HTMLTable(2);
 		$tab->setColWidth(1, "120px;");
 		$tab->addLV("Absender:", "$data[fromName]<br /><small>&lt;$data[fromAddress]&gt;</small>");
-		if(count($data["recipients"]) == 1)
-			$tab->addLV("Empfänger:", $data["recipients"][0][0]."<br /><small>&lt;".$data["recipients"][0][1]."&gt;</small>");
+		
+		if(is_array($data["recipients"])){
+			if(count($data["recipients"]) == 1)
+				$tab->addLV("Empfänger:", $data["recipients"][0][0]."<br /><small>&lt;".$data["recipients"][0][1]."&gt;</small>");
+			else {
+				$recipients = array();
+				foreach($data["recipients"] AS $ID => $Rec)
+					$recipients[$ID] = new HTMLInput ($Rec[0]." &lt;".$Rec[1]."&gt;", "option", $ID);;
+
+				$IS = new HTMLInput("EMailRecipient$dataClassID", "select", "0", $recipients);
+				$IS->id("EMailRecipient$dataClassID");
+
+				$tab->addLV("Empfänger:", $IS);
+			}
+		}
+		
 		else {
-			$recipients = array();
-			foreach($data["recipients"] AS $ID => $Rec)
-				$recipients[$ID] = new HTMLInput ($Rec[0]." &lt;".$Rec[1]."&gt;", "option", $ID);;
-			
-			$IS = new HTMLInput("EMailRecipient$dataClassID", "select", "0", $recipients);
+			$IS = new HTMLInput("EMailRecipient$dataClassID", "text", $data["recipients"]);
 			$IS->id("EMailRecipient$dataClassID");
-			
+
 			$tab->addLV("Empfänger:", $IS);
 		}
+		
 		$tab->addLV("Betreff:", "<input type=\"text\" id=\"EMailSubject$dataClassID\" value=\"$data[subject]\" />");
-		$tab->addRow(array("<textarea id=\"EMailBody$dataClassID\" style=\"width:100%;height:300px;font-size:10px;\">$data[body]</textarea>"));
-		$tab->addRowColspan(1, 2);
-		$tab->addRowClass("backgroundColor0");
+		
+		echo $tab;
+		echo "<div style=\"width:94%;margin:auto;\"><textarea id=\"EMailBody$dataClassID\" style=\"width:100%;height:300px;font-size:10px;\">$data[body]</textarea></div>";
+		
+		#$tab->addRow(array(""));
+		#$tab->addRowColspan(1, 2);
+		#$tab->addRowClass("backgroundColor0");
+		
+		$tab = new HTMLTable(2);
+		$tab->setColWidth(1, "120px;");
 
 		if($onSuccessFunction == null)
 			$onSuccessFunction = "".OnEvent::reload("Left")." Popup.close('Util', 'edit');";
@@ -77,7 +95,7 @@ class UtilGUI extends Util {
 		
 		$BGo = new Button("E-Mail\nsenden","okCatch");
 		$BGo->style("float:right;margin-top:10px;");
-		$BGo->rmePCR($dataClass, $dataClassID, "sendEmail", array("$('EMailSubject$dataClassID').value", "$('EMailBody$dataClassID').value", count($data["recipients"]) == 1 ? "0" : "$('EMailRecipient$dataClassID').value", "'".$callbackParameter."'"), $onSuccessFunction);
+		$BGo->rmePCR($dataClass, $dataClassID, "sendEmail", array("$('EMailSubject$dataClassID').value", "$('EMailBody$dataClassID').value", (is_array($data["recipients"]) AND count($data["recipients"]) == 1) ? "0" : "$('EMailRecipient$dataClassID').value", "'".$callbackParameter."'"), $onSuccessFunction);
 		#$BGo->onclick("CloudKunde.directMail('$this->ID', '$data[recipientAddress]', $('EMailSubject$this->ID').value, $('EMailBody$this->ID').value); ");
 
 
@@ -86,6 +104,15 @@ class UtilGUI extends Util {
 		#$tab->addRowClass("backgroundColor0");
 
 		echo $tab;
+		
+		if(strpos($data["body"], "<p") !== false)
+			echo OnEvent::script("
+				setTimeout(function(){
+			new nicEditor({
+				iconsPath : './libraries/nicEdit/nicEditorIconsTiny.gif',
+				buttonList : ['bold','italic','underline'],
+
+			}).panelInstance('EMailBody$dataClassID');}, 100);");
 	}
 
 	public static function newSession($physion, $application, $plugin, $cloud = ""){

@@ -18,6 +18,36 @@
  *  2007 - 2012, Rainer Furtmeier - Rainer@Furtmeier.de
  */
 class Util {
+	public static function filesTree($files){
+
+		$zipDirectories = array();
+		foreach($files AS $file)
+			if(substr($file, -1) == "/")
+				$zipDirectories[dirname($file)] = array();
+			else {
+				if(strpos($file, "/") !== false)
+					$zipDirectories[dirname($file)][] = basename($file);
+				else
+					$zipDirectories[] = $file;
+			}
+		
+		
+		$reverse = array_reverse($zipDirectories, true);
+		foreach($reverse AS $dir => $content){
+			$path = explode("/", $dir);
+			if(count($path) < 2)
+				continue;
+			
+			$zipDirectories[dirname($dir)][basename($dir)] = $content;
+			unset($zipDirectories[$dir]);
+		}
+		
+		if(isset($zipDirectories["."]))
+			unset($zipDirectories["."]);
+		
+		return $zipDirectories;
+	}
+	
 	public static function getCloudHost(){
 		if($_SERVER["HTTP_HOST"] == "*")
 			return null;
@@ -36,15 +66,67 @@ class Util {
 		}
 	}
 	
+	public static function makeHTMLMail($html, $styles = null){
+		if(stripos($html, "</p>") === false)
+			return $html;
+			
+		if(stripos($html, "</html>") !== false)
+			return $html;
+		
+		if($styles == null)
+			$styles = array(
+				"p" => "font-size: 12pt;font-family:sans-serif;",
+				"li" => "font-size: 12pt;font-family:sans-serif;",
+				"h1" => "font-size: 18pt;font-family:sans-serif;",
+				"h2" => "font-size: 16pt;font-family:sans-serif;",
+				"h3" => "font-size: 15pt;font-family:sans-serif;",
+				"h4" => "font-size: 13pt;font-family:sans-serif;",
+				"h5" => "font-size: 13pt;font-family:sans-serif;",
+				"h6" => "font-size: 13pt;font-family:sans-serif;"
+			);
+		
+		foreach($styles AS $tag => $style){
+			$html = str_replace("<$tag style=\"", "<$tag style=\"".trim(str_replace("\n", "", $style))."", $html);
+			$html = str_replace("<$tag>", "<$tag style=\"".trim(str_replace("\n", "", $style))."\">", $html);
+		}
+		
+		return "<html>
+  <head>
+    <meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\">
+  </head>
+  <body style=\"background-color:#FFFFFF;color:#222222;\">
+  ".$html."
+  </body>
+</html>";
+	}
+	
+	public static function toBytes($val) {
+		$val = trim($val);
+		$last = strtolower($val[strlen($val) - 1]);
+		switch ($last) {
+			// The 'G' modifier is available since PHP 5.1.0
+			case 'g':
+				$val *= 1024;
+			case 'm':
+				$val *= 1024;
+			case 'k':
+				$val *= 1024;
+		}
+
+		return $val;
+	}
+	
 	/**
-	 * Created fixed-size string
+	 * Create fixed-size string
 	 * 
 	 * @param string $string
 	 * @param int $width
 	 * @param int $pad_type STR_PAD_RIGHT OR STR_PAD_LEFT
+	 * @deprecated since version 23.09.2012
 	 */
 	public static function utf8_str_col($string, $width, $pad_string = " ", $pad_type = STR_PAD_RIGHT){
-		preg_match_all("/./su", $string, $ar);
+		return phynx_mb_str_pad($string, $width, $pad_string, $pad_type, "UTF-8");
+		/*preg_match_all("/./su", $string, $ar);
 		
 		$ar = array_slice($ar[0], 0, $width);
 		
@@ -60,7 +142,7 @@ class Util {
 			break;
 		}
 		
-		return implode("", $ar);
+		return implode("", $ar);*/
 	}
 	
 	public static function getAppServerClient($auth = true){
@@ -132,6 +214,7 @@ class Util {
 
 		switch($ISOCountry){
 			case "GB":
+			case "US":
 				$r .= "{firma}\n";
 				$r .= "{position}{vorname}{nachname}\n";
 				$r .= "{zusatz1}\n";
@@ -140,7 +223,16 @@ class Util {
 				$r .= "{plz}\n";
 				$r .= "{land}";
 			break;
-
+		
+			case "CH":
+				$r .= "{firma}\n";
+				$r .= "{vorname}{nachname}\n";
+				$r .= "{zusatz1}\n";
+				$r .= "{strasse}{nr}\n";
+				$r .= "{plz}{ort}\n";
+				$r .= "{land}";
+			break;
+				
 			default:
 				$r .= "{firma}\n";
 				$r .= "{vorname}{nachname}\n";
@@ -285,7 +377,7 @@ class Util {
 	}
 	
 	public static function CLFormatNumber($number, $digits = "default", $showZero = true, $endingZeroes = true, $thousandSeparator = true){
-		return Util::formatNumber($_SESSION["S"]->getUserLanguage(), $number, $digits, $showZero, $endingZeroes, $thousandSeparator);
+		return Util::formatNumber($_SESSION["S"]->getUserLanguage(), $number * 1, $digits, $showZero, $endingZeroes, $thousandSeparator);
 	}
 	
 	/**
@@ -356,27 +448,56 @@ class Util {
 		if($l == "store") return Util::parseFloat($_SESSION["S"]->getUserLanguage(), $number);
 	}
 	
-	public static function formatAnrede($language, Adresse $Adresse, $shortmode = false){
+	public static function CLFormatAnrede(Adresse $Adresse, $shortmode = false, $lessFormal = false, $perDu = false){
+		return self::formatAnrede(Session::getLanguage(), $Adresse, $shortmode, $lessFormal, $perDu);
+	}
+	
+	public static function formatAnrede($language, Adresse $Adresse, $shortmode = false, $lessFormal = false, $perDu = false){
+		$format = self::getLangAnrede($language, $lessFormal);
+
 		switch($Adresse->A("anrede")){
 			case "2":
-				if($shortmode) $A = "Herr";
-				else $A = "Sehr geehrter Herr ".$Adresse->A("nachname");
+				if($shortmode) $A = $format["maleShort"];
+				else {
+					$A = $format["male"]." ".$Adresse->A("nachname");
+					if(trim($Adresse->A("nachname")) == "")
+						$A = $format["unknown"];
+				}
+				
+				if($perDu == true)
+					$A = "Hallo ".$Adresse->A("vorname");
 			break;
 			case "1":
-				if($shortmode) $A = "Frau";
-				else $A = "Sehr geehrte Frau ".$Adresse->A("nachname");
+				if($shortmode) $A = $format["femaleShort"];
+				else {
+					$A = $format["female"]." ".$Adresse->A("nachname");
+					if(trim($Adresse->A("nachname")) == "")
+						$A = $format["unknown"];
+				}
+				
+				if($perDu == true)
+					$A = "Hallo ".$Adresse->A("vorname");
 			break;
 			case "3":
 				if($shortmode) $A = "";
-				else $A = "Sehr geehrte Damen und Herren";
+				else $A = $format["unknown"];
+				
+				if($perDu == true)
+					$A = "Hallo";
 			break;
 			case "4":
-				if($shortmode) $A = "Familie";
-				else $A = "Sehr geehrte Familie ".$Adresse->A("nachname");
+				if($shortmode) $A = $format["familyShort"];
+				else $A = $format["family"]." ".$Adresse->A("nachname");
+				
+				if($perDu == true)
+					$A = "Hallo";
 			break;
 			default:
 				if($shortmode) $A = "";
-				else $A = "Sehr geehrte Damen und Herren";
+				else $A = $format["unknown"];
+				
+				if($perDu == true)
+					$A = "Hallo";
 			break;
 		}
 		
@@ -386,6 +507,24 @@ class Util {
 	
 	public static function CLFormatDate($timeStamp = -1, $long = false){
 		return self::formatDate($_SESSION["S"]->getUserLanguage(), $timeStamp, $long);
+	}
+	
+	public static function CLCheckDate($CLDate){
+		$format = Util::getLangDateFormat(Session::getLanguage());
+		
+		$split = explode($format[1],$CLDate);
+		$refer = explode($format[1],$format[0]);
+		
+		if(count($split) != 3) return false;
+
+		$monat = $split[array_search("m",$refer)];
+		$tag   = $split[array_search("d",$refer)];
+		$jahr  = $split[array_search("Y",$refer)];
+		
+		if($tag < 1 OR $tag > 31) return false;
+		if($monat < 1 OR $monat > 12) return false;
+		
+		return checkdate($monat, $tag, $jahr);
 	}
 	
 	public static function formatDate($language, $timeStamp = -1, $long = false){
@@ -513,12 +652,15 @@ class Util {
 		
 		if(count($split) != 3) return -1;
 		
-		if($split[0] < 1 OR $split[0] > 31) return -1;
-		if($split[1] < 1 OR $split[1] > 12) return -1;
+		#if($split[0] < 1 OR $split[0] > 31) return -1;
+		#if($split[1] < 1 OR $split[1] > 12) return -1;
 
 		$monat = $split[array_search("m",$refer)];
 		$tag   = $split[array_search("d",$refer)];
 		$jahr  = $split[array_search("Y",$refer)];
+		
+		if($tag < 1 OR $tag > 31) return -1;
+		if($monat < 1 OR $monat > 12) return -1;
 		
 		return mktime(0, 1, 0, $monat,$tag,$jahr);
 		
@@ -559,6 +701,37 @@ class Util {
 		return round(abs($nummer) + 0.0000000001, $stellen) * ($negative ? -1 : 1);
 	}
 	
+	public static function getLangAnrede($languageTag = null, $lessFormal = false){
+		if($languageTag == null)
+			$languageTag = Session::getLanguage();
+		
+		switch($languageTag){
+			case "en_GB":
+				return array(
+					"male" => "Dear Mr",
+					"maleShort" => "Mr",
+					"female" => "Dear Ms",
+					"femaleShort" => "Ms",
+					"unknown" => "Dear Sir or Madam",
+					"family" => "Dear family",
+					"familyShort" => "Family"
+				);
+			break;
+		
+			default:
+				return array(
+					"male" => ($lessFormal ? "Hallo" : "Sehr geehrter")." Herr ",
+					"maleShort" => "Herr",
+					"female" => ($lessFormal ? "Hallo" : "Sehr geehrte")." Frau ",
+					"femaleShort" => "Frau",
+					"unknown" => "Sehr geehrte Damen und Herren",
+					"family" => ($lessFormal ? "Hallo" : "Sehr geehrte")." Familie ",
+					"familyShort" => "Familie"
+				);
+		}
+		
+	}
+	
 	public static function getLangNumbersFormat($languageTag = null){
 		if($languageTag == null)
 			$languageTag = Session::getLanguage();
@@ -590,6 +763,14 @@ class Util {
 		if($languageTag == null)
 			$languageTag = Session::getLanguage();
 		
+		// <editor-fold defaultstate="collapsed" desc="Aspect:jP">
+		try {
+			$MArgs = func_get_args();
+			return Aspect::joinPoint("around", null, __METHOD__, $MArgs);
+		} catch (AOPNoAdviceException $e) {}
+		Aspect::joinPoint("before", null, __METHOD__, $MArgs);
+		// </editor-fold>
+		
 		/* array(
 		 * Currency symbol, 
 		 * positive number Format,
@@ -607,6 +788,9 @@ class Util {
 			break;
 			case "de_CH":
 				return array("SFr.", "SFr. n", "SFr. -n", ".", 2, "'");
+			break;
+			case "de_CH_CHF":
+				return array(" CHF", "CHF n", "CHF -n", ".", 2, "'");
 			break;
 			case "en_US":
 				return array("$", "\$n", "\$(n)", ".", 2, ",");
@@ -781,6 +965,10 @@ class Util {
 		$minutes  = ($minutes < 10 ? "0" : "").$minutes;
 		return $hours.":".$minutes.":".$sec;
 	}
+	
+	public static function formatSecondsSigned($seconds){
+		return ($seconds < 0 ? "-" : "").self::formatSeconds(abs($seconds));
+	}
 
 	/**
 	 * returns true if the running php version is greater OR equal $version
@@ -879,7 +1067,7 @@ class Util {
 		} else echo "<!DOCTYPE html><html><script type=\"text/javascript\">document.location='../system/IECache/".$_SESSION["S"]->getCurrentUser()->getID()."/".basename($filename)."?rand=".rand(100, 1000000)."';</script></html>";
 	}
 
-	public static function showPDF($object, $callbackFunction){
+	public static function showPDF($object, $callbackFunction = "getPDF"){
 		if(Util::usePDFViewer()){
 			$filename = $object->$callbackFunction(true);
 			Util::PDFViewer($filename);

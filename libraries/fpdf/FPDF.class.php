@@ -222,6 +222,9 @@ class FPDF {
 			case "T":
 				return $this->tMargin;
 			break;
+			case "B":
+				return $this->bMargin;
+			break;
 		}
 	}
 
@@ -571,6 +574,10 @@ class FPDF {
 			$this->_out(sprintf('BT /F%d %.2f Tf ET', $this->CurrentFont['i'], $this->FontSizePt));
 	}
 
+	function GetFontSize(){
+		return $this->FontSizePt;
+	}
+	
 	function SetFontSize($size) {
 		//Set font size in points
 		if ($this->FontSizePt == $size)

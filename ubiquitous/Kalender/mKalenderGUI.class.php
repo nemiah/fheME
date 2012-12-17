@@ -23,6 +23,9 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 		
 		$this->customize();
 	}
+	
+	public static $colors = array();
+	
 	public function getHTML($id){
 
 		$bps = $this->getMyBPSData();
@@ -221,7 +224,7 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 		$ST = new HTMLSideTable("right");
 		$ST->setTableStyle("width:40px;margin:0px;margin-right:-215px;float:right;/*margin-right:-50px;margin-top:95px;*/");
 		
-		$newWindow = new Button("Kalender in neuem Fenster öffnen", "newWindow", "icon");
+		$newWindow = new Button("Kalender in neuem Fenster öffnen", "new_window", "iconicL");
 		$newWindow->style("margin-right:10px;");
 		#$newWindow->onclick("contentManager.newSession('Mail', 'mMail');");
 		$newWindow->newSession("Mail", Applications::activeApplication(), "mKalender");
@@ -230,6 +233,29 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 		
 		$ST->addRow("<div id=\"calendar1stMonth\"></div>");
 		$ST->addRow("<div id=\"calendar2ndMonth\"></div>");
+		
+
+		$TS = new HTMLTable(3);
+		$TS->setColClass(1, "");
+		$TS->setColClass(3, "");
+		$TS->setColClass(2, "");
+		$TS->setColWidth(2, "20");
+		$TS->setColWidth(1, "10");
+		$ACS = anyC::get("Userdata", "name", "shareCalendarTo".Session::currentUser()->getID());
+		while($Share = $ACS->getNextEntry()){
+			$show = mUserdata::getUDValueS("showCalendarOf".$Share->A("UserID"), "1");
+			
+			$U = new User($Share->A("UserID"));
+			$I = new HTMLInput("showCalendar".$Share->A("UserID"), "checkbox", $show);
+			$I->onclick(OnEvent::rme($this, "saveShowCalendarOf", array($Share->A("UserID"), $show == "1" ? "0" : "1"), OnEvent::reload("Left")));
+			$TS->addRow(array("", $I, $U->A("name")));
+			self::$colors[$Share->A("UserID")] = KalenderEntry::$bgColors[count(self::$colors)];
+			
+			$TS->addCellStyle(1, "background-color:".self::$colors[$Share->A("UserID")].";");
+		}
+		
+		$ST->addRow($TS);
+		
 		
 		$pCalButton = "";
 		if(Session::isPluginLoaded("mpCal")){
@@ -251,13 +277,16 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 			$GoogleDLButton->popup("", "Daten herunterladen", "Google", "-1", "syncByDateRange", array("'".date("Y-m-d", $firstDay)."'", "'".date("Y-m-d", $lastDay)."'"));
 			$GoogleDLButton->style("margin-right:10px;");
 		}
-		
 
-		$BShare = new Button("Kalender teilen", "./ubiquitous/Kalender/share.png", "icon");
+		$BShare = new Button("Kalender teilen", "fork", "iconicL");
 		$BShare->popup("", "Kalender teilen", "mKalender", "-1", "share");
-		$BShare->style("margin-right:10px;");
+		#$BShare->style("margin-right:10px;");
 			
-		$ST->addRow($newWindow.$GoogleButton.$GoogleDLButton.$pCalButton.$BShare);
+		
+		$AWVButton = new Button("Müllabfuhr-Daten herunterladen", "trash_stroke", "iconicL");
+		$AWVButton->popup("", "Müllabfuhr-Daten", "mKalender", "-1", "downloadTrashData");
+		
+		$ST->addRow($newWindow.$GoogleButton.$GoogleDLButton.$pCalButton.$BShare.$AWVButton);
 		
 		
 		$DBrowser = clone $currentMonth;	
@@ -751,8 +780,8 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 	public function saveShare(){
 		$args = func_get_args();
 		
-		$UD = new mUserdata();
-		$UD->getAsArray("shareCalendar");
+		#$UD = new mUserdata();
+		#$UD->getAsArray("shareCalendar");
 		
 		$i = 0;
 		$US = Users::getUsers();
@@ -769,6 +798,61 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 			
 			$i++;
 		}
+	}
+	
+	public function saveShowCalendarOf($UserID, $value){
+		mUserdata::setUserdataS("showCalendarOf".$UserID, $value);
+	}
+	
+	public function downloadTrashData(){
+		$json = file_get_contents("http://www.awv-nordschwaben.de/WebService/AWVService.svc/getData/00000000-0000-0000-0000-000000001190");
+
+		echo "<pre style=\"font-size:10px;max-height:400px;overflow:auto;\">";
+		$data = json_decode($json);
+		foreach($data->calendar AS $day){
+			if($day->fr == "")
+				continue;
+			
+			if($day->dt < date("Ymd"))
+				continue;
+			
+			print_r($day);
+			
+			
+			$tag = Util::parseDate("de_DE", substr($day->dt, 6).".".substr($day->dt, 4, 2).".".substr($day->dt, 0, 4));
+
+			$name = "";
+			foreach($day->fr AS $T){
+				if($T == "PT")
+					$name .= ($name != "" ? ", " : "")."Papiertonne";
+				
+				if($T == "RM")
+					$name .= ($name != "" ? ", " : "")."Restmüll";
+				
+				if($T == "GS")
+					$name .= ($name != "" ? ", " : "")."Gelber Sack";
+				
+				if($T == "BT")
+					$name .= ($name != "" ? ", " : "")."Biotonne";
+			}
+			
+			$F = new Factory("Todo");
+			$F->sA("TodoName", $name);
+			$F->sA("TodoFromDay", $tag);
+			$F->sA("TodoFromTime", "32400");
+			$F->sA("TodoTillDay", $tag);
+			$F->sA("TodoTillTime", "36000");
+			$F->sA("TodoUserID", "-1");
+			$F->sA("TodoClass", "Kalender");
+			$F->sA("TodoClassID", "-1");
+			$F->sA("TodoType", "2");
+			$F->sA("TodoRemind", "-1");
+			if($F->exists())
+				continue;
+			
+			$F->store();
+		}
+		echo "</pre>";
 	}
 }
 ?>

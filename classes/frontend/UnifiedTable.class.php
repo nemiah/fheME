@@ -38,12 +38,17 @@ class UnifiedTable implements iUnifiedTable {
 
 	protected $tableStyle;
 	protected $tableID;
+	protected $CSVNewline = "\n";
 	
 	function __construct($numCols = 0, $caption = null){
 		$this->caption = $caption;
 		$this->numCols = $numCols;
 	}
 
+	function setCSVNewline($newline){
+		$this->CSVNewline = $newline;
+	}
+	
 	function addCellEvent($colNumber, $event, $action){
 		if(!isset($this->cellEvents[count($this->content) - 1]))
 			$this->cellEvents[count($this->content) - 1] = array();
@@ -183,9 +188,10 @@ class UnifiedTable implements iUnifiedTable {
 			return $E;
 		}
 
-		if($E instanceof CSVExport)
+		if($E instanceof CSVExport){
+			$E->setCSVNewline($this->CSVNewline);
 			return $E;
-
+		}
 		/*switch($mode){
 			case "ExcelExport":
 				foreach($this->colAlign AS $k => $v)

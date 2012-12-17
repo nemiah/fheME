@@ -48,17 +48,17 @@ class LoginData extends Userdata {
 		}
 	}
 
-	public static function getButtonU($name, $label, $icon){
-		$LD = self::getU($name);
-		if($LD == null)
-			$ID = -1;
-		else
+	public static function getButtonU($preset, $label, $icon){
+		$ID = -1;
+		$LD = self::getU($preset);
+		if($LD != null)
 			$ID = $LD->getID();
-
-		$preset = "default";
-		if($name == "GoogleAccountUserPass")
-			$preset = "googleData";
-
+		
+		#if($name == "GoogleAccountUserPass")
+		#	$preset = "googleData";
+		#else
+		#	$preset = $name;
+		
 		$B = new Button($label, $icon);
 		$B->popup("edit", "Benutzerdaten", "LoginData", $ID, "getPopup", "", "LoginDataGUI;preset:$preset");
 
@@ -130,7 +130,8 @@ class LoginData extends Userdata {
 			"LDAPServerUserPass" => "LDAP-Server",
 			"MailServerUserPass" => "Mail-Server",
 			"GoogleAccountUserPass" => "Google",
-			"AmazonAPIKey" => "Amazon Api key",
+			"AmazonAPIKey" => "Amazon API key",
+			"klickTelAPIKey" => "klickTel API key",
 			"GemeinschaftServerUserPass" => "Gemeinschaft-Server");
 
 		if($w == "") return $n;

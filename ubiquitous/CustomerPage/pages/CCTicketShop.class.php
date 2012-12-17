@@ -18,13 +18,14 @@
  *  2007 - 2012, Rainer Furtmeier - Rainer@Furtmeier.de
  */
 class CCTicketShop implements iCustomContent {
-	#private $EC;
+	private $EC;
 	protected $fromPOS = false;
 	private $paymentMethods = array("debit" => "Lastschrift", "transfer" => "Überweisung", "paypal" => "PayPal");
 	
 	function __construct() {
-		#$this->EC = new ExtConn(Util::getRootPath());
-		#$this->EC->useUser();
+		$this->EC = new ExtConn(Util::getRootPath());
+		$this->EC->useUser();
+		
 		$this->classes();
 	}
 	
@@ -43,6 +44,13 @@ class CCTicketShop implements iCustomContent {
 		registerClassPath("Bestellung", Util::getRootPath()."ubiquitous/Bestellungen/Bestellung.class.php");
 		
 		addClassPath(Util::getRootPath()."MMDB/Seminare/");
+		addClassPath(Util::getRootPath()."open3A/Adressen/");
+		addClassPath(Util::getRootPath()."open3A/Kunden/");
+		addClassPath(Util::getRootPath()."open3A/Auftraege/");
+		addClassPath(Util::getRootPath()."open3A/Stammdaten/");
+		addClassPath(Util::getRootPath()."open3A/Textbausteine/");
+		addClassPath(Util::getRootPath()."open3A/Kategorien/");
+		addClassPath(Util::getRootPath()."open3A/Brief/");
 	}
 	
 	function getCMSHTML($header = true) {
@@ -232,10 +240,26 @@ class CCTicketShop implements iCustomContent {
 	function showAddress(){
 		$html = "<script type=\"text/javascript\">
 		$(function() {
+			jQuery.validator.addMethod('firmOrName', function(value, element, params) {
+				
+				if($('input[name=firma]').val() != '')
+					return true;
+				
+				if($('input[name=nachname]').val() == '')
+					return false;
+				
+				if($('input[name=vorname]').val() == '')
+					return false;
+				
+				return true;
+			}, 'Bitte geben Sie Ihren Firmennamen <b>oder</b> Ihren Vor- und Nachnamen ein.');
+		});
+		$(function() {
 			$('#ticketAddress').validate({
 				rules: {
-					vorname: 'required',
-					nachname: 'required',
+					nachname: {firmOrName: true},
+					/*vorname: {firmOrName: true},
+					firma: {firmOrName: true},*/
 					strasse: 'required',
 					nr: 'required',
 					plz: 'required',
@@ -245,15 +269,35 @@ class CCTicketShop implements iCustomContent {
 						email: true
 					}
 				},
+				groups: {
+					strasseNr: 'nr strasse',
+					plzOrt: 'ort plz'
+				},
+
 				messages: {
-					vorname: 'Bitte geben Sie Ihren Vornamen ein',
-					nachname: 'Bitte geben Sie Ihren Nachnamen ein',
-					strasse: 'Bitte geben Sie die Straße ein',
-					nr: 'Bitte geben Sie die Hausnummer ein',
-					plz: 'Bitte geben Sie Ihre Postleitzahl  ein',
-					ort: 'Bitte geben Sie Ihren Ort ein',
+					strasse: 'Bitte geben Sie Straße und Hausnummer ein',
+					nr: 'Bitte geben Sie Straße und Hausnummer ein',
+					plz: 'Bitte geben Sie Postleitzahl und Ort ein',
+					ort: 'Bitte geben Sie Postleitzahl und Ort ein',
 					email: {required: 'Bitte geben Sie Ihre E-Mail-Adresse ein', email: 'Bitte geben Sie Ihre gültige E-Mail-Adresse ein'}
+				},
+				
+				errorPlacement: function(error, element) {
+					var name = element.attr('name');
+					if (name === 'strasse' || name === 'nr') {
+						error.insertAfter('input[name=nr]');
+						return;
+					} 
+					
+					if (name === 'plz' || name === 'ort') {
+						error.insertAfter('input[name=ort]');
+						return
+					}
+					
+					error.insertAfter(element);
+					
 				}
+
 			});
 		});
 		
@@ -261,11 +305,11 @@ class CCTicketShop implements iCustomContent {
 		
 		
 		$F = new HTMLForm("ticketAddress", array(
+			"firma",
 			"vorname",
 			"nachname",
-			"firma",
 			"email",
-			"tel",
+			#"tel",
 			
 			"strasse",
 			"plz",
@@ -282,7 +326,8 @@ class CCTicketShop implements iCustomContent {
 		
 		
 		$F->setLabel("email", "E-Mail");
-		$F->setLabel("tel", "Telefon");
+		$F->setDescriptionField("email", "An diese Adresse werden die Rechnung und die Tickets verschickt.");
+		#$F->setLabel("tel", "Telefon");
 		$F->setLabel("strasse", "Straße/Nr");
 		$F->setLabel("plz", "PLZ/Ort");
 
@@ -302,7 +347,7 @@ class CCTicketShop implements iCustomContent {
 	// <editor-fold defaultstate="collapsed" desc="strasseParser">
 	public static function strasseParser(){
 		$IS = new HTMLInput("strasse");
-		$IS->style("width:70%;");
+		$IS->style("width:65%;");
 		if(isset($_SESSION["ticketDataAddress"]))
 			$IS->setValue ($_SESSION["ticketDataAddress"]["strasse"]);
 		
@@ -323,7 +368,7 @@ class CCTicketShop implements iCustomContent {
 			$IS->setValue ($_SESSION["ticketDataAddress"]["plz"]);
 		
 		$IN = new HTMLInput("ort");
-		$IN->style("width:70%;margin-left:17px;");
+		$IN->style("width:65%;margin-left:17px;");
 		if(isset($_SESSION["ticketDataAddress"]))
 			$IN->setValue($_SESSION["ticketDataAddress"]["ort"]);
 		
@@ -348,11 +393,14 @@ class CCTicketShop implements iCustomContent {
 				$requiredFields[] = "Nachname_{$SeminarID}_$i";
 				$requiredFields[] = "Email_{$SeminarID}_$i";
 				$requiredFields[] = "Unternehmen_{$SeminarID}_$i";
+				$requiredFields[] = "Position_{$SeminarID}_$i";
 				
 				$T->addLV("Vorname:", new HTMLInput("Vorname_{$SeminarID}_$i", "text", isset($_SESSION["ticketDataTickets"]["Vorname_{$SeminarID}_$i"]) ? $_SESSION["ticketDataTickets"]["Vorname_{$SeminarID}_$i"] : ""));
 				$T->addLV("Nachname:", new HTMLInput("Nachname_{$SeminarID}_$i", "text", isset($_SESSION["ticketDataTickets"]["Nachname_{$SeminarID}_$i"]) ? $_SESSION["ticketDataTickets"]["Nachname_{$SeminarID}_$i"] : ""));
-				$T->addLV("E-Mail:", new HTMLInput("Email_{$SeminarID}_$i", "text", isset($_SESSION["ticketDataTickets"]["Email_{$SeminarID}_$i"]) ? $_SESSION["ticketDataTickets"]["Email_{$SeminarID}_$i"] : ""));
 				$T->addLV("Unternehmen:", new HTMLInput("Unternehmen_{$SeminarID}_$i", "text", isset($_SESSION["ticketDataTickets"]["Unternehmen_{$SeminarID}_$i"]) ? $_SESSION["ticketDataTickets"]["Unternehmen_{$SeminarID}_$i"] : ""));
+				$T->addLV("Position:", new HTMLInput("Position_{$SeminarID}_$i", "text", isset($_SESSION["ticketDataTickets"]["Position_{$SeminarID}_$i"]) ? $_SESSION["ticketDataTickets"]["Position_{$SeminarID}_$i"] : ""));
+				$T->addLV("E-Mail:", new HTMLInput("Email_{$SeminarID}_$i", "text", isset($_SESSION["ticketDataTickets"]["Email_{$SeminarID}_$i"]) ? $_SESSION["ticketDataTickets"]["Email_{$SeminarID}_$i"] : ""));
+
 			}
 			
 			$html .= $T;
@@ -449,7 +497,7 @@ class CCTicketShop implements iCustomContent {
 			case "paypal":
 		#www.paypal.com
 				$paypalHTML = '<form action="https://www.sandbox.paypal.com/cgi-bin/webscr" method="post" id="payPalForm">
-					<p>Vielen Dank für Ihren Einkauf!<br />Sie erhalten die Rechnung in Kürze per E-Mail.<br /><br /><b>Um die Zahlung abzuschließend, klicken Sie bitte auf nachfolgenden Knopf:</b></p>
+					<p>Vielen Dank für Ihren Einkauf!<br />Sie erhalten die Rechnung in Kürze per E-Mail.<br /><br /><b>Um die Zahlung abzuschließen, klicken Sie bitte auf nachfolgenden Knopf:</b></p>
 	<input type="hidden" name="cmd" value="_cart" />
 	<input type="hidden" name="upload" value="1" />
 	<input type="hidden" name="currency_code" value="EUR" />
@@ -488,7 +536,31 @@ $(document).ready(function() {
 				
 				$html .= $paypalHTML;
 			break;
-			default: 
+			
+			case "debit":
+				$html = "<form><p>Vielen Dank für Ihren Einkauf!<br />Sie erhalten die Rechnung in Kürze per E-Mail.<br /><br /><b>Der Rechnungsbetrag wird von uns von Ihrem Konto abgebucht.</b></p>$new</form>";
+			break;
+			
+			case "transfer":
+				$S = mStammdaten::getActiveStammdaten();
+				$T = new HTMLTable(2);
+				$T->addLV("Kontoinhaber:", $S->A("firmaLang"));
+				$T->addLV("BLZ:", $S->A("blz"));
+				$T->addLV("Konto:", $S->A("ktonr"));
+				
+				if($S->A("IBAN") != "" AND $S->A("SWIFTBIC") != ""){
+					$T->addRow(array("", ""));
+					$T->addLV("IBAN", $S->A("IBAN"));
+					$T->addLV("BIC", $S->A("SWIFTBIC"));
+				}
+				
+				$T->addRow(array("", ""));
+				$T->addLV("Verw. zweck:", "Auftrag ".implode(", ", $_SESSION["ticketDataOrderIDs"]));
+				
+				$html = "<form><p>Vielen Dank für Ihren Einkauf!<br />Sie erhalten die Rechnung in Kürze per E-Mail.<br /><br /><b>Bitte überweisen Sie den Rechnungsgetrag auf folgendes Konto:</b></p>$T<p>Diese Daten finden Sie auch auf der Rechnung.</p>$new</form>";
+			break;
+			
+			default:
 				$html = "<form><p>Vielen Dank für Ihren Einkauf!<br />Sie erhalten die Rechnung in Kürze per E-Mail.</p>$new</form>";
 			break;
 		}
@@ -582,6 +654,9 @@ $(document).ready(function() {
 				$F->sA("STeilnehmerTicketSTeilnehmerID", $STeilnehmerID);
 				$F->sA("STeilnehmerTicketVorname", $ticket["Vorname"]);
 				$F->sA("STeilnehmerTicketNachname", $ticket["Nachname"]);
+				$F->sA("STeilnehmerTicketPosition", $ticket["Position"]);
+				$F->sA("STeilnehmerTicketUnternehmen", $ticket["Unternehmen"]);
+				$F->sA("STeilnehmerTicketEMail", $ticket["Email"]);
 				if($this->fromPOS)
 					$F->sA("STeilnehmerTicketFirstSeen", time());
 				

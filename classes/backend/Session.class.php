@@ -53,7 +53,15 @@ class Session {
 	}
 	
 	public function getDBData($newFolder = null){
-		if($newFolder == null) $newFolder = Util::getRootPath()."system/DBData/";
+		if(file_exists(Util::getRootPath()."../../phynxConfig"))
+			$newFolder = Util::getRootPath()."../../phynxConfig/";
+		
+		if(file_exists(Util::getRootPath()."../phynxConfig"))
+			$newFolder = Util::getRootPath()."../phynxConfig/";
+		
+		if($newFolder == null)
+			$newFolder = Util::getRootPath()."system/DBData/";
+		
 		if(!isset($_SERVER["HTTP_HOST"])) $_SERVER["HTTP_HOST"] = "*";
 		$data = new mInstallation();
 		if($newFolder != "") $data->changeFolder($newFolder);

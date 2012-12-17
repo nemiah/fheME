@@ -27,6 +27,20 @@ class Datum {
 		$this->timestamp = $timestamp;
 	}
 	
+	function getNthDayOfMonth(){
+		$endTime = $this->timestamp;
+		$this->setToMonth1st();
+		
+		$c = 0;
+		while($this->timestamp <= $endTime){
+			if(date("w", $this->timestamp) === date("w", $endTime))
+				$c++;
+			$this->addDay();
+		}
+		
+		return $c;
+	}
+	
 	function setToJan1st($jahr){
 		$this->timestamp = $this->parseGerDate("01.01.$jahr");
 	}
@@ -74,7 +88,7 @@ class Datum {
 	}
 
 	function addYear(){
-		$this->timestamp = mktime(0, 1, 0, date("m", $this->timestamp)  , date("d", $this->timestamp), date("Y", $this->timestamp)+1);
+		$this->timestamp = mktime(0, 1, 0, date("m", $this->timestamp), date("d", $this->timestamp), date("Y", $this->timestamp)+1);
 	}
 	
 	function printer(){

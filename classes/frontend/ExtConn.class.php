@@ -57,6 +57,7 @@ class ExtConn {
 		$this->paths[] = $this->absolutePath."classes/backend/UnpersistentClass.class.php";
 		$this->paths[] = $this->absolutePath."classes/backend/PluginV2.class.php";
 		$this->paths[] = $this->absolutePath."classes/backend/XMLPlugin.class.php";
+		$this->paths[] = $this->absolutePath."classes/backend/FileStorage.class.php";
 		
 		$this->paths[] = $this->absolutePath."classes/exceptions/o3AException.class.php";
 		$this->paths[] = $this->absolutePath."classes/exceptions/StorageException.class.php";
@@ -163,10 +164,27 @@ class ExtConn {
 	
 	function useDefaultMySQLData($httpHost = "*"){
 		$PFDB = new PhpFileDB();
-		$PFDB->setFolder($this->absolutePath."system/DBData/");
-		$q = $PFDB->pfdbQuery("SELECT * FROM Installation WHERE httpHost = '$httpHost'");
-		$Data = $PFDB->pfdbFetchAssoc($q);
-
+		if(file_exists($this->absolutePath."../phynxConfig"))
+			$PFDB->setFolder($this->absolutePath."../phynxConfig/");
+		else
+			$PFDB->setFolder($this->absolutePath."system/DBData/");
+		$Data = false;
+		
+		if($httpHost != "*"){
+			$q = $PFDB->pfdbQuery("SELECT * FROM Installation WHERE httpHost = '$httpHost'");
+			$Data = $PFDB->pfdbFetchAssoc($q);
+		} else {
+			$q = $PFDB->pfdbQuery("SELECT * FROM Installation WHERE httpHost = '".$_SERVER["HTTP_HOST"]."'");
+			$Data = $PFDB->pfdbFetchAssoc($q);
+		}
+		
+		if($Data === false){
+			$q = $PFDB->pfdbQuery("SELECT * FROM Installation WHERE httpHost = '*'");
+			$Data = $PFDB->pfdbFetchAssoc($q);
+		
+		
+		}
+		
 		$this->setMySQLData($Data["host"], $Data["user"], $Data["password"], $Data["datab"]);
 	}
 

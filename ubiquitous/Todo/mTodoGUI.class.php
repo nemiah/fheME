@@ -201,8 +201,15 @@ class mTodoGUI extends mTodo implements iGUIHTMLMP2, iKalender {
 		if($T->A("TodoRemind") != "-1")
 			$KE->remind($T->A("TodoRemind") / 60);
 		
-		$KE->editable("editInPopup", "deleteFromCalendar");
-		$KE->repeatable("editRepeatable");
+		$editMethod = "editInPopup";
+		if($T->A("TodoOrganizer") != ""){
+			$editMethod = null;
+			$KE->organizer($T->A("TodoOrganizer"));
+		}
+		$KE->editable($editMethod, "deleteFromCalendar");
+		
+		if($T->A("TodoOrganizer") == "")
+			$KE->repeatable("editRepeatable");
 
 		$KE->location($T->A("TodoLocation"));
 
@@ -215,7 +222,7 @@ class mTodoGUI extends mTodo implements iGUIHTMLMP2, iKalender {
 
 	public static function getCalendarData($firstDay, $lastDay) {
 		$K = new Kalender();
-
+		$include = array();
 		//TERMINE IN DIESEM MONAT
 		$AC = new anyC();
 		$AC->setCollectionOf("Todo");
@@ -229,9 +236,11 @@ class mTodoGUI extends mTodo implements iGUIHTMLMP2, iKalender {
 		$AC->addAssocV3("TodoUserID", "=", "-1", "OR", "2");
 
 		$ACS = anyC::get("Userdata", "name", "shareCalendarTo".Session::currentUser()->getID());
-		while($Share = $ACS->getNextEntry())
-			$AC->addAssocV3("TodoUserID", "=", $Share->A("UserID"), "OR", "2");
-		
+		while($Share = $ACS->getNextEntry()){
+			$include[$Share->A("UserID")] = mUserdata::getUDValueS("showCalendarOf".$Share->A("UserID"), "1");
+			if($include[$Share->A("UserID")] == "1")
+				$AC->addAssocV3("TodoUserID", "=", $Share->A("UserID"), "OR", "2");
+		}
 		
 		$AC->addOrderV3("TodoTillTime");
 
@@ -252,9 +261,10 @@ class mTodoGUI extends mTodo implements iGUIHTMLMP2, iKalender {
 		$AC->addAssocV3("TodoUserID", "=", "-1", "OR", "2");
 
 		$ACS->resetPointer();
-		while($Share = $ACS->getNextEntry())
-			$AC->addAssocV3("TodoUserID", "=", $Share->A("UserID"), "OR", "2");
-		
+		while($Share = $ACS->getNextEntry()){
+			if($include[$Share->A("UserID")] == "1")
+				$AC->addAssocV3("TodoUserID", "=", $Share->A("UserID"), "OR", "2");
+		}
 		
 		$AC->addOrderV3("TodoTillTime");
 
@@ -278,9 +288,10 @@ class mTodoGUI extends mTodo implements iGUIHTMLMP2, iKalender {
 		$AC->addAssocV3("TodoUserID", "=", "-1", "OR", "2");
 
 		$ACS->resetPointer();
-		while($Share = $ACS->getNextEntry())
-			$AC->addAssocV3("TodoUserID", "=", $Share->A("UserID"), "OR", "2");
-		
+		while($Share = $ACS->getNextEntry()){
+			if($include[$Share->A("UserID")] == "1")
+				$AC->addAssocV3("TodoUserID", "=", $Share->A("UserID"), "OR", "2");
+		}
 		
 		$AC->addOrderV3("TodoTillTime");
 

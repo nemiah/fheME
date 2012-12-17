@@ -27,6 +27,7 @@ class XML {
 	private $index;
 	private $vals;
 	private $returned = false;
+	private $parsed;
 	
 	public function setCollection(Collection $C){
 		$this->collection = $C;
@@ -55,12 +56,11 @@ class XML {
 		if($this->collection == null AND $this->object == null) return;
 		
 		$xml = '<?xml version="1.0" encoding="UTF-8" ?>'."
-<phynx>
-	<collectionOf>".$this->collectionOf."</collectionOf>";
+<phynx>";
 		
 		while($t = $this->getNextEntry()){
 			$xml .= "
-	<entry>
+	<entry class=\"".$this->collectionOf."\">
 		<id>".$t->getID()."</id>";
 			
 			$A = $t->getA();
@@ -89,54 +89,36 @@ class XML {
 	}
 	
 	public function getSelectStatement($value){
-		if($this->vals == null) $this->parseXML();
 		
-		switch($value){
-			case "table":
-				return array($this->vals[$this->index["collectionOf"][0]]["value"]);
-			break;
-		}
 	}
 	
 	private function parseXML(){
-		$p = xml_parser_create();
-		xml_parser_set_option($p, XML_OPTION_CASE_FOLDING, 0);
-		xml_parse_into_struct($p, $this->xml, $this->vals, $this->index);
-		#if(xml_get_error_code($p)) echo xml_error_string(xml_get_error_code($p))." at line ".xml_get_current_line_number($p);
-		xml_parser_free($p);
+		$this->parsed = new SimpleXMLElement($this->xml);
 	}
 	
 	public function lCV4(){
 		if($this->xml == null) return;
-		if($this->vals == null) $this->parseXML();
+		if($this->parsed == null) $this->parseXML();
 		
+		$class = null;
 		$collector = array();
-		$class = $this->getSelectStatement("table");
-		$class = $class[0];
-		if($class == "") return;
-		$c = new $class(-1);
-		$A = new Attributes();
+		if(isset($this->parsed->collectionOf))
+			$class = $this->parsed->collectionOf."";
 		
-		foreach($this->vals as $k => $v){
-			if($this->vals[$k]["tag"] == "entry" && $this->vals[$k]["type"] == "open") {
-				$c = new $class(-1);
-				$Att = clone $A;
-				continue;
+		foreach($this->parsed->entry AS $entry){
+			$ES = $entry->attributes();
+			if(isset($ES->class))
+				$class = $ES->class."";
+			
+			$c = new $class(-1);
+			$c->loadMeOrEmpty();
+			
+			foreach($entry->attribute AS $attribute){
+				$AS = $attribute->attributes();
+				$c->changeA($AS->name."", $attribute."");
 			}
-			if($this->vals[$k]["tag"] == "id" && $this->vals[$k]["type"] == "complete") {
-				$c = new $class($this->vals[$k]["value"]);
-				continue;
-			}
-			if($this->vals[$k]["tag"] == "attribute" && $this->vals[$k]["type"] == "complete") {
-				$n = $this->vals[$k]["attributes"]["name"];
-				$Att->$n = isset($this->vals[$k]["value"]) ? $this->vals[$k]["value"] : "";
-				continue;
-			}
-			if($this->vals[$k]["tag"] == "entry" && $this->vals[$k]["type"] == "close") {
-				$c->setA($Att);
-				$collector[] = $c;
-				continue;
-			}
+			
+			$collector[] = $c;
 		}
 		
 		return $collector;

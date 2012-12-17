@@ -44,6 +44,20 @@ class PersistentObject {
 		return BPS::getAllProperties(get_class($this));
 	}
 
+	protected function makeNewIfNew($promote = true){
+		if($this->getID() != -1)
+			return $this->getID();
+		
+		$this->loadMeOrEmpty();
+		$id = $this->newMe();
+		$this->forceReload();
+		
+		if($promote)
+			echo OnEvent::script("contentManager.lastLoaded('left', ".$this->getID().");");
+		
+		return $id;
+	}
+	
 	public function isNoDelete(){
 		return $this->noDeleteHideOnly;
 	}
@@ -51,7 +65,7 @@ class PersistentObject {
 	function __construct($ID){
 		$this->ID = $ID;
 	}
-
+	
 	function getA(){
 		return $this->A;
 	}
@@ -118,6 +132,9 @@ class PersistentObject {
 	function deleteMe() {
 		mUserdata::checkRestrictionOrDie("cantDelete".str_replace("GUI","",get_class($this)));
 
+		if(Session::isPluginLoaded("mArchiv"))
+			Archiv::archive($this);
+		
 	    $this->loadAdapter();
 		if(!$this->noDeleteHideOnly) $this->Adapter->deleteSingle($this->getClearClass(get_class($this)));
 		else {

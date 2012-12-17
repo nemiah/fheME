@@ -19,6 +19,24 @@
  */
 class Adresse extends PersistentObject implements iDeletable, iXMLExport/*, iLDAPExport*/ {
 
+	public function deleteMe(){
+		if(Session::isPluginLoaded("Kunden") AND Session::isPluginLoaded("Auftraege")){
+			$K = Kappendix::getKappendixToAdresse($this->getID());
+			
+			if($K != null){
+				$AC = anyC::get("Auftrag", "kundennummer", $K->A("kundennummer"));
+				$AC->setLimitV3(1);
+				$A = $AC->getNextEntry();
+				
+				if($A === null)
+					$K->deleteMe();
+				
+			}
+		}
+		
+		parent::deleteMe();
+	}
+	
 	public function getLDAPSchema($client = ""){
 		$objectclass = array();
 		$objectclass[] = "top";

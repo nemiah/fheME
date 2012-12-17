@@ -31,6 +31,10 @@ var lastLoadedScreenPlugin = "";
 var lastLoadedScreenPage   = 0;
 
 var contentManager = {
+	oldValue: null,
+	emptyContentBelow: true,
+	lastLoaded: [],
+	
 	init: function(){
 		Interface.init();
 		Overlay.init();
@@ -41,11 +45,38 @@ var contentManager = {
 		DesktopLink.init();
 	},
 	
+	lastLoaded: function(where, id, plugin, page){
+		if(where == "left"){
+			lastLoadedLeft = id;
+			
+			if(typeof plugin != "undefined")
+				lastLoadedLeftPlugin = plugin;
+			
+			if(typeof page == "undefined")
+				lastLoadedLeftPage = page;
+		}
+	},
+	
 	newSession: function(physion, application, plugin, cloud){
 		if(typeof cloud == "undefined")
 			cloud = "";
 		
 		Popup.load("Neue Sitzung", "Util", "-1", "newSession", [physion, application, plugin, cloud]);
+	},
+	
+	contentBelow: function(content){
+		if(content){
+			contentManager.emptyContentBelow = false;
+			$j('#contentBelowContent').html(content);
+			
+			$j('#contentBelow').slideDown(500)
+		} else {
+			contentManager.emptyContentBelow = true;
+			$j('#contentBelow').slideUp(500, function(){
+				if(contentManager.emptyContentBelow)
+					$j('#contentBelowContent').html("");
+			});
+		}
 	},
 	
 	/*backupLeftID: null,
@@ -72,16 +103,22 @@ var contentManager = {
 		contentManager.loadTitle();
 	},
 
-	selectRow: function(currentElement){
+	selectRow: function(currentElement, group){
 		$j(currentElement).closest('table').find(".lastSelected").removeClass("lastSelected");
+		if(typeof group != "undefined")
+			$j(".LSGroup"+group).removeClass("lastSelected");
 		
 		if($j(currentElement).prop("tagName") != "TR")
-			$j(currentElement).closest('tr').addClass("lastSelected");
+			$j(currentElement).closest('tr').addClass("lastSelected"+(typeof group != "undefined" ? " LSGroup"+group : ""));
 		else
-			$j(currentElement).addClass("lastSelected");
+			$j(currentElement).addClass("lastSelected"+(typeof group != "undefined" ? " LSGroup"+group : ""));
 	},
 
 	loadDesktop: function(){
+		contentManager.emptyFrame('contentLeft');
+		contentManager.emptyFrame('contentRight');
+		contentManager.loadFrame("contentScreen", "Desktop", 1, 0, "");
+		/*
 		new Ajax.Request('./interface/loadFrame.php?p=Desktop&id=1', {
 		method: 'get',
 		onSuccess: function(transport) {
@@ -102,13 +139,15 @@ var contentManager = {
 					lastLoadedLeft = 2;
 				}
 			}
-		}});
+		}});*/
 	},
 	
 	loadPlugin: function(targetFrame, targetPlugin, bps, withId){
 		contentManager.emptyFrame('contentLeft');
-		contentManager.emptyFrame('contentRight');
+		if(targetFrame != "contentRight")
+			contentManager.emptyFrame('contentRight');
 		contentManager.emptyFrame('contentScreen');
+		contentManager.emptyFrame('contentBelow');
 		
 		contentManager.loadFrame(targetFrame, targetPlugin, -1, 0, bps, function(){if(typeof withId != "undefined") contentManager.loadFrame("contentLeft", targetPlugin.substr(1), withId);});
 		//$('windows').update('');
@@ -208,8 +247,14 @@ var contentManager = {
 			pluginRight+'GUI;selectionMode:'+(isMultiSelection ? "multi" : "single")+'Selection,'+calledPlugin+','+calledPluginID+','+calledPluginFunction+','+lastLoadedRightPlugin+',contentLeft,'+lastLoadedLeftPlugin+','+pluginLeftID);*/
 	},
 
-	customSelection: function(targetFrame, callingPluginID, selectPlugin, selectJSFunction, addBPS){
-		contentManager.loadFrame(targetFrame, selectPlugin, -1, 0, selectPlugin+'GUI;selectionMode:customSelection,'+selectJSFunction+','+callingPluginID+(typeof addBPS != "undefined" ? ";"+addBPS : ""));
+	customSelection: function(targetFrame, callingPluginID, selectPlugin, selectJSFunction, addBPS, options){
+		var opt = "";
+		if(typeof options != "undefined"){
+			if(options.noExitButton)
+				opt += ",noExitButton";
+		}
+		
+		contentManager.loadFrame(targetFrame, selectPlugin, -1, 0, selectPlugin+'GUI;selectionMode:customSelection,'+selectJSFunction+','+callingPluginID+opt+((typeof addBPS != "undefined" && addBPS != "") ? ";"+addBPS : ""));
 	},
 
 	setLeftFrame: function(plugin, id){
@@ -239,8 +284,12 @@ var contentManager = {
 			});
 			
 		}
+		
 		if(targetFrame == "contentScreen" && lastLoadedScreenPlugin != "")
 			contentManager.loadFrame("contentScreen", lastLoadedScreenPlugin, lastLoadedScreen, typeof page != "undefined" ? page : lastLoadedScreenPage, bps);
+		
+		if(targetFrame != "contentRight" && targetFrame != "contentLeft" && targetFrame != "contentScreen" && typeof contentManager.lastLoaded[targetFrame] != "undefined")
+			contentManager.loadFrame(targetFrame, contentManager.lastLoaded[targetFrame][0], contentManager.lastLoaded[targetFrame][1], contentManager.lastLoaded[targetFrame][2]);
 	},
 	
 	reloadFrameLeft: function(bps){
@@ -265,7 +314,7 @@ var contentManager = {
 
 	},
 
-	restoreFrame: function(targetFrame, backupName, force){
+	restoreFrame: function(targetFrame, backupName, force, onSuccessFunction){
 		if(typeof force == "undefined") force = false;
 
 		if(typeof contentManager.backupFrames[backupName] == "undefined" || contentManager.backupFrames[backupName] == null) {
@@ -273,7 +322,7 @@ var contentManager = {
 			return;
 		}
 		if(contentManager.backupFrames[backupName][0] != -1 || (targetFrame == 'contentRight' && contentManager.backupFrames[backupName][1] != "") || force)
-			contentManager.loadFrame(targetFrame, contentManager.backupFrames[backupName][1], contentManager.backupFrames[backupName][0], contentManager.backupFrames[backupName][2],contentManager.backupFrames[backupName][1]+"GUI;-","",true);
+			contentManager.loadFrame(targetFrame, contentManager.backupFrames[backupName][1], contentManager.backupFrames[backupName][0], contentManager.backupFrames[backupName][2],contentManager.backupFrames[backupName][1]+"GUI;-",onSuccessFunction,true);
 		else
 			contentManager.emptyFrame(targetFrame);
 
@@ -297,6 +346,13 @@ var contentManager = {
 			lastLoadedScreenPage   = 0;
 		}
 		
+		if(targetFrame != "contentRight" && targetFrame != "contentLeft" && targetFrame != "contentScreen")
+			contentManager.lastLoaded[targetFrame] = ["", 0, -1];
+		
+		if(targetFrame == "contentBelow"){
+			contentManager.contentBelow("");
+			return;
+		}
 		
 		$(targetFrame).update("");
 	},
@@ -304,12 +360,15 @@ var contentManager = {
 	forwardOnePage: function(targetFrame){
 		if(targetFrame == "contentLeft")
 			contentManager.loadFrame(targetFrame, lastLoadedLeftPlugin, lastLoadedLeft, (lastLoadedLeftPage * 1) + 1);
-
+		
 		if(targetFrame == "contentRight")
 			contentManager.loadFrame(targetFrame, lastLoadedRightPlugin, lastLoadedRight, (lastLoadedRightPage * 1) + 1);
 
 		if(targetFrame == "contentScreen")
 			contentManager.loadFrame(targetFrame, lastLoadedScreenPlugin, lastLoadedScreen, (lastLoadedScreenPage * 1) + 1);
+		
+		if(targetFrame != "contentRight" && targetFrame != "contentLeft" && targetFrame != "contentScreen" && typeof contentManager.lastLoaded[targetFrame] != "undefined")
+			contentManager.loadFrame(targetFrame, contentManager.lastLoaded[targetFrame][0], contentManager.lastLoaded[targetFrame][1], (contentManager.lastLoaded[targetFrame][2] * 1) + 1);
 	},
 
 	backwardOnePage: function(targetFrame){
@@ -321,6 +380,9 @@ var contentManager = {
 
 		if(targetFrame == "contentScreen")
 			contentManager.loadFrame(targetFrame, lastLoadedScreenPlugin, lastLoadedScreen, lastLoadedScreenPage - 1);
+		
+		if(targetFrame != "contentRight" && targetFrame != "contentLeft" && targetFrame != "contentScreen" && typeof contentManager.lastLoaded[targetFrame] != "undefined")
+			contentManager.loadFrame(targetFrame, contentManager.lastLoaded[targetFrame][0], contentManager.lastLoaded[targetFrame][1], contentManager.lastLoaded[targetFrame][2] - 1);
 	},
 
 	loadPage: function(targetFrame, page){
@@ -332,6 +394,9 @@ var contentManager = {
 
 		if(targetFrame == "contentScreen")
 			contentManager.loadFrame(targetFrame, lastLoadedScreenPlugin, lastLoadedScreen, page);
+		
+		if(targetFrame != "contentRight" && targetFrame != "contentLeft" && targetFrame != "contentScreen" && typeof contentManager.lastLoaded[targetFrame] != "undefined")
+			contentManager.loadFrame(targetFrame, contentManager.lastLoaded[targetFrame][0], contentManager.lastLoaded[targetFrame][1], page);
 	},
 
 	saveSelection: function(classe, classId, saveFunction, idToSave, targetFrame, bps){
@@ -375,10 +440,14 @@ var contentManager = {
 			lastLoadedScreenPage = page;
 			lastLoadedScreen = withId;
 		}
+		
+		if(target != "contentRight" && target != "contentLeft" && target != "contentScreen")
+			contentManager.lastLoaded[target] = [plugin, withId, page];
+		
 
-		new Ajax.Request('./interface/loadFrame.php?p='+plugin+(typeof withId != "undefined" ? '&id='+withId : "")+((typeof bps != "undefined" && bps != "") ? '&bps='+bps : "")+((typeof page != "undefined" && page != "") ? '&page='+page : "")+"&r="+Math.random(), {onSuccess: function(transport){
+		new Ajax.Request('./interface/loadFrame.php?p='+plugin+(typeof withId != "undefined" ? '&id='+withId : "")+((typeof bps != "undefined" && bps != "") ? '&bps='+bps : "")+((typeof page != "undefined" && page != "") ? '&page='+page : "")+"&r="+Math.random()+"&frame="+target, {onSuccess: function(transport){
 			if(checkResponse(transport, hideError)) {
-				$(target).update(transport.responseText);
+				$j("#"+target).html(transport.responseText);
 				
 				if(typeof onSuccessFunction != "undefined" && onSuccessFunction != "") onSuccessFunction(transport);
 				
@@ -419,6 +488,19 @@ var contentManager = {
 			if(!check && typeof onFailureFunction == "function")
 				onFailureFunction();
 		}});
+	},
+
+	iframeRme: function(targetClass, targetClassId, targetMethod, targetMethodParameters, targetFrame, bps){
+		if(typeof targetMethodParameters != "string"){
+			for(var i=0;i<targetMethodParameters.length;i++)
+				targetMethodParameters[i] = "'"+encodeURIComponent(targetMethodParameters[i])+"'";
+
+			targetMethodParameters = targetMethodParameters.join(",");
+		}
+		else targetMethodParameters = "'"+targetMethodParameters+"'";
+
+			$j('#'+targetFrame).attr("src", contentManager.getRoot()+'interface/rme.php?class='+targetClass+'&constructor='+targetClassId+'&method='+targetMethod+'&parameters='+targetMethodParameters+((bps != "" && typeof bps != "undefined") ? "&bps="+bps : "")+"&r="+Math.random()+(Ajax.physion != "default" ? "&physion="+Ajax.physion : ""));
+
 	},
 
 	startAutoLogoutInhibitor: function(){
@@ -523,8 +605,54 @@ var contentManager = {
 		});
 		
 		return fields;
-	}/*,
+	},
 	
+	timeInput: function(event, timeInputID){
+		if(event.keyCode == 8)
+			return;
+		
+		if($j('#'+timeInputID).val().length == 2 && $j('#'+timeInputID).val().lastIndexOf(':') == -1){
+			if($j('#'+timeInputID).val() < 24)
+				$j('#'+timeInputID).val($j('#'+timeInputID).val()+':');
+			else
+				$j('#'+timeInputID).val($j('#'+timeInputID).val()[0]+':'+$j('#'+timeInputID).val()[1]);
+		}
+	},
+	
+	connectedTimeInput: function(event, timeInput1ID, timeInput2ID){
+		if(event.keyCode == 8)
+			return;
+		
+		contentManager.timeInput(event, timeInput1ID);
+		
+		if($j('#'+timeInput1ID).val().lastIndexOf(':') == -1)
+			return;
+		
+		var split = $j('#'+timeInput1ID).val().split(":");
+		
+		if(split[0] >= 23){
+			$j('#'+timeInput2ID).val($j('#'+timeInput1ID).val());
+			return;
+		}
+		
+		if(split[0][0] == 0)
+			split[0] = split[0][1];
+		
+		var hour = parseInt(split[0])+1;
+		if(hour < 10)
+			hour = "0"+hour;
+		
+		if(!split[1])
+			split[1] = "0";
+		
+		var minutes = parseInt(split[1]);
+		
+		if(minutes < 10)
+			minutes = "0"+minutes;
+		
+		$j('#'+timeInput2ID).val(hour+":"+minutes);
+	}
+	/*,
 	tinyMCEFileBrowser: function(field_name, url, type, win) {
 		
 		//alert("Field_Name: " + field_name + "nURL: " + url + "nType: " + type + "nWin: " + win); // debug/testing

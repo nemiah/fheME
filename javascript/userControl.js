@@ -23,10 +23,16 @@ var userControl = {
 	certAutoLoginInterval: null,
 	certAutoLoginCounter: 0,
 	
+	autoLoginInterval: null,
+	autoLoginCounter: 0,
+	
 	doLogin: function(){
 		userControl.abortAutoCertificateLogin();
+		userControl.abortAutoLogin();
 		//"+$('loginUsername').value+","+$('loginPassword').value+","+$('anwendung').value+"
-		if($('loginPassword').value != ";;cookieData;;") $('loginSHAPassword').value = SHA1($('loginPassword').value.replace(/ $/, ""));
+		if($('loginPassword').value != ";;cookieData;;")
+			$('loginSHAPassword').value = SHA1($j.trim($('loginPassword').value));
+		
 		$('loginPassword').value = "";
 		contentManager.rmePCR("Users", "", "doLogin", joinFormFieldsToString('loginForm'), function(transport) {
 			if(!checkResponse(transport))
@@ -36,27 +42,37 @@ var userControl = {
 				alert("Fehler: Der Server antwortet nicht!");
 				return;
 			}
-	    	if(transport.responseText == 0) {
-	    		alert("Benutzername/Passwort falsch!\nBitte beachten Sie beim Passwort Groß-/Kleinschreibung.");
-	    	} else {
-	    		if(transport.responseText != 1 && transport.responseText != -2)
-	    			alert(transport.responseText.replace(/<br \/>/ig,"\n").replace(/<b>/ig,"").replace(/<\/b>/ig,"").replace(/&gt;/ig,">"));
+			if(transport.responseText == 0) {
+				alert("Benutzername/Passwort falsch!\nBitte beachten Sie beim Passwort Groß-/Kleinschreibung.");
+			} else {
+				if(transport.responseText != 1 && transport.responseText != -2)
+					alert(transport.responseText.replace(/<br \/>/ig,"\n").replace(/<b>/ig,"").replace(/<\/b>/ig,"").replace(/&gt;/ig,">"));
 	    		
 				contentManager.emptyFrame("contentScreen");
 				
 				var a = new Date();
 				a = new Date(a.getTime() +1000*60*60*24*365);
-				if($('saveLoginData').checked)
+				/*if($('saveLoginData').checked)
 					document.cookie = 'userLoginData='+$('loginUsername').value+':'+$('loginSHAPassword').value+'; expires='+a.toGMTString()+';';
 				else 
 					document.cookie = 'userLoginData=--; expires=Thu, 01-Jan-70 00:00:01 GMT;';
-	
-	    		loadMenu();
-	    		DesktopLink.loadContent();
-	    		//$('loginPassword').value = "";
-	    	}
+				*/
+
+				if($j('#saveLoginData').prop("checked"))
+					$j.jStorage.set('phynxUserData', {
+						"username": $j('#loginUsername').val(),
+						"password": $j('#loginSHAPassword').val(),
+						"application" : $j('#anwendung').val(),
+						"autologin": $j('#doAutoLogin').prop("checked")});
+				else
+					$j.jStorage.deleteKey('phynxUserData');
+			   
+				loadMenu();
+				DesktopLink.loadContent();
+			//$('loginPassword').value = "";
+			}
 		});
-		/*new Ajax.Request("./interface/rme.php", {
+	/*new Ajax.Request("./interface/rme.php", {
 		method: 'post',
 		parameters: "class=Users&construct=&method=doLogin&parameters='"+joinFormFieldsToString('loginForm')+"'",
 		onSuccess: function(transport) {
@@ -108,14 +124,31 @@ var userControl = {
 		}
 		contentManager.rmePCR("Users", "-1", "doCertificateLogin", [$('anwendung').value, $('loginSprache').value, cert], function(transport){
 			if(transport.responseText == 0) {
-	    		alert("Das Zertifikat ist ungültig.");
+				alert("Das Zertifikat ist ungültig.");
 				$j('#loginCertOptions').toggle();
 				return;
 			}
 			
 			loadMenu();
 			DesktopLink.loadContent();
-		}, "", true, function(){$j('#loginCertOptions').toggle();});
+		}, "", true, function(){
+			$j('#loginCertOptions').toggle();
+		});
+	},
+	
+	doPersonaLogin: function(assertion){
+		contentManager.rmePCR("Users", "-1", "doPersonaLogin", [$('anwendung').value, $('loginSprache').value, assertion], function(transport){
+			if(transport.responseText == 0) {
+				alert("Die Anmeldung ist fehlgeschlagen.");
+				return;
+			}
+			
+			if(transport.responseText == 2) //Benutzer bereits angemeldet
+				return;
+			
+			loadMenu();
+			DesktopLink.loadContent();
+		});
 	},
 	
 	abortAutoCertificateLogin: function(){
@@ -125,6 +158,34 @@ var userControl = {
 		userControl.certAutoLoginInterval = null;
 		if($('countdownCertificateLogin'))
 			$('countdownCertificateLogin').update("");
+	},
+	
+	abortAutoLogin: function(){
+		if(userControl.autoLoginInterval != null)
+			window.clearInterval(userControl.autoLoginInterval);
+		
+		userControl.autoLoginInterval = null;
+		if($('countdownCertificateLogin'))
+			$('countdownCertificateLogin').update("");
+	},
+	
+	autoLogin: function(){
+		userControl.autoLoginCounter = 3;
+		
+		userControl.autoLoginInterval = window.setInterval(function(){
+			if(userControl.autoLoginCounter == 0){
+				window.clearInterval(userControl.autoLoginInterval);
+				userControl.autoLoginInterval = null;
+				
+				userControl.doLogin();
+				$('countdownCertificateLogin').update("");
+				
+				return;
+			}
+			
+			$('countdownCertificateLogin').update(userControl.autoLoginCounter);
+			userControl.autoLoginCounter--;
+		}, 1000);
 	},
 	
 	autoCertificateLogin: function(){
@@ -153,9 +214,24 @@ var userControl = {
 				alert("Fehler: Server antwortet nicht!");
 				return;
 			}
-	    	if(transport.responseText == -2) alert("Bitte verwenden Sie 'Admin' als Benutzer und Passwort!\nDie Benutzer-Datenbank existiert noch nicht.");
+			if(transport.responseText == -2) {
+				//$j('#loginPassword').val("Admin");
+				$j('#loginUsername').val("Admin");
+				
+				//alert("Bitte verwenden Sie 'Admin' als Benutzer und Passwort!\nDiese Anwendung wurde noch nicht eingerichtet.");
+				$j("#messageSetup").dialog({
+					modal: true,
+					buttons: {
+						Ok: function() {
+							$j(this).dialog( "close" );
+						}
+					},
+					resizable: false
+				});
+				//userControl.doLogin();
+			}
 		});
-		/*
+	/*
 		new Ajax.Request("./interface/rme.php", {
 		method: 'post',
 		parameters: "class=Users&construct=&method=doLogin&parameters='%3B-%3B%3Bund%3B%3B-%3BloginUsername%3B-%3B%3Bistgleich%3B%3B-%3B0%3B-%3B%3Bund%3B%3B-%3BloginSHAPassword%3B-%3B%3Bistgleich%3B%3B-%3B0%3B-%3B%3Bund%3B%3B-%3Banwendung%3B-%3B%3Bistgleich%3B%3B-%3B0%3B-%3B%3Bund%3B%3B-%3BsaveLoginData%3B-%3B%3Bistgleich%3B%3B-%3B0'",
@@ -173,9 +249,10 @@ var userControl = {
 			Popup.closeNonPersistent();
 			Popup.closePersistent();
 			loadMenu();
+			contentManager.contentBelow("");
 			if(typeof redirect != "undefined" && redirect != "") document.location.href= redirect;
 		});
-		/*
+	/*
 		new Ajax.Request("./interface/rme.php?class=Users&constructor=&method=doLogout&parameters=''", {
 		method: 'get',
 		onSuccess: function(transport) {

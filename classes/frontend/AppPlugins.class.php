@@ -264,7 +264,7 @@ class AppPlugins {
 	}
 	
 	public function addAdminOnly($plugin){
-		$this->isAdminOnlyByPlugin[$plugin] = "true";
+		$this->isAdminOnlyByPlugin[$plugin] = true;
 	}
 	
 	public function getIsAdminOnly($plugin){

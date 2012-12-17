@@ -42,6 +42,10 @@ class Adapter {
 	    $this->storage = $storage;
 	}
 	
+	function __clone() {
+		$this->selectStatement = clone $this->selectStatement;
+	}
+	
 	/**
 	 * This function returns an instance of the type of database
 	 * specified when this class was created.

@@ -39,7 +39,8 @@ class smtp {
 	private $auth;
 	private $user;
 	private $pass;
-
+	private $dsn;
+	
 	/**
 	 * Constructor function. Arguments:
 	 * $params - An assoc array of parameters:
@@ -113,6 +114,10 @@ class smtp {
 		#}
 	}
 
+	public function dsn($Success, $Delay, $Failure){
+		$this->dsn = array($Success, $Delay, $Failure);
+	}
+	
 	/**
 	 * Function which handles sending the mail.
 	 * Arguments:
@@ -272,8 +277,22 @@ class smtp {
 	 * Function that handles the RCPT TO: cmd
 	 */
 	private function rcpt($to) {
+		$DSN = "";
+		if($this->dsn !== null){
+			if($this->dsn[0])
+				$DSN .= "SUCCESS";
+			
+			if($this->dsn[1])
+				$DSN .= ($DSN != "" ? "," : "")."DELAY";
+			
+			if($this->dsn[2])
+				$DSN .= ($DSN != "" ? "," : "")."FAILURE";
+			
+			$DSN = " NOTIFY=$DSN ORCPT=rfc822;$to";
+		}
+		
 		if ($this->is_connected()
-				AND $this->send_data('RCPT TO:<' . $to . '>')
+				AND $this->send_data('RCPT TO:<' . $to . '>'.$DSN)
 				AND substr(trim($error = $this->get_data()), 0, 2) === '25') {
 
 			return true;

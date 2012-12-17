@@ -27,8 +27,11 @@ class LoginDataGUI extends LoginData implements iGUIHTML2 {
 	}
 
 	private function getGUI($id){
+		try {
 		$this->loadMeOrEmpty();
-
+		} catch (StorageException $e){
+			die("<p>Bitte legen Sie zuerst die Datenbank-Tabellen an.</p>");
+		}
 		if($id == -1)
 			$this->A->typ = "LoginData";
 
@@ -76,7 +79,8 @@ class LoginDataGUI extends LoginData implements iGUIHTML2 {
 		
 		$gui = $this->getGUI($this->getID());
 
-		$gui->addToEvent("onSave", "Popup.close('LoginData', 'edit');");
+		$onSave = "Popup.close('LoginData', 'edit');";
+		
 
 		#$gui->setJSEvent("onSave", "function() { Popup.close('', 'mailServer'); contentManager.reloadFrame('contentRight'); }");
 
@@ -102,6 +106,21 @@ class LoginDataGUI extends LoginData implements iGUIHTML2 {
 			$gui->type("optionen", "hidden");
 		}
 		
+		if($bps != -1 AND isset($bps["preset"]) AND ($bps["preset"] == "remoteMailServer1" OR $bps["preset"] == "remoteMailServer2" OR $bps["preset"] == "remoteMailServer3")){
+			$gui->type("UserID", "hidden");
+			$this->changeA("UserID", "-1");
+
+			$gui->type("name", "hidden");
+			$this->changeA("name", "RemoteMailServer".substr($bps["preset"], -1)."APIKey");
+
+			$gui->type("optionen", "hidden");
+			$gui->type("passwort", "hidden");
+			
+			$gui->label("benutzername", "API key");
+			$gui->descriptionField("server", "Der Pfad zur openMM-Installation inklusive Protokollangabe. Zum Beispiel https://www.meinMailserver.de/openMM");
+			$onSave .= OnEvent::reloadPopup("mVUser");
+		}
+		
 		if($bps != -1 AND isset($bps["preset"]) AND $bps["preset"] == "backupFTPServer"){
 			$BAbort = new Button("Abbrechen", "stop");
 			$BAbort->onclick("Popup.close('LoginData', 'edit');");
@@ -120,9 +139,7 @@ class LoginDataGUI extends LoginData implements iGUIHTML2 {
 			#$gui->type("optionen", "hidden");
 		}
 
-		#
-		
-		if($bps != -1 AND isset($bps["preset"]) AND $bps["preset"] == "googleData"){
+		if($bps != -1 AND isset($bps["preset"]) AND ($bps["preset"] == "googleData" OR $bps["preset"] == "GoogleAccountUserPass")){
 
 			$html = "<p>Bitte beachten Sie: Es werden nur Ihre eigenen Termine synchronisiert.</p>";
 			
@@ -134,11 +151,27 @@ class LoginDataGUI extends LoginData implements iGUIHTML2 {
 			$gui->type("optionen", "hidden");
 			$gui->type("server", "hidden");
 		}
+		
+		if($bps != -1 AND isset($bps["preset"]) AND $bps["preset"] == "klickTelAPIKey"){
 
-		$gui->label("benutzername", "Benutzername");
+			$html = "";
+			
+			$gui->type("UserID", "hidden");
+			$this->changeA("UserID", "-1");
+			$gui->label("benutzername", "API-Key");
+			$gui->type("name", "hidden");
+			$this->changeA("name", "klickTelAPIKey");
+			$gui->type("optionen", "hidden");
+			$gui->type("server", "hidden");
+			$gui->type("passwort", "hidden");
+		}
+
+		#$gui->label("benutzername", "Benutzername");
 		$gui->label("passwort", "Passwort");
 		$gui->label("server", "Server");
-
+		
+		$gui->addToEvent("onSave", $onSave);
+		
 		echo $html.$gui->getEditHTML();
 	}
 }

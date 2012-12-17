@@ -47,5 +47,44 @@ class ADesktopGUI extends UnpersistentClass implements iGUIHTML2 {
 			break;
 		}
 	}
+	
+	public function getOffice3aRSS(){
+		if(Environment::getS("blogShow", "1") == "0")
+			return "";
+		
+		$data = file_get_contents(Environment::getS("blogRSSURL", "http://blog.office3a.eu/feed/"));
+		
+		if($data === false)
+			return "";
+		
+		$html = "
+			<div style=\"border-bottom:1px solid #DDD;position:relative;\" class=\"desktopButton\" onclick=\"window.open('".Environment::getS("blogURL", "http://blog.office3a.eu/")."', '_blank');\">
+				<h1 style=\"font-size:2.0em;color:#999999;position:absolute;bottom:5px;\">".Environment::getS("blogName", "office<span style=\"color:#A0C100;\">3a</span> blog")."</h1>
+			</div>
+			<div style=\"padding-left:30px;padding-right:30px;\">";
+		try {
+			$XML = new SimpleXMLElement($data);
+
+			$i = 0;
+			foreach($XML->channel->item AS $item){
+				$html .= "<h2 style=\"color:#999999;".($i > 0 ? "margin-top:30px;" : "")."margin-bottom:0px;\">".$item->title."</h2>";
+
+				$html .= "<p style=\"color:#999999;margin-top:10px;\">".$item->description."<br />
+					<small style=\"color:#AAA;\">".Util::CLFormatDate(strtotime($item->pubDate), true)."</small> <a style=\"float:right;color:#444;\" href=\"$item->link\">mehr...</a></p>";
+				#print_r($item);
+
+				$i++;
+
+				if($i == 4)
+					break;
+			}
+
+			$html .= "</div>";
+
+			return $html;
+		} catch (Exception $e){
+			return "";
+		}
+	}
 }
 ?>

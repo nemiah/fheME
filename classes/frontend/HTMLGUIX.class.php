@@ -28,6 +28,7 @@ class HTMLGUIX {
 	protected $showEdit = true;
 	protected $showNew = true;
 	protected $showQuicksearch = false;
+	protected $showPageFlip = true;
 	protected $showSave = true;
 	protected $showInputs = true;
 
@@ -79,12 +80,18 @@ class HTMLGUIX {
 	
 	protected $autocomplete = array();
 	protected $tip = "";
-
+	protected $requestFocus;
+	protected $targetFrame;
+	
 	public function __construct($object = null, $collectionName = null){
 		if($object != null)
 			$this->object($object, $collectionName);
 
 		$this->languageClass = $this->loadLanguageClass("HTML");
+	}
+	
+	public function requestFocus($first, $second = null){
+		$this->requestFocus = array($first, $second);
 	}
 
 	public function tip(){
@@ -176,8 +183,8 @@ class HTMLGUIX {
 		else $os .= "0";
 
 		if($id != -1 AND $os != "00000"){
-			$B = new Button("Operationen", "./images/i2/settings.png", "icon");
-			$B->style("float:right;");
+			$B = new Button("Operationen", "wrench", "iconic");
+			$B->style("float:right;margin-top:-3px;");
 			$B->contextMenu("HTML", "operations:$pluginName:$id:$os", "Operationen");
 			
 			$html = $B;
@@ -220,7 +227,7 @@ class HTMLGUIX {
 		$B->style("float:right;");
 		
 		$this->fieldButtons[$fieldName] = $B;
-
+		
 		return $B;
 	}
 
@@ -357,12 +364,15 @@ class HTMLGUIX {
 
 		if($DM == "popup")
 			$this->addToEvent("onSave", "/*ADD*/ contentManager.reloadFrame('contentLeft'); Popup.close('".$this->object->getClearClass("GUI")."', 'edit');");
+
+		if($DM == "popupN")
+			$this->addToEvent("onSave", "/*ADD*/ Popup.close('".$this->object->getClearClass("GUI")."', 'edit');");
 		
 		if($DM == "popupS")
 			$this->addToEvent("onSave", "/*ADD*/ contentManager.reloadFrame('contentScreen'); Popup.close('".$this->object->getClearClass("GUI")."', 'edit');");
 
 		if($DM == "popupL")
-			$this->replaceEvent("onSave", "function() { contentManager.reloadFrame('contentLeft'); Popup.close('".$this->object->getClearClass("GUI")."', 'edit'); }");
+			$this->replaceEvent("onSave", "function(transport) { /*ADD*/ contentManager.reloadFrame('contentLeft'); Popup.close('".$this->object->getClearClass("GUI")."', 'edit'); }");
 			
 		if($DM == "popupC")
 			$this->addToEvent("onSave", "/*ADD*/ contentManager.reloadFrame('contentLeft'); Popup.close('m".$this->object->getClearClass("GUI")."', 'edit');");
@@ -374,6 +384,9 @@ class HTMLGUIX {
 	}
 	// </editor-fold>
 
+	public function targetFrame($frame){
+		$this->targetFrame = $frame;
+	}
 
 	// <editor-fold defaultstate="collapsed" desc="caption">
 	public function caption($defaultCaption){
@@ -397,6 +410,7 @@ class HTMLGUIX {
 
 		if($object instanceof Collection){
 			$this->object = $object;
+			#$this->attributes = null;
 			#$this->frame("contentRight");
 			$this->className = $object->getCollectionOf();
 			$this->multiPageDetails = $object->getMultiPageDetails();
@@ -487,7 +501,8 @@ class HTMLGUIX {
 	}
 
 	public function removeAttribute($fieldName){
-		unset($this->attributes[array_search($fieldName, $this->attributes)]);
+		if(array_search($fieldName, $this->attributes) !== false)
+			unset($this->attributes[array_search($fieldName, $this->attributes)]);
 	}
 
 	// <editor-fold defaultstate="collapsed" desc="frame">
@@ -497,11 +512,12 @@ class HTMLGUIX {
 	// </editor-fold>
 
 	// <editor-fold defaultstate="collapsed" desc="options">
-	public function options($showTrash = true, $showEdit = true, $showNew = true, $showQuicksearch = false){
+	public function options($showTrash = true, $showEdit = true, $showNew = true, $showQuicksearch = false, $showPageFlip = true){
 		$this->showTrash = $showTrash;
 		$this->showEdit = $showEdit;
 		$this->showNew = $showNew;
 		$this->showQuicksearch = $showQuicksearch;
+		$this->showPageFlip = $showPageFlip;
 	}
 	// </editor-fold>
 
@@ -518,6 +534,8 @@ class HTMLGUIX {
 
 		$F = new HTMLForm($this->formID == null ? "edit".get_class($this->object) : $this->formID, $this->attributes == null ? $this->object : $this->attributes, strpos($this->displayMode, "popup") === false ? $this->operationsButton().$this->name : null);
 		$F->getTable()->setColWidth(1, 120);
+		$F->getTable()->addTableClass("contentEdit");
+		
 		if($this->showSave)
 			$F->setSaveClass(get_class($this->object), $this->object->getID(), $this->functionEntrySave, $this->name);
 
@@ -558,7 +576,11 @@ class HTMLGUIX {
 		foreach($this->autocomplete AS $k => $a)
 			$F->setAutoComplete($k, $a[0], $a[1]);
 		
-		return $this->topButtons().$this->sideButtons().$F;
+		$requestFocus = "";
+		if($this->requestFocus)
+			$requestFocus = OnEvent::script("setTimeout(function(){ var target1 = \$j('input[name=".$this->requestFocus[0]."]:visible, textarea[name=".$this->requestFocus[0]."]:visible'); if(target1.length > 0) target1.focus(); ".($this->requestFocus[1] != null ? "else \$j('input[name=".$this->requestFocus[1]."]:visible, textarea[name=".$this->requestFocus[1]."]:visible').focus();" : "")."}, 100);");
+		
+		return $this->topButtons().$this->sideButtons().$F.$requestFocus.GUIFactory::editFormOnchangeTest($this->formID == null ? "edit".get_class($this->object) : $this->formID);
 	}
 
 	/**
@@ -590,21 +612,25 @@ class HTMLGUIX {
 		#$this->multiPageDetails["target"] = $this->frame;#"contentRight";
 		#$GUIF->setMultiPageDetails($this->multiPageDetails);
 
+		if($this->targetFrame != null)
+			$GUIF->targetFrame($this->targetFrame);
+		
 		$E = $this->object->getNextEntry();
 
 
 		if($this->attributes == null AND $E != null)
 			$this->attributes = PMReflector::getAttributesArrayAnyObject($E->getA());
 
-		if($E == null) //To fix display error when no entry
-			$this->attributes = array("");
+		#if($E == null) //To fix display error when no entry
+		#	$this->attributes = array("");
+		
+		if($this->caption == null AND $this->caption !== false)
+			$this->caption(($this->displayMode == "BrowserLeft") ? ($this->name == null ? $this->className : $this->name) : "&nbsp;");#"Bitte ".($this->name == null ? $this->className : $this->name)." auswählen:");
 
-		if($this->caption == null)
-			$this->caption("Bitte ".($this->name == null ? $this->className : $this->name)." auswählen:");
 
-
-		$Tab = $GUIF->getTable($this->attributes, $this->colStyle, $this->caption);
+		$Tab = $GUIF->getTable($E == null ? array("") : $this->attributes, $this->colStyle, $this->caption);
 		$Tab->setTableID("Browserm$this->className");
+		$Tab->addTableClass("contentBrowser");
 		
 		if($this->header != null)
 			$Tab->addHeaderRow($this->header);
@@ -613,11 +639,12 @@ class HTMLGUIX {
 			if($this->showQuicksearch) $GUIF->buildQuickSearchLine();
 
 			#if($this->multiPageDetails["total"] > $this->multiPageDetails["perPage"])
-			$GUIF->buildFlipPageLine("top");
-
-			$GUIF->buildNewEntryLine(($this->name == null ? $this->className : $this->name)." neu anlegen");
+			if($this->showPageFlip)
+				$GUIF->buildFlipPageLine("top");
 
 			if($this->object->isFiltered()) $GUIF->buildFilteredWarningLine();
+
+			$GUIF->buildNewEntryLine(($this->name == null ? $this->className : $this->name)." neu anlegen");
 		}
 
 		$this->object->resetPointer();
@@ -644,7 +671,8 @@ class HTMLGUIX {
 
 				if(isset($this->parsers[$attributeName]))
 					$LineContent = $this->invokeParser($this->parsers[$attributeName], $LineContent, $E);
-				else $LineContent = htmlspecialchars($LineContent);
+				else
+					$LineContent = htmlspecialchars($LineContent);
 
 				$Line[] = $LineContent;
 			}
@@ -659,7 +687,7 @@ class HTMLGUIX {
 		if($lineWithId == -1) {
 			if($this->object->isFiltered()) $GUIF->buildFilteredWarningLine();
 
-			if($this->multiPageDetails["total"] > $this->multiPageDetails["perPage"])
+			if($this->multiPageDetails["total"] > $this->multiPageDetails["perPage"] AND $this->showPageFlip)
 				$GUIF->buildFlipPageLine("bottom");
 			
 			if($this->object->numLoaded() == 0)
@@ -727,7 +755,11 @@ class HTMLGUIX {
 	protected function invokeParser($function, $value, $element){
 		$c = explode("::", $function);
 		$method = new ReflectionMethod($c[0], $c[1]);
-		return $method->invoke(null, $value, $element);
+		try {
+			return $method->invoke(null, $value, $element, $element); //second $element due to legacy reasons!
+		} catch(ReflectionException $e){
+			echo "<p>Die Methode $function existiert nicht oder ist nicht statisch!</p>";
+		}
 	}
 	// </editor-fold>
 
@@ -840,6 +872,19 @@ class HTMLGUIX {
 				$new = "contentManager.editInPopup('%CLASSNAME', %CLASSID, 'Eintrag bearbeiten', ''".($par1 != null ? ", $par1" : "").");";
 				$this->GUIFactory->replaceEvent("onNew", $new);
 				$this->GUIFactory->replaceEvent("onEdit", $new);
+			break;
+			
+			case "addSaveDefaultButton":
+				$B = new Button("als Standard-Wert speichern", "./images/i2/save.gif", "icon");
+				$name = "DefaultValue".$class->getClearClass()."$par1";
+				if(mb_strlen($name) > 50)
+					$name = "DV".sha1($name);
+				
+				$B->rme("mUserdata","","setUserdata",array("'$name'","\$j('[name=$par1]').val()"),"checkResponse(transport);");
+				$B->style("float:right;");
+				#$this->inputStyle($par1, "width:90%;");
+				#$this->buttonsNextToFields[$par1] = $B;
+				$this->addFieldButton($par1, $B);
 			break;
 		}
 	}
