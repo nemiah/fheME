@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2012, Rainer Furtmeier - Rainer@Furtmeier.de
+ *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class UserGUI extends User implements iGUIHTML2 {
 	function getHTML($id){
@@ -49,7 +49,7 @@ class UserGUI extends User implements iGUIHTML2 {
 		$gui->setLabel("SHApassword","Passwort");
 		$gui->setLabel("language","Sprache");
 		$gui->setType("language","select");
-		$gui->setOptions("language",array("de_DE", "de_CH", "en_US"),array("Deutsch (Deutschland)", "Deutsch (Schweiz)", "English (United States)"));
+		$gui->setOptions("language",array("de_DE", "de_CH", "en_GB"),array("Deutsch (Deutschland)", "Deutsch (Schweiz)", "English (United Kingdom)"));
 		$gui->setFieldDescription("SHApassword","Zum Ändern eingeben.");
 		$gui->setType("password","hidden");
 		$gui->setType("SHApassword","password");

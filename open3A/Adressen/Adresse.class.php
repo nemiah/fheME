@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2012, Rainer Furtmeier - Rainer@Furtmeier.de
+ *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class Adresse extends PersistentObject implements iDeletable, iXMLExport/*, iLDAPExport*/ {
 
@@ -186,7 +186,7 @@ class Adresse extends PersistentObject implements iDeletable, iXMLExport/*, iLDA
 		}
 		
 		if(Session::isPluginLoaded("mSync") AND $this->A("AuftragID") == -1)
-			mSync::newGUID("Adresse", $id, null, true);
+			mSync::newGUID("Adresse", $id, null, false);
 		
 		return $id;
 	}

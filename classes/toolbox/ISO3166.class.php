@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2012, Rainer Furtmeier - Rainer@Furtmeier.de
+ *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
 class ISO3166 {
@@ -731,7 +731,306 @@ ZWE    ZW    Simbabwe";
 9;"Wien";920;"Wien 20.,Brigittenau"
 9;"Wien";921;"Wien 21.,Floridsdorf"
 9;"Wien";922;"Wien 22.,Donaustadt"
-9;"Wien";923;"Wien 23.,Liesing"');
+9;"Wien";923;"Wien 23.,Liesing"',
+
+"DE" => "1;;8425;Alb-Donau-Kreis
+1;;8426;Biberach
+1;;8115;Böblingen
+1;;8435;Bodenseekreis
+1;;8315;Breisgau-Hochschwarzwald
+1;;8235;Calw
+1;;8316;Emmendingen
+1;;8236;Enzkreis
+1;;8116;Esslingen
+1;;8237;Freudenstadt
+1;;8117;Göppingen
+1;;8135;Heidenheim
+1;;8125;Heilbronn
+1;;8126;Hohenlohekreis
+1;;8215;Karlsruhe
+1;;8335;Konstanz
+1;;8336;Lörrach
+1;;8118;Ludwigsburg
+1;;8128;Main-Tauber-Kreis
+1;;8225;Neckar-Odenwald-Kreis
+1;;8317;Ortenaukreis
+1;;8136;Ostalbkreis
+1;;8216;Rastatt
+1;;8436;Ravensburg
+1;;8119;Rems-Murr-Kreis
+1;;8415;Reutlingen
+1;;8226;Rhein-Neckar-Kreis
+1;;8325;Rottweil
+1;;8127;Schwäbisch Hall
+1;;8326;Schwarzwald-Baar-Kreis
+1;;8437;Sigmaringen
+1;;8416;Tübingen
+1;;8327;Tuttlingen
+1;;8337;Waldshut
+1;;8417;Zollernalbkreis
+2;;9771;Aichach-Friedberg
+2;;9171;Altötting
+2;;9371;Amberg-Sulzbach
+2;;9571;Ansbach
+2;;9671;Aschaffenburg
+2;;9772;Augsburg
+2;;9672;Bad Kissingen
+2;;9173;Bad Tölz-Wolfratshausen
+2;;9471;Bamberg
+2;;9472;Bayreuth
+2;;9172;Berchtesgadener Land
+2;;9372;Cham
+2;;9473;Coburg
+2;;9174;Dachau
+2;;9271;Deggendorf
+2;;9773;Dillingen an der Donau
+2;;9279;Dingolfing-Landau
+2;;9779;Donau-Ries
+2;;9175;Ebersberg
+2;;9176;Eichstätt
+2;;9177;Erding
+2;;9572;Erlangen-Höchstadt
+2;;9474;Forchheim
+2;;9178;Freising
+2;;9272;Freyung-Grafenau
+2;;9179;Fürstenfeldbruck
+2;;9573;Fürth
+2;;9180;Garmisch-Partenkirchen
+2;;9774;Günzburg
+2;;9674;Haßberge
+2;;9475;Hof
+2;;9273;Kelheim
+2;;9675;Kitzingen
+2;;9476;Kronach
+2;;9477;Kulmbach
+2;;9181;Landsberg am Lech
+2;;9274;Landshut
+2;;9478;Lichtenfels
+2;;9776;Lindau (Bodensee)
+2;;9677;Main-Spessart
+2;;9182;Miesbach
+2;;9676;Miltenberg
+2;;9183;Mühldorf am Inn
+2;;9184;München
+2;;9775;Neu-Ulm
+2;;9185;Neuburg-Schrobenhausen
+2;;9373;Neumarkt in der Oberpfalz
+2;;9575;Neustadt an der Aisch-Bad Windsheim
+2;;9374;Neustadt an der Waldnaab
+2;;9574;Nürnberger Land
+2;;9780;Oberallgäu
+2;;9777;Ostallgäu
+2;;9275;Passau
+2;;9186;Pfaffenhofen an der Ilm
+2;;9276;Regen
+2;;9375;Regensburg
+2;;9673;Rhön-Grabfeld
+2;;9187;Rosenheim
+2;;9576;Roth
+2;;9277;Rottal-Inn
+2;;9376;Schwandorf
+2;;9678;Schweinfurt
+2;;9188;Starnberg
+2;;9278;Straubing-Bogen
+2;;9377;Tirschenreuth
+2;;9189;Traunstein
+2;;9778;Unterallgäu
+2;;9190;Weilheim-Schongau
+2;;9577;Weißenburg-Gunzenhausen
+2;;9479;Wunsiedel im Fichtelgebirge
+2;;9679;Würzburg
+3;;11000;Berlin
+4;;12060;Barnim
+4;;12061;Dahme-Spreewald
+4;;12062;Elbe-Elster
+4;;12063;Havelland
+4;;12064;Märkisch-Oderland
+4;;12065;Oberhavel
+4;;12066;Oberspreewald-Lausitz
+4;;12067;Oder-Spree
+4;;12068;Ostprignitz-Ruppin
+4;;12069;Potsdam-Mittelmark
+4;;12070;Prignitz
+4;;12071;Spree-Neiße
+4;;12072;Teltow-Fläming
+4;;12073;Uckermark
+5;;4011;Bremen
+6;;2000;Hamburg
+7;;6431;Bergstraße
+7;;6432;Darmstadt-Dieburg
+7;;6631;Fulda
+7;;6531;Gießen
+7;;6433;Groß-Gerau
+7;;6632;Hersfeld-Rotenburg
+7;;6434;Hochtaunuskreis
+7;;6633;Kassel
+7;;6532;Lahn-Dill-Kreis
+7;;6533;Limburg-Weilburg
+7;;6435;Main-Kinzig-Kreis
+7;;6436;Main-Taunus-Kreis
+7;;6534;Marburg-Biedenkopf
+7;;6437;Odenwaldkreis
+7;;6438;Offenbach
+7;;6439;Rheingau-Taunus-Kreis
+7;;6634;Schwalm-Eder-Kreis
+7;;6535;Vogelsbergkreis
+7;;6635;Waldeck-Frankenberg
+7;;6636;Werra-Meißner-Kreis
+7;;6440;Wetteraukreis
+8;;13076;Ludwigslust-Parchim
+8;;13071;Mecklenburgische Seenplatte
+8;;13074;Nordwestmecklenburg
+8;;13072;Rostock
+8;;13075;Vorpommern-Greifswald
+8;;13073;Vorpommern-Rügen
+9;;3451;Ammerland
+9;;3452;Aurich
+9;;3351;Celle
+9;;3453;Cloppenburg
+9;;3352;Cuxhaven
+9;;3251;Diepholz
+9;;3454;Emsland
+9;;3455;Friesland
+9;;3151;Gifhorn
+9;;3153;Goslar
+9;;3152;Göttingen
+9;;3456;Grafschaft Bentheim
+9;;3252;Hameln-Pyrmont
+9;;3241;Hannover Region
+9;;3353;Harburg
+9;;3358;Heidekreis
+9;;3154;Helmstedt
+9;;3254;Hildesheim
+9;;3255;Holzminden
+9;;3457;Leer
+9;;3354;Lüchow-Dannenberg
+9;;3355;Lüneburg
+9;;3256;Nienburg/Weser
+9;;3155;Northeim
+9;;3458;Oldenburg
+9;;3459;Osnabrück
+9;;3356;Osterholz
+9;;3156;Osterode am Harz
+9;;3157;Peine
+9;;3357;Rotenburg (Wümme)
+9;;3257;Schaumburg
+9;;3359;Stade
+9;;3360;Uelzen
+9;;3460;Vechta
+9;;3361;Verden
+9;;3461;Wesermarsch
+9;;3462;Wittmund
+9;;3158;Wolfenbüttel
+10;;5334;Aachen Städteregion
+10;;5554;Borken
+10;;5558;Coesfeld
+10;;5358;Düren
+10;;5954;Ennepe-Ruhr-Kreis
+10;;5366;Euskirchen
+10;;5754;Gütersloh
+10;;5370;Heinsberg
+10;;5758;Herford
+10;;5958;Hochsauerlandkreis
+10;;5762;Höxter
+10;;5154;Kleve
+10;;5766;Lippe
+10;;5962;Märkischer Kreis
+10;;5158;Mettmann
+10;;5770;Minden-Lübbecke
+10;;5374;Oberbergischer Kreis
+10;;5966;Olpe
+10;;5774;Paderborn
+10;;5562;Recklinghausen
+10;;5362;Rhein-Erft-Kreis
+10;;5162;Rhein-Kreis Neuss
+10;;5382;Rhein-Sieg-Kreis
+10;;5378;Rheinisch-Bergischer Kreis
+10;;5970;Siegen-Wittgenstein
+10;;5974;Soest
+10;;5566;Steinfurt
+10;;5978;Unna
+10;;5166;Viersen
+10;;5570;Warendorf
+10;;5170;Wesel
+11;;7131;Ahrweiler
+11;;7132;Altenkirchen (Westerwald)
+11;;7331;Alzey-Worms
+11;;7332;Bad Dürkheim
+11;;7133;Bad Kreuznach
+11;;7231;Bernkastel-Wittlich
+11;;7134;Birkenfeld
+11;;7135;Cochem-Zell
+11;;7333;Donnersbergkreis
+11;;7232;Eifelkreis Bitburg-Prüm
+11;;7334;Germersheim
+11;;7335;Kaiserslautern
+11;;7336;Kusel
+11;;7339;Mainz-Bingen
+11;;7137;Mayen-Koblenz
+11;;7138;Neuwied
+11;;7140;Rhein-Hunsrück-Kreis
+11;;7141;Rhein-Lahn-Kreis
+11;;7338;Rhein-Pfalz-Kreis
+11;;7337;Südliche Weinstraße
+11;;7340;Südwestpfalz
+11;;7235;Trier-Saarburg
+11;;7233;Vulkaneifel
+11;;7143;Westerwaldkreis
+12;;10042;Merzig-Wadern
+12;;10043;Neunkirchen
+12;;10041;Saarbrücken Regionalverband
+12;;10044;Saarlouis
+12;;10045;Saarpfalz-Kreis
+12;;10046;St. Wendel
+13;;14625;Bautzen
+13;;14521;Erzgebirgskreis
+13;;14626;Görlitz
+13;;14729;Leipzig
+13;;14627;Meißen
+13;;14522;Mittelsachsen
+13;;14730;Nordsachsen
+13;;14628;Sächsische Schweiz-Osterzgebirge
+13;;14523;Vogtlandkreis
+13;;14524;Zwickau
+14;;15081;Altmarkkreis Salzwedel
+14;;15082;Anhalt-Bitterfeld
+14;;15083;Börde
+14;;15084;Burgenlandkreis
+14;;15085;Harz
+14;;15086;Jerichower Land
+14;;15087;Mansfeld-Südharz
+14;;15088;Saalekreis
+14;;15089;Salzlandkreis
+14;;15090;Stendal
+14;;15091;Wittenberg
+15;;1051;Dithmarschen
+15;;1053;Herzogtum Lauenburg
+15;;1054;Nordfriesland
+15;;1055;Ostholstein
+15;;1056;Pinneberg
+15;;1057;Plön
+15;;1058;Rendsburg-Eckernförde
+15;;1059;Schleswig-Flensburg
+15;;1060;Segeberg
+15;;1061;Steinburg
+15;;1062;Stormarn
+16;;16077;Altenburger Land
+16;;16061;Eichsfeld
+16;;16067;Gotha
+16;;16076;Greiz
+16;;16069;Hildburghausen
+16;;16070;Ilm-Kreis
+16;;16065;Kyffhäuserkreis
+16;;16062;Nordhausen
+16;;16074;Saale-Holzland-Kreis
+16;;16075;Saale-Orla-Kreis
+16;;16073;Saalfeld-Rudolstadt
+16;;16066;Schmalkalden-Meiningen
+16;;16068;Sömmerda
+16;;16072;Sonneberg
+16;;16064;Unstrut-Hainich-Kreis
+16;;16063;Wartburgkreis
+16;;16071;Weimarer Land");
 
 		$zones = array();
 		$ex = explode("\n", $csv[$code]);

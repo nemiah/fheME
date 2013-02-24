@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2012, Rainer Furtmeier - Rainer@Furtmeier.de
+ *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class GUIFactory {
 
@@ -720,24 +720,24 @@ class GUIFactory {
 	
 	public static function editFormOnchangeTest($FormID){
 		$js = OnEvent::script("
-			if(\$j('#$FormID input[name=currentSaveButton]').length > 0) {
+			if(\$j('#$FormID input[name=currentSaveButton], #$FormID input[name=submitForm]').length > 0) {
 				
 				\$j('#$FormID input[type=text], #$FormID textarea').keyup(function(event){ 
 					\$j(event.currentTarget).addClass('recentlyChanged'); 
-					\$j('#$FormID input[name=currentSaveButton]').closest('tr').addClass('recentlyChanged');
+					\$j('#$FormID input[name=currentSaveButton], #$FormID input[name=submitForm]').closest('tr').addClass('recentlyChanged');
 				}).change(function(event){ 
 					\$j(event.currentTarget).addClass('recentlyChanged'); 
-					\$j('#$FormID input[name=currentSaveButton]').closest('tr').addClass('recentlyChanged');
+					\$j('#$FormID input[name=currentSaveButton], #$FormID input[name=submitForm]').closest('tr').addClass('recentlyChanged');
 				});
 
 				\$j('#$FormID input[type=checkbox]').change(function(event){ 
 					\$j(event.currentTarget).addClass('recentlyChanged'); 
-					\$j('#$FormID input[name=currentSaveButton]').closest('tr').addClass('recentlyChanged');
+					\$j('#$FormID input[name=currentSaveButton], #$FormID input[name=submitForm]').closest('tr').addClass('recentlyChanged');
 				});
 
 				\$j('#$FormID select').change(function(event){
 					\$j(event.currentTarget).addClass('recentlyChanged');
-					\$j('#$FormID input[name=currentSaveButton]').closest('tr').addClass('recentlyChanged');
+					\$j('#$FormID input[name=currentSaveButton], #$FormID input[name=submitForm]').closest('tr').addClass('recentlyChanged');
 				});
 			
 			}");

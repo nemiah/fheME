@@ -163,6 +163,9 @@ class smtp {
 			$body = str_replace(CRLF . '.', CRLF . '..', $this->body);
 			$body = substr($body, 0, 1) == '.' ? '.' . $body : $body;
 
+			$body = preg_replace("#(?<!\r)\n#si", "\r\n", $body);
+			$headers = preg_replace('#(?<!\r)\n#si', "\r\n", $headers); 
+			
 			$this->send_data($headers);
 			$this->send_data('');
 			$this->send_data($body);

@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2012, Rainer Furtmeier - Rainer@Furtmeier.de
+ *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
 /**
@@ -103,6 +103,10 @@ if(function_exists('date_default_timezone_set'))
 
 if(function_exists('mb_internal_encoding'))
 	mb_internal_encoding("UTF-8");
+
+if(!function_exists("_")){
+	function _($text){ return $text; }
+}
 
 #if(!function_exists("array_fill_keys")) // in index.php as of 01.10.2012
 #	emoFatalError("I'm sorry, but your PHP version is too old.", "You need at least PHP version 5.2.0 to run this program.<br />You are using ".phpversion().". Please talk to your provider about this.", "phynx");

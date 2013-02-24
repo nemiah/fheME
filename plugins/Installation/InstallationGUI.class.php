@@ -15,13 +15,15 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2012, Rainer Furtmeier - Rainer@Furtmeier.de
+ *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class InstallationGUI extends Installation implements iGUIHTML2 {
 	public function getHTML($id){
 		$this->loadMeOrEmpty();
 		#if($this->A == null AND $id != -1) $this->loadMe();
 		#if($id == -1) $this->A = new InstallationAttributes();
+		
+		BPS::setProperty("mInstallationGUI", "showErrorText", "1");
 		
 		$gui = new HTMLGUI();
 		
@@ -31,7 +33,7 @@ class InstallationGUI extends Installation implements iGUIHTML2 {
 		} else $gui->insertSpaceAbove("httpHost");
 		
 		$gui->setObject($this);
-		$gui->setName("Installation");
+		$gui->setName("Zugangsdaten");
 		$gui->setType("password","password");
 		
 		$gui->setLabel("datab","Datenbank");
@@ -44,9 +46,10 @@ class InstallationGUI extends Installation implements iGUIHTML2 {
 		#$this->loadGUITranslation($gui);
 		$gui->translate($this->loadTranslation());
 		$gui->setJSEvent("onSave","
-				function() { 
-					contentManager.reloadFrameRight();
-					$('contentLeft').update('');"."
+				function() {
+					contentManager.emptyFrame('contentLeft');
+					contentManager.emptyFrame('contentBelow');
+					contentManager.reloadFrame('contentRight');"."
 				}");
 		$gui->setStandardSaveButton($this);
 		

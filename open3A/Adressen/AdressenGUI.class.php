@@ -15,9 +15,9 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2012, Rainer Furtmeier - Rainer@Furtmeier.de
+ *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
-class AdressenGUI extends Adressen implements iGUIHTMLMP2, iAutoCompleteHTML, icontextMenu {
+class AdressenGUI extends Adressen implements iGUIHTMLMP2, iAutoCompleteHTML, icontextMenu, iSearchFilter {
 	
 	protected $gui;
 	public $searchFields = array("nachname","vorname","firma","ort","strasse","kundennummer");
@@ -29,13 +29,38 @@ class AdressenGUI extends Adressen implements iGUIHTMLMP2, iAutoCompleteHTML, ic
 		$this->customize();
 		$bps = $this->getMyBPSData();
 
-		if($bps == -1 OR !isset($bps["AdressBuch"]) OR $bps["AdressBuch"] == 0) $this->addAssocV3("type","=","default");
+		if(Session::isPluginLoaded("mAdressBuch")){
+			$CAB = mAdressBuchGUI::getCurrent($this, false, true);
+			
+			if($CAB == "-2"){
+				$this->addAssocV3("type","=","default", "AND", "1");
+				
+				$AC = anyC::get("AdressBuch");
+				$AC->addAssocV3("AdressBuchUserID", "=", Session::currentUser()->getID());
+				$AC->addAssocV3("AdressBuchTyp", "=", "2");
+
+				while($AB = $AC->getNextEntry())
+					$this->addAssocV3 ("type", "=", "AB".$AB->getID(), "OR", "1");
+			}
+			
+			if($CAB == "0")
+				$this->addAssocV3("type","=","default");
+			
+			if($CAB > 0){
+				$AB = new AdressBuch($CAB);
+				if($AB->A("AdressBuchTyp") == "1" OR $AB->A("AdressBuchTyp") == "3" OR
+					($AB->A("AdressBuchTyp") == "2" AND $AB->A("AdressBuchUserID") == Session::currentUser()->getID()))
+					$this->addAssocV3("type","=","AB".$bps["AdressBuch"]);
+			}
+		}
+		
+		/*if($bps == -1 OR !isset($bps["AdressBuch"]) OR $bps["AdressBuch"] == 0) $this->addAssocV3("type","=","default");
 		else {
 			$AB = new AdressBuch($bps["AdressBuch"]);
 			if($AB->A("AdressBuchTyp") == "1" OR $AB->A("AdressBuchTyp") == "3" OR
 				($AB->A("AdressBuchTyp") == "2" AND $AB->A("AdressBuchUserID") == Session::currentUser()->getID()))
 				$this->addAssocV3("type","=","AB".$bps["AdressBuch"]);
-		}
+		}*/
 
 		$this->gui = new HTMLGUI();
 		if($bps != -1 AND isset($bps["selectionMode"]) AND (strpos($bps["selectionMode"], "Vertrag") !== false OR strpos($bps["selectionMode"], "Bestellung") !== false OR strpos($bps["selectionMode"], "CloudKunde") !== false OR strpos($bps["selectionMode"], "Einsatzort") !== false)){
@@ -45,11 +70,11 @@ class AdressenGUI extends Adressen implements iGUIHTMLMP2, iAutoCompleteHTML, ic
 	}
 	
 	function getHTML($id, $page){
+		#$this->addJoinV3("Kappendix", "AdresseID", "=", "AdresseID"); //this is no good idea, unless with an index on Kappendix::AdresseID column
 		try {
 			new CRMHTMLGUI();
 			$id = -1;
 		} catch(ClassNotFoundException $e){ }
-		
 		$gui = $this->gui;
 		
 		$gui->VersionCheck("Adressen");
@@ -61,6 +86,7 @@ class AdressenGUI extends Adressen implements iGUIHTMLMP2, iAutoCompleteHTML, ic
 		$gui->setParser("firma","AdressenGUI::firmaParser",array("\$sc->vorname","\$sc->nachname","\$aid", "\$type", "\$tel", "\$fax", "\$email", "\$mobil", "\$homepage", __CLASS__));
 
 		$gui->customize($this->customizer);
+		$gui->showFilteredCategoriesWarning($this->filterCategories(), "Adressen");
 		$gesamt = $this->loadMultiPageMode($id, $page, 0);
 
 		if(get_class($this) == "AdressenGUI"){
@@ -70,7 +96,7 @@ class AdressenGUI extends Adressen implements iGUIHTMLMP2, iAutoCompleteHTML, ic
 
 		$tab = "";
 		if(Session::isPluginLoaded("mAdressBuch") AND $id == -1)
-			$tab = mAdressBuchGUI::getSelectionMenu($this);
+			$tab = mAdressBuchGUI::getSelectionMenu($this, "contentRight", false, true);
 		
 		$gui->isQuickSearchable(str_replace("GUI","",get_class($this)));
 		$gui->setMultiPageMode($gesamt, $page, 0, "contentRight", str_replace("GUI","",get_class($this)));
@@ -210,7 +236,7 @@ class AdressenGUI extends Adressen implements iGUIHTMLMP2, iAutoCompleteHTML, ic
 				
 				$this->lCV3();
 
-				if(!$hasNr){
+				if(!$hasNr AND $this->numLoaded() > 0){
 					$AC = anyC::get("Kappendix");
 					while($A = $this->getNextEntry())
 						$AC->addAssocV3("AdresseID", "=", $A->getID(), "OR");
@@ -256,7 +282,8 @@ class AdressenGUI extends Adressen implements iGUIHTMLMP2, iAutoCompleteHTML, ic
 	}
 	
 	public function getContextMenuHTML($identifier){
-		echo "<p style=\"padding:5px;\">Es werden folgende Felder durchsucht:<br /><br />Kundennummer<br />Firma<br />Vorname<br />Nachname<br />Straße<br />Ort</p><p>Sie können Ihre Suchanfrage mit UND verknüpfen.<br />Also z.B. \"Firmenname UND Ort\"</p>";
+		echo "<p style=\"padding:5px;\">Es werden folgende Felder durchsucht:<br /><br />Kundennummer<br />Firma<br />Vorname<br />Nachname<br />Straße<br />Ort</p><p>Sie können Ihre Suchanfrage mit UND verknüpfen.<br />Also z.B. \"Firmenname UND Ort\"</p>
+			<p><img src=\"./images/i2/searchFilter.png\" style=\"float:left;margin-right:5px;\" /> Bei der Filterung nach einem Suchbegriff wird die Kundennummer nicht berücksichtigt.";
 
 	}
 	
@@ -309,6 +336,12 @@ class AdressenGUI extends Adressen implements iGUIHTMLMP2, iAutoCompleteHTML, ic
 	public function openHP($url){
 		header("Location: ".(substr($url, 0, 4) != "http" ? "http://" : "")."$url");
 		exit();
+	}
+
+	public function getSearchedFields() {
+		$SF = $this->searchFields;
+		unset($SF[array_search("kundennummer", $SF)]);
+		return $SF;
 	}
 }
 ?>

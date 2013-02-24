@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2012, Rainer Furtmeier - Rainer@Furtmeier.de
+ *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
 if(!function_exists("array_fill_keys")){
@@ -49,29 +49,7 @@ if(count($notExecutable) > 0 AND is_executable("./system")){
 		"phynx");
 }
 
-$texts = array();
-$texts["de_DE"] = array();
-$texts["de_DE"]["username"] = "Benutzername";
-$texts["de_DE"]["password"] = "Passwort";
-$texts["de_DE"]["application"] = "Anwendung";
-$texts["de_DE"]["login"] = "Anmelden";
-$texts["de_DE"]["save"] = "Zugangsdaten speichern";
-$texts["de_DE"]["autologin"] = "Automatisch anmelden";
-$texts["de_DE"]["sprache"] = "Sprache";
-$texts["de_DE"]["optionsImage"] = "Optionen anzeigen";
-$texts["de_DE"]["lostPassword"] = "Passwort vergessen?";
-
-$texts["en_US"] = array();
-$texts["en_US"]["username"] = "Username";
-$texts["en_US"]["password"] = "Password";
-$texts["en_US"]["application"] = "Application";
-$texts["en_US"]["login"] = "login";
-$texts["en_US"]["save"] = "save login data";
-$texts["en_US"]["autologin"] = "automatic login";
-$texts["en_US"]["sprache"] = "Language";
-$texts["en_US"]["optionsImage"] = "show options";
-$texts["en_US"]["lostPassword"] = "Lost password?";
-
+/*$texts = array();
 $texts["it_IT"] = array();
 $texts["it_IT"]["username"] = "Username";
 $texts["it_IT"]["password"] = "Password";
@@ -81,10 +59,11 @@ $texts["it_IT"]["autologin"] = "accesso automatico";
 $texts["it_IT"]["save"] = "memorizzare i dati";
 $texts["it_IT"]["sprache"] = "Lingua";
 $texts["it_IT"]["optionsImage"] = "Visualizzare le opzioni";
-$texts["it_IT"]["lostPassword"] = "Password persa?";
+$texts["it_IT"]["lostPassword"] = "Password persa?";*/
 
 require "./system/connect.php";
-$browserLang = Session::getLanguage();
+#$browserLang = Session::getLanguage();
+T::load(Util::getRootPath()."libraries");
 /*
 $E = new Environment();
 */
@@ -119,7 +98,7 @@ if(Phynx::build()){
 				<img src=\"./images/navi/navigation.png\" style=\"float:left;margin-top:-8px;margin-right:10px;\" />Weiter
 			</div>";
 		
-		emoFatalError("Diese Anwendung wurde aktualisiert", "Der Administrator dieser Anwendung hat seit Ihrem letzten Besuch eine Aktualisierung eingespielt.</p>
+		emoFatalError(T::_("Diese Anwendung wurde aktualisiert"), "Der Administrator dieser Anwendung hat seit Ihrem letzten Besuch eine Aktualisierung eingespielt.</p>
 			".(!$isCloud ? "<p style=\"margin-left:80px;\">Bitte entscheiden Sie sich nun für eine der beiden Möglichkeiten,<br />abhängig davon, ob Sie diese Anwendung eingerichtet haben, oder eine andere Person:</p>" : "")."
 			<div style=\"width:800px;\">
 				".(!$isCloud ? "<div style=\"width:350px;float:right;\">
@@ -133,7 +112,7 @@ if(Phynx::build()){
 					$button
 				</div>
 			<div style=\"clear:both;\"></div>
-			</div>", "Diese Anwendung wurde aktualisiert", false, "ok");
+			</div>", T::_("Diese Anwendung wurde aktualisiert"), false, "ok");
 	} elseif(!isset($_COOKIE["phynx_lastSeenBuild"]))
 		setcookie("phynx_lastSeenBuild", Phynx::build(), time() + 3600 * 24 * 365);
 	
@@ -170,6 +149,7 @@ if($_SESSION["S"]->checkIfUserLoggedIn() == false) $_SESSION["CurrentAppPlugins"
 		<script type="text/javascript" src="./libraries/flot/jquery.flot.threshold.js"></script>
 		<script type="text/javascript" src="./libraries/flot/jquery.flot.pie.js"></script>
 		<script type="text/javascript" src="./libraries/flot/jquery.flot.selection.js"></script>
+		<script type="text/javascript" src="./libraries/flot/jquery.flot.orderBars.js"></script>
 		<script type="text/javascript" src="./libraries/nicEdit/nicEdit.js"></script>
 		<script type="text/javascript" src="./libraries/modernizr.custom.js"></script>
 
@@ -244,7 +224,7 @@ if($_SESSION["S"]->checkIfUserLoggedIn() == false) $_SESSION["CurrentAppPlugins"
 		<!--<div style="position:fixed;top:0px;left:0px;width:20px;" id="growlContainer"></div>-->
 		<div id="boxInOverlay" style="display: none;" class="backgroundColor0 borderColor1">
 			<?php if(Environment::getS("showCopyright", "1") == "1") { ?>
-			<p style="color:grey;left:10px;position:fixed;bottom:10px;"><a style="color:grey;" target="_blank" href="http://www.furtmeier.it">Unternehmenssoftware</a> von Furtmeier Hard- und Software</p>
+			<p style="color:grey;left:10px;position:fixed;bottom:10px;"><a style="color:grey;" target="_blank" href="http://www.furtmeier.it"><?php echo T::_("Unternehmenssoftware"); ?></a> <?php echo T::_("von Furtmeier Hard- und Software"); ?></p>
 			<?php } ?>
 			<form id="loginForm" onsubmit="return false;">
 				<table class="loginWindow">
@@ -253,25 +233,25 @@ if($_SESSION["S"]->checkIfUserLoggedIn() == false) $_SESSION["CurrentAppPlugins"
 						<col class="backgroundColor3" />
 					</colgroup>
 					<tr>
-						<td class="backgroundColor2"><label><?php echo $texts[$browserLang]["username"]; ?>:</label></td>
+						<td class="backgroundColor2"><label><?php echo T::_("Benutzername"); ?>:</label></td>
 						<td><input style="width:285px;" tabindex="1" onfocus="focusMe(this);" onblur="blurMe(this);" type="text" name="loginUsername" id="loginUsername" onkeydown="userControl.abortAutoCertificateLogin(); userControl.abortAutoLogin(); if(event.keyCode == 13) userControl.doLogin();" /></td>
 					</tr>
 					<tr>
-						<td><label><?php echo $texts[$browserLang]["password"]; ?>:</label></td>
+						<td><label><?php echo T::_("Passwort"); ?>:</label></td>
 						<td>
 							<img
 								style="float:right;"
 								class="mouseoverFade"
 								onclick="$j('#loginOptions, #altLogins').toggle();"
 								src="./images/i2/settings.png"
-								title="<?php echo $texts[$browserLang]["optionsImage"]; ?>" />
+								title="<?php echo T::_("Optionen anzeigen"); ?>" />
 							
 							<img
 								style="float:right;margin-right:5px;"
 								class="mouseoverFade"
 								onclick="rmeP('Users', -1, 'lostPassword', [$('loginUsername').value], 'checkResponse(transport);');"
 								src="./images/i2/hilfe.png"
-								title="<?php echo $texts[$browserLang]["lostPassword"]; ?>" />
+								title="<?php echo T::_("Passwort vergessen?"); ?>" />
 							<input
 								style="width:240px;"
 								onfocus="focusMe(this);"
@@ -284,7 +264,7 @@ if($_SESSION["S"]->checkIfUserLoggedIn() == false) $_SESSION["CurrentAppPlugins"
 						</td>
 					</tr>
 					<tr id="loginOptions">
-						<td><label><?php echo $texts[$browserLang]["application"]; ?>:</label></td>
+						<td><label><?php echo T::_("Anwendung"); ?>:</label></td>
 						<td>
 							<?php
 							
@@ -320,7 +300,7 @@ if($_SESSION["S"]->checkIfUserLoggedIn() == false) $_SESSION["CurrentAppPlugins"
 								tabindex="4"
 								onkeydown="if(event.keyCode == 13) userControl.doLogin();">
 								
-								<option value="default"><?php echo $texts[$browserLang]["sprache"]; ?></option>
+								<option value="default"><?php echo T::_("Sprache"); ?></option>
 								<option value="de_DE">deutsch</option>
 								<option value="en_US">english</option>
 								<option value="it_IT">italiano</option>
@@ -335,7 +315,7 @@ if($_SESSION["S"]->checkIfUserLoggedIn() == false) $_SESSION["CurrentAppPlugins"
 								type="button"
 								style="float:right;background-image:url(./images/navi/keys.png);"
 								onclick="userControl.doLogin();"
-								value="<?php echo $texts[$browserLang]["login"]; ?>" />
+								value="<?php echo T::_("Anmelden"); ?>" />
 							
 							<div id="countdownCertificateLogin" style="float:right;margin-top:20px;width:20px;text-align:right;margin-right:5px;"></div>
 								
@@ -349,7 +329,7 @@ if($_SESSION["S"]->checkIfUserLoggedIn() == false) $_SESSION["CurrentAppPlugins"
 								<label
 									style="float:none;display:inline;font-weight:normal;color:grey;"
 									for="saveLoginData">
-									<?php echo $texts[$browserLang]["save"]; ?>
+									<?php echo T::_("Zugangsdaten speichern"); ?>
 								</label>
 							</div>
 							<div style="padding-top:5px;display:none;" id="doAutoLoginContainer">
@@ -362,7 +342,7 @@ if($_SESSION["S"]->checkIfUserLoggedIn() == false) $_SESSION["CurrentAppPlugins"
 								<label
 									style="float:none;display:inline;font-weight:normal;color:grey;"
 									for="doAutoLogin">
-									<?php echo $texts[$browserLang]["autologin"]; ?>
+									<?php echo T::_("Automatisch anmelden"); ?>
 								</label>
 							</div>
 							<input type="hidden" value="" name="loginSHAPassword" id="loginSHAPassword" />
@@ -424,7 +404,7 @@ if($_SESSION["S"]->checkIfUserLoggedIn() == false) $_SESSION["CurrentAppPlugins"
 					onclick="userControl.doCertificateLogin();"
 					id="buttonCertificateLogin"
 					value=" " 
-					title="Mit Zertifikat anmelden"/>
+					title="<?php echo T::_("Mit Zertifikat anmelden");?>"/>
 				<?php } ?>
 				<?php if(extension_loaded("curl")) { ?>
 				<img
@@ -434,7 +414,7 @@ if($_SESSION["S"]->checkIfUserLoggedIn() == false) $_SESSION["CurrentAppPlugins"
 					onclick="navigator.id.request({siteName: 'phynx'});"
 					id="buttonPersonaLogin"
 					value=" "
-					title="Mit Mozilla Persona anmelden" />
+					title="<?php echo T::_("Mit Mozilla Persona anmelden"); ?>" />
 				<?php } ?>
 			</div>
 		</div>
@@ -542,8 +522,8 @@ if($_SESSION["S"]->checkIfUserLoggedIn() == false) $_SESSION["CurrentAppPlugins"
 							<tr>
 								<td id="wrapperTableTd1">
 									<div id="contentLeft">
-										<p>Sie haben JavaScript nicht aktiviert.<br />
-										Bitte aktivieren Sie JavaScript, damit diese Anwendung funktioniert.</p>
+										<p><?php echo T::_("Sie haben JavaScript nicht aktiviert."); ?><br />
+										<?php echo T::_("Bitte aktivieren Sie JavaScript, damit diese Anwendung funktioniert."); ?></p>
 									</div>
 								</td>
 								<td id="wrapperTableTd2">
@@ -561,8 +541,8 @@ if($_SESSION["S"]->checkIfUserLoggedIn() == false) $_SESSION["CurrentAppPlugins"
 						<tr>
 							<td id="wrapperTableTd1">
 								<div id="contentLeft">
-										<p>Sie haben JavaScript nicht aktiviert.<br />
-										Bitte aktivieren Sie JavaScript, damit diese Anwendung funktioniert.</p>
+										<p><?php echo T::_("Sie haben JavaScript nicht aktiviert."); ?><br />
+										<?php echo T::_("Bitte aktivieren Sie JavaScript, damit diese Anwendung funktioniert."); ?></p>
 								</div>
 							</td>
 							<td id="wrapperTableTd2">
@@ -668,7 +648,7 @@ if($_SESSION["S"]->checkIfUserLoggedIn() == false) $_SESSION["CurrentAppPlugins"
 		</script>
 		
 		<div style="display:none;" id="messageSetup" title="Ersteinrichtung">
-			Bitte verwenden Sie '<b>Admin</b>' als Benutzername und Passwort, um mit der Ersteinrichtung dieser Anwendung fortzufahren.
+			<?php echo T::_("Bitte verwenden Sie '<b>Admin</b>' als Benutzername und Passwort, um mit der Ersteinrichtung dieser Anwendung fortzufahren."); ?>
 		</div>
 	</body>
 </html>

@@ -480,6 +480,10 @@ div + .Tab {
 	padding-left:5px;
 }
 
+#contentLeft .lightTab p {
+	padding:0px;
+}
+
 .desktopButton {
 	cursor:pointer;
 	min-height:80px;

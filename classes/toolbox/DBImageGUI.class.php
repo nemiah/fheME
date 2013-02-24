@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2012, Rainer Furtmeier - Rainer@Furtmeier.de
+ *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
 class DBImageGUI implements iGUIHTML2  {
@@ -25,12 +25,56 @@ class DBImageGUI implements iGUIHTML2  {
 		$this->image = $image;
 	}
 	
+	public static function resizeMax($imageData, $max_width, $max_height){
+		$image = imagecreatefromstring($imageData);
+		
+		$width  = $max_width;
+		$height = $max_height;
+		$width_orig = imagesx($image);
+		$height_orig = imagesy($image);
+		
+		if($width_orig < $width AND $height_orig < $height)
+			return $imageData;
+		
+		$ratio_orig = $width_orig/$height_orig;
+
+		if ($width/$height > $ratio_orig)
+		   $width = floor($height*$ratio_orig);
+		else
+		   $height = floor($width/$ratio_orig);
+		
+		$tempimg = imagecreatetruecolor($width, $height);
+		imagecopyresampled($tempimg, $image, 0, 0, 0, 0, $width, $height, $width_orig, $height_orig);
+		
+		ob_start();
+		imagepng($tempimg);
+		$image_contents = ob_get_contents();
+        ob_end_clean();
+
+		return $image_contents;
+	}
+	
 	protected function stringify($mimeType, $path){
 		return $mimeType.":::".filesize($path).":::".base64_encode(addslashes(file_get_contents($path)));
 	}
 	
-	public static function stringifyS($mimeType, $path){
-		return $mimeType.":::".filesize($path).":::".base64_encode(addslashes(file_get_contents($path)));
+	public static function stringifyS($mimeType, $path, $maxWidth = null, $maxHeight = null){
+		$imageData = file_get_contents($path);
+		$size = filesize($path);
+		
+		if($maxWidth != null){
+			$mimeType = "image/png";
+			$imageData = self::resizeMax($imageData, $maxWidth, $maxHeight);
+			$size = strlen($imageData);
+		}
+		
+		return $mimeType.":::".$size.":::".base64_encode(addslashes($imageData));
+	}
+	
+	public static function getData($imageString){
+		$data = explode(":::",$imageString);
+		
+		return stripslashes(base64_decode($data[2]));
 	}
 	
 	public function loadMe(){

@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2012, Rainer Furtmeier - Rainer@Furtmeier.de
+ *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
 class File extends PersistentObject {
@@ -50,6 +50,16 @@ class File extends PersistentObject {
 		
 		if(strpos(strtolower($this->ID), ".pdf") !== false) 
 			header("Content-Type: application/pdf");
+		
+		if(strpos(strtolower($this->ID), ".jpg") !== false) 
+			header("Content-Type: image/jpg");
+		
+		if(strpos(strtolower($this->ID), ".png") !== false) 
+			header("Content-Type: image/png");
+		
+		if(strpos(strtolower($this->ID), ".gif") !== false) 
+			header("Content-Type: image/gif");
+		
 		header("Content-Disposition: attachment; filename=\"".basename($this->ID)."\"");
 		
 		readfile($this->ID);

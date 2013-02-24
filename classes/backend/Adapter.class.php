@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2012, Rainer Furtmeier - Rainer@Furtmeier.de
+ *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
 class Adapter {
@@ -317,7 +317,8 @@ class Adapter {
 
 		$s = explode(" UND ",$string);
 		for($i = 0; $i< count($s);$i++){
-			for($j = 0;$j<count($fields);$j++){
+			foreach($fields AS $j => $name){
+			#for($j = 0;$j<count($fields);$j++){
 				
 				$this->addSelectStatement("whereFields",$fields[$j]);
 				$this->addSelectStatement("whereOperators", "LIKE");

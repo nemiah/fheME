@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2012, Rainer Furtmeier - Rainer@Furtmeier.de
+ *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class Registry {
 	public static $pointers = array();
@@ -46,6 +46,10 @@ class Registry {
 		return explode("%%", $used);
 	}
 
+	public static function reset($forPlugin){
+		self::$pointers[$forPlugin] = 0;
+	}
+	
 	public static function callNext($forPlugin, $selector = "general", $parameters = array()){
 		if(!isset(self::$pointers[$forPlugin]))
 			self::$pointers[$forPlugin] = 0;

@@ -193,7 +193,9 @@ input, select, textarea, .AJAXUpload {
 
 #contentRight .contentBrowser tr:hover .iconic,
 #contentLeft .contentBrowser tr:hover .iconic,
-.Tab:hover .iconic, #contentScreen tr:hover .iconic, .popup tr:hover .iconic {
+.Tab:hover .iconic, #contentScreen tr:hover .iconic,
+.popup tr:hover .iconic,
+.popupSidePanel tr:hover .iconic {
 	color:#777;
 	border-color:#777;
 	

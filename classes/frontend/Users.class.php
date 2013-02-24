@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2012, Rainer Furtmeier - Rainer@Furtmeier.de
+ *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class Users extends anyC {
 	function __construct(){
@@ -75,8 +75,12 @@ class Users extends anyC {
 
 	private function getAppServerUsers(){
 		$S = Util::getAppServerClient();
+		
+		if(Session::currentUser() == null)
+			throw new Exception("No user logged in!");
 		try {
 			$collection = array();
+			
 			$Users = $S->getUsers(Session::currentUser()->getA());
 			foreach($Users AS $UL){
 				$U = new User($UL->UserID);

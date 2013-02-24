@@ -110,7 +110,7 @@ class htmlMimeMail5 {
 	/**
 	 * Constructor function.
 	 */
-	public function __construct() {
+	public function __construct($senderDomain = "", $skipOwnServer = false) {
 		/**
 		 * Initialise some variables.
 		 */
@@ -173,10 +173,13 @@ class htmlMimeMail5 {
 		$this->headers['X-Mailer'] = 'htmlMimeMail5 <http://www.phpguru.org/>';
 
 		try {
+			$MailServerSet = false;
 			$MailServer = LoginData::get("MailServerUserPass");
 			if ($MailServer != null AND $MailServer->A("server") != "") {
 				$this->default_method = "smtp";
 
+				$MailServerSet = true;
+				
 				$this->smtp_params['host'] = $MailServer->A("server");
 				$this->smtp_params['port'] = 25;
 				#if(isset($xml->Mail->options->helo)) $this->smtp_params['helo'] = $xml->Mail->options->helo["value"]."";
@@ -185,9 +188,33 @@ class htmlMimeMail5 {
 				$this->smtp_params['user'] = $MailServer->A("benutzername");
 				$this->smtp_params['pass'] = $MailServer->A("passwort");
 			}
+				
+			$MailServer = null;
+			for($i = 2; $i <= 5; $i++){
+				if($MailServer == null AND $i > 2)
+					break;
+
+				$MailServer = LoginData::get("MailServer{$i}UserPass");
+				if($MailServer == null OR $MailServer->A("server") == "" OR $MailServer->A("optionen") == "" OR strtolower($MailServer->A("optionen")) != strtolower($senderDomain)) 
+					continue;
+				
+				$MailServerSet = true;
+				
+				$this->smtp_params['host'] = $MailServer->A("server");
+				
+				$this->smtp_params['auth'] = $MailServer->A("benutzername") != "";
+				$this->smtp_params['user'] = $MailServer->A("benutzername");
+				$this->smtp_params['pass'] = $MailServer->A("passwort");
+
+			}
 		} catch (Exception $e) {
-			
+			$MailServer = null;
 		}
+			
+		$CH = Util::getCloudHost();
+		if(!$MailServerSet AND $CH != null AND isset($CH->forceOwnSMTPServer) AND $CH->forceOwnSMTPServer === true AND !$skipOwnServer)
+			throw new Exception("Bitte tragen Sie einen eigenen Mailserver ein, um den zuverlässigen Mailversand in Ihrem Namen zu gewährleisten. Melden Sie sich dazu als Admin-Benutzer am System an und tragen Sie den Mailserver im Cloud-Reiter ein.");
+		
 		/*
 		  $optionsFile = (dirname(__FILE__)."/../../specifics"."/phynxOptions.xml");
 

@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2012, Rainer Furtmeier - Rainer@Furtmeier.de
+ *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class HTMLGUIX {
 
@@ -261,7 +261,7 @@ class HTMLGUIX {
 		$cTest = false;
 		$test = "";
 		foreach ($values AS $v){
-			$test .= ($test != "" ? "OR " : "").((isset($this->types[$fieldName]) AND $this->types[$fieldName] != "checkbox") ? "this.value == '$v'" : "this.checked");
+			$test .= ($test != "" ? " OR " : "").((isset($this->types[$fieldName]) AND $this->types[$fieldName] != "checkbox") ? "this.value == '$v'" : "this.checked");
 
 			if($this->object->A($fieldName) == $v)
 				$cTest = true;
@@ -550,16 +550,16 @@ class HTMLGUIX {
 			$F->setType($n, $l, null, isset($this->options[$n]) ? $this->options[$n] : null);
 		
 		foreach($this->labels AS $n => $l)
-			$F->setLabel($n, $l);
+			$F->setLabel($n, T::_($l));
 
 		foreach($this->descriptionsField AS $n => $l)
-			$F->setDescriptionField($n, $l);
+			$F->setDescriptionField($n, T::_($l));
 
 		foreach($this->parsers AS $n => $l)
 			$F->setType($n, "parser", null, array($l, $this->object));
 
 		foreach($this->spaces AS $n => $l)
-			$F->insertSpaceAbove($n, $l);
+			$F->insertSpaceAbove($n, T::_($l));
 
 		foreach($this->fieldButtons AS $n => $B)
 			$F->addFieldButton($n, $B);
@@ -860,7 +860,9 @@ class HTMLGUIX {
 			case "CRMEditAbove":
 				#$this->features["CRMEditAbove"] = "";
 				$new = "contentManager.loadFrame('subFrameEdit%COLLECTIONNAME', '%CLASSNAME', %CLASSID, 0, '', function(transport) { if($('subFrameEdit%COLLECTIONNAME').style.display == 'none') new Effect.BlindDown('subFrameEdit%COLLECTIONNAME', {duration:0.5}); });";
-
+				if($par1 != null)
+					$new = $par1;
+				
 				$this->GUIFactory->replaceEvent("onNew", $new);
 				$this->GUIFactory->replaceEvent("onDelete", "deleteClass('%CLASSNAME','%CLASSID', function() { contentManager.reloadFrame('contentLeft'); },'Eintrag wirklich löschen?');");
 				$this->GUIFactory->replaceEvent("onEdit", $new);

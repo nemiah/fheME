@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2012, Rainer Furtmeier - Rainer@Furtmeier.de
+ *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 $par = "";
 
@@ -50,7 +50,7 @@ if($met == "getHTML") exit;
 	
 require "../system/connect.php";
 if($cla != "Users" AND $met != "doLogin" AND $_SESSION["S"]->checkIfUserLoggedIn() == true) die("-1");
-if($cla != "Users" AND $cla != "Util" AND $cla != "mUserdata" AND $cla != "mWebsocket" AND $cla != "HTML" AND $met != "doLogin" AND $met != "createMyTable" AND $met != "checkMyTables" AND !$_SESSION["S"]->checkIfUserIsAllowed($cla)) die("You are not allowed to see this Page!");
+if($cla != "Users" AND $cla != "Util" AND $cla != "mUserdata" AND $cla != "mWebsocket" AND $cla != "HTML" AND $cla != "nicEdit" AND $met != "doLogin" AND $met != "createMyTable" AND $met != "checkMyTables" AND !$_SESSION["S"]->checkIfUserIsAllowed($cla)) die("You are not allowed to see this Page!");
 
 if(isset($bps))
 	$_SESSION["BPS"]->setByString($bps);

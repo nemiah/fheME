@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2012, Rainer Furtmeier - Rainer@Furtmeier.de
+ *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
 class DBStorage {
@@ -49,6 +49,14 @@ class DBStorage {
 	 */
 	public function getConnection(){
 		return $this->c;
+	}
+	
+	public static function disconnect(){ //has to be static or new connection will be built in __construct()
+		$status =  self::$globalConnection[__CLASS__]->close();
+
+		self::$globalConnection[__CLASS__] = null;
+
+		return $status;
 	}
 	
 	public function setGetAffectedRowsOnly($bool){

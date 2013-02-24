@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2012, Rainer Furtmeier - Rainer@Furtmeier.de
+ *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class ExtConn {
 	protected $absolutePath;
@@ -118,7 +118,7 @@ class ExtConn {
 		
 		$this->setPaths();
 		
-		if(!isset($_SESSION)) session_start();
+		if(session_id() == "") session_start();
 	
 		if(isset($_SESSION["S"]) AND !is_object($_SESSION["S"]) AND get_class($_SESSION["S"]) != "Session")
 			die($this->getErrorMessage("10"));
@@ -188,9 +188,23 @@ class ExtConn {
 		$this->setMySQLData($Data["host"], $Data["user"], $Data["password"], $Data["datab"]);
 	}
 
+	public function useAdminUser(){
+		$ac = anyC::get("User");
+		$ac->addAssocV3("isAdmin", "=", "1");
+		$ac->setLimitV3("1");
+
+		$u = $ac->getNextEntry();
+
+		if($u == null){
+			$this->errors[] = "100";
+			return false;
+		}
+
+		return $this->login($u->A("username"), $u->A("SHApassword"), true);
+	}
+	
 	public function useUser($username = null){
-		$ac = new anyC();
-		$ac->setCollectionOf("User");
+		$ac = anyC::get("User");
 		if($username != null) $ac->addAssocV3("username", "=", $username);
 		$ac->addAssocV3("isAdmin", "=", "0");
 		$ac->setLimitV3("1");

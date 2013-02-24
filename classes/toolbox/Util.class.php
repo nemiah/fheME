@@ -15,9 +15,13 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2012, Rainer Furtmeier - Rainer@Furtmeier.de
+ *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class Util {
+	public static function ext($filename){
+		return strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+	}
+	
 	public static function filesTree($files){
 
 		$zipDirectories = array();
@@ -232,7 +236,68 @@ class Util {
 				$r .= "{plz}{ort}\n";
 				$r .= "{land}";
 			break;
-				
+			
+			case "LU":
+			case "GR":
+				$r .= "{firma}\n";
+				$r .= "{vorname}{nachname}\n";
+				$r .= "{nr}, {strasse}\n";
+				$r .= "{plz}{ort}\n";
+				$r .= "{land}";
+			break;
+		
+			case "BE":
+				$r .= "{firma}\n";
+				$r .= "{vorname}{nachname}\n";
+				$r .= "{strasse}, {nr}\n";
+				$r .= "{plz}{ort}\n";
+				$r .= "{land}";
+			break;
+		
+			case "DK":
+				$r .= "{firma}\n";
+				$r .= "{vorname}{nachname}\n";
+				$r .= "{strasse}{nr}\n";
+				$r .= "{bezirk}\n";
+				$r .= "{plz}{ort}\n";
+				$r .= "{land}";
+			break;
+			
+			case "HU":
+				$r .= "{firma}\n";
+				$r .= "{vorname}{nachname}\n";
+				$r .= "{ort}\n";
+				$r .= "{strasse}{nr}\n";
+				$r .= "{plz}\n";
+				$r .= "{land}";
+			break;
+		
+			case "LT":
+			case "HR":
+				$r .= "{firma}\n";
+				$r .= "{vorname}{nachname}\n";
+				$r .= "{strasse}{nr}\n";
+				$r .= "$ISOCountry-{plz}{ort}\n";
+				$r .= "{land}";
+			break;
+			
+			case "ES":
+				$r .= "{firma}\n";
+				$r .= "{vorname}{nachname}\n";
+				$r .= "{bezirk}\n";
+				$r .= "{strasse}{nr}\n";
+				$r .= "{plz}{ort}\n";
+				$r .= "{land}";
+			break;
+		
+			case "SK":
+			case "NL":
+			case "FR":
+			case "SI":
+			case "RO":
+			case "CZ":
+			case "PL":
+			case "IT":
 			default:
 				$r .= "{firma}\n";
 				$r .= "{vorname}{nachname}\n";
@@ -411,10 +476,17 @@ class Util {
 		
 		$Sprache = anyC::getFirst("Sprache", "SpracheIdentifier", $language);
 		
-		if($Sprache == null)
-			return 1;
+		$faktor = 1;
+		if($Sprache != null)
+			$faktor = $Sprache->A("SpracheWaehrungFaktor") * 1;
 		
-		return $Sprache->A("SpracheWaehrungFaktor") * 1;
+		if($Sprache == null){
+			$Sprache = anyC::getFirst("Sprache", "CONCAT(SpracheIdentifier, '_', SpracheWaehrung) ", $language);
+			if($Sprache != null)
+				$faktor = $Sprache->A("SpracheWaehrungFaktor") * 1;
+		}
+		
+		return $faktor;
 	}
 	
 	public static function CLFormatCurrency($number, $withSymbol = false){
@@ -720,12 +792,12 @@ class Util {
 		
 			default:
 				return array(
-					"male" => ($lessFormal ? "Hallo" : "Sehr geehrter")." Herr ",
+					"male" => ($lessFormal ? "Hallo" : "Sehr geehrter")." Herr",
 					"maleShort" => "Herr",
-					"female" => ($lessFormal ? "Hallo" : "Sehr geehrte")." Frau ",
+					"female" => ($lessFormal ? "Hallo" : "Sehr geehrte")." Frau",
 					"femaleShort" => "Frau",
 					"unknown" => "Sehr geehrte Damen und Herren",
-					"family" => ($lessFormal ? "Hallo" : "Sehr geehrte")." Familie ",
+					"family" => ($lessFormal ? "Hallo" : "Sehr geehrte")." Familie",
 					"familyShort" => "Familie"
 				);
 		}
@@ -771,6 +843,8 @@ class Util {
 		Aspect::joinPoint("before", null, __METHOD__, $MArgs);
 		// </editor-fold>
 		
+		$languageTag = mb_substr($languageTag, strpos($languageTag, "_") + 1);
+
 		/* array(
 		 * Currency symbol, 
 		 * positive number Format,
@@ -780,27 +854,54 @@ class Util {
 		 * Digit grouping symbol);
 		 */
 		switch($languageTag) {
-			case "de_DE":
+			case "DE":
 				return array("€", "n€", "-n€", ",", 2, ".");
 			break;
-			case "de_DE_EUR":
+		
+			case "DE_EUR":
 				return array(" EUR", "n EUR", "-n EUR", ",", 2, ".");
 			break;
-			case "de_CH":
+		
+			case "CH":
 				return array("SFr.", "SFr. n", "SFr. -n", ".", 2, "'");
 			break;
-			case "de_CH_CHF":
+		
+			case "CH_CHF":
 				return array(" CHF", "CHF n", "CHF -n", ".", 2, "'");
 			break;
-			case "en_US":
+		
+			case "US":
 				return array("$", "\$n", "\$(n)", ".", 2, ",");
 			break;
-			case "en_GB":
+		
+			case "GB":
 				return array("£", "£n", "-£n", ".", 2, ",");
 			break;
-			case "en_NO":
-				return array(" NOK", "n NOK", "-n NOK", ".", 2, ",");
+		
+			case "NO":
+				return array("kr", "kr n", "kr -n", ",", 2, " ");
 			break;
+		
+			case "NO_NOK":
+				return array(" NOK", "n NOK", "-n NOK", ",", 2, " ");
+			break;
+		
+			case "DK":
+				return array("kr.", "kr. n", "kr. -n", ",", 2, ".");
+			break;
+		
+			case "DK_DKK":
+				return array(" DKK", "n DKK", "-n DKK", ",", 2, ".");
+			break;
+		
+			case "SE":
+				return array("kr", "n kr", "-n kr", ",", 2, ".");
+			break;
+		
+			case "SE_SEK":
+				return array(" SEK", "n SEK", "-n SEK", ",", 2, ".");
+			break;
+		
 			default:
 				return array("€", "n€", "-n€", ",", 2, ".");
 			break;
@@ -1053,7 +1154,7 @@ class Util {
 		$filename = str_replace(array("Ç","ç","É","È","Ê","é","è","ê", "ë", "Č"), array("C","c","E","E","E","e","e","e", "e", "C"), $filename);
 		$filename = str_replace(array("Í","Ì","í","ì","Õ","Ô","Ó"), array("I","I","i","i","O","O","O"), $filename);
 		$filename = str_replace(array("õ","ô","ó","Ú","ú"), array("o","o","o","U","u"), $filename);
-    	$filename = str_replace(array(":", "–", "\n", "'", "?", "(", ")", ";", "\"", "+", "<", ">", ","), array("_", "-", "", "", "", "", "", "", "", "", "", "", ""), $filename);
+    	$filename = str_replace(array(":", "–", "\n", "'", "?", "(", ")", ";", "\"", "+", "<", ">", ",", "´", "`"), array("_", "-", "", "", "", "", "", "", "", "", "", "", "", "", ""), $filename);
 		$filename = str_replace(array("__"), array("_"), $filename);
 
 		return $filename;
@@ -1349,7 +1450,7 @@ class Util {
                         // Kompabilitätsmodus: Qualität 1 annehmen
                         $lang_quality = 1.0;
                 }
-
+				
                 // Bis der Sprachcode leer ist...
                 while (count ($lang_code)) {
                         // mal sehen, ob der Sprachcode angeboten wird
@@ -1375,7 +1476,7 @@ class Util {
 
         // die gefundene Sprache zurückgeben
         if($current_lang == "de") $current_lang .= "_DE";
-        if($current_lang == "en") $current_lang .= "_US";
+        if($current_lang == "en") $current_lang .= "_GB";
         if($current_lang == "it") $current_lang .= "_IT";
         
         return $current_lang;

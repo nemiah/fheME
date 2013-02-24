@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2012, Rainer Furtmeier - Rainer@Furtmeier.de
+ *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class AdresseGUI extends Adresse implements /*iFPDF, */iGUIHTML2 {
 	
@@ -125,13 +125,14 @@ class AdresseGUI extends Adresse implements /*iFPDF, */iGUIHTML2 {
 		$gui->setFormID("AdresseForm");
 
 		$fields = array(
-			"AdresseSpracheID",
 			"firma",
 			"position",
 			"anrede",
 			"vorname",
 			"nachname",
+			"AdresseSpracheID",
 			"strasse",
+			"bezirk",
 			/*"nr",*/
 			"zusatz1",
 			#"plz",
@@ -158,9 +159,16 @@ class AdresseGUI extends Adresse implements /*iFPDF, */iGUIHTML2 {
 		$gui->setLabel("bemerkung", "Notizen");
 		
 		if(Session::isPluginLoaded("mSprache")) {
-			$gui->setLabel("AdresseSpracheID","Sprache (Land)");
-			$gui->selectWithCollection("AdresseSpracheID",new mSprache(), "SpracheLandSprache");
-			$gui->insertSpaceAbove("firma");
+			$gui->setLabel("AdresseSpracheID","Sprache");
+			$gui->setLabelDescription("AdresseSpracheID", "und Währung");
+			#$ACS = anyC::get("Sprache");
+			#$S = array();
+			#while($SLW = $ACS->getNextEntry())
+			#	$S[$SLW->getID()] = $SLW->A("SpracheSprache")." "." ".$SLW->A("SpracheWaehrung");
+			$gui->selectWithCollection("AdresseSpracheID", new mSprache(), "SpracheName");
+			#$gui->setType("AdresseSpracheID", "select");
+			#$gui->setOptions("AdresseSpracheID", array_keys($S), array_values($S));
+			#$gui->insertSpaceAbove("firma");
 		} else $gui->setType("AdresseSpracheID","hidden");
 		
 		#$gui->setAttributes($this->A);
@@ -210,10 +218,14 @@ class AdresseGUI extends Adresse implements /*iFPDF, */iGUIHTML2 {
 				$gui->setLineStyle("zusatz1", "display:none;");
 				$gui->setLineStyle("position", "display:none;");
 			}
+			
+			if($this->A("land") != ISO3166::getCountryToCode("DK") AND $this->A("land") != ISO3166::getCountryToCode("ES"))
+				$gui->setLineStyle("bezirk", "display:none;");
+			
 
 			$gui->setLabel("zusatz1", "Zusatz 1");
 			
-			$gui->setInputJSEvent("land", "onchange", "contentManager.toggleFormFields((this.value == '".ISO3166::getCountryToCode("GB")."' || this.value == '".ISO3166::getCountryToCode("US")."' || this.value == '".ISO3166::getCountryToCode("CH")."') ? 'show' : 'hide', ['zusatz1', 'position']);");
+			$gui->setInputJSEvent("land", "onchange", "contentManager.toggleFormFields((this.value == '".ISO3166::getCountryToCode("GB")."' || this.value == '".ISO3166::getCountryToCode("US")."' || this.value == '".ISO3166::getCountryToCode("CH")."') ? 'show' : 'hide', ['zusatz1', 'position']); contentManager.toggleFormFields((this.value == '".ISO3166::getCountryToCode("DK")."' || this.value == '".ISO3166::getCountryToCode("ES")."') ? 'show' : 'hide', ['bezirk']);");
 		}
 
 		if(Session::isPluginLoaded("mGemeinschaft")){
@@ -274,9 +286,17 @@ class AdresseGUI extends Adresse implements /*iFPDF, */iGUIHTML2 {
 	}
 
 	public static function parserStrasse($w, $l, $p){
+		
 		$I1 = new HTMLInput("strasse", "text", $w);
 		$I1->style("width:185px;margin-right:10px;");
 		$I1->id("strasse");
+		
+		if(is_object($p)){
+			if($p instanceof AkquiseGUI)
+				$I1->style("width:170px;margin-right:10px;");
+			
+			$p = $p->A("nr");
+		}
 		
 		$I2 = new HTMLInput("nr", "text", $p);
 		$I2->style("width:50px;text-align:right;");
@@ -286,9 +306,17 @@ class AdresseGUI extends Adresse implements /*iFPDF, */iGUIHTML2 {
 	}
 
 	public static function parserOrt($w, $l, $p){
+		
 		$I1 = new HTMLInput("ort", "text", $w);
 		$I1->style("width:185px;");
 		$I1->id("ort");
+		
+		if(is_object($p)){
+			if($p instanceof AkquiseGUI)
+				$I1->style("width:170px;");
+			
+			$p = $p->A("plz");
+		}
 		
 		$I2 = new HTMLInput("plz", "text", $p);
 		$I2->style("width:50px;text-align:right;margin-right:10px;");

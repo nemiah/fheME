@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2012, Rainer Furtmeier - Rainer@Furtmeier.de
+ *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class HTMLTable extends UnifiedTable implements iUnifiedTable  {
 	private $colStyles = array();
@@ -353,7 +353,7 @@ class HTMLTable extends UnifiedTable implements iUnifiedTable  {
 		".($this->caption != null ? "
 			<div>
 			<div class=\"$tabClass\" $divStyle>
-				<p>$this->caption</p>
+				<p>".T::_($this->caption)."</p>
 			</div></div>" : "");
 		
 		if($this->tab == 1) $R .= "

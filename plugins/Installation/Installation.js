@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2012, Rainer Furtmeier - Rainer@Furtmeier.de
+ *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 /*
 function loadWithHighlighter(folder){
@@ -24,7 +24,7 @@ function loadWithHighlighter(folder){
 	initHighlight($('contentLeft'));
 }*/
 
- function installTable(cl){
+/*function installTable(cl){
 	new Ajax.Request("./interface/rme.php?class="+cl+"&construct=&method=createMyTable&parameters=''", {
 	method: 'get',
 	onSuccess: function(transport) {
@@ -49,12 +49,12 @@ function checkFields(plugin){
 		}
 		if(transport.responseText != "-1") showMessage(transport.responseText+" Feld"+(transport.responseText != "1" ? "er" : "")+" aktualisiert.");
 	}});
-}
+}*/
 
 var Installation = {
 	reloadApp: function() {
 		contentManager.rmePCR("Util", "-1", "reloadApplication", "", function() {
-			location.reload();
+			location.reload(true);
 		});
 	}
 }

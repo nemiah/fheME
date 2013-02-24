@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2012, Rainer Furtmeier - Rainer@Furtmeier.de
+ *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class nicEditGUI {
 	public function editInPopup($formID, $fieldName, $variablesCallback = null){
@@ -28,7 +28,7 @@ class nicEditGUI {
 					<p><small>Sie können folgende Variablen in Ihrem Text verwenden (bitte beachen Sie Groß- und Kleinschreibung):</small></p>
 					<p style=\"margin-top:5px;\" id=\"tinyMCEVars\"></p></div>";
 
-			echo "<div style=\"width:".($variablesCallback != null ? "800" : "1000")."px;\">".$ITA."</div>";
+		echo "<div style=\"width:".($variablesCallback != null ? "800" : "1000")."px;\">".$ITA."</div>";
 		
 		echo OnEvent::script("
 \$j('#nicEditor').val(\$j('#$formID [name=$fieldName]').val().makeHTML());
@@ -37,6 +37,7 @@ setTimeout(function(){
 	new nicEditor({
 		iconsPath : './libraries/nicEdit/nicEditorIconsTiny.gif',
 		buttonList : ['save','bold','italic','underline'],
+		maxHeight : 400,
 
 		onSave : function(content, id, instance) {
 			if(content.substr(0, 3) != '<p ' && content.substr(0, 3) != '<p>')
@@ -46,6 +47,35 @@ setTimeout(function(){
 			".OnEvent::closePopup("nicEdit")."
 		}
 	}).panelInstance('nicEditor');".($variablesCallback != null ? "$variablesCallback();" : "")."}, 100);");
+	}
+	
+	public function openInPopup($className, $classID, $fieldName){
+		$C = new $className($classID);
+		
+		$ITA = new HTMLInput("nicEditor", "textarea");
+		$ITA->id("nicEditor");
+		$ITA->style("width:998px;height:300px;");
+		
+		echo $ITA;
+		
+		echo OnEvent::script("
+\$j('#nicEditor').val('".addslashes($C->A($fieldName))."'.makeHTML());
+
+setTimeout(function(){
+	new nicEditor({
+		iconsPath : './libraries/nicEdit/nicEditorIconsTiny.gif',
+		buttonList : ['save','bold','italic','underline'],
+		maxHeight : 400,
+
+		onSave : function(content, id, instance) {
+			if(content.substr(0, 3) != '<p ' && content.substr(0, 3) != '<p>')
+				content = '<p>'+content+'</p>';
+			
+			".OnEvent::rme($C, "saveMultiEditField", array("'$fieldName'", "content.replace(/<br>/g, '<br />')"))."
+
+			".OnEvent::closePopup("nicEdit")."
+		}
+	}).panelInstance('nicEditor');}, 100);");
 	}
 }#nicEditors.findEditor('nicEditor').nicCommand('insertHTML', 'test' );
 ?>

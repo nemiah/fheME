@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2012, Rainer Furtmeier - Rainer@Furtmeier.de
+ *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class UtilGUI extends Util {
 	function __construct($nonSense = ""){}
@@ -95,6 +95,8 @@ class UtilGUI extends Util {
 		
 		$BGo = new Button("E-Mail\nsenden","okCatch");
 		$BGo->style("float:right;margin-top:10px;");
+		if(strpos($data["body"], "<p") !== false)
+		$BGo->doBefore("nicEditors.findEditor('EMailBody$dataClassID').saveContent(); %AFTER");
 		$BGo->rmePCR($dataClass, $dataClassID, "sendEmail", array("$('EMailSubject$dataClassID').value", "$('EMailBody$dataClassID').value", (is_array($data["recipients"]) AND count($data["recipients"]) == 1) ? "0" : "$('EMailRecipient$dataClassID').value", "'".$callbackParameter."'"), $onSuccessFunction);
 		#$BGo->onclick("CloudKunde.directMail('$this->ID', '$data[recipientAddress]', $('EMailSubject$this->ID').value, $('EMailBody$this->ID').value); ");
 
@@ -111,7 +113,7 @@ class UtilGUI extends Util {
 			new nicEditor({
 				iconsPath : './libraries/nicEdit/nicEditorIconsTiny.gif',
 				buttonList : ['bold','italic','underline'],
-
+				maxHeight : 400
 			}).panelInstance('EMailBody$dataClassID');}, 100);");
 	}
 

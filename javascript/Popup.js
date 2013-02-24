@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2012, Rainer Furtmeier - Rainer@Furtmeier.de
+ *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 var Popup = {
 	windowsOpen: 0,
@@ -77,14 +77,14 @@ var Popup = {
 		}
 	
 		if($j('#'+targetPluginContainer+'SidePanel').length == 0){
-			$j('#windows').append('<div id="'+targetPluginContainer+'SidePanel" style="display:none;top:'+($j("#"+targetPluginContainer).position().top + 10)+'px;left:'+($j("#"+targetPluginContainer).position().left+  $j("#"+targetPluginContainer).width())+'px;" class="backgroundColor0 borderColor1 popupSidePanel"></div>');
+			$j('#windows').append('<div id="'+targetPluginContainer+'SidePanel" style="display:none;top:'+($j("#"+targetPluginContainer).position().top - $j(window).scrollTop() + 10)+'px;left:'+($j("#"+targetPluginContainer).position().left+  $j("#"+targetPluginContainer).width())+'px;" class="backgroundColor0 borderColor1 popupSidePanel"></div>');
 
 			$j("#"+targetPluginContainer).bind("dragstart", function(event, ui) {
 				$j('#'+targetPluginContainer+'SidePanel').fadeOut();
 			});
 
 			$j("#"+targetPluginContainer).bind("dragstop", function(event, ui) {
-				$j('#'+targetPluginContainer+'SidePanel').css({top: $j("#"+targetPluginContainer).position().top + 10, left: $j("#"+targetPluginContainer).position().left + $j("#"+targetPluginContainer).width()}).fadeIn();
+				$j('#'+targetPluginContainer+'SidePanel').css({top: $j("#"+targetPluginContainer).position().top - $j(window).scrollTop() + 10, left: $j("#"+targetPluginContainer).position().left + $j("#"+targetPluginContainer).width()}).fadeIn();
 			});
 		}
 		//$j("#"+targetPluginContainer).bind("DOMNodeRemoved", function(event, ui) {
@@ -178,6 +178,8 @@ var Popup = {
 			right = null;
 			left = pos.left;
 			top = pos.top;
+			if(top > $j(window).height() - 40)
+				top = 20;
 		}
 		
 		var element = Builder.node(
@@ -201,6 +203,7 @@ var Popup = {
 		//new Draggable($(type+'Details'+ID), {handle: $(type+'DetailsHandler'+ID)});
 		$j("#"+type+'Details'+ID).draggable({
 			handle: $j('#'+type+'DetailsHandler'+ID),
+			containment: "window",
 			start: function(){
 				$j('#'+type+'DetailsContentWrapper'+ID).css('height', $j('#'+type+'DetailsContent'+ID).height());
 				$j('#'+type+'DetailsContent'+ID).fadeOut("fast");

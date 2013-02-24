@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2012, Rainer Furtmeier - Rainer@Furtmeier.de
+ *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class HTMLForm {
 	protected $id;
@@ -49,7 +49,8 @@ class HTMLForm {
 	protected $onBlur = array();
 	protected $onKeyup = array();
 	protected $onFocus = array();
-	
+	protected $useRecentlyChanged = false;
+			
 	private $spaces;
 	private $spaceLines;
 
@@ -199,6 +200,10 @@ class HTMLForm {
 		$this->onSubmit = null;
 		$this->buttons = array();
 	}
+	
+	public function useRecentlyChanged(){
+		$this->useRecentlyChanged = true;
+	}
 
 	public function hasFormTag($bool){
 		$this->formTag = $bool;
@@ -284,7 +289,7 @@ class HTMLForm {
 		if($onSuccessFunction != null AND strpos($onSuccessFunction, "function(") !== 0)
 			$onSuccessFunction = "function(transport){ $onSuccessFunction }";
 		
-		$values = "JSON.stringify(contentManager.formContent('$this->id'))";
+		$values = "encodeURIComponent(JSON.stringify(contentManager.formContent('$this->id')))";
 		#$allFields = "JSON.stringify(\$j('#$this->id input, #$this->id select, #$this->id textarea').toArray())";
 		$this->saveButtonSubmit = "contentManager.rmePCR('$targetClass', '$targetClassId', '$targetMethod', $values ".($onSuccessFunction != null ? ", $onSuccessFunction" : "").");";
 		$this->onSubmit = $this->saveButtonSubmit."return false;";
@@ -295,6 +300,10 @@ class HTMLForm {
 		$this->saveButtonLabel = $saveButtonLabel;
 		$this->saveButtonBGIcon = $saveButtonBGIcon;
 
+		if($this->useRecentlyChanged)
+			$onSuccessFunction .= "\$j('#$this->id .recentlyChanged').removeClass('recentlyChanged');";
+		
+		
 		if($onSuccessFunction != null AND strpos($onSuccessFunction, "function(") !== 0)
 			$onSuccessFunction = "function(transport){ $onSuccessFunction }";
 		
@@ -698,7 +707,7 @@ class HTMLForm {
 		if($this->formTag) $html .= "
 	</form>";
 
-		return $html;
+		return $html.($this->useRecentlyChanged ? GUIFactory::editFormOnchangeTest($this->id) : "");
 	}
 
 	public function getHTML(){

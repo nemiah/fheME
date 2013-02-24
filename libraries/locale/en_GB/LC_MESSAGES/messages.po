@@ -1,0 +1,65 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: phynx\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: Rainer Furtmeier <Rainer@Furtmeier.IT>\n"
+"Language-Team: ENGLISH <Support@Furtmeier.IT>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: English\n"
+"X-Poedit-Country: UNITED KINGDOM\n"
+"X-Poedit-SourceCharset: utf-8\n"
+
+msgid "Neue Nachricht"
+msgstr "New message"
+
+msgid "Benutzername"
+msgstr "Username"
+
+msgid "Passwort"
+msgstr "Password"
+
+msgid "Optionen anzeigen"
+msgstr "show options"
+
+msgid "Passwort vergessen?"
+msgstr "Lost password?"
+
+msgid "Anwendung"
+msgstr "Application"
+
+msgid "Anmelden"
+msgstr "login"
+
+msgid "Sprache"
+msgstr "Language"
+
+msgid "Zugangsdaten speichern"
+msgstr "save login data"
+
+msgid "Automatisch anmelden"
+msgstr "automatic login"
+
+msgid "Mit Zertifikat anmelden"
+msgstr "Login with certificate"
+
+msgid "Mit Mozilla Persona anmelden"
+msgstr "Login with Mozilla Persona"
+
+msgid "Sie haben JavaScript nicht aktiviert."
+msgstr "You do not have activated JavaScript."
+
+msgid "Bitte aktivieren Sie JavaScript, damit diese Anwendung funktioniert."
+msgstr "Please activate JavaScript to run this application."
+
+msgid "Bitte verwenden Sie '<b>Admin</b>' als Benutzername und Passwort, um mit der Ersteinrichtung dieser Anwendung fortzufahren."
+msgstr "Please use '<b>Admin</b>' as username and password to continue setting up this application."
+
+msgid "Unternehmenssoftware"
+msgstr "Business software"
+
+msgid "von Furtmeier Hard- und Software"
+msgstr "by Furtmeier Hard- und Software"
+

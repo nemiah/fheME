@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2012, Rainer Furtmeier - Rainer@Furtmeier.de
+ *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class AppPlugins {
 	private $folders = array();
@@ -82,6 +82,8 @@ class AppPlugins {
 
 		#$allowedPlugins = "noSaaS";
 		$allowedPlugins = Environment::getS("allowedPlugins", array());
+		$extraPlugins = Environment::getS("pluginsExtra", array());
+		$allowedPlugins = array_merge($allowedPlugins, $extraPlugins);
 		#print_r($allowedPlugins);
 		/*if($folder != "plugins" AND $_SERVER["HTTP_HOST"] != "dev.furtmeier.lan"){
 			try {
@@ -219,10 +221,16 @@ class AppPlugins {
 				}
 				
 				if($f[1] == "xml"){
-					$path = "./$folder/".$c->registerFolder()."/".$c->registerClassName().".class.php";
-					if(file_exists($path))
-					require_once $path;
-					elseif(file_exists(".".$path)) require_once ".".$path;
+					$fld = $c->registerFolder();
+					if(!is_array($fld))
+						$fld = array($fld);
+					
+					foreach($fld AS $folderName){
+						$path = "./$folder/$folderName/".$c->registerClassName().".class.php";
+						if(file_exists($path))
+						require_once $path;
+						elseif(file_exists(".".$path)) require_once ".".$path;
+					}
 				}
 				
 				if($appFolder == null) $c->doSomethingElse();

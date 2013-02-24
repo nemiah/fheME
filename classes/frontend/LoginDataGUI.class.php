@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2012, Rainer Furtmeier - Rainer@Furtmeier.de
+ *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class LoginDataGUI extends LoginData implements iGUIHTML2 {
 	function getHTML($id){
@@ -95,7 +95,7 @@ class LoginDataGUI extends LoginData implements iGUIHTML2 {
 			$BAbort->onclick("Popup.close('LoginData', 'edit');");
 			$BAbort->style("float:right;");
 			
-			$html = "<p style=\"padding:5px;\">{$BAbort}<small>Sie müssen hier nur Einstellungen vornehmen, wenn Sie diese Anwendung lokal auf einem Windows-Rechner betreiben oder direkt über einen SMTP-Server versenden möchten (z.B. Newsletter).</small></p>";
+			$html = "<p style=\"padding:5px;\">{$BAbort}<small>Sie müssen hier nur Einstellungen vornehmen, wenn Sie diese Anwendung lokal auf einem Windows-Rechner betreiben oder direkt über einen SMTP-Server versenden möchten (z.B. Newsletter). Es kann auch notwendig sein, die E-Mail über den korrekten Server zu schicken, um die Ankunft beim Empfänger sicherzustellen.</small></p>";
 
 			$gui->type("UserID", "hidden");
 			$this->changeA("UserID", "-1");
@@ -105,6 +105,45 @@ class LoginDataGUI extends LoginData implements iGUIHTML2 {
 
 			$gui->type("optionen", "hidden");
 		}
+		
+		if($bps != -1 AND isset($bps["preset"]) AND $bps["preset"] == "jabberServer"){
+			$BAbort = new Button("Abbrechen", "stop");
+			$BAbort->onclick("Popup.close('LoginData', 'edit');");
+			$BAbort->style("float:right;");
+			
+			#$html = "<p style=\"padding:5px;\">{$BAbort}<small>Sie müssen hier nur Einstellungen vornehmen, wenn Sie diese Anwendung lokal auf einem Windows-Rechner betreiben oder direkt über einen SMTP-Server versenden möchten (z.B. Newsletter). Es kann auch notwendig sein, die E-Mail über den korrekten Server zu schicken, um die Ankunft beim Empfänger sicherzustellen.</small></p>";
+
+			$gui->type("UserID", "hidden");
+			$this->changeA("UserID", "-1");
+
+			$gui->type("name", "hidden");
+			$this->changeA("name", "JabberServerUserPass");
+
+			$gui->type("optionen", "hidden");
+		}
+		
+		if($bps != -1 AND isset($bps["preset"]) AND strpos($bps["preset"], "mailServerAdditional") !== false){
+			$Nr = str_replace("mailServerAdditional", "", $bps["preset"]);
+			
+			$BAbort = new Button("Abbrechen", "stop");
+			$BAbort->onclick("Popup.close('LoginData', 'edit');");
+			$BAbort->style("float:right;");
+			
+			$html = "<p style=\"padding:5px;\">{$BAbort}<small>Sie müssen hier nur Einstellungen vornehmen, wenn eine Absender-Domain nicht über den Standard-Mailserver verschickt werden kann.</small></p>";
+
+			$gui->type("UserID", "hidden");
+			$this->changeA("UserID", "-1");
+
+			$gui->type("name", "hidden");
+			$this->changeA("name", "MailServer{$Nr}UserPass");
+
+			$gui->label("optionen", "Absender-Domain");
+			
+			$onSave .= OnEvent::reloadPopup("mInstallation");
+			
+			#$gui->type("optionen", "hidden");
+		}
+		
 		
 		if($bps != -1 AND isset($bps["preset"]) AND ($bps["preset"] == "remoteMailServer1" OR $bps["preset"] == "remoteMailServer2" OR $bps["preset"] == "remoteMailServer3")){
 			$gui->type("UserID", "hidden");

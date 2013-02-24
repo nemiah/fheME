@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2012, Rainer Furtmeier - Rainer@Furtmeier.de
+ *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class mUserdata extends anyC {
 	function __construct() {
@@ -199,7 +199,7 @@ class mUserdata extends anyC {
 	}
 
 	public function setUserdata($name, $wert, $typ = "", $UserID = 0, $echoSaved = false){
-		if($UserID  != 0 AND $_SESSION["S"]->isUserAdmin() == "0"){
+		if($UserID  > 0 AND $_SESSION["S"]->isUserAdmin() == "0"){
 			echo "Only an admin-user can change Userdata of other users!";
 			exit();
 		}
@@ -242,7 +242,7 @@ class mUserdata extends anyC {
 		$UD->addAssocV3("UserID","=",$_SESSION["S"]->getCurrentUser()->getID());
 		$sUD = $UD->getNextEntry();
 		if($sUD != null)
-			die("Action not<br />allowed!");
+			Red::errorD("Diese Aktion ist nicht erlaubt!");
 	}
 	
 	public static function isDisallowedTo($restriction){

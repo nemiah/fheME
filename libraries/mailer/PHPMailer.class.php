@@ -368,23 +368,53 @@ class PHPMailer {
 	 * Constructor
 	 * @param boolean $exceptions Should we throw external exceptions?
 	 */
-	public function __construct($exceptions = false) {
+	public function __construct($exceptions = false, $senderDomain = "") {
 		$this->exceptions = ($exceptions == true);
 		$this->PluginDir = dirname(__FILE__)."/";
 		
 		try {
+			$MailServerSet = false;
 			$MailServer = LoginData::get("MailServerUserPass");
 			if ($MailServer != null AND $MailServer->A("server") != "") {
 				$this->IsSMTP();
+				$MailServerSet = true;
+				
 				$this->Host = $MailServer->A("server");
 				
-				$mail->SMTPAuth = $MailServer->A("benutzername") != "";
-				$mail->Username = $MailServer->A("benutzername");
-				$mail->Password = $MailServer->A("passwort");
+				
+				$this->SMTPAuth = $MailServer->A("benutzername") != "";
+				$this->Username = $MailServer->A("benutzername");
+				$this->Password = $MailServer->A("passwort");
 			}
-		} catch (Exception $e) {
 			
+			$MailServer = null;
+			for($i = 2; $i <= 5; $i++){
+				if($MailServer == null AND $i > 2)
+					break;
+
+				$MailServer = LoginData::get("MailServer{$i}UserPass");
+				if($MailServer == null OR $MailServer->A("server") == "" OR $MailServer->A("optionen") == "" OR strtolower($MailServer->A("optionen")) != strtolower($senderDomain)) 
+					continue;
+				
+				$this->IsSMTP();
+				$MailServerSet = true;
+				
+				$this->Host = $MailServer->A("server");
+				
+				$this->SMTPAuth = $MailServer->A("benutzername") != "";
+				$this->Username = $MailServer->A("benutzername");
+				$this->Password = $MailServer->A("passwort");
+
+			}
+			
+		} catch (Exception $e) {
+			$MailServer = null;
 		}
+		
+		$CH = Util::getCloudHost();
+		if(!$MailServerSet AND $CH != null AND isset($CH->forceOwnSMTPServer) AND $CH->forceOwnSMTPServer === true)
+			throw new Exception("Bitte tragen Sie einen eigenen Mailserver ein, um den zuverlässigen Mailversand in Ihrem Namen zu gewährleisten. Melden Sie sich dazu als Admin-Benutzer am System an und tragen Sie den Mailserver im Cloud-Reiter ein.");
+		
 	}
 
 	/**

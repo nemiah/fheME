@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2012, Rainer Furtmeier - Rainer@Furtmeier.de
+ *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class mAdresseGUI extends AdressenGUI {
 	//This class exists for compatibility reasons (autocomplete)!
@@ -27,7 +27,7 @@ class mAdresseGUI extends AdressenGUI {
 		
 		$tab = "";
 		if(Session::isPluginLoaded("mAdressBuch") AND $id == -1)
-			$tab = mAdressBuchGUI::getSelectionMenu($this, $frame);
+			$tab = mAdressBuchGUI::getSelectionMenu($this, $frame, false, true);
 		
 		$gui->displayGroup("KategorieID", "AdressenGUI::DGParser");
 		$gui->options(true, true, true, true);

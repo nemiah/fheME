@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2012, Rainer Furtmeier - Rainer@Furtmeier.de
+ *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class mInstallationGUI extends mInstallation implements iGUIHTML2 {
 
@@ -24,20 +24,33 @@ class mInstallationGUI extends mInstallation implements iGUIHTML2 {
 	}*/
 	
 	function getHTML($id){
-		$showHelp = true;
+		#$showHelp = true;
 
 		if($this->collector == null) $this->lCV3($id);
 		$singularLanguageClass = $this->loadLanguageClass("Installation");
 		$text = $singularLanguageClass != null ? $singularLanguageClass->getText() : "";
 		
-		$t = new HTMLTable(1);
+		
+		if($id == -1)
+			echo OnEvent::script(OnEvent::rme($this, "getActions", "", "function(transport){ contentManager.contentBelow(transport.responseText); }"));
+		
+		
+		
+		$hasDBConnection = false;
+		try {
+			mUserdata::getGlobalSettingValue("DBVersion", false);
+			$hasDBConnection = true;
+		} catch(Exception $e){}
 		
 		$g = "";
 		$DBFilePath = Util::getRootPath()."system/DBData/Installation.pfdb.php";
 		$writable = new HTMLTable(1);
 		$File = new File($DBFilePath);
 		$File->loadMe();
-		if(!$File->getA()->FileIsWritable){
+		if(!$File->A("FileIsWritable") AND !$hasDBConnection)
+			return;
+		
+		if(!$File->A("FileIsWritable")){
 			$writable->addRow("<img src=\"./images/navi/restrictions.png\" style=\"float:left;margin-right:10px;\"/>Die Datei ".$DBFilePath." ist nicht beschreibbar, Änderungen können nicht gespeichert werden.<br /><br />Machen Sie die Datei mit einem FTP-Programm beschreibbar. Klicken Sie dazu mit der rechten Maustaste auf die Datei auf dem Server, wählen Sie \"Eigenschaften\", und geben Sie den Modus 666 an, damit sie durch den Besitzer, die Gruppe und alle Anderen les- und schreibbar ist.");
 			$g .= $writable->getHTML();
 		}
@@ -70,21 +83,59 @@ class mInstallationGUI extends mInstallation implements iGUIHTML2 {
 		#	$t->addRow(array("<span style=\"font-size:8px;\">".nl2br(str_replace("#","\n#", $e->getTraceAsString()))."</span>"));
 		#}
 
-			$help = "
+		/*	$help = "
 	<script type=\"text/javascript\">
 		contentManager.rmePCR('mInstallation','','getHelp','true','if(checkResponse(transport)) { Popup.create(\'123\', \'Installation\', \'Hilfe\'); Popup.update(transport, \'123\', \'Installation\'); }');
-	</script>";
+	</script>";*/
 
+		$ST = new HTMLSideTable("left");
+		
+		try {
+			#$MailServer = LoginData::get("MailServerUserPass");
+
+			#$MailServerID = $MailServer == null ? -1 : $MailServer->getID();
+			$BMail = $ST->addButton("Mail-Server", "./plugins/Installation/serverMail.png");
+			#$BMail->popup("edit", "Mail-Server", "LoginData", $MailServerID, "getPopup", "", "LoginDataGUI;preset:mailServer");
+			$BMail->popup("edit", "Mail-Server", "mInstallation", -1, "manageMailservers");
+
+			$BTestMail = $ST->addButton("Mailversand\ntesten", "mail");
+			$BTestMail->popup("mailTest", "Mailversand testen", "mInstallation", "-1", "testMailGUI");
+			
+			if(Session::isPluginLoaded("mJabber")){
+				$JabberServer = LoginData::get("JabberServerUserPass");
+				$JabberServerID = $JabberServer == null ? -1 : $JabberServer->getID();
+				
+				$BJabber = $ST->addButton("Jabber-Server", "./plugins/Installation/serverMail.png");
+				$BJabber->popup("edit", "Jabber-Server", "LoginData", $JabberServerID, "getPopup", "", "LoginDataGUI;preset:jabberServer");
+			}
+			
+			$BackupButton = $ST->addButton("Daten-\nsicherungen","disk");
+			$BackupButton->onclick("contentManager.loadFrame('contentLeft','BackupManager');");
+		} catch(Exception $e){}
+		
+		return $ST.$g;#.$t->getHTML();
+			
+			
+		$t = new HTMLTable(1);
 		try {
 			$user = new User(1);
 			$user->loadMe();
 		}
 		catch (DatabaseNotSelectedException $e) {
-			$t->addRow(isset($text["noDatabase"]) ? $text["noDatabase"] : "Es wurde kein korrekter Datenbankname angegeben.<br /><br />Bitte geben Sie eine existierende Datenbank an, sie wird nicht automatisch erzeugt.");
-			return $g.$t->getHTML().$help;
+			if(BPS::getProperty("mInstallationGUI", "showErrorText", false)){
+				$t->addRow(isset($text["noDatabase"]) ? $text["noDatabase"] : "Es wurde kein korrekter Datenbankname angegeben.<br /><br />Bitte geben Sie eine existierende Datenbank an, sie wird nicht automatisch erzeugt.");
+				$t->addRowClass("backgroundColor0");
+				$t->addRowStyle("color:red;");
+			}
+			
+			return $g.$t->getHTML();#.$help;
 		}
 		catch (NoDBUserDataException $e) { 
-			$t->addRow(isset($text["wrongData"]) ? $text["wrongData"] : "Mit den angegebenen Datenbank-Zugangsdaten kann keine Verbindung aufgebaut werden.<br /><br />Wenn sie korrekt sind, wird hier eine Liste der Plugins angezeigt.");
+			if(BPS::getProperty("mInstallationGUI", "showErrorText", false)){
+				$t->addRow(isset($text["wrongData"]) ? $text["wrongData"] : "Mit den angegebenen Datenbank-Zugangsdaten kann keine Verbindung aufgebaut werden.<br /><br />Wenn sie korrekt sind, werden hier weitere Möglichkeiten angezeigt angezeigt.");
+				$t->addRowClass("backgroundColor0");
+				$t->addRowStyle("color:red;");
+			}
 			
 			if(PHYNX_MAIN_STORAGE == "MySQL") {
 				try {
@@ -115,21 +166,19 @@ class mInstallationGUI extends mInstallation implements iGUIHTML2 {
 				}
 			}
 			
-			return $g.$t->getHTML().$help;
+			return $g.$t->getHTML();#.$help;
 		}
-		catch (DatabaseNotFoundException $e) {
-			$t->addRow(isset($text["noDatabase"]) ? $text["noDatabase"] : "Es wurde kein korrekter Datenbankname angegeben.<br /><br />Bitte geben Sie eine existierende Datenbank an, sie wird nicht automatisch erzeugt.");
-			return $g.$t->getHTML().$help;
-		}
+		
 		catch (TableDoesNotExistException $e) {}
 		catch (StorageException $e) {}
 
-			$help = "
+			/*$help = "
 	<script type=\"text/javascript\">
 		rme('mInstallation','','getHelp','false','if(checkResponse(transport)) { Popup.create(\'123\', \'Installation\', \'Hilfe\'); Popup.update(transport, \'123\', \'Installation\'); }');
-	</script>";
+	</script>";*/
 
-		if($id == -1) {
+			
+		/*if(false AND $id == -1) {
 			$BackupTab = new HTMLTable(1);
 
 			$BackupButton = new Button("Backup-\nManager","disk");
@@ -181,10 +230,6 @@ class mInstallationGUI extends mInstallation implements iGUIHTML2 {
 				}
 				if($key == "CIs") continue;
 				
-				/*$e = explode(", ",$_SESSION["CurrentAppPlugins"]->getDepsOfPlugin($key));
-				for($i=0;$i<count($e);$i++) 
-					if($e[$i] != "none") 
-						$e[$i] = (($p[$e[$i]] != -1) ? $p[$e[$i]] : $e[$i]);*/
 
 				if($c->checkIfMyTableExists() AND $c->checkIfMyDBFileExists()) $showHelp = false;
 
@@ -200,59 +245,214 @@ class mInstallationGUI extends mInstallation implements iGUIHTML2 {
 
 			$g .= "
 	</table>";
-		}
-		$showHelp = false;
-		if(!$showHelp)
-			$help = "";
+		}*/
+		#$showHelp = false;
+		#if(!$showHelp)
+		#	$help = OnEvent::script(OnEvent::closePopup("123", "Installation"));
 
-		$ST = new HTMLSideTable("left");
-		
-		try {
-			$BTestMail = $ST->addButton("Mailversand\ntesten", "mail");
-			$BTestMail->popup("mailTest", "Mailversand testen", "mInstallation", "-1", "testMailGUI");
 
-			$MailServer = LoginData::get("MailServerUserPass");
-			$MailServerID = $MailServer == null ? -1 : $MailServer->getID();
-			$BMail = $ST->addButton("Mail-Server\neintragen", "./plugins/Installation/serverMail.png");
-			$BMail->popup("edit", "Mail-Server", "LoginData", $MailServerID, "getPopup", "", "LoginDataGUI;preset:mailServer");
-		} catch(Exception $e){}
-
-		return (!$showHelp ? $ST : "").$g.$help;
+		return $ST.$g;#.$help;
 	}
 	
-	public function getHelp($loadInstallation = "false"){
+	public function manageMailservers(){
+		$MailServer = LoginData::get("MailServerUserPass");
+
+		$MailServerID = $MailServer == null ? -1 : $MailServer->getID();
+		$BMail = new Button("Standard", "./plugins/Installation/serverMail.png");
+		$BMail->popup("edit", "Mail-Server", "LoginData", $MailServerID, "getPopup", "", "LoginDataGUI;preset:mailServer");
+		$BMail->style("margin:10px;float:left;");
+		
+		echo $BMail."<p><small style=\"color:grey;\">Über diesen Server werden alle Mails verschickt, wenn weiter unten kein eigener Server für eine Absender-Domain eingetragen wird.</small></p>";
+		
+		echo "<div style=\"clear:both;height:30px;\"></div><div class=\"Tab backgroundColor1\"><p>Weitere Mailserver</p></div>";
+			
+		echo "<p><small style=\"color:grey;\">Erfassen Sie einen zusätzlichen Server für eine bestimmte Absender-Domain, wenn der Standard-Server diese nicht verschicken kann.</small></p>";
+		echo "<p><small style=\"color:grey;\">Ein Beispiel: Sie möchten E-Mails verschicken von den Adressen max.mustermann@<strong>gmx.de</strong> und erika.hatnachname@<strong>web.de</strong>. Über GMX können Sie die web.de-Mails nicht verschicken und web.de verschickt die GMX-E-Mails ebenfalls nicht. Sie müssen daher für jeden Anbieter seinen eigenen Server eintragen.</small></p>";
+		
+		$MailServer = 1;
+		for($i = 2; $i <= 5; $i++){
+			if($MailServer == null)
+				break;
+			
+			$MailServer = LoginData::get("MailServer{$i}UserPass");
+
+			$MailServerID = $MailServer == null ? -1 : $MailServer->getID();
+			$BMail = new Button("Server $i", "./plugins/Installation/serverMail.png");
+			$BMail->popup("edit", "Mail-Server", "LoginData", $MailServerID, "getPopup", "", "LoginDataGUI;preset:mailServerAdditional$i");
+			$BMail->style("margin:10px;display:inline-block;");
+
+			echo $BMail;
+			
+			if($MailServer != null)
+				echo $MailServer->A("optionen");
+			
+			echo "<br />";
+
+		}
+		
+		echo "<div style=\"clear:both;\"></div>";
+	}
+	
+	public function getActions(){
 		$DBFilePath = Util::getRootPath()."system/DBData/Installation.pfdb.php";
 		$File = new File($DBFilePath);
 		$File->loadMe();
 		
+		$ASetup = "contentManager.loadPlugin('contentRight', 'mInstallation');";
+
+		$B = new Button("Erneut prüfen", "./plugins/Installation/recheck.png", "icon");
+		$B->onclick($ASetup);
+		$B->id("recheckButton");
 		
-		$BH = new Button("Hilfe","hilfe");
-		$BH->style("float: left; margin-right: 10px;");
-		$BH->type("icon");
+		$hasDBConnection = false;
+		try {
+			$Version = mUserdata::getGlobalSettingValue("DBVersion", false);
+			$hasDBConnection = true;
+		} catch(Exception $e){}
+		
+		if(!$File->A("FileIsWritable") AND !$hasDBConnection){
+			$message = "<p style=\"padding:20px;font-size:20px;color:#555;text-align:center;\">".$_SESSION["applications"]->getActiveApplication()." ist auf diesem Server noch nicht installiert.</p>";
+			$html = "<div style=\"width:600px;margin:auto;line-height:1.5;\">
+				<p>
+				<img src=\"./images/navi/restrictions.png\" style=\"float:left;margin-right:10px;\"/>
+				Die Datei <code>/system/DBData/Installation.pfdb.php</code> ist <b>nicht beschreibbar</b>.</p>
+				
+				<p style=\"margin-top:20px;\">Machen Sie die Datei mit einem FTP-Programm beschreibbar.<br />
+				Klicken Sie dazu mit der rechten Maustaste auf die Datei auf dem Server, wählen Sie <b>\"Eigenschaften\"</b>, und geben Sie den Modus <b>666</b> an, damit sie durch den Besitzer, die Gruppe und alle Anderen les- und beschreibbar ist.</p>
+				<div style=\"width:350px;margin:auto;padding-top:20px;padding-bottom:20px;\">
+				".$this->box($B, $ASetup, "Erneut<br />prüfen")."
+				</div>
+			</div>";
+			die($message.$html);
+		}
+		
+		$containers = 0;
+		$message = "";
+		$html = "";
+		$hidden = "<a class=\"hiddenLink\" href=\"#\" onclick=\"".OnEvent::popup("Fehlerausgabe", "mInstallation", "-1", "updateAllTables", array("'1'"))."return false;\">&nbsp;</a>";
+		
+		try {
+			$Version = mUserdata::getGlobalSettingValue("DBVersion", false);
+			
+			if($Version !== false AND $Version == Phynx::build()){
+				$message = "<p style=\"padding:20px;font-size:20px;color:#555;text-align:center;\">Ihre Datenbank ist auf dem aktuellen Stand.$hidden</p>";
+			}
+			
+			if($Version === false OR $Version != Phynx::build()){
+				$message = "<p style=\"padding:10px;font-size:20px;color:#555;margin-bottom:40px;text-align:center;\">Ihre Datenbank muss aktualisiert werden.</p>";
+				
+				$ASetup = "\$j('#updateButton').attr('src', './plugins/Installation/bigLoader.png'); ".OnEvent::rme($this, "updateAllTables", "", "function(transport){ contentManager.contentBelow(transport.responseText); }");
 
-		$BReload = new Button("Ansicht\naktualisieren","refresh");
-		$BReload->onclick("contentManager.emptyFrame('contentLeft'); contentManager.loadFrame('contentRight', 'mInstallation', -1, 0, 'mInstallationGUI;-');Popup.closeNonPersistent();");
+				$B = new Button("Datenbank aktualisieren", "./plugins/Installation/aktualisieren.png", "icon");
+				$B->onclick($ASetup);
+				$B->id("updateButton");
+				
+				
+				
+				$html = $this->box($B, $ASetup, "Die Datenbank<br />aktualisieren", "", $hidden);
 
-		echo "<p style=\"padding:5px;\">
-		$BH
-		<b>".$_SESSION["applications"]->getActiveApplication()." ist auf diesem Server noch nicht installiert.</b>
-		</p>
-		".(!$File->A("FileIsWritable") ? "<p style=\"padding:5px;\">
-		Bitte machen Sie zunächst die Datei Installation.pfdb.php beschreibbar, wie rechts oben angegeben.<br /><br />$BReload
-		</p>" : "
-		<p style=\"padding:5px;\">
-		Tragen Sie links die Datenbank-Zugangsdaten ein, die Sie von Ihrem Webspace-Provider erhalten und anschließend auf 'Installation speichern'.
-		</p>
-		<p style=\"padding:5px;\">
-		Wenn die Zugangsdaten richtig sind, erscheinen weitere Zeilen auf der rechten Seite. Klicken Sie für jedes Plugin auf 'Tabelle anlegen'.
-		</p>
-		<p style=\"padding:5px;\">
-		Wenn Sie alle Tabellen angelegt haben, legen Sie im Benutzer-Reiter noch einen </b>Benutzer ohne Admin-Rechte</b> an und ändern Sie das Passwort des Admin-Benutzers.
-		</p>
-		".($loadInstallation == "true" ? "<script type=\"text/javascript\">
-			contentManager.loadFrame('contentLeft','Installation','1');
-		</script>" : ""))."";
+				$html = "<div style=\"width:350px;margin:auto;padding-bottom:40px;\">".$html."</div>";
+			}
+			
+		} catch (NoDBUserDataException $e) {
+			$message = "<p style=\"padding:10px;font-size:20px;color:#555;text-align:center;color:red;\">Mit den angegebenen Datenbank-Zugangsdaten kann keine Verbindung aufgebaut werden.</p>";
+			
+			echo OnEvent::script("contentManager.loadFrame('contentLeft','Installation','1');");
+			
+			if(PHYNX_MAIN_STORAGE == "MySQL") {
+				try {
+					$DB1 = new DBStorageU();
+					
+					$BN = new Button("Hinweis", "notice", "icon");
+					$BN->style("float:left;margin-right:10px;");
+					
+					$File = new File(Util::getRootPath()."system/connect.php");
+					
+					$B = new Button("Verbindungsart umstellen", "./plugins/Installation/changedb.png", "icon");
+					$B->onclick($A);
+					$B->id("changedbButton");
+					
+					$A = OnEvent::rme($this, "switchDBToMySQLo", "", "function(){ Installation.reloadApp(); }");
+					
+					
+					$BR = "<p style=\"margin-top:20px;\">Verwenden Sie den Knopf unten, um die Verbindungsart auf die ältere Version umzustellen.<br />
+						Sie müssen sich anschließend erneut anmelden.</p>
+						<div style=\"width:350px;margin:auto;padding-top:20px;padding-bottom:20px;\">".$this->box($B, $A, "Verbindungsart<br />umstellen")."</div>";
+					
+
+					
+					$A = "contentManager.loadPlugin('contentRight', 'mInstallation');";
+
+					$B = new Button("Erneut prüfen", "./plugins/Installation/recheck.png", "icon");
+					$B->onclick($A);
+					$B->id("recheckButton");
+					
+					if(!$File->A("FileIsWritable"))
+						$BR = "<p style=\"margin-top:20px;\">Bitte machen Sie die Datei /system/connect.php für den Webserver beschreibbar, damit phynx auf die ältere Verbindungsart umstellen kann.<br /><br />Verwenden Sie dazu Ihr FTP-Programm. Klicken Sie mit der rechten Maustaste auf die Datei auf dem Server, wählen Sie \"Eigenschaften\", und geben Sie den Modus 666 an, damit sie durch den Besitzer, die Gruppe und alle Anderen les- und schreibbar ist.
+							</p><div style=\"width:350px;margin:auto;padding-top:20px;padding-bottom:20px;\">".$this->box($B, $A, "Erneut<br />prüfen")."</div>";
+
+					
+					$html = "<p style=\"margin-top:30px;\">$BN Möglicherweise ist die MySQLi-Erweiterung auf Ihrem Server nicht korrekt konfiguriert.</p>$BR";
+					
+					$html = "<div style=\"width:700px;margin:auto;padding-bottom:40px;\">".$html."</div>";
+				} catch (Exception $e){
+					#echo "MySQL geht auch nicht!";
+				}
+			}
+		} 
+		catch (DatabaseNotFoundException $e) {
+			$message = "<p style=\"padding:10px;font-size:20px;color:#555;text-align:center;color:red;\">Die angegebene Datenbank konnte nicht gefunden werden.</p>";
+			
+			echo OnEvent::script("contentManager.loadFrame('contentLeft','Installation','1');");
+		}
+		catch (TableDoesNotExistException $e){
+			$message = "<p style=\"padding:10px;font-size:20px;color:#555;margin-bottom:40px;text-align:center;\">Ihre Datenbank hat derzeit noch keinen Inhalt.</p>";
+			
+			$ASetup = "\$j('#setupButton').attr('src', './plugins/Installation/bigLoader.png'); ".OnEvent::rme($this, "setupAllTables", "", "function(transport){ contentManager.contentBelow(transport.responseText); }");
+			
+			$BSetup = new Button("Datenbank einrichten", "./plugins/Installation/setup.png", "icon");
+			$BSetup->onclick($ASetup);
+			$BSetup->id("setupButton");
+			
+			$html = $this->box($BSetup, $ASetup, "Die Datenbank<br />einrichten");
+			$containers = 1;
+			
+			
+			$BM = new BackupManagerGUI();
+			$list = $BM->getBackupsList();
+			
+			$ARestore = OnEvent::popup("Backup-Manager", "BackupManager", "-1", "inPopup");
+			
+			$BRestore = new Button("Datenbank wiederherstellen", "./plugins/Installation/restore.png", "icon");
+			$BRestore->onclick($ARestore);
+			$BRestore->id("setupButton");
+			
+			$html .= $this->box($BRestore, $ARestore, "Eine Sicherung<br />wiederherstellen", count($list) == 0 ? "color:grey;" : "");
+			
+			$containers++;
+			
+			$html = "<div style=\"width:".($containers * 360)."px;margin:auto;padding-bottom:40px;\">".$html."</div>";
+		}
+		
+		echo "$message$html";
 	}
+	
+	private function box(Button $B, $action, $text, $styles = "", $hidden = ""){
+		$B->style("float:left;margin-right:10px;");
+			
+		$html = "
+			<div style=\"height:75px;width:350px;display:inline-block;\">
+				$B
+				<p style=\"padding-top:8px;font-size:25px;\">
+					<a href=\"#\" style=\"$styles\" onclick=\"$action return false;\">$text</a>$hidden
+				</p>
+			</div>";
+		
+		return $html;
+	}
+	
+	/*public function getHelp($loadInstallation = "false"){
+	}*/
 
 	public function testMailGUI(){
 		$F = new HTMLForm("mailTest", array("mailfrom","mailto"));
@@ -276,13 +476,16 @@ class mInstallationGUI extends mInstallation implements iGUIHTML2 {
 
 		if($mailto == "")
 			Red::errorD("Bitte geben Sie einen Empfänger ein!");
-
-		$mail = new htmlMimeMail5();
+		try {
+			$mail = new htmlMimeMail5(substr($mailfrom, stripos($mailfrom, "@") + 1));
+		} catch(Exception $e){
+			die("<p style=\"padding:5px;color:red;\">Fehler beim Übergeben der E-Mail. ".$e->getMessage()."</p>");
+		}
 		$mail->setFrom("phynx Mailtest <".$mailfrom.">");
 		if(!ini_get('safe_mode')) $mail->setReturnPath($mailfrom);
 		$mail->setSubject("phynx Mailtest");
 
-		$mail->setText(wordwrap("Diese Nachricht wurde vom phynx Mailtester erzeugt. Ihre E-Mail-Einstellungen sind korrekt.",80));
+		$mail->setText(wordwrap("Diese Nachricht wurde vom phynx Mailtester erzeugt. Ihre E-Mail-Einstellungen sind korrekt.", 80));
 		$adressen = array();
 		$adressen[] = $mailto;
 		if($mail->send($adressen))
@@ -290,7 +493,60 @@ class mInstallationGUI extends mInstallation implements iGUIHTML2 {
 		else
 			echo "<p style=\"padding:5px;color:red;\">Fehler beim Übergeben der E-Mail. Bitte überprüfen Sie Ihre Server-Einstellungen.<br />Fehler: ".nl2br(print_r($mail->errors, true))."</p>";
 
+		/*$mimeMail2 = new PHPMailer(false, substr($mailfrom, stripos($mailfrom, "@") + 1));
+		$mimeMail2->CharSet = "UTF-8";
+		$mimeMail2->Subject = "phynx Mailtest V2";
+		
+		$mimeMail2->From = $mailfrom;
+		$mimeMail2->Sender = $mailfrom;
+		$mimeMail2->FromName = "phynx Mailtest";
+		
+		$mimeMail2->Body = wordwrap("Diese Nachricht wurde vom phynx Mailtester erzeugt. Ihre E-Mail-Einstellungen sind korrekt.", 80);
+		$mimeMail2->AddAddress($mailto);
+		
+		if($mimeMail2->Send())
+			echo "<p style=\"padding:5px;color:green;\">E-Mail 2 erfolgreich übergeben.</p>";
+		else
+			echo "<p style=\"padding:5px;color:red;\">Fehler beim Übergeben der E-Mail 2. Bitte überprüfen Sie Ihre Server-Einstellungen.<br />Fehler: ".nl2br(print_r($mimeMail2->ErrorInfo, true))."</p>";*/
 	}
 
+	public function setupAllTables(){
+		parent::setupAllTables();
+		
+		$message = "<p style=\"padding:10px;font-size:20px;color:green;margin-bottom:40px;text-align:center;\">Ihre Datenbank wurde erfolgreich eingerichtet.</p>";
+		
+		$action = "contentManager.loadPlugin('contentRight', 'Users');";
+		
+		$B = new Button("Benutzer anlegen", "./plugins/Installation/benutzer.png", "icon");
+		$B->onclick($action);
+		
+		$html = $this->box($B, $action, "Einen Benutzer<br />anlegen");
+		
+		
+		echo "$message<div style=\"width:350px;margin:auto;padding-bottom:40px;\">".$html."</div>";
+	}
+	
+	public function updateAllTables($echoStatus = false){
+		$return = parent::updateAllTables();
+		if($echoStatus){
+			ksort($return);
+			echo "<pre style=\"font-size:10px;padding:5px;overflow:auto;max-height:400px;\">";
+			foreach($return AS $plugin => $status){
+				echo phynx_mb_str_pad($plugin, 20).": $status\n";
+			}
+			echo "</pre>";
+		}
+		$message = "<p style=\"padding:10px;font-size:20px;color:green;margin-bottom:40px;text-align:center;\">Ihre Datenbank wurde erfolgreich aktualisiert.</p>";
+		
+		$action = "userControl.doLogout();";
+		
+		$B = new Button("Benutzer abmelden", "./plugins/Installation/abmelden.png", "icon");
+		$B->onclick($action);
+		
+		$html = $this->box($B, $action, "Jetzt normal<br />weiterarbeiten");
+		
+		
+		echo "$message<div style=\"width:350px;margin:auto;padding-bottom:40px;\">".$html."</div>";
+	}
 }
 ?>

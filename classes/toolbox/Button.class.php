@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2012, Rainer Furtmeier - Rainer@Furtmeier.de
+ *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class Button {
 	
@@ -166,7 +166,7 @@ class Button {
 	}
 
 	function editInPopup($targetClass, $targetClassId, $title = "Eintrag bearbeiten", $bps = ""){
-		$this->rme = "contentManager.editInPopup('$targetClass', '$targetClassId', '$title', '$bps');";
+		$this->rme = "contentManager.editInPopup('$targetClass', '$targetClassId', '".T::_($title)."', '$bps');";
 	}
 	
 	/**
@@ -236,7 +236,7 @@ class Button {
 	
 	function popup($name, $title, $targetClass, $targetClassId, $targetMethod, $targetMethodParameters = "", $bps = "", $popupOptions = null){
 		#$this->rme = "contentManager.rmePCR('$targetClass', '$targetClassId', '$targetMethod', Array(".(is_array($targetMethodParameters) ? implode(",",$targetMethodParameters) : "'".$targetMethodParameters."'")."), 'Popup.displayNamed(\'edit\', \'$title\', transport, \'$name\');', '$bps');";
-		$this->rme = "Popup.load('$title', '$targetClass', '$targetClassId', '$targetMethod', [".(is_array($targetMethodParameters) ? implode(",",$targetMethodParameters) : "'".$targetMethodParameters."'")."], '$bps'".($name != "" ? ", '$name'" : ", 'edit'")."".($popupOptions != null ? ", '".addslashes($popupOptions)."'" : "").")";
+		$this->rme = "Popup.load('".T::_($title)."', '$targetClass', '$targetClassId', '$targetMethod', [".(is_array($targetMethodParameters) ? implode(",",$targetMethodParameters) : "'".$targetMethodParameters."'")."], '$bps'".($name != "" ? ", '$name'" : ", 'edit'")."".($popupOptions != null ? ", '".addslashes($popupOptions)."'" : "").")";
 	}
 
 	function hasMouseOverEffect($bool){
@@ -251,6 +251,9 @@ class Button {
 	}
 	
 	function __toString(){
+		if($this->type != "seamless")
+			$this->label = T::_($this->label);
+		
 		if($this->before != "")
 			$this->rme = str_replace("%AFTER", $this->rme, $this->before);
 
@@ -272,7 +275,7 @@ class Button {
 			$B = new Button($this->label, $this->image, "iconicG");
 			$B->style("float:right;margin-left:10px;margin-top:-1px;");
 			
-			return "<div style=\"$this->style\" onclick=\"$onclick\" class=\"seamlessButton\">$B$this->label</div>";
+			return "<div style=\"$this->style\" onclick=\"$onclick\" class=\"seamlessButton\">$B".T::_($this->label)."</div>";
 		}
 	}
 }

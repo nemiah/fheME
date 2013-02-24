@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2012, Rainer Furtmeier - Rainer@Furtmeier.de
+ *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class HTMLInput {
 	private $type;
@@ -71,7 +71,7 @@ class HTMLInput {
 	}
 	
 	public function placeholder($text){
-		$this->placeholder = $text;
+		$this->placeholder = T::_($text);
 	}
 
 	public function setClass($className){
