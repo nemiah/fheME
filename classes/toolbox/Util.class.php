@@ -1592,8 +1592,8 @@ class Util {
 	<head>
 		<title>'.$title.'</title>
 		'.($js ? '
-		<script type="text/javascript" src="../libraries/jquery/jquery-1.7.1.min.js"></script>
-		<script type="text/javascript" src="../libraries/jquery/jquery-ui-1.8.17.custom.min.js"></script>
+		<script type="text/javascript" src="../libraries/jquery/jquery-1.9.1.min.js"></script>
+		<script type="text/javascript" src="../libraries/jquery/jquery-ui-1.10.1.custom.min.js"></script>
 		<script type="text/javascript" src="../javascript/P2J.js"></script>
 		<script type="text/javascript" src="../javascript/handler.js"></script>
 		<script type="text/javascript" src="../javascript/contentManager.js"></script>

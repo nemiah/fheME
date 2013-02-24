@@ -135,8 +135,8 @@ if($_SESSION["S"]->checkIfUserLoggedIn() == false) $_SESSION["CurrentAppPlugins"
 		
 		<!--<script src="https://login.persona.org/include.js"></script>-->
 		
-		<script type="text/javascript" src="./libraries/jquery/jquery-1.7.1.min.js"></script>
-		<script type="text/javascript" src="./libraries/jquery/jquery-ui-1.8.17.custom.min.js"></script>
+		<script type="text/javascript" src="./libraries/jquery/jquery-1.9.1.min.js"></script>
+		<script type="text/javascript" src="./libraries/jquery/jquery-ui-1.10.1.custom.min.js"></script>
 		<script type="text/javascript" src="./libraries/jquery/jquery.json-2.3.min.js"></script>
 		<script type="text/javascript" src="./libraries/jquery/jquery.timers.js"></script>
 		<script type="text/javascript" src="./libraries/jquery/jquery.qtip.min.js"></script>
@@ -185,8 +185,7 @@ if($_SESSION["S"]->checkIfUserLoggedIn() == false) $_SESSION["CurrentAppPlugins"
 				alert("Die JavaScript-Dateien konnten nicht geladen werden.\nDies kann an der Server-Konfiguration liegen.\nBitte versuchen Sie, diese Anwendung in ein Unterverzeichnis zu installieren.");
 		</script>
 		
-		<link rel="stylesheet" type="text/css" href="./libraries/jquery/jquery-ui-1.8.17.custom.css" />
-		<link rel="stylesheet" type="text/css" href="./libraries/jquery/jquery-ui-1.8.17.custom.css" />
+		<link rel="stylesheet" type="text/css" href="./libraries/jquery/jquery-ui-1.10.1.custom.css" />
 		<link rel="stylesheet" type="text/css" href="./libraries/jquery/jquery.qtip.min.css" />
 		<link rel="stylesheet" type="text/css" href="./styles/standard/overlayBox.css" />
 		<link rel="stylesheet" type="text/css" href="./styles/standard/frames.css" />
@@ -596,6 +595,15 @@ if($_SESSION["S"]->checkIfUserLoggedIn() == false) $_SESSION["CurrentAppPlugins"
 							title="Dashboard"
 							alt="Dashboard"
 							src="./images/navi/dashboard.png" />
+					<?php }
+				
+					if(Environment::getS("showTouchButton", "1") == "1"){ ?>
+						<span
+							style="cursor:pointer;float:right;margin-left:8px;margin-right:5px;"
+							class="iconic iconicL cursor"
+							id="buttonTouchReset"
+							title="Touch"
+							alt="Touch"></span>
 					<?php } ?>
 					<!--<xsl:if test="options/showDesktopButton/@value='true'">
 						<img
@@ -649,6 +657,14 @@ if($_SESSION["S"]->checkIfUserLoggedIn() == false) $_SESSION["CurrentAppPlugins"
 		
 		<div style="display:none;" id="messageSetup" title="Ersteinrichtung">
 			<?php echo T::_("Bitte verwenden Sie '<b>Admin</b>' als Benutzername und Passwort, um mit der Ersteinrichtung dieser Anwendung fortzufahren."); ?>
+		</div>
+		
+		<div style="display:none;" id="messageTouch" title="Touch-Eingabe">
+			<?php echo T::_("Ihr Gerät unterstützt Touch-Eingaben. Möchten Sie die Touch-Optimierungen aktivieren? Maus-Eingaben werden dann nicht mehr funktionieren.<br /><br />Wenn Sie 'Ja' auswählen, wird die Anwendung neu geladen. Sie können diese Auswahl mit dem %1-Knopf rechts unten rückgängig machen.", "<span class=\"iconic iconicG cursor\"></span>"); ?>
+		</div>
+		
+		<div style="display:none;" id="messageTouchReset" title="Touch-Eingabe">
+			<?php echo T::_("Möchten Sie die Eingabemethode zurücksetzen? Sie werden dann erneut gefragt, ob Sie die Touch-Optimierungen nutzen möchten.<br /><br />Wenn Sie 'Ja' auswählen, wird die Anwendung neu geladen."); ?>
 		</div>
 	</body>
 </html>

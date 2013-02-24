@@ -97,6 +97,6 @@ contentManager.rmePCR("mfheOverview", "-1", "checkAdmin", "", function(transport
 		contentManager.loadPlugin("contentScreen", "mfheOverview");
 });
 
-$j(window).ready(function(){
+/*$j(window).ready(function(){
 	$j('#footer').hide();
-});
+});*/

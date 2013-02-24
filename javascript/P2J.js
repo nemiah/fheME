@@ -271,7 +271,29 @@ var qTipSharedYellow = $j.extend({}, qTipSharedRed, {
 	}
 })
 
-if(Modernizr.touch){
+var useTouch = $j.jStorage.get('phynxUseTouch', null);
+
+if(Modernizr.touch && useTouch == null){
+	$j(function(){
+		$j("#messageTouch").dialog({
+			modal: true,
+			buttons: {
+				"Ja": function() {
+					$j.jStorage.set('phynxUseTouch', true);
+					$j(this).dialog("close");
+					document.location.reload(true);
+				},
+				"Nein": function() {
+					$j.jStorage.set('phynxUseTouch', false);
+					$j(this).dialog("close");
+				}
+			},
+			resizable: false
+		});
+	});
+}
+
+if(useTouch){
 	var currentHTMLMethod = jQuery.fn.html;
 	jQuery.fn.html = function(){
 		currentHTMLMethod.apply(this, arguments);
@@ -285,7 +307,34 @@ if(Modernizr.touch){
 	}
 }
 
-if(!Modernizr.touch)
+$j(function(){
+	if(Modernizr.touch || useTouch != null){
+		$j('#buttonTouchReset').click(function(){
+			$j.jStorage.deleteKey('phynxUseTouch');
+			//$j(this).dialog("close");
+			document.location.reload(true);
+			/*$j("#messageTouchReset").dialog({
+				modal: true,
+				buttons: {
+					"Ja": function() {
+						$j.jStorage.deleteKey('phynxUseTouch');
+						$j(this).dialog("close");
+						document.location.reload(true);
+					},
+					"Abbruch": function() {
+						$j(this).dialog("close");
+					}
+				},
+				resizable: false
+			});*/
+
+		});
+	} else {
+		$j('#buttonTouchReset').hide();
+	}
+});
+
+if(!useTouch)
 	$j(document).on('mouseover', 'img[title], span.iconic[title]', function(event) {
 		if($j(this).attr('title') == "")
 			return;
@@ -317,7 +366,7 @@ if(!Modernizr.touch)
 	   this.removeAttribute('alt');
 	})*/;
 
-$j('.bigButton').live('mouseover', function(event) {
+$j(document).on('mouseover', '.bigButton', function(event) {
 	if($j(document).width() > 1200)
 		return;
 		

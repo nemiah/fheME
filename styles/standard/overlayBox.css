@@ -2,14 +2,14 @@
 	position:fixed;
 	top:0px;
 	left:0px;
-	z-index:1000;
+	z-index:98;
 }
 
 #darkOverlay {
 	position:fixed;
 	top:0px;
 	left:0px;
-	z-index:1000;
+	z-index:98;
 }
 
 .loginWindow {
@@ -20,7 +20,7 @@
 	position:fixed;
 	margin:auto;
 	top:4px;
-	z-index:1001;
+	z-index:99;
 	width:430px;
 	padding:4px;
 	border-style:solid;
