@@ -35,6 +35,10 @@ var contentManager = {
 	emptyContentBelow: true,
 	lastLoaded: [],
 	
+	maxHeight: function(){
+		return height = ($j(window).height() - $j('#navTabsWrapper').height() - $j('#footer').height() - 40);
+	},
+	
 	init: function(){
 		Interface.init();
 		Overlay.init();

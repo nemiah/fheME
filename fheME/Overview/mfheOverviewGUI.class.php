@@ -66,7 +66,37 @@ class mfheOverviewGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 			.touchHeader .lastUpdate {
 				font-size:12px;
 			}
-		</style>";
+			
+			.touchButton {
+				background-color:#EEE;
+				margin-bottom:15px;
+				cursor:pointer;
+				padding:5px;
+			}
+			
+			.touchButton .label {
+				padding-top:7px;
+				display:inline-block;
+			}
+			
+			.touchButton .iconicL {
+				margin-right:5px;
+			}
+		</style>
+		<script type=\"text/javascript\">
+			function fitOverview(){
+				if(!\$j('.OverviewCol').length)
+					return;
+
+				\$j('.OverviewCol').css('height', contentManager.maxHeight()+'px');
+			}
+
+			\$j(window).resize(function() {
+				fitOverview();
+			});
+			
+			fitOverview();
+		</script>";
 		
 		$this->addPlugin(1, "mKalenderGUI", 900);
 		#$this->addPlugin(2, "mFhemGUI", 120, "function(){".OnEvent::rme(new FhemControlGUI(-1), "updateGUI", "", "function(transport){ fheOverview.updateTime('mFhemGUI'); Fhem.updateControls(transport); }")."}");		
@@ -156,7 +186,7 @@ class mfheOverviewGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 	
 	public function getOverviewContentCol4(){
 		$C = new mWetterGUI();
-		echo "<div id=\"fheOverviewContentmWetterGUI_getOverviewContent\" style=\"height:360px;\">";
+		echo "<div id=\"fheOverviewContentmWetterGUI_getOverviewContent\" style=\"height:249px;\">";
 		$C->getOverviewContent();
 		echo "</div>";
 		

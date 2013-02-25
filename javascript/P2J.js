@@ -271,6 +271,11 @@ var qTipSharedYellow = $j.extend({}, qTipSharedRed, {
 	}
 })
 
+	
+/*$j("#container").hammer().on("touch dragdown release", function(){
+	alert("touch dragdown release!");
+});*/
+	
 var useTouch = $j.jStorage.get('phynxUseTouch', null);
 
 if(Modernizr.touch && useTouch == null){

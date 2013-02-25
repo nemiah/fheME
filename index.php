@@ -141,6 +141,7 @@ if($_SESSION["S"]->checkIfUserLoggedIn() == false) $_SESSION["CurrentAppPlugins"
 		<script type="text/javascript" src="./libraries/jquery/jquery.timers.js"></script>
 		<script type="text/javascript" src="./libraries/jquery/jquery.qtip.min.js"></script>
 		<script type="text/javascript" src="./libraries/jquery/jquery.scrollTo-1.4.2-min.js"></script>
+		<script type="text/javascript" src="./libraries/jquery/jquery.hammer.js"></script>
 		<script type="text/javascript" src="./libraries/jstorage.js"></script>
 		<script type="text/javascript" src="./libraries/webtoolkit.base64.js"></script>
 		<script type="text/javascript" src="./libraries/webtoolkit.sha1.js"></script>

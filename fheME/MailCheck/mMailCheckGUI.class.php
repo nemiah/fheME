@@ -45,10 +45,15 @@ class mMailCheckGUI extends anyC implements iGUIHTMLMP2 {
 		$AC = anyC::get("MailCheck");
 		
 		while($MC = $AC->getNextEntry()){
-			$B = new Button("Mails abholen", "./fheME/MailCheck/MailCheck.png", "icon");
-			$B->popup("", "Mails abholen", "MailCheck", $MC->getID(), "check", "1", "", "{width:1000, top:20, left:20}");
+			$B = new Button("Mails abholen", "mail", "iconicL");
 			
-			$html .= "<div style=\"display:inline-block;width:80px;text-align:center;\">".$B."<br /><small>".$MC->A("MailCheckName")."</small></div>";
+			$html .= "
+			<div class=\"touchButton\">
+				<div onclick=\"".OnEvent::popup("Mails abholen", "MailCheck", $MC->getID(), "check", "1", "", "{width:1000, top:20, left:20}")."\">".$B."
+					<div class=\"label\">".$MC->A("MailCheckName")."</div>
+					<div style=\"clear:both;\"></div>
+				</div>
+			</div>";
 		}
 		
 		$html .= "</div>";
