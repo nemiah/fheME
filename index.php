@@ -128,7 +128,7 @@ if($_SESSION["S"]->checkIfUserLoggedIn() == false) $_SESSION["CurrentAppPlugins"
 	<head>
 		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
 		<meta name="revisit-after" content="14 days" />
-		<meta name="viewport" content="width=1280, initial-scale=1.0, maximum-scale=1.3, minimum-scale=0.8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
 		<title><?php echo Environment::getS("renameFramework", "phynx by Furtmeier Hard- und Software"); ?></title>
 
 		<link rel="shortcut icon" href="./images/FHSFavicon.ico" /> 

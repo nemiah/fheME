@@ -34,7 +34,7 @@ class mMailCheckGUI extends anyC implements iGUIHTMLMP2 {
 	}
 
 	public function getOverviewContent(){
-		$html = "<div class=\"Tab backgroundColor1\"><span class=\"lastUpdate\" id=\"lastUpdatemGerichtGUI\"></span><p>MailCheck</p></div>
+		$html = "<div class=\"touchHeader\"><span class=\"lastUpdate\" id=\"lastUpdatemGerichtGUI\"></span><p>MailCheck</p></div>
 			<div style=\"padding:10px;overflow:auto;\">";
 
 		

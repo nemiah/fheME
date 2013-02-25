@@ -83,7 +83,7 @@ class mFAdresseGUI extends AdressenGUI {
 		$AC->setCollectionOf("Adresse");
 		$AC->addAssocV3("type", "=", "default");
 		$AC->addAssocV3("AuftragID", "=", "-1");
-		$AC->addAssocV3("geb", ">", "0");
+		$AC->addAssocV3("geb", "!=", "0");
 		
 		while($t = $AC->getNextEntry())
 			$K->addEvent(self::getCalendarDetails("mFAdresseGUI", $t->getID(), $t));

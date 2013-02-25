@@ -14,6 +14,13 @@ html {
 	font-weight: normal;
 	font-style: normal; }
 
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 100;
+  src: local('Roboto Thin'), local('Roboto-Thin'), url('../../libraries/roboto/Roboto-Thin.woff') format('woff');
+}
+
 .iconic {
 	display:inline-block;
 	font-family: 'IconicStroke';

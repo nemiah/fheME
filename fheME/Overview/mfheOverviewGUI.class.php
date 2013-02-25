@@ -52,6 +52,20 @@ class mfheOverviewGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 				font-size:13px;
 				text-align:left;
 			}
+			
+			.touchHeader {
+				color:#777;
+				font-family:Roboto;
+				font-size:20px;
+			}
+			
+			.touchHeader p {
+				padding:5px;
+			}
+			
+			.touchHeader .lastUpdate {
+				font-size:12px;
+			}
 		</style>";
 		
 		$this->addPlugin(1, "mKalenderGUI", 900);
@@ -77,7 +91,7 @@ class mfheOverviewGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 			
 			if($k == 0){
 				$html .= "<div class=\"OverviewCol borderColor1\">
-				<div class=\"Tab backgroundColor1\"><p>Uhr</p></div>
+				<div class=\"touchHeader\"><p>Uhr</p></div>
 					<div style=\"padding:10px;\" id=\"fheOverviewClock\"></div>
 				<div id=\"fheOverviewContent$E\">";
 			}

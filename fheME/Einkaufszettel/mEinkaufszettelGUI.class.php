@@ -94,7 +94,7 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 	}
 
 	public function getOverviewContent(){
-		$html = "<div class=\"Tab backgroundColor1\"><span class=\"lastUpdate\" id=\"lastUpdatemEinkaufszettelGUI\">asd</span><p><b>Einkaufen</b></p></div>
+		$html = "<div class=\"touchHeader\"><span class=\"lastUpdate\" id=\"lastUpdatemEinkaufszettelGUI\">asd</span><p>Einkaufen</p></div>
 			<div style=\"padding:10px;\">";
 
 		$B = new Button("Aktuelle Liste anzeigen", "./fheME/Einkaufszettel/Einkaufszettel.png", "icon");

@@ -35,7 +35,7 @@ class mLogitechMediaServerGUI extends anyC implements iGUIHTMLMP2 {
 
 
 	public function getOverviewContent($echo = true){
-		$html = "<div class=\"Tab backgroundColor1\"><span class=\"lastUpdate\" id=\"lastUpdatemLogitechMediaServerGUI\"></span><p><b>Logitech Media Server</b></p></div><div style=\"padding:10px;\">";
+		$html = "<div class=\"touchHeader\"><span class=\"lastUpdate\" id=\"lastUpdatemLogitechMediaServerGUI\"></span><p>Logitech Media Server</p></div><div style=\"padding:10px;\">";
 
 		$AC = anyC::get("LogitechMediaServer");
 		while($LMS = $AC->getNextEntry())

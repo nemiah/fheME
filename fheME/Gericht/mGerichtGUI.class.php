@@ -32,7 +32,7 @@ class mGerichtGUI extends anyC implements iGUIHTMLMP2 {
 	}
 	
 	public function getOverviewContent(){
-		$html = "<div class=\"Tab backgroundColor1\"><span class=\"lastUpdate\" id=\"lastUpdatemGerichtGUI\"></span><p>Essen</p></div>
+		$html = "<div class=\"touchHeader\"><span class=\"lastUpdate\" id=\"lastUpdatemGerichtGUI\"></span><p>Essen</p></div>
 			<div style=\"padding:10px;height:100px;overflow:auto;\">";
 
 		

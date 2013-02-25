@@ -122,7 +122,7 @@ class mFhemGUI extends anyC implements iGUIHTML2 {
 	}
 	
 	public function getOverviewContent($echo = true){
-		$html = "<div class=\"Tab backgroundColor1\"><span class=\"lastUpdate\" id=\"lastUpdatemFhemGUI\"></span><p>Fhem</p></div>
+		$html = "<div class=\"touchHeader\"><span class=\"lastUpdate\" id=\"lastUpdatemFhemGUI\"></span><p>Fhem</p></div>
 			<div style=\"padding:10px;\">
 			<div style=\"padding-bottom:15px;\" class=\"borderColor1\">";
 		
