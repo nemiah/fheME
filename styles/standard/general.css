@@ -17,8 +17,8 @@ html {
 @font-face {
   font-family: 'Roboto';
   font-style: normal;
-  font-weight: 100;
-  src: local('Roboto Thin'), local('Roboto-Thin'), url('../../libraries/roboto/Roboto-Thin.woff') format('woff');
+  font-weight: 300;
+  src: local('Roboto Light'), local('Roboto-Light'), url('../../libraries/roboto/Roboto-Light.woff') format('woff');
 }
 
 .iconic {
@@ -334,6 +334,22 @@ caption {
 	text-align:left;
 }
 */
+	
+.touchButton {
+	background-color:#f2f2f2;
+	margin-bottom:15px;
+	cursor:pointer;
+	padding:5px;
+}
+
+.touchButton .label {
+	padding-top:7px;
+	display:inline-block;
+}
+
+.touchButton .iconicL {
+	margin-right:5px;
+}
 
 table {
 	font-size:12px;

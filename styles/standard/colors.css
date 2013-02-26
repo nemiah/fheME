@@ -154,7 +154,7 @@ input, select, textarea, .AJAXUpload {
   **/
   
 #wrapper {
-	border-color:#444444;
+	border-color:#888888;
 	background-color:white;
 }
 
@@ -226,7 +226,11 @@ input, select, textarea, .AJAXUpload {
 }
 
 #footer {
-	color:#555555;
+	color:#888;
+}
+
+#footer a:link, #footer a:visited, #footer a:active {
+	color:#888;
 }
 
 /**

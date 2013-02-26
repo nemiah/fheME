@@ -27,6 +27,8 @@
 		<folder>Gericht</folder>
 		
 		<version>0.6</version>
+		<registry>Overview;mGerichtGUI::getOverviewPlugin</registry>
+
 		<deploy>
 			<table name="Gericht" />
 		</deploy>

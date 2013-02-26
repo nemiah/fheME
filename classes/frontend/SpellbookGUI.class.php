@@ -67,6 +67,9 @@ class SpellbookGUI implements iGUIHTMLMP2 {
 		$html .= "<div style=\"float:right;width:160px;padding-top:20px;\" id=\"containerSortTabs\">".$this->getSortable(false)."</div>
 			<div style=\"margin-right:160px;\">";
 		
+		$U = new mUserdata();
+		$U->addAssocV3("typ","=","TTP");
+		$collapsedTabs = Environment::getS("collapsedTabs", "0") == "1";
 		
 		foreach($entries as $key => $value) {
 			$text = "";
@@ -86,7 +89,23 @@ class SpellbookGUI implements iGUIHTMLMP2 {
 			
 			$I = new HTMLInput("usePlugin$value", "checkbox", in_array($value, $appMenuDisplayed) ? "1" : "0");
 			$I->id("usePlugin$value");
-			$I->onchange("this.checked ? Menu.showTab('$value') : Menu.hideTab('$value');");
+			$I->onchange("if(this.checked) { Menu.showTab('$value'); \$j('#minPlugin$value').prop('disabled', ''); } else { Menu.hideTab('$value'); \$j('#minPlugin$value').prop('disabled', 'disabled'); }");
+			
+			
+			$t =  !$_SESSION["S"]->isUserAdmin() ? $U->getUDValueCached("ToggleTab$value") : "big";
+			if($t == null AND $collapsedTabs)
+				$t = "small";
+
+			$IM = new HTMLInput("minPlugin$value", "checkbox", $t == "big" ? "0" : "1");
+			$IM->id("minPlugin$value");
+			$IM->onchange("toggleTab('$value');");
+			
+			if(isset($_COOKIE["phynx_layout"]) AND ($_COOKIE["phynx_layout"] == "vertical" OR $_COOKIE["phynx_layout"] == "desktop"))
+				$IM->isDisabled (true);
+			
+			if(!in_array($value, $appMenuDisplayed))
+				$IM->isDisabled (true);
+			
 			#border-width:1px;border-style:solid;
 			$html .= "
 			<div style=\"width:33%;float:left;\">
@@ -96,6 +115,9 @@ class SpellbookGUI implements iGUIHTMLMP2 {
 					</div>
 					<div style=\"padding:7px;\">
 						$I<label style=\"float:none;width:200px;text-align:left;display:inline;margin-left:10px;font-wight:normal;\" for=\"usePlugin$value\">Plugin verwenden</label>
+					</div>
+					<div style=\"padding:7px;padding-top:0px;\">
+						$IM<label style=\"float:none;width:200px;text-align:left;display:inline;margin-left:10px;font-wight:normal;\" for=\"minPlugin$value\">Reiter minimiert</label>
 					</div>
 					".($xml !== false ? "<div style=\"padding:7px;height:115px;overflow:auto;\">$text</div>" : "")."
 				</div>

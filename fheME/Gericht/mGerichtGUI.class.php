@@ -63,5 +63,9 @@ class mGerichtGUI extends anyC implements iGUIHTMLMP2 {
 		$html .= "</div>";
 		echo $html;
 	}
+	
+	public static function getOverviewPlugin(){
+		return array("mGerichtGUI", "Essen");
+	}
 }
 ?>

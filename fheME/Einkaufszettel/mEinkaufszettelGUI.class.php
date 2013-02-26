@@ -176,5 +176,9 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 		
 		return $T;
 	}
+	
+	public static function getOverviewPlugin(){
+		return array("mEinkaufszettelGUI", "Einkaufen");
+	}
 }
 ?>

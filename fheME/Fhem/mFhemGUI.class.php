@@ -144,5 +144,9 @@ class mFhemGUI extends anyC implements iGUIHTML2 {
 		
 		return $html;
 	}
+	
+	public static function getOverviewPlugin(){
+		return array("mFhemGUI", "Fhem");
+	}
 }
 ?>

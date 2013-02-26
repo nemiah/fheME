@@ -114,10 +114,10 @@ class FhemControlGUI implements iGUIHTML2 {
 
 		$controls = $this->getSetTable("H".$f->getID(), $values);
 
-		return "<div onclick=\"\$j('.fhemeControl:not(#controls_H".$f->getID().")').hide(); \$j('#controls_H".$f->getID()."').toggle();\" style=\"cursor:pointer;width:210px;float:left;min-height:15px;border-radius:5px;border-width:1px;border-style:solid;margin:5px;padding:5px;\" class=\"borderColor1\">
+		return "<div class=\"touchButton\" onclick=\"\$j('.fhemeControl:not(#controls_H".$f->getID().")').hide(); \$j('#controls_H".$f->getID()."').toggle();\" style=\"cursor:pointer;\" class=\"\">
 				$controls
 				<div id=\"FhemID_".$f->getID()."\">
-					<b>".$f->A("FhemName")."</b>
+					
 				</div>
 			</div>";
 	}
@@ -176,10 +176,10 @@ class FhemControlGUI implements iGUIHTML2 {
 					if($togggle)
 						$controls = "";
 					
-					$html = "<div id=\"FhemControlID_".$f->getID()."\" onclick=\"$onclick\" style=\"cursor:pointer;width:210px;float:left;min-height:15px;border-radius:5px;border-width:1px;border-style:solid;margin:5px;padding:5px;\" class=\"borderColor1\">
+					$html = "<div id=\"FhemControlID_".$f->getID()."\" onclick=\"$onclick\" style=\"cursor:pointer;\" class=\"touchButton\">
 							$controls
 							<div id=\"FhemID_".$f->getID()."\">
-								<b>".$f->A("FhemName")."</b>
+								
 							</div>
 						</div>";
 
@@ -411,7 +411,7 @@ class FhemControlGUI implements iGUIHTML2 {
 
 			$i++;
 		}
-		$controls = "<div id=\"controls_$DeviceID\" style=\"display:none;width:50px;position:absolute;margin-left:150px;border-style:solid;border-width:1px;border-radius:5px;padding:3px;\" class=\"borderColor1 backgroundColor0 fhemeControl\">$controls</div>";
+		$controls = "<div id=\"controls_$DeviceID\" style=\"display:none;width:50px;position:absolute;margin-left:150px;border-style:solid;border-width:1px;padding:3px;\" class=\"borderColor1 backgroundColor0 fhemeControl\">$controls</div>";
 
 		return $controls;
 	}
@@ -697,7 +697,7 @@ class FhemControlGUI implements iGUIHTML2 {
 					$state = strtolower(str_replace("dim", "", $state));
 
 					$FS = new Button("", "./fheME/Fhem/off.png", "icon");
-					$FS->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
+					$FS->style("float:left;margin-right:5px;");
 
 					if($state != "off" && $state != "aus")
 						$FS->image("./fheME/Fhem/on.png");
@@ -705,7 +705,7 @@ class FhemControlGUI implements iGUIHTML2 {
 					if(!is_numeric(str_replace("%", "", $state)))
 						$state = "";
 
-					$result[$F->getID()] = array("model" => $F->A("FhemModel"), "state" => "$FS<b>".($F->A("FhemAlias") == "" ? $F->A("FhemName") : $F->A("FhemAlias"))."</b> <small style=\"color:grey;\">$state</small>");
+					$result[$F->getID()] = array("model" => $F->A("FhemModel"), "state" => "$FS<b>".($F->A("FhemAlias") == "" ? $F->A("FhemName") : $F->A("FhemAlias"))."</b> <small style=\"color:grey;\">$state</small><div style=\"clear:both;\"></div>");
 				}
 
 			if(isset($x->IT_LIST->IT) AND count($x->IT_LIST->IT) > 0)
@@ -829,10 +829,10 @@ class FhemControlGUI implements iGUIHTML2 {
 
 
 					$Icon = new Button("", "./fheME/Fhem/fhemFHT.png", "icon");
-					$Icon->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
+					$Icon->style("float:left;margin-right:5px;");
 
 
-					$result[$F->getID()] = array("model" => $F->A("FhemFHTModel"), "state" => "$Icon$M<b>".($F->A("FhemAlias") == "" ? $F->A("FhemName") : $F->A("FhemAlias"))."</b><small style=\"color:grey;\"> {$measuredTemp}/{$desiredTemp} <small>({$actuator})</small>".($warnings != "none" ? "<br />$B{$warnings}" : ""));
+					$result[$F->getID()] = array("model" => $F->A("FhemFHTModel"), "state" => "$Icon$M<b>".($F->A("FhemAlias") == "" ? $F->A("FhemName") : $F->A("FhemAlias"))."</b><small style=\"color:grey;\"> {$measuredTemp}/{$desiredTemp} <small>({$actuator})</small>".($warnings != "none" ? "<br />$B{$warnings}" : "")."<div style=\"clear:both;\"></div>");
 				}
 			}
 		}

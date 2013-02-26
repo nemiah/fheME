@@ -48,16 +48,19 @@ class mMailCheckGUI extends anyC implements iGUIHTMLMP2 {
 			$B = new Button("Mails abholen", "mail", "iconicL");
 			
 			$html .= "
-			<div class=\"touchButton\">
-				<div onclick=\"".OnEvent::popup("Mails abholen", "MailCheck", $MC->getID(), "check", "1", "", "{width:1000, top:20, left:20}")."\">".$B."
-					<div class=\"label\">".$MC->A("MailCheckName")."</div>
-					<div style=\"clear:both;\"></div>
-				</div>
+			<div class=\"touchButton\" onclick=\"Overlay.showDark();".OnEvent::popup("Mails abholen", "MailCheck", $MC->getID(), "check", "1", "", "{width:1000, top:20, left:20, hPosition:'center'}")."\">
+				".$B."
+				<div class=\"label\">".$MC->A("MailCheckName")."</div>
+				<div style=\"clear:both;\"></div>
 			</div>";
 		}
 		
 		$html .= "</div>";
 		echo $html;
+	}
+	
+	public static function getOverviewPlugin(){
+		return array("mMailCheckGUI", "MailCheck");
 	}
 }
 ?>

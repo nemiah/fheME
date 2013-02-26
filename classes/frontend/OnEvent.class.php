@@ -66,21 +66,21 @@ class OnEvent {
 		});";
 	}
 	
-	public static function sortable($selector, $handle, $saveTo = null, $axis = "y", $connectWith = null, $placeholder = null, $onUpdateComplete = ""){
+	public static function sortable($selector, $handle, $saveTo = null, $axis = "y", $connectWith = null, $placeholder = null, $onUpdateComplete = "", $additionalParameters = array()){
 		
 		if($saveTo != null){
 			$ex = explode("::", $saveTo);
-			$saveTo = OnEvent::rme($ex[0], $ex[1], array("Sortable.serialize('$selector')"), $onUpdateComplete);
+			$saveTo = OnEvent::rme($ex[0], $ex[1], array_merge(array("Sortable.serialize('$selector')"), $additionalParameters), $onUpdateComplete);
 		}
 
 		return "
 		\$j('$selector').sortable({
-			axis: '$axis', 
+			".($axis != "" ? "axis: '$axis', " : "")."
 			update: function(){".($saveTo == null ? "" : $saveTo)."},
 			".($connectWith != null ? "connectWith: \$j('$connectWith')," : "")."
 			dropOnEmpty: true,
 			".($placeholder != null ? "placeholder: '$placeholder', " : "")."
-			handle: \$j('$handle')
+			".($handle != null ? "handle: \$j('$handle')" : "")."
 		});";
 	}
 	

@@ -47,6 +47,21 @@ var contentManager = {
 		//if (document.cookie == "") document.cookie = "CookieTest = Erfolgreich"
 		if (!navigator.cookieEnabled) alert("In Ihrem Browser sind Cookies deaktiviert.\nBitte aktivieren Sie Cookies, damit diese Anwendung funktioniert.");
 		DesktopLink.init();
+		
+		if($j.jStorage.get('phynxHideNavigation', false))
+			$j('#navigation').hide();
+		else
+			$j('#buttonHideNavigation').css("transition", "all 2s ease-in-out").css("transform", "rotate(180deg)");
+		
+		$j('#buttonHideNavigation').click(function(){
+			$j('#navigation').toggle();
+			var newValue = !$j.jStorage.get('phynxHideNavigation', false);
+			$j.jStorage.set('phynxHideNavigation', newValue);
+			
+			$j('#buttonHideNavigation').css("transition", "all 1s ease-out").css("transform", "rotate("+(newValue ? 0 : 180)+"deg)");
+			
+			$j(window).trigger("resize");
+		});
 	},
 	
 	lastLoaded: function(where, id, plugin, page){

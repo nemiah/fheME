@@ -18,7 +18,7 @@
  *  2007 - 2012, Rainer Furtmeier - Rainer@Furtmeier.de
  */
 
-class mfheOverviewGUI extends UnpersistentClass implements iGUIHTMLMP2 {
+class mfheOverviewGUI extends anyC implements iGUIHTMLMP2 {
 	
 	private $Plugins = array();
 	private $ReloadTimes = array();
@@ -34,14 +34,16 @@ class mfheOverviewGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 			}
 			
 			.OverviewCol {
-				border-left-width:1px;
-				border-left-style:solid;
+				/*border-left-width:1px;
+				border-left-style:solid;*/
 				height:505px;
-				overflow:auto;
-				margin-left:10px;
+				overflow:hidden;
+				/*margin-left:10px;*/
 				padding-top:10px;
+				padding-left:5px;
+				padding-right:5px;
 			}
-			
+
 			#fheOverviewClock {
 				font-size:30px;
 				text-align:right;
@@ -57,6 +59,8 @@ class mfheOverviewGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 				color:#777;
 				font-family:Roboto;
 				font-size:20px;
+				padding-left:5px;
+				padding-right:5px;
 			}
 			
 			.touchHeader p {
@@ -66,29 +70,13 @@ class mfheOverviewGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 			.touchHeader .lastUpdate {
 				font-size:12px;
 			}
-			
-			.touchButton {
-				background-color:#EEE;
-				margin-bottom:15px;
-				cursor:pointer;
-				padding:5px;
-			}
-			
-			.touchButton .label {
-				padding-top:7px;
-				display:inline-block;
-			}
-			
-			.touchButton .iconicL {
-				margin-right:5px;
-			}
 		</style>
 		<script type=\"text/javascript\">
 			function fitOverview(){
 				if(!\$j('.OverviewCol').length)
 					return;
 
-				\$j('.OverviewCol').css('height', contentManager.maxHeight()+'px');
+				\$j('.OverviewCol').css('height', (contentManager.maxHeight() - 10)+'px');
 			}
 
 			\$j(window).resize(function() {
@@ -186,7 +174,7 @@ class mfheOverviewGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 	
 	public function getOverviewContentCol4(){
 		$C = new mWetterGUI();
-		echo "<div id=\"fheOverviewContentmWetterGUI_getOverviewContent\" style=\"height:249px;\">";
+		echo "<div id=\"fheOverviewContentmWetterGUI_getOverviewContent\" style=\"height:249px;margin-bottom:11px;\">";
 		$C->getOverviewContent();
 		echo "</div>";
 		
@@ -201,6 +189,70 @@ class mfheOverviewGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 			echo "1";
 		else
 			echo "0";
+	}
+	
+	public function manage($deviceID){
+		echo "<style type=\"text/css\">
+				.dropPlaceholder {
+					border:1px dashed green;
+					padding:3px;
+					height: 1.5em;
+					margin-left:5px;
+					margin-right:5px;
+				} 
+				</style>";
+		
+		$L = new HTMLList();
+		$L->addListStyle("list-style-type:none;min-height:50px;");
+		$L->addListClass("OverviewPlugins");
+		$L->sortable("", "", ".OverviewCol1, .OverviewCol2, .OverviewCol3, .OverviewCol4", "dropPlaceholder", "");
+		while($callback = Registry::callNext("Overview")){
+			$L->addItem($callback[1]);
+			$L->addItemStyle("padding:3px;min-height: 1.5em;cursor:move;");
+			$L->setItemID("P_$callback[0]");
+		}
+		
+		echo "<div style=\"display:inline-block;width:200px;\"><p>Plugins</p>$L</div>";
+		
+		$Lists = array();
+		for($i = 1; $i < 5; $i++){
+			$List = new HTMLList();
+			$List->addListClass("OverviewCol$i");
+			$List->addListStyle("list-style-type:none;min-height:50px;");
+			#$List->addItem("TEST");
+			$List->addItemStyle("padding:3px;min-height: 1.5em;cursor:move;");
+			
+			$Lists[] = $List;
+		}
+		
+		foreach($Lists AS $k => $List){
+			$group = ".OverviewPlugins";
+			for($i = 0; $i < 4; $i++){
+				if($k == $i)
+					continue;
+				$group .= ", .OverviewCol".($i+1);
+			}
+			#echo $group."<br />";
+			$List->sortable("", "mfheOverviewGUI::saveCols", $group, "dropPlaceholder", "", array($deviceID, $k+1));
+			
+			echo "<div style=\"vertical-align:top;min-height:400px;display:inline-block;width:149px;border-left-style:solid;border-left-width:1px;\" class=\"borderColor1\"><p>Spalte ".($k+1)."</p>$List</div>";
+		}
+		
+		echo "<div style=\"clear:both;\"></div>";
+	}
+	
+	public function saveCols($data, $DeviceID, $col){
+		$O = anyC::getFirst("fheOverview", "fheOverviewDeviceID", $DeviceID);
+		if($O == null){
+			$F = new Factory("fheOverview");
+			$F->sA("fheOverviewDeviceID", $DeviceID);
+			$F->store();
+			
+			$O = anyC::getFirst("fheOverview", "fheOverviewDeviceID", $DeviceID);
+		}
+		
+		$O->changeA("fheOverviewCol$col", $data);
+		$O->saveMe(true, true);
 	}
 }
 ?>

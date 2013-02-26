@@ -82,5 +82,9 @@ class mLogitechMediaServerGUI extends anyC implements iGUIHTMLMP2 {
 		
 		return $html;
 	}
+	
+	public static function getOverviewPlugin(){
+		return array("mLogitechMediaServerGUI", "Logitech Media Server");
+	}
 }
 ?>

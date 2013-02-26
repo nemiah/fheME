@@ -30,6 +30,7 @@
 		<adminOnly>false</adminOnly>
 		
 		<version>0.6</version>
+		<registry>Overview;mEinkaufszettelGUI::getOverviewPlugin</registry>
 
 		<deploy>
 			<table name="Einkaufszettel" />

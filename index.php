@@ -558,49 +558,81 @@ if($_SESSION["S"]->checkIfUserLoggedIn() == false) $_SESSION["CurrentAppPlugins"
 			<div id="windows"></div>
 			<div id="footer">
 				<p>
-					<img
+					<span
+						style="cursor:pointer;margin-left:5px;float:left;"
+						class="iconic iconicL x"
+						title="Abmelden"
+						alt="Abmelden"
+						onclick="<?php echo Environment::getS("onLogout", "userControl.doLogout();"); ?>"></span>
+					
+					<span
+						style="cursor:pointer;margin-left:20px;margin-right:15px;float:left;"
+						class="iconic iconicL layers_alt"
+						title="Navigation"
+						alt="Navigation"
+						id="buttonHideNavigation"></span>
+					<!--<img
 						style="margin-left:15px;float:left;"
 						class="mouseoverFade"
 						title="Abmelden"
 						alt="Abmelden"
 						src="./images/i2/logout.png"
-						onclick="<?php echo Environment::getS("onLogout", "userControl.doLogout();"); ?>" />
+						onclick="<?php echo Environment::getS("onLogout", "userControl.doLogout();"); ?>" />-->
 
 					<?php
 					
 					if(Environment::getS("showLayoutButton", "1") == "1"){ ?>
-						<img
+						<span
+							style="cursor:pointer;float:right;margin-left:15px;margin-right:5px;"
+							class="iconic iconicL wrench"
+							title="Layout"
+							alt="Layout"
+							onclick="phynxContextMenu.start(this, 'Colors','1','Einstellungen:','left', 'up');"></span>
+					
+						<!--<img
 							onclick="phynxContextMenu.start(this, 'Colors','1','Einstellungen:','left', 'up');"
 							style="float:right;margin-left:8px;margin-right:5px;"
 							class="mouseoverFade"
 							title="Layout"
 							alt="Layout"
-							src="./images/navi/office.png" />
+							src="./images/navi/office.png" />-->
 					<?php }
 				
 					if(Environment::getS("showHelpButton", "1") == "1"){ ?>
-						<img
+						<span
+							style="cursor:pointer;float:right;margin-left:15px;margin-right:5px;"
+							class="iconic iconicL comment_alt2_stroke"
+							title="Hilfe"
+							alt="Hilfe"
+							onclick="window.open('http://www.phynx.de/support');"></span>
+						<!--<img
 							onclick="window.open('http://www.phynx.de/support');"
 							style="float:right;margin-left:8px;margin-right:5px;"
 							class="mouseoverFade"
 							title="Hilfe"
 							alt="Hilfe"
-							src="./images/navi/hilfe.png" />
+							src="./images/navi/hilfe.png" />-->
 					<?php }
 						
 					if(Environment::getS("showDashboardButton", "1") == "1"){ ?>
-						<img
+						<span
+							style="cursor:pointer;float:right;margin-left:15px;margin-right:5px;"
+							class="iconic iconicL home"
+							title="Dashboard"
+							alt="Dashboard"
+							onclick="contentManager.loadDesktop()"></span>
+						<!--<img
 							onclick="contentManager.loadDesktop()"
 							style="float:right;margin-left:8px;margin-right:5px;"
 							class="mouseoverFade"
 							title="Dashboard"
 							alt="Dashboard"
-							src="./images/navi/dashboard.png" />
+							src="./images/navi/dashboard.png" />-->
 					<?php }
 				
 					if(Environment::getS("showTouchButton", "1") == "1"){ ?>
 						<span
-							style="cursor:pointer;float:right;margin-left:8px;margin-right:5px;"
+							style="cursor:pointer;float:right;margin-left:15px;margin-right:5px;"
 							class="iconic iconicL cursor"
 							id="buttonTouchReset"
 							title="Touch"
@@ -615,7 +647,7 @@ if($_SESSION["S"]->checkIfUserLoggedIn() == false) $_SESSION["CurrentAppPlugins"
 							alt="Desktop"><xsl:attribute name="src"><xsl:value-of select="iconDesktop" /></xsl:attribute></img>
 					</xsl:if>-->
 					<?php if(Environment::getS("showCopyright", "1") == "1")
-						echo 'Copyright (C) 2007 - 2012 by <a href="http://www.Furtmeier.IT">Furtmeier Hard- und Software</a>. This program comes with ABSOLUTELY NO WARRANTY; this is free software, and you are welcome to redistribute it under certain conditions; see <a href="gpl.txt">gpl.txt</a> for details.<br />Thanks to the authors of the libraries and icons used by this program. <a href="javascript:contentManager.loadFrame(\'contentRight\',\'Credits\');">View credits.</a>';
+						echo 'Copyright (C) 2007 - 2013 by <a href="http://www.Furtmeier.IT">Furtmeier Hard- und Software</a>. This program comes with ABSOLUTELY NO WARRANTY; this is free software, and you are welcome to redistribute it under certain conditions; see <a href="gpl.txt">gpl.txt</a> for details.<!--<br />Thanks to the authors of the libraries and icons used by this program. <a href="javascript:contentManager.loadFrame(\'contentRight\',\'Credits\');">View credits.</a>-->';
 					?>
 				</p>
 			</div>

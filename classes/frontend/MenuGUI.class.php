@@ -162,13 +162,13 @@ class MenuGUI extends UnpersistentClass implements iGUIHTML2, icontextMenu {
 					class=\"navBackgroundColor navBorderColor ".(($t == null OR $t == "big") ? "" : " smallTab")." navTab\"
 					$style
 					>
-					<img
+					<!--<img
 						style=\"margin-top:-28px;float:left;\"
 						id=\"".$value."TabMinimizer\"
 						class=\"navTabMinimizer\"
 						title=\"Tab $key vergrößern/verkleinern\"
 						onclick=\"toggleTab('$value');\"
-						src=\"./images/i2/tabMinimize.png\" />
+						src=\"./images/i2/tabMinimize.png\" />-->
 					
 					<div onclick=\"$onclick\" style=\"padding:3px;padding-right:7px;padding-top:7px;height:18px;\">
 

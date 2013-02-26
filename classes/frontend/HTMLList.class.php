@@ -35,8 +35,8 @@ class HTMLList {
 		$this->style .= "min-height:{$height}px;";
 	}
 	
-	public function sortable($handle, $saveTo = null, $connectWith = null, $dropPlaceholder = null){
-		$this->sortable = OnEvent::sortable("%LISTID%", $handle, $saveTo, "y", $connectWith, $dropPlaceholder);
+	public function sortable($handle, $saveTo = null, $connectWith = null, $dropPlaceholder = null, $axis = "y", $additionalParameters = array()){
+		$this->sortable = OnEvent::sortable("%LISTID%", $handle, $saveTo, $axis, $connectWith, $dropPlaceholder, "", $additionalParameters);
 	}
 	
 	public function maxHeight($height){

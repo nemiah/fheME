@@ -29,6 +29,7 @@
 		<adminOnly>false</adminOnly>
 		
 		<version>0.6</version>
+		<registry>Overview;mWetterGUI::getOverviewPlugin</registry>
 
 		<deploy>
 			<table name="Wetter" />
