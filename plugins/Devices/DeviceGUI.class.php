@@ -26,7 +26,7 @@ class DeviceGUI extends Device implements iGUIHTML2 {
 		$B->onclick("\$j.jStorage.set('phynxDeviceID','".$this->getID()."');".OnEvent::reload("Left"));
 			
 		$B = $gui->addSideButton("Übersicht\neinrichten", "./fheME/Overview/fheOverview.png");
-		$B->popup("", "Übersicht einrichten", "mfheOverview", "-1", "manage", $this->getID(), "", "{width:800}");
+		$B->popup("", "Übersicht einrichten", "mfheOverview", "-1", "manage", $this->getID(), "", "{width:800, top:40}");
 		
 		return $gui->getEditHTML();
 	}

@@ -60,7 +60,7 @@ class mMailCheckGUI extends anyC implements iGUIHTMLMP2 {
 	}
 	
 	public static function getOverviewPlugin(){
-		return array("mMailCheckGUI", "MailCheck");
+		return new overviewPlugin("mMailCheckGUI", "MailCheck", 0);
 	}
 }
 ?>

@@ -124,14 +124,14 @@ class mFhemGUI extends anyC implements iGUIHTML2 {
 	public function getOverviewContent($echo = true){
 		$html = "<div class=\"touchHeader\"><span class=\"lastUpdate\" id=\"lastUpdatemFhemGUI\"></span><p>Fhem</p></div>
 			<div style=\"padding:10px;\">
-			<div style=\"padding-bottom:15px;\" class=\"borderColor1\">";
+			<div style=\"\" class=\"borderColor1\">";
 		
 		$FC = new FhemControlGUI();
 		$ac = $FC->getDevicesFHT(true);
 		while($t = $ac->getNextEntry())
 			$html .= $FC->getFHTControl($t);
 		
-		$html .= "<div style=\"clear:both;\"></div></div><div style=\"margin-top:10px;\">";
+		$html .= "<div style=\"clear:both;\"></div></div><div style=\"\">";
 		
 		$ac = $FC->getDevices(true);
 		while($t = $ac->getNextEntry())
@@ -146,7 +146,11 @@ class mFhemGUI extends anyC implements iGUIHTML2 {
 	}
 	
 	public static function getOverviewPlugin(){
-		return array("mFhemGUI", "Fhem");
+		$P = new overviewPlugin("mFhemGUI", "Fhem", 360);
+		$P->updateInterval(120);
+		$P->updateFunction("function(){".OnEvent::rme(new FhemControlGUI(-1), "updateGUI", "", "function(transport){ fheOverview.updateTime('mFhemGUI'); Fhem.updateControls(transport); }")."}");
+		
+		return $P;
 	}
 }
 ?>

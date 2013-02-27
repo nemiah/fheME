@@ -80,11 +80,17 @@ class mfheOverviewGUI extends anyC implements iGUIHTMLMP2 {
 			}
 
 			\$j(window).resize(function() {
+				if(fheOverview.noresize)
+					return;
 				fitOverview();
 			});
 			
-			fitOverview();
-		</script>";
+			".OnEvent::rme($this, "getOverviewContent", array("\$j.jStorage.get('phynxDeviceID','none')"), "function(transport){ \$j('.overviewContentPlaceholder').replaceWith(transport.responseText); fitOverview(); }")."
+		</script>
+		
+		<div class=\"overviewContentPlaceholder\"></div>";
+		
+		return $html;
 		
 		$this->addPlugin(1, "mKalenderGUI", 900);
 		#$this->addPlugin(2, "mFhemGUI", 120, "function(){".OnEvent::rme(new FhemControlGUI(-1), "updateGUI", "", "function(transport){ fheOverview.updateTime('mFhemGUI'); Fhem.updateControls(transport); }")."}");		
@@ -136,8 +142,66 @@ class mfheOverviewGUI extends anyC implements iGUIHTMLMP2 {
 		return "<div id=\"onfheOverviewPage\"></div>".$html.OnEvent::script("fheOverview.initUpdate(['".  implode("', '", $this->Plugins)."'], [".  implode(", ", $this->ReloadTimes)."], [".  implode(", ", $this->onReload)."]);");
 	}
 
-	public function addPlugin($col, $name, $reloadTime, $onReloadFunction = "null"){
-		$this->Columns[] = $col;
+	public function getOverviewContent($DeviceID){
+		if($DeviceID == "none")
+			die("<p>Bitte registrieren Sie diesen Browser im Geräte-Reiter.</p>");
+		
+		$O = anyC::getFirst("fheOverview", "fheOverviewDeviceID", $DeviceID);
+		
+		if($O == null)
+			die("<p>Für dieses Gerät wurde keine Übersicht erstellt!</p>");
+		
+		$count = 0;
+		for($i = 1; $i < 5; $i++)
+			if($O->A("fheOverviewCol$i") != "")
+				$count++;
+		
+		$width = 100 / $count;
+		
+		$html = "";
+		for($i = 1; $i < 5; $i++){
+			if($O->A("fheOverviewCol$i") == "")
+				continue;
+			
+			$plugins = explode(";", $O->A("fheOverviewCol$i"));
+			
+			$html .= "<div style=\"width:$width%;display:inline-block;vertical-align:top;\">
+				<div class=\"OverviewCol\">";
+			
+			foreach($plugins AS $k => $P){
+				$C = substr($P, 1);
+				$C = new $C();
+				
+				$E = $C->getOverviewPlugin();
+				
+				$html .=  "<div id=\"fheOverviewContent".substr($P, 1)."_getOverviewContent\" style=\"".(($k == count($plugins) - 1 OR $E->minHeight() === 0) ? "" : "height:".$E->minHeight()."px;overflow:hidden;")."\">";
+				ob_start();
+				$C->getOverviewContent();
+				$html .= ob_get_contents();
+				ob_end_clean();
+				$html .=  "</div>";
+		
+				if($E->updateInterval())
+					$this->addPlugin($E->className(), $E->updateInterval(), $E->updateFunction());
+				
+				
+				#$html .= $P;
+			}
+			
+			$html .= "</div>
+				</div>";
+		}
+		
+		$html = "<div id=\"onfheOverviewPage\"></div>".$html.OnEvent::script("fheOverview.initUpdate(['".  implode("', '", $this->Plugins)."'], [".  implode(", ", $this->ReloadTimes)."], [".  implode(", ", $this->onReload)."]);");
+		
+		echo $html;
+	}
+	
+	public function addPlugin($name, $reloadTime, $onReloadFunction = "null"){
+		if($onReloadFunction === null)
+			$onReloadFunction = "null";
+			
+		#$this->Columns[] = $col;
 		$this->Plugins[] = $name.(strpos($name, "::") === false ? "::getOverviewContent" : "");
 		$this->ReloadTimes[] = $reloadTime;
 		$this->onReload[] = $onReloadFunction;
@@ -191,7 +255,7 @@ class mfheOverviewGUI extends anyC implements iGUIHTMLMP2 {
 			echo "0";
 	}
 	
-	public function manage($deviceID){
+	public function manage($DeviceID){
 		echo "<style type=\"text/css\">
 				.dropPlaceholder {
 					border:1px dashed green;
@@ -202,18 +266,42 @@ class mfheOverviewGUI extends anyC implements iGUIHTMLMP2 {
 				} 
 				</style>";
 		
+		$O = anyC::getFirst("fheOverview", "fheOverviewDeviceID", $DeviceID);
+		$cols = array();
+		if($O != null){
+			for($i = 1; $i < 5; $i++){
+				$cols[$i] = array();
+				if($O->A("fheOverviewCol$i") == "")
+					continue;
+				
+				$cols[$i] = explode (";", $O->A("fheOverviewCol$i"));
+			}
+		}
+		$Plugins = array();
 		$L = new HTMLList();
 		$L->addListStyle("list-style-type:none;min-height:50px;");
 		$L->addListClass("OverviewPlugins");
 		$L->sortable("", "", ".OverviewCol1, .OverviewCol2, .OverviewCol3, .OverviewCol4", "dropPlaceholder", "");
 		while($callback = Registry::callNext("Overview")){
-			$L->addItem($callback[1]);
-			$L->addItemStyle("padding:3px;min-height: 1.5em;cursor:move;");
-			$L->setItemID("P_$callback[0]");
+			$Plugins[$callback->className()] = $callback;
+			
+			$continue = false;
+			for($i = 1; $i < 5; $i++){
+				if(in_array("P".$callback->className(), $cols[$i]))
+					$continue = true;
+			}
+			
+			if($continue)
+				continue;
+			
+			$L->addItem($callback->name());
+			$L->addItemStyle("background-color:#ddd;padding:3px;min-height:".$callback->minHeight()."px;cursor:move;");
+			$L->setItemID("P_".$callback->className());
 		}
+		Registry::reset("Overview");
 		
-		echo "<div style=\"display:inline-block;width:200px;\"><p>Plugins</p>$L</div>";
-		
+		echo "<div style=\"display:inline-block;width:149px;margin-right:50px;\"><p>Plugins</p><div style=\"overflow:auto;height:500px;\">$L</div></div>";
+		#print_r($Plugins);
 		$Lists = array();
 		for($i = 1; $i < 5; $i++){
 			$List = new HTMLList();
@@ -221,6 +309,17 @@ class mfheOverviewGUI extends anyC implements iGUIHTMLMP2 {
 			$List->addListStyle("list-style-type:none;min-height:50px;");
 			#$List->addItem("TEST");
 			$List->addItemStyle("padding:3px;min-height: 1.5em;cursor:move;");
+			
+			foreach($cols[$i] AS $class){
+				$callback = $Plugins[substr($class, 1)];
+				#if(!in_array("P".$callback->className(), $cols[$i]))
+				#	continue;
+				#$List->addItem($class);
+				$List->addItem($callback->name());
+				$List->addItemStyle("background-color:#ddd;padding:3px;min-height: ".$callback->minHeight()."px;cursor:move;");
+				$List->setItemID("P_".$callback->className());
+			}
+			Registry::reset("Overview");
 			
 			$Lists[] = $List;
 		}
@@ -233,9 +332,9 @@ class mfheOverviewGUI extends anyC implements iGUIHTMLMP2 {
 				$group .= ", .OverviewCol".($i+1);
 			}
 			#echo $group."<br />";
-			$List->sortable("", "mfheOverviewGUI::saveCols", $group, "dropPlaceholder", "", array($deviceID, $k+1));
+			$List->sortable("", "mfheOverviewGUI::saveCols", $group, "dropPlaceholder", "", array($DeviceID, $k+1));
 			
-			echo "<div style=\"vertical-align:top;min-height:400px;display:inline-block;width:149px;border-left-style:solid;border-left-width:1px;\" class=\"borderColor1\"><p>Spalte ".($k+1)."</p>$List</div>";
+			echo "<div style=\"vertical-align:top;display:inline-block;width:149px;border-left-style:solid;border-left-width:1px;\" class=\"borderColor1\"><p>Spalte ".($k+1)."</p><div style=\"overflow:auto;height:500px;\">$List</div></div>";
 		}
 		
 		echo "<div style=\"clear:both;\"></div>";

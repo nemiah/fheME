@@ -71,6 +71,7 @@ class mLogitechMediaServerGUI extends anyC implements iGUIHTMLMP2 {
 			
 			$I = new HTMLInput("LMSPlayerID", "select", "0", $LMS->players());
 			$I->id("LMSPlayerID".$LMS->getID());
+			$I->style("width:100%;");
 			
 			$html .= $I;
 		}
@@ -84,7 +85,7 @@ class mLogitechMediaServerGUI extends anyC implements iGUIHTMLMP2 {
 	}
 	
 	public static function getOverviewPlugin(){
-		return array("mLogitechMediaServerGUI", "Logitech Media Server");
+		return new overviewPlugin("mLogitechMediaServerGUI", "Logitech Media Server", 0);
 	}
 }
 ?>

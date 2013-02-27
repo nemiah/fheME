@@ -26,6 +26,8 @@ var fheOverview = {
 	replaceUpdateMethods: null,
 	months: new Array("Januar", "Februar", "M&auml;rz", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"),
 	days: new Array("Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"),
+	noresize: false,
+	noreload: [],
 	
 	initUpdate: function(classes, delays, replaceUpdateMethods){
 		//console.log(classes);
@@ -41,8 +43,8 @@ var fheOverview = {
 		fheOverview.replaceUpdateMethods = replaceUpdateMethods.slice();
 		fheOverview.counter = 0;
 		
-		for (var i = 0; i < classes.length; i++)
-			fheOverview.loadContent(classes[i]);
+		//for (var i = 0; i < classes.length; i++)
+		//	fheOverview.loadContent(classes[i]);
 		
 		fheOverview.updater = window.setInterval(function(){
 			if(!$('onfheOverviewPage')){
@@ -51,18 +53,20 @@ var fheOverview = {
 				return;
 			}
 			
-			var jetzt = new Date();
-			$('fheOverviewClock').update("<span>"+fheOverview.days[jetzt.getDay()]+",<br /><b>"+jetzt.getDate()+". "+fheOverview.months[jetzt.getMonth()]+" "+jetzt.getFullYear()+"</b></span><b>"+jetzt.getHours()+":"+(jetzt.getMinutes() < 10 ? "0" : "")+jetzt.getMinutes()+"</b>");
 			
 			for(var j = 0; j < fheOverview.delays.length; j++){
 				if(fheOverview.delays[j] == 0)
 					continue;
 				
-				if(fheOverview.counter > 0 && fheOverview.counter % fheOverview.delays[j] == 0)
+				if($j.inArray(fheOverview.targets[j], fheOverview.noreload) >= 0)
+					continue;
+				
+				if(fheOverview.counter > 0 && fheOverview.counter % fheOverview.delays[j] == 0){
 					if(fheOverview.replaceUpdateMethods[j] == null)
 						fheOverview.loadContent(fheOverview.targets[j]);
 					else
 						fheOverview.replaceUpdateMethods[j]();
+				}
 			}
 			
 			fheOverview.counter++;

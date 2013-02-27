@@ -80,30 +80,23 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 			echo $this->getOverviewListEntry($name, time());
 	}
 	
-	public function addItem($name){
-		$F = new Factory("Einkaufszettel");
-		$F->sA("EinkaufszettelName", $name);
-		$F->sA("EinkaufszettelTime", time());
-		$F->store();
+	public function addItem($name, $overviewList = false){
 		
-		echo $this->getListTable();
+		if(trim($name) != ""){
+			$F = new Factory("Einkaufszettel");
+			$F->sA("EinkaufszettelName", $name);
+			$F->sA("EinkaufszettelTime", time());
+			$F->store();
+		}
+		
+		if(!$overviewList)
+			echo $this->getListTable();
+		else
+			echo $this->getOverviewList();
 	}
 	
-	public function getOverviewListEntry($name, $time){
-		return "<div style=\"padding:3px;\"><small style=\"float:right;color:grey;\">".Util::CLDateParser($time)."</small>".($name != "" ? $name : "Artikel $EAN nicht gefunden!")."</div>";
-	}
-
-	public function getOverviewContent(){
-		$html = "<div class=\"touchHeader\"><span class=\"lastUpdate\" id=\"lastUpdatemEinkaufszettelGUI\">asd</span><p>Einkaufen</p></div>
-			<div style=\"padding:10px;\">";
-
-		$B = new Button("Aktuelle Liste anzeigen", "./fheME/Einkaufszettel/Einkaufszettel.png", "icon");
-		$B->popup("", "Einkaufsliste", "mEinkaufszettel", "-1", "showCurrentList", "", "", "{top:20, hPosition:'right'}");
-		$B->style("float:right;margin-left:10px;");
-		#<div style=\"border-bottom-width:1px;border-bottom-style:dotted;margin-right:45px;height:20px;margin-bottom:5px;\" id=\"EinkaufszettelInput\" class=\"borderColor1\"></div>
-		$html .= "$B";#<small style=\"color:grey;\">Zuletzt hinzugefügt:</small>
-		$html .= "<div id=\"EinkaufszettelLastAdded\" style=\"margin-right:40px;\"><div class=\"emptyElement\" style=\"padding:3px;\">";
-		
+	public function getOverviewList(){
+		$html = "";
 		$AC = anyC::get("Einkaufszettel", "EinkaufszettelBought", "0");
 		$AC->addOrderV3("EinkaufszettelTime", "DESC");
 		$AC->setLimitV3("5");
@@ -111,8 +104,39 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 			$html .= $this->getOverviewListEntry($E->A("EinkaufszettelName"), $E->A("EinkaufszettelTime"));
 		
 		if($AC->numLoaded() == 0)
-			$html .= "<span style=\"color:grey;\">Der Einkaufszettel ist leer</span></div>";
-		$html .= "</div></div>";
+			$html .= "<div class=\"emptyElement\" style=\"padding-bottom:5px;\"><span style=\"color:grey;\">Der Einkaufszettel ist leer</span></div>";
+		
+		return $html;
+	}
+	
+	public function getOverviewListEntry($name, $time){
+		return "<div style=\"padding-bottom:5px;\"><small style=\"float:right;color:grey;\">".Util::CLDateParser($time)."</small>".($name != "" ? $name : "Artikel $EAN nicht gefunden!")."</div>";
+	}
+
+	public function getOverviewContent(){
+		$html = "<div class=\"touchHeader\"><span class=\"lastUpdate\" id=\"lastUpdatemEinkaufszettelGUI\"></span><p>Einkaufen</p></div>
+			<div style=\"padding:10px;\">";
+
+		$I = new HTMLInput("EinkaufslisteNewEntryOV", "textarea");
+		$I->placeholder("Neuer Eintrag");
+		$I->style("width:100px;padding:5px;font-size:20px;font-family:monospace;height:25px;max-height:25px;");
+		$I->onfocus("fheOverview.noreload.push('mEinkaufszettelGUI::getOverviewContent'); fheOverview.noresize = true;");
+		$I->onblur("fheOverview.noreload.pop(); fheOverview.noresize = false;");
+		#$I->onkeyup("var currentContent = \$j(this).val(); ".OnEvent::rme($this, "getACData", array("this.value"), "function(transport){ var json = jQuery.parseJSON(transport.responseText); if(json.length >= 1) \$j('#EinkaufslisteNewEntryAC').html(json[0].EinkaufszettelName.replace(currentContent, '<span style=\'color:white;\'>'+currentContent+'</span>')); else \$j('#EinkaufslisteNewEntryAC').html(''); }"));
+		$I->onEnter(OnEvent::rme($this, "addItem", array("this.value", "1"), "function(transport){ \$j('#EinkaufszettelLastAdded').html(transport.responseText); }")." \$j(this).val('');");
+		
+		
+		$B = new Button("Aktuelle Liste anzeigen", "./fheME/Einkaufszettel/Einkaufszettel.png", "icon");
+		$B->popup("", "Einkaufsliste", "mEinkaufszettel", "-1", "showCurrentList", "", "", "{top:20, hPosition:'right'}");
+		$B->style("float:right;");
+		
+		
+		$html .= "<div class=\"touchButton\" id=\"EinkaufslisteNewEntryContainer\">$B$I</div>
+			<div id=\"EinkaufszettelLastAdded\">";
+		
+		$html .= $this->getOverviewList();
+		
+		$html .= "</div></div>".OnEvent::script("\$j('[name=EinkaufslisteNewEntryOV]').css('width', (\$j('#EinkaufslisteNewEntryContainer').innerWidth() - 70)+'px');");
 		echo $html;
 	}
 	
@@ -178,7 +202,10 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 	}
 	
 	public static function getOverviewPlugin(){
-		return array("mEinkaufszettelGUI", "Einkaufen");
+		$P = new overviewPlugin("mEinkaufszettelGUI", "Einkaufen", 145);
+		$P->updateInterval(300);
+		
+		return $P;
 	}
 }
 ?>
