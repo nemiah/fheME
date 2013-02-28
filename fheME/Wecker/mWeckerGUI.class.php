@@ -47,7 +47,9 @@ class mWeckerGUI extends anyC implements iGUIHTMLMP2 {
 				<div style=\"clear:both;\"></div>
 			</div>";
 		
-		$html .= "</div>";
+		$html .= "</div><audio src=\"http://gffstream.ic.llnwd.net/stream/gffstream_w14a\"  controls autoplay>
+<p>Your browser does not support the audio element.</p>
+</audio>";
 		echo $html;
 	}
 	
