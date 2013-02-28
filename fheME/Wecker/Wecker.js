@@ -19,23 +19,64 @@
  */
 
 var Wecker = {
+	startAt: null,
+	interval: null,
+	
 	show: function(){
-		$j('body').append('<div class="darkOverlay" id="WetterOverlay" style="display:none;"></div>');
+		$j('body').append('<div class="darkOverlay" id="ClockOverlay" style="display:none;"></div>');
 		
-		$j("#WetterOverlay").hammer().on("swipeup", function(ev){
-			//alert("touch dragdown release!");
-			//console.log(ev);
-			$j('#WetterOverlay').slideUp("fast", function(){
-				$j('#WetterOverlay').remove();
-			});
+		$j("#ClockOverlay").hammer().on("touch dragup release", function(ev){
+			switch(ev.type){
+				case "touch":
+					Wecker.startAt = ev.gesture.center.pageY;
+				break;
+				
+				case "dragup":
+					$j("#ClockOverlay").css("margin-top", ((Wecker.startAt - ev.gesture.center.pageY) * -1)+"px");
+				break;
+				
+				case "release":
+					if(Math.abs(Wecker.startAt - ev.gesture.center.pageY) > 100){
+						$j('#Clock').fadeOut();
+						$j('#ClockOverlay').animate({"margin-top": "-100%"}, 400, "swing", function(){
+							$j('#ClockOverlay').remove();
+							window.clearInterval(Wecker.interval);
+							Wecker.interval = null;
+						});
+					} else
+						$j("#ClockOverlay").animate({"margin-top" : "0px"});
+					
+				break;
+			}
 			ev.gesture.preventDefault();
 			ev.stopPropagation();
 		});
 		
-		$j('#WetterOverlay').slideDown("fast", function(){
+		
+		$j('#ClockOverlay').slideDown("fast", function(){
+			Wecker.clock();
 			/*$j("#WetterOverlay").hammer().on("tap", function(){
 				alert("tap!");
 			});*/
 		});
+	},
+	
+	update: function(){
+		var jetzt = new Date();
+		$j('#Clock').html("<span style=\"font-size:200px;\">"+(jetzt.getHours() < 10 ? '0' : '')+jetzt.getHours()+':'+(jetzt.getMinutes() < 10 ? '0' : '')+jetzt.getMinutes()+"</span><br /><span>"+fheOverview.days[jetzt.getDay()]+', '+jetzt.getDate()+'. '+fheOverview.months[jetzt.getMonth()]+' '+jetzt.getFullYear()+'</span>');
+	},
+	
+	clock: function(){
+		$j("#ClockOverlay").append("<div id=\"Clock\" style=\"color:#888;font-family:Roboto;font-weight:300;display:none;text-align:center;\"></div>\n\
+		<div id=\"ClockDetails\" style=\"text-align:center;color:#888;font-family:Roboto;font-weight:300;display:none;\">\n\
+			<div class=\"inline-block;\"><span class=\"iconic clock\"></span> 9:00</div>\n\
+		</div>");
+		Wecker.update();
+		$j('#Clock').css("margin-top", ($j(window).height() / 2 - $j('#Clock').outerHeight() / 2)+"px").fadeIn("slow", function(){
+			$j('#ClockDetails').fadeIn();
+		});
+		Wecker.interval = window.setInterval(function(){
+			Wecker.update();
+		}, 1000);
 	}
 }
