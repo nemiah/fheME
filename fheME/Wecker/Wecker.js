@@ -21,6 +21,16 @@
 var Wecker = {
 	startAt: null,
 	interval: null,
+	data: null,
+	
+	loadThemAll: function(){
+		if($j.jStorage.get('phynxDeviceID', null) == null)
+			return;
+		
+		contentManager.rmePCR("mWecker", "-1", "loadThemAll", $j.jStorage.get('phynxDeviceID', null), function(transport){
+			Wecker.data = $j.parseJSON(transport.responseText);
+		});
+	},
 	
 	show: function(){
 		$j('body').append('<div class="darkOverlay" id="ClockOverlay" style="display:none;"></div>');
@@ -63,20 +73,34 @@ var Wecker = {
 	
 	update: function(){
 		var jetzt = new Date();
-		$j('#Clock').html("<span style=\"font-size:200px;\">"+(jetzt.getHours() < 10 ? '0' : '')+jetzt.getHours()+':'+(jetzt.getMinutes() < 10 ? '0' : '')+jetzt.getMinutes()+"</span><br /><span>"+fheOverview.days[jetzt.getDay()]+', '+jetzt.getDate()+'. '+fheOverview.months[jetzt.getMonth()]+' '+jetzt.getFullYear()+'</span>');
+		$j('#Clock').html("<span style=\"font-size:200px;\">"+(jetzt.getHours() < 10 ? '0' : '')+jetzt.getHours()+':'+(jetzt.getMinutes() < 10 ? '0' : '')+jetzt.getMinutes()+"</span>");
+		$j('#ClockDay').html("<span>"+fheOverview.days[jetzt.getDay()]+', '+jetzt.getDate()+'. '+fheOverview.months[jetzt.getMonth()]+' '+jetzt.getFullYear()+'</span>');
+		var wecker = "";
+		for(var i = 0; i < Wecker.data.length; i++){
+			wecker += "<span class=\"iconic clock\"></span> "+Wecker.data[i].WeckerTime;
+		}
+		$j("#ClockWecker").html(wecker);
 	},
 	
 	clock: function(){
-		$j("#ClockOverlay").append("<div id=\"Clock\" style=\"color:#888;font-family:Roboto;font-weight:300;display:none;text-align:center;\"></div>\n\
-		<div id=\"ClockDetails\" style=\"text-align:center;color:#888;font-family:Roboto;font-weight:300;display:none;\">\n\
-			<div class=\"inline-block;\"><span class=\"iconic clock\"></span> 9:00</div>\n\
-		</div>");
+		$j("#ClockOverlay").append("\
+		<div id=\"ClockDay\" style=\"font-size:30px;color:#888;font-family:Roboto;font-weight:300;display:none;padding:20px;padding-bottom:0px;float:left;\"></div>\n\
+		<div id=\"ClockWecker\" style=\"font-size:20px;color:#888;font-family:Roboto;font-weight:300;display:none;padding:20px;float:left;clear:both;\"></div>\n\
+		<div id=\"Clock\" style=\"color:#888;font-family:Roboto;font-weight:300;display:none;text-align:right;padding:30px;padding-bottom:10px;\"></div>");
+		
 		Wecker.update();
-		$j('#Clock').css("margin-top", ($j(window).height() / 2 - $j('#Clock').outerHeight() / 2)+"px").fadeIn("slow", function(){
-			$j('#ClockDetails').fadeIn();
+		$j('#Clock').css("margin-top", ($j(window).height() - $j('#Clock').outerHeight())+"px").fadeIn("slow", function(){
+			$j('#ClockDay').fadeIn("fast", function(){
+				$j('#ClockWecker').fadeIn();
+			});
+			
 		});
 		Wecker.interval = window.setInterval(function(){
 			Wecker.update();
 		}, 1000);
 	}
 }
+
+$j(function(){
+	Wecker.loadThemAll();
+});

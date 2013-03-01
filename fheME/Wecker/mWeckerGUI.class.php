@@ -47,9 +47,9 @@ class mWeckerGUI extends anyC implements iGUIHTMLMP2 {
 				<div style=\"clear:both;\"></div>
 			</div>";
 		
-		$html .= "</div><audio src=\"http://gffstream.ic.llnwd.net/stream/gffstream_w14a\"  controls autoplay>
+		$html .= "</div><!--<audio src=\"http://gffstream.ic.llnwd.net/stream/gffstream_w14a\"  controls autoplay>
 <p>Your browser does not support the audio element.</p>
-</audio>";
+</audio>-->";
 		echo $html;
 	}
 	
@@ -58,5 +58,10 @@ class mWeckerGUI extends anyC implements iGUIHTMLMP2 {
 	}
 
 
+	public function loadThemAll($DeviceID){
+		$AC = anyC::get("Wecker", "WeckerDeviceID", $DeviceID);
+		
+		die($AC->asJSON());
+	}
 }
 ?>
