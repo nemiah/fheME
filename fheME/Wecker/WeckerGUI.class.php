@@ -30,6 +30,8 @@ class WeckerGUI extends Wecker implements iGUIHTML2 {
 		$gui->type("WeckerDeviceID", "select", anyC::get("Device"), "DeviceName");
 		$gui->type("WeckerIsActive", "checkbox");
 		$gui->type("WeckerRepeat", "checkbox");
+		#$gui->type("WeckerFallback", "file");
+		$gui->type("WeckerRuntime", "select", array(10 => "10 Minuten", 20 => "20 Minuten", 30 => "30 Minuten", 40 => "40 Minuten", 50 => "50 Minuten", 60 => "1 Stunde"));
 		
 		$gui->type("WeckerMo", "checkbox");
 		$gui->type("WeckerDi", "checkbox");
@@ -39,8 +41,12 @@ class WeckerGUI extends Wecker implements iGUIHTML2 {
 		$gui->type("WeckerSa", "checkbox");
 		$gui->type("WeckerSo", "checkbox");
 		
+		$gui->type("WeckerRepeatAfter", "select", array(60 => "1 Minute", 5 * 60 => "5 Minuten", 10 * 60 => "10 Minuten", 15 * 60 => "15 Minuten", 20 * 60 => "20 Minuten"));
+		$gui->type("WeckerVolume", "select", array(10 => "10%", 20 => "20%", 30 => "30%", 40 => "40%", 50 => "50%", 60 => "60%", 70 => "70%", 80 => "80%", 90 => "90%", 100 => "100%"));
 		$gui->space("WeckerTime");
 		$gui->space("WeckerRepeat");
+		
+		$gui->parser("WeckerFallback", "WeckerGUI::parserFallback");
 		
 		#$gui->parser("WeckerMo", "WeckerGUI::parserTage");
 		
@@ -49,6 +55,43 @@ class WeckerGUI extends Wecker implements iGUIHTML2 {
 	
 	public static function parserTage($w, $E){
 		
+	}
+	
+	public static function parserFallback($w, $l, $E){
+		$I = new HTMLInput("WeckerFallback", "text", $w);
+		$I->style("margin-top:10px;");
+		
+		$IF = new HTMLInput("WeckerFallbackUpload", "file");
+		$IF->onchange(OnEvent::rme($E, "processUpload", array("fileName"), "\$j('[name=WeckerFallback]').val(fileName).trigger('change');"));
+		
+		return $IF.$I;
+	}
+	
+	public function processUpload($fileName){
+		$ex = explode(".", strtolower($fileName));
+		
+		$mime = null;
+		if($ex[count($ex) - 1] == "ogg")
+			$mime = "ogg";
+		
+		if($ex[count($ex) - 1] == "mp3")
+			$mime = "mp3";
+		
+		if($mime == null)
+			Red::alertD("Datei unbekannt. Bitte verwenden Sie ogg oder mp3-Dateien.");
+		
+		$tempDir = Util::getTempFilename();
+		
+		unlink($tempDir);
+		$tempDir = dirname($tempDir);
+		
+		$filePath = $tempDir."/".$fileName.".tmp";
+		
+		echo FileStorage::getFilesDir().$fileName;
+		if(!copy($filePath, FileStorage::getFilesDir().$fileName))
+			Red::errorD("Der Upload ist fehlgeschlagen!");
+		
+		unlink($filePath);
 	}
 }
 ?>

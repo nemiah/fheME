@@ -41,15 +41,13 @@ class mWeckerGUI extends anyC implements iGUIHTMLMP2 {
 			$B = new Button("Wecker anzeigen", "moon_stroke", "iconicL");
 			#Overlay.showDark();
 			$html .= "
-			<div class=\"touchButton\" onclick=\"Wecker.show();\">
+			<div class=\"touchButton\" onclick=\"Wecker.loadThemAll(function(){ Wecker.show(); });\">
 				".$B."
 				<div class=\"label\">Wecker anzeigen</div>
 				<div style=\"clear:both;\"></div>
 			</div>";
 		
-		$html .= "</div><!--<audio src=\"http://gffstream.ic.llnwd.net/stream/gffstream_w14a\"  controls autoplay>
-<p>Your browser does not support the audio element.</p>
-</audio>-->";
+		$html .= "</div><!--<audio></audio>-->";
 		echo $html;
 	}
 	
@@ -60,6 +58,7 @@ class mWeckerGUI extends anyC implements iGUIHTMLMP2 {
 
 	public function loadThemAll($DeviceID){
 		$AC = anyC::get("Wecker", "WeckerDeviceID", $DeviceID);
+		$AC->addAssocV3("WeckerIsActive", "=", "1");
 		
 		die($AC->asJSON());
 	}
