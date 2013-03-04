@@ -203,15 +203,15 @@ var Wecker = {
 	
 	clock: function(){
 		$j("#ClockOverlay").append("\
-		<div id=\"ClockDay\" style=\"font-size:30px;color:#777;font-family:Roboto;font-weight:300;display:none;padding:20px;padding-bottom:0px;float:left;\"></div>\n\
-		<div id=\"ClockWecker\" style=\"font-size:20px;color:#777;font-family:Roboto;font-weight:300;display:none;padding:20px;float:left;clear:both;\"></div>\n\
-		<div id=\"Clock\" style=\"color:#777;font-family:Roboto;font-weight:300;display:none;text-align:right;padding:30px;padding-bottom:10px;\"></div>\n\
+		<div id=\"ClockDay\" style=\"font-size:30px;color:#666;font-family:Roboto;font-weight:300;display:none;padding:20px;padding-bottom:0px;float:left;\"></div>\n\
+		<div id=\"ClockWecker\" style=\"font-size:20px;color:#666;font-family:Roboto;font-weight:300;display:none;padding:20px;float:left;clear:both;\"></div>\n\
+		<div id=\"Clock\" style=\"color:#666;font-family:Roboto;font-weight:300;display:none;text-align:right;padding:30px;padding-bottom:10px;\"></div>\n\
 		<div id=\"ClockTouch\" style=\"position:absolute;z-index:5000;width:100%;\">\n\
 			<div style=\"padding:30px;\">\n\
 				<span style=\"font-size:200px;display:none;vertical-align:bottom;\" class=\"iconic curved_arrow\" id=\"ClockButtonSnooze\"></span>\n\
 				<div id=\"ClockButtonSnoozing\" style=\"display:none;vertical-align:bottom;\">\n\
 					<span style=\"font-size:200px;\" class=\"iconic moon_stroke\"></span><br />\n\
-					<span id=\"ClockSnoozeTimer\" style=\"color:#777;font-family:Roboto;font-weight:300;\"></span>\n\
+					<span id=\"ClockSnoozeTimer\" style=\"color:#666;font-family:Roboto;font-weight:300;\"></span>\n\
 				</div>\n\
 			</div>\n\
 		</div>\n\
