@@ -20,11 +20,16 @@
 
 var Wecker = {
 	startAt: null,
+	startAtX: null,
+	lastAtY: null,
 	interval: null,
 	data: null,
 	active: null,
 	snoozeTimer: null,
 	currentAudio: null,
+	currentTime: null,
+	currentSide: "left",
+	runtime: null,
 	
 	loadThemAll: function(onSuccessFunction){
 		if($j.jStorage.get('phynxDeviceID', null) == null)
@@ -119,6 +124,8 @@ var Wecker = {
 		});
 		Wecker.currentAudio.get(0).play();
 		
+		Wecker.runtime = Wecker.active.WeckerRuntime * 60;
+				
 		window.setTimeout(function(){
 			Wecker.fallback();
 		}, 15 * 1000);
@@ -140,32 +147,115 @@ var Wecker = {
 		}
 	},
 	
-	update: function(){
+	getWecker: function(sekunden){
+		var stunden = Math.floor(sekunden / 3600);
+		var minuten = (sekunden - stunden * 3600) / 60;
+		
+		return (stunden < 10 ? '0' : '')+stunden+':'+(minuten < 10 ? '0' : '')+minuten;
+	},
+	
+	sign: function(x) {
+		return x > 0 ? 1 : x < 0 ? -1 : 0;
+	},
+	
+	lastOrd: null,
+	setWecker: function(WeckerID){
+		
+		var i = 0;
+		for(; i < Wecker.data.length; i++){
+			if(Wecker.data[i].WeckerID == WeckerID)
+				break;
+		}
+	
+		
+		if($j('#ClockSetWecker').length > 0){
+			$j('#ClockSetWecker').animate({"right": "-100%"}, "fast", "swing", function(){
+				$j('#ClockSetWecker, #ClockSetWeckerTouch').remove();
+			});
+			return;
+		}
+		
+		$j('body').append("<div style=\"font-size:170px;background-image:url(./fheME/Wecker/updown.svg);background-size:100%;position:fixed;top:0px;right:-100%;z-index:102;height: 100%;background-color:#666;width:"+($j(window).width() - $j('#Clock span').offset().left)+"px;\" id=\"ClockSetWecker\">\n\
+			<div style=\"color:black;font-family:Roboto;font-weight:300;text-align:right;padding:30px;padding-top:10px;\"></div></div>\n\
+			<div id=\"ClockSetWeckerTouch\" style=\"position:fixed;top:0px;right:-100%;z-index:104;height: 100%;width:"+($j(window).width() - $j('#Clock span').offset().left)+"px;\"></div>");
+		$j('#ClockSetWecker div').append("<span style=\"display:none;\">"+Wecker.getWecker(Wecker.data[i].WeckerTime)+"</span>");
+		//$j('#ClockSetWecker').css("width", ");
+		$j('#ClockSetWecker, #ClockSetWeckerTouch').animate({"right": "0px"}, "fast", "swing", function(){
+			$j('#ClockSetWecker span').fadeIn("fast");
+		});
+		
+		$j("#ClockSetWeckerTouch").hammer({drag_min_distance: 40}).on("touch dragup dragdown dragleft dragright release", function(ev){
+			switch(ev.type){
+				case "touch":
+					Wecker.lastAtY = ev.gesture.center.pageY;
+					Wecker.startAtX = ev.gesture.center.pageX;
+					Wecker.currentTime = Wecker.data[i].WeckerTime;
+					
+					Wecker.currentSide = "left";
+					if(ev.gesture.center.pageX > $j(window).width() - $j("#ClockSetWecker").width() + $j("#ClockSetWecker").width() / 2)
+						Wecker.currentSide = "right";
+						
+					Wecker.lastOrd = null;
+				break;
+				
+				case "dragup":
+				case "dragdown":
+					var newY = (Wecker.lastAtY - ev.gesture.center.pageY);
+					
+					console.log(newY);
+					console.log(ev);
+					
+					var add = 0;
+					if(Wecker.currentSide == "left")
+						add = 3600 * Wecker.sign(newY);
+					else
+						add = 60 * 5 * Wecker.sign(newY);
+					
+					
+					if(Wecker.currentTime * 1 + add < 0)
+						return;
+					
+					if(Wecker.currentTime * 1 + add > 24 * 3600)
+						return;
+					
+					Wecker.lastAtY = ev.gesture.center.pageY;
+					Wecker.currentTime = Wecker.currentTime * 1 + add;
+					
+					$j('#ClockSetWecker div span').replaceWith("<span>"+Wecker.getWecker(Wecker.currentTime)+"</span>");
+				break;
+				
+				case "dragleft":
+				case "dragright":
+					var newX = (Wecker.startAtX - ev.gesture.center.pageX) * 1;
+					if(newX > 0)
+						newX = 0;
+					
+					$j("#ClockSetWecker").css("margin-right", newX+"px");
+				break;
+				
+				case "release":
+					Wecker.data[i].WeckerTime = Wecker.currentTime;
+					
+					if(ev.gesture.center.pageX - Wecker.startAtX > 200){
+						//$j('#Clock').fadeOut();
+						$j('#ClockSetWecker').animate({"margin-right": "-"+$j('#ClockSetWecker').outerWidth()+"px"}, 400, "swing", function(){
+							$j('#ClockSetWecker, #ClockSetWeckerTouch').remove();
+						});
+					} else
+						$j("#ClockSetWecker").animate({"margin-right" : "0px"});
+					
+				break;
+			}
+			ev.gesture.preventDefault();
+			ev.stopPropagation();
+		});
+	},
+	
+	updateWecker: function(){
 		var jetzt = new Date();
 		var tage = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
 		var tageJS = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
 		var wecker = "";
-		
-		$j('#Clock').html("<span style=\"font-size:200px;\">"+(jetzt.getHours() < 10 ? '0' : '')+jetzt.getHours()+':'+(jetzt.getMinutes() < 10 ? '0' : '')+jetzt.getMinutes()+"</span>");
-		$j('#ClockDay').html("<span>"+fheOverview.days[jetzt.getDay()]+', '+jetzt.getDate()+'. '+fheOverview.months[jetzt.getMonth()]+' '+jetzt.getFullYear()+'</span>');
-		
-		if(Wecker.active != null && Wecker.snoozeTimer != null && Wecker.snoozeTimer > 0){
-			Wecker.snoozeTimer--;
-			var SMinuten = Math.floor(Wecker.snoozeTimer / 60);
-			var SSekunden = Wecker.snoozeTimer - SMinuten * 60;
-			
-			$j('#ClockSnoozeTimer').html(SMinuten+":"+(SSekunden < 10 ? "0" : "")+SSekunden);
-		}
-		
-		if(Wecker.active != null && Wecker.snoozeTimer != null && Wecker.snoozeTimer == 0){
-			Wecker.snoozeTimer = null;
-			Wecker.play();
-			$j('#ClockButtonSnoozing').fadeOut(function(){
-				$j('#ClockButtonSnooze').fadeIn();
-			});
-			
-			
-		}
 		
 		for(var i = 0; i < Wecker.data.length; i++){
 			var stunden = Math.floor(Wecker.data[i].WeckerTime / 3600);
@@ -184,9 +274,49 @@ var Wecker = {
 					days += (days != "" ? ", " : "")+tage[j];
 			}
 			
-			wecker += "<span class=\"iconic clock\"></span> <div style=\"display:inline-block;text-align:right;width:55px;\">"+stunden+":"+(minuten < 10 ? '0' : '')+minuten+"</div> <small>"+days+"</small><br />";
+			wecker += "\
+				<div style=\"padding:5px;cursor:pointer;\" onclick=\"Wecker.setWecker("+Wecker.data[i].WeckerID+");\">\n\
+						<span class=\"iconic clock\"></span> <div style=\"display:inline-block;text-align:right;width:55px;\">"+stunden+":"+(minuten < 10 ? '0' : '')+minuten+"</div> <small>"+days+"</small>\n\
+				</div>";
 		}
 		$j("#ClockWecker").html(wecker);
+	},
+	
+	update: function(){
+		var jetzt = new Date();
+		//var tage = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
+		//var tageJS = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
+		//var wecker = "";
+		
+		$j('#Clock').html("<span style=\"font-size:200px;\">"+(jetzt.getHours() < 10 ? '0' : '')+jetzt.getHours()+':'+(jetzt.getMinutes() < 10 ? '0' : '')+jetzt.getMinutes()+"</span>");
+		$j('#ClockDay').html("<span>"+fheOverview.days[jetzt.getDay()]+', '+jetzt.getDate()+'. '+fheOverview.months[jetzt.getMonth()]+' '+jetzt.getFullYear()+'</span>');
+		
+		if(Wecker.active != null && Wecker.snoozeTimer != null && Wecker.snoozeTimer > 0){
+			Wecker.snoozeTimer--;
+			var SMinuten = Math.floor(Wecker.snoozeTimer / 60);
+			var SSekunden = Wecker.snoozeTimer - SMinuten * 60;
+			
+			$j('#ClockSnoozeTimer').html(SMinuten+":"+(SSekunden < 10 ? "0" : "")+SSekunden);
+		}
+		
+		if(Wecker.active != null && Wecker.snoozeTimer != null && Wecker.snoozeTimer == 0){
+			Wecker.snoozeTimer = null;
+			Wecker.play();
+			$j('#ClockButtonSnoozing').fadeOut(function(){
+				$j('#ClockButtonSnooze').fadeIn();
+			});
+		}
+		
+		if(Wecker.active != null && Wecker.snoozeTimer == null && Wecker.runtime > 0)
+			Wecker.runtime--;
+		
+		if(Wecker.active != null && Wecker.snoozeTimer == null && Wecker.runtime === 0){
+			Wecker.stop();
+			Wecker.active = null;
+			Wecker.runtime = null;
+			$j('#ClockButtonSnooze').fadeOut();
+			$j('#ClockButtonSnoozing').fadeOut();
+		}
 		
 		
 	},
@@ -204,13 +334,13 @@ var Wecker = {
 	clock: function(){
 		$j("#ClockOverlay").append("\
 		<div id=\"ClockDay\" style=\"font-size:30px;color:#666;font-family:Roboto;font-weight:300;display:none;padding:20px;padding-bottom:0px;float:left;\"></div>\n\
-		<div id=\"ClockWecker\" style=\"font-size:20px;color:#666;font-family:Roboto;font-weight:300;display:none;padding:20px;float:left;clear:both;\"></div>\n\
+		<div id=\"ClockWecker\" style=\"padding-left:15px;padding-top:15px;font-size:20px;color:#666;font-family:Roboto;font-weight:300;display:none;float:left;clear:both;\"></div>\n\
 		<div id=\"Clock\" style=\"color:#666;font-family:Roboto;font-weight:300;display:none;text-align:right;padding:30px;padding-bottom:10px;\"></div>\n\
-		<div id=\"ClockTouch\" style=\"position:absolute;z-index:5000;width:100%;\">\n\
-			<div style=\"padding:30px;\">\n\
-				<span style=\"font-size:200px;display:none;vertical-align:bottom;\" class=\"iconic curved_arrow\" id=\"ClockButtonSnooze\"></span>\n\
+		<div id=\"ClockTouch\" style=\"position:absolute;z-index:100;width:100%;\">\n\
+			<div style=\"padding:30px;padding-top:60px;\">\n\
+				<span style=\"font-size:200px;display:none;vertical-align:bottom;cursor:pointer;\" class=\"iconic curved_arrow\" id=\"ClockButtonSnooze\"></span>\n\
 				<div id=\"ClockButtonSnoozing\" style=\"display:none;vertical-align:bottom;\">\n\
-					<span style=\"font-size:200px;\" class=\"iconic moon_stroke\"></span><br />\n\
+					<span style=\"font-size:200px;cursor:pointer;\" class=\"iconic moon_stroke\"></span><br />\n\
 					<span id=\"ClockSnoozeTimer\" style=\"color:#666;font-family:Roboto;font-weight:300;\"></span>\n\
 				</div>\n\
 			</div>\n\
@@ -221,6 +351,7 @@ var Wecker = {
 			Wecker.snooze();
 		});
 		
+		Wecker.updateWecker();
 		Wecker.update();
 		$j('#Clock').css("margin-top", ($j(window).height() - $j('#Clock').outerHeight())+"px").fadeIn("slow", function(){
 			$j('#ClockDay').fadeIn("fast", function(){

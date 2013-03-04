@@ -31,7 +31,7 @@ class WeckerGUI extends Wecker implements iGUIHTML2 {
 		$gui->type("WeckerIsActive", "checkbox");
 		$gui->type("WeckerRepeat", "checkbox");
 		#$gui->type("WeckerFallback", "file");
-		$gui->type("WeckerRuntime", "select", array(10 => "10 Minuten", 20 => "20 Minuten", 30 => "30 Minuten", 40 => "40 Minuten", 50 => "50 Minuten", 60 => "1 Stunde"));
+		$gui->type("WeckerRuntime", "select", array(/*1 => "1 Minute", */10 => "10 Minuten", 20 => "20 Minuten", 30 => "30 Minuten", 40 => "40 Minuten", 50 => "50 Minuten", 60 => "1 Stunde"));
 		
 		$gui->type("WeckerMo", "checkbox");
 		$gui->type("WeckerDi", "checkbox");
@@ -40,21 +40,29 @@ class WeckerGUI extends Wecker implements iGUIHTML2 {
 		$gui->type("WeckerFr", "checkbox");
 		$gui->type("WeckerSa", "checkbox");
 		$gui->type("WeckerSo", "checkbox");
+		$gui->type("WeckerRepeat", "hidden");
 		
 		$gui->type("WeckerRepeatAfter", "select", array(60 => "1 Minute", 5 * 60 => "5 Minuten", 10 * 60 => "10 Minuten", 15 * 60 => "15 Minuten", 20 * 60 => "20 Minuten"));
 		$gui->type("WeckerVolume", "select", array(10 => "10%", 20 => "20%", 30 => "30%", 40 => "40%", 50 => "50%", 60 => "60%", 70 => "70%", 80 => "80%", 90 => "90%", 100 => "100%"));
 		$gui->space("WeckerTime");
 		$gui->space("WeckerRepeat");
 		
+		$gui->label("WeckerDeviceID", "Gerät");
+		$gui->label("WeckerIsActive", "Aktiv?");
+		$gui->label("WeckerTime", "Zeit");
+		$gui->label("WeckerSource", "URL");
+		$gui->label("WeckerFallback", "Datei");
+		$gui->label("WeckerVolume", "Lautstärke");
+		$gui->label("WeckerRepeatAfter", "Wiederholen nach");
+		$gui->label("WeckerRuntime", "Laufzeit");
+		
 		$gui->parser("WeckerFallback", "WeckerGUI::parserFallback");
+		
+		$gui->descriptionField("WeckerSource", "Die Adresse zu einem Internetradio-Stream");
 		
 		#$gui->parser("WeckerMo", "WeckerGUI::parserTage");
 		
 		return $gui->getEditHTML();
-	}
-	
-	public static function parserTage($w, $E){
-		
 	}
 	
 	public static function parserFallback($w, $l, $E){
@@ -64,7 +72,7 @@ class WeckerGUI extends Wecker implements iGUIHTML2 {
 		$IF = new HTMLInput("WeckerFallbackUpload", "file");
 		$IF->onchange(OnEvent::rme($E, "processUpload", array("fileName"), "\$j('[name=WeckerFallback]').val(fileName).trigger('change');"));
 		
-		return $IF.$I;
+		return $IF.$I."<br /><small style=\"color:grey;\">Diese Datei wird abgespielt, wenn nach 15 Sekunden kein Internetradio geladen werden konnte. Bitte beachten Sie, dass nicht alle Browser <a href=\"http://en.wikipedia.org/wiki/HTML5_Audio\" target=\"_blank\">alle Formate abspielen können</a>.</small>";
 	}
 	
 	public function processUpload($fileName){
