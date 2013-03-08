@@ -238,12 +238,13 @@ input, select, textarea, .AJAXUpload {
   **/
 
 .navBackgroundColor {
-	background-color:#7f7fdf/*#6868C9*/;
+	background-color:rgba(0,0,0,0.2);
+	/*background-color:#7f7fdf;*/
 }
 
 .navBorderColor {
-	border-color:#4e4e96;
-	border-bottom-color:#444444;
+	border-color:transparent;/*#4e4e96;*/
+	border-bottom-color:#888888;/*#444444;*/
 }
 
 #navTabsWrapper .navTab:hover {

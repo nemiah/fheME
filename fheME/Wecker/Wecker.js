@@ -48,6 +48,8 @@ var Wecker = {
 	},
 	
 	show: function(){
+		$j('#ClockOverlay, .ClockAudioPreload').remove();//Clean up the hard way!
+		
 		$j('body').append('<div class="darkOverlay" id="ClockOverlay" style="display:none;"></div>');
 		
 		$j("#ClockOverlay, #ClockTouch").hammer().on("touch dragup dragdown release", function(ev){
@@ -254,19 +256,12 @@ var Wecker = {
 	updateWecker: function(){
 		var jetzt = new Date();
 		var tage = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
-		var tageJS = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
 		var wecker = "";
 		
 		for(var i = 0; i < Wecker.data.length; i++){
 			var stunden = Math.floor(Wecker.data[i].WeckerTime / 3600);
 			var minuten = (Wecker.data[i].WeckerTime - stunden * 3600) / 60;
 			
-			if(Wecker.data[i]["Wecker"+tageJS[jetzt.getDay()]] == "1" && Wecker.active == null && stunden == jetzt.getHours() && minuten == jetzt.getMinutes()){
-				Wecker.active = Wecker.data[i];
-				Wecker.play();
-				$j('#ClockButtonSnooze').fadeIn();
-				//console.log("play!");
-			}
 			
 			var days = "";
 			for(var j = 0; j < tage.length; j++){
@@ -316,6 +311,19 @@ var Wecker = {
 			Wecker.runtime = null;
 			$j('#ClockButtonSnooze').fadeOut();
 			$j('#ClockButtonSnoozing').fadeOut();
+		}
+		
+		var tageJS = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
+		for(var i = 0; i < Wecker.data.length; i++){
+			var stunden = Math.floor(Wecker.data[i].WeckerTime / 3600);
+			var minuten = (Wecker.data[i].WeckerTime - stunden * 3600) / 60;
+			
+			if(Wecker.data[i]["Wecker"+tageJS[jetzt.getDay()]] == "1" && Wecker.active == null && stunden == jetzt.getHours() && minuten == jetzt.getMinutes()){
+				Wecker.active = Wecker.data[i];
+				Wecker.play();
+				$j('#ClockButtonSnooze').fadeIn();
+				//console.log("play!");
+			}
 		}
 		
 		
