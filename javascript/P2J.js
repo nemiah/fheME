@@ -310,6 +310,22 @@ if(useTouch){
 			$j(this).attr("ontouchend", $j(this).attr("onclick")).removeAttr("onclick");//prop("ontouchend", $j(e).prop("onclick"))
 		});
 	}
+
+	$j(document).on("touchend", ".contentBrowser td", function(ev){
+		$j(this).parent().removeClass("highlight");
+		
+		if(ev.target != this)
+			return;
+
+		if($j(ev.target).hasClass("editButton"))
+			return;
+
+		$j(this).parent().find("td").first().find(".editButton").triggerHandler("touchend");
+	});
+
+	$j(document).on("touchstart", ".contentBrowser td", function(ev){
+		$j(this).parent().addClass("highlight");
+	});
 }
 
 $j(function(){
@@ -339,7 +355,7 @@ $j(function(){
 	}
 });
 
-if(!useTouch)
+if(!useTouch){
 	$j(document).on('mouseover', 'img[title], span.iconic[title]', function(event) {
 		if($j(this).attr('title') == "")
 			return;
@@ -370,6 +386,18 @@ if(!useTouch)
 	   this.removeAttribute('title');
 	   this.removeAttribute('alt');
 	})*/;
+
+
+	$j(document).on("click", ".contentBrowser td", function(ev){
+		if(ev.target != this)
+			return;
+
+		if($j(ev.target).hasClass("editButton"))
+			return;
+
+		$j(this).parent().find("td").first().find(".editButton").triggerHandler("click");
+	});
+}
 
 $j(document).on('mouseover', '.bigButton', function(event) {
 	if($j(document).width() > 1200)
