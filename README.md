@@ -24,7 +24,7 @@ Voraussetzungen
 Installation
 ------------
 
-* Bitte laden Sie im [Download-Bereich](https://github.com/nemiah/fheME/downloads) die aktuelle Version herunter.
+* Bitte laden Sie im [dist-Verzeichnis](https://github.com/nemiah/fheME/tree/master/dist) die aktuelle Version herunter.
 * Entpacken Sie das Archiv in ein Verzeichnis auf Ihrem Server.
 * Rufen Sie das Verzeichnis im Browser auf, das System erklärt alle weiteren Schritte.
 
