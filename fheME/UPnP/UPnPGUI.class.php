@@ -47,9 +47,42 @@ class UPnPGUI extends UPnP implements iGUIHTML2 {
 			$B->popup("", "Steuerung", "UPnP", $this->getID(), "controls");
 		}
 		
+		if($this->A("UPnPContentDirectory") == "1"){
+			$B = $gui->addSideButton("Verzeichnis", "./fheME/UPnP/directory.png");
+			$B->popup("", "Verzeichnis", "UPnP", $this->getID(), "directory", "0", "", "{width:800}");
+		}
+		
 		return $gui->getEditHTML();
 	}
 	
+	public function directory($ObjectID){
+		$result = $this->Browse($ObjectID, "BrowseDirectChildren");
+		
+		$xml = new SimpleXMLElement($result["Result"]);
+		echo "<pre style=\"max-height:300px;overflow:auto;padding:5px;\">";
+		$this->prettyfy($result["Result"]);
+		echo "</pre>";
+		
+		$L = new HTMLList();
+		$ex = explode("$", $ObjectID);
+		array_pop($ex);
+		
+		$B = new Button("Zurück", "back");
+		$B->popup("", "", "UPnP", $this->getID(), "directory", implode("$", $ex));
+		$B->style("margin:10px;");
+		if(count($ex) == 0)
+			$B = "";
+		
+		foreach($xml->container AS $container){
+			$L->addItem("<a href=\"#\" onclick=\"".OnEvent::popup("", "UPnP", $this->getID(), "directory", $container->attributes()->id)." return false;\">".$container->children("http://purl.org/dc/elements/1.1/")."</a>");
+		}
+		
+		foreach($xml->item AS $item){
+			$L->addItem("<a href=\"#\" onclick=\"return false;\">".$item->children("http://purl.org/dc/elements/1.1/")."</a>");
+		}
+		
+		echo $B."<div style=\"max-height:450px;overflow:auto;padding:5px;\">".$L."</div>";
+	}
 	
 	public function controls(){
 		$desiredCommands = array("Play", "Stop", "Next");

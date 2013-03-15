@@ -270,7 +270,7 @@ var Wecker = {
 			}
 			
 			wecker += "\
-				<div style=\"padding:5px;cursor:pointer;\" onclick=\"Wecker.setWecker("+Wecker.data[i].WeckerID+");\">\n\
+				<div style=\"padding:5px;cursor:pointer;\" onclick=\"/*Wecker.setWecker("+Wecker.data[i].WeckerID+");*/\">\n\
 						<span class=\"iconic clock\"></span> <div style=\"display:inline-block;text-align:right;width:55px;\">"+stunden+":"+(minuten < 10 ? '0' : '')+minuten+"</div> <small>"+days+"</small>\n\
 				</div>";
 		}

@@ -144,12 +144,12 @@ class mfheOverviewGUI extends anyC implements iGUIHTMLMP2 {
 
 	public function getOverviewContent($DeviceID){
 		if($DeviceID == "none")
-			die("<p>Bitte registrieren Sie diesen Browser im Geräte-Reiter.</p>");
+			die("<p style=\"padding:5px;\">Bitte registrieren Sie diesen Browser im <a href=\"#\" onclick=\"contentManager.loadPlugin('contentRight', 'mDevice', 'mDeviceGUI;-'); return false;\">Geräte-Reiter</a>.</p>");
 		
 		$O = anyC::getFirst("fheOverview", "fheOverviewDeviceID", $DeviceID);
 		
 		if($O == null)
-			die("<p>Für dieses Gerät wurde keine Übersicht erstellt!</p>");
+			die("<p style=\"padding:5px;\">Für dieses Gerät wurde keine <a href=\"#\" onclick=\"contentManager.loadPlugin('contentRight', 'mDevice', 'mDeviceGUI;-', $DeviceID); return false;\">Übersicht</a> erstellt!</p>");
 		
 		$count = 0;
 		for($i = 1; $i < 5; $i++)

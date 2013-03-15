@@ -28,6 +28,16 @@ class UPnPCommand {
 		return $url["scheme"]."://".$url["host"].":".$url["port"].$this->Device->A("UPnP{$type}controlURL");
 	}
 	
+	function Browse($ObjectID, $BrowseFlag) {
+		$args = '<ObjectID>'.$ObjectID.'</ObjectID>' . "\r\n";
+		$args .= '<BrowseFlag>'.$BrowseFlag.'</BrowseFlag>' . "\r\n";
+		$args .= '<Filter>'.'</Filter>' . "\r\n";
+		$args .= '<StartingIndex>0</StartingIndex>' . "\r\n";
+		$args .= '<RequestedCount>0</RequestedCount>' . "\r\n";
+		$args .= '<SortCriteria>'.'</SortCriteria>' . "\r\n";
+		return array($args, "ContentDirectory", $this->makeURL("ContentDirectory"));
+	}
+	
 	function Next() {
 		$args = '<InstanceID>0</InstanceID>' . "\r\n";
 		return array($args, "AVTransport", $this->makeURL("AVTransport"));
