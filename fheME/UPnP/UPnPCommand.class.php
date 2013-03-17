@@ -23,40 +23,73 @@ class UPnPCommand {
 		$this->Device = $UPnP;
 	}
 	
-	private function makeURL($type){
+	private function execute($method, $prmArguments, $type){
 		$url = parse_url($this->Device->A("UPnPLocation"));
-		return $url["scheme"]."://".$url["host"].":".$url["port"].$this->Device->A("UPnP{$type}controlURL");
+		$controlURL = $url["scheme"]."://".$url["host"].":".$url["port"].$this->Device->A("UPnP{$type}controlURL");
+		
+		#$prmArguments = $vars[0];
+		#$prmService = $vars[1];
+		#$controlURL = $vars[2];
+		$client = new SoapClient(null, array(
+			'soap_version' => SOAP_1_1,
+			'location' => $controlURL,
+			'uri' => "urn:schemas-upnp-org:service:$type:1",
+			"trace" => true));
+
+
+		try {
+			$result = $client->__soapCall($method, array(
+				new SoapVar($prmArguments, XSD_ANYXML)
+			));
+			#print_r($result);
+		} catch(Exception $e){
+			echo "<pre>";
+			print_r($client->__getLastRequestHeaders());
+			UPnP::prettyfy($client->__getLastRequest());
+			echo "\n";
+			UPnP::prettyfy($client->__getLastResponse());
+			echo "</pre>";
+		}
+		
+		return $result;
 	}
 	
-	function Browse($ObjectID, $BrowseFlag) {
+	function Browse($ObjectID, $BrowseFlag, $Filter = "*") {
 		$args = '<ObjectID>'.$ObjectID.'</ObjectID>' . "\r\n";
 		$args .= '<BrowseFlag>'.$BrowseFlag.'</BrowseFlag>' . "\r\n";
-		$args .= '<Filter>'.'</Filter>' . "\r\n";
+		$args .= '<Filter>'.$Filter.'</Filter>' . "\r\n";
 		$args .= '<StartingIndex>0</StartingIndex>' . "\r\n";
 		$args .= '<RequestedCount>0</RequestedCount>' . "\r\n";
 		$args .= '<SortCriteria>'.'</SortCriteria>' . "\r\n";
-		return array($args, "ContentDirectory", $this->makeURL("ContentDirectory"));
+		return $this->execute(__FUNCTION__, $args, "ContentDirectory");
 	}
 	
 	function Next() {
 		$args = '<InstanceID>0</InstanceID>' . "\r\n";
-		return array($args, "AVTransport", $this->makeURL("AVTransport"));
+		return $this->execute(__FUNCTION__, $args, "AVTransport");
 	}
 
 	function Pause() {
 		$args = '<InstanceID>0</InstanceID>' . "\r\n";
-		return array($args, "AVTransport", $this->makeURL("AVTransport"));
+		return $this->execute(__FUNCTION__, $args, "AVTransport");
 	}
 
-	function Play($prmSpeed = 1) {
-		$args = '<InstanceID>0</InstanceID>' . "\r\n";
-		$args .= '<Speed>' . $prmSpeed . '</Speed>' . "\r\n";
-		return array($args, "AVTransport", $this->makeURL("AVTransport"));
+	function Play($InstanceID = 0, $prmSpeed = 1) {
+		$args = '<InstanceID>'.$InstanceID.'</InstanceID>' . "\r\n";
+		$args .= '<Speed>'.$prmSpeed.'</Speed>' . "\r\n";
+		return $this->execute(__FUNCTION__, $args, "AVTransport");
 	}
 
-	function Stop() {
-		$args = '<InstanceID>0</InstanceID>' . "\r\n";
-		return array($args, "AVTransport", $this->makeURL("AVTransport"));
+	function Stop($InstanceID = 0) {
+		$args = '<InstanceID>'.$InstanceID.'</InstanceID>'."\r\n";
+		return $this->execute(__FUNCTION__, $args, "AVTransport");
+	}
+	
+	function SetAVTransportURI($InstanceID = 0, $CurrentURI = ""){
+		$args = '<InstanceID>'.$InstanceID.'</InstanceID>' . "\r\n";
+		$args .= '<CurrentURI>' . $CurrentURI . '</CurrentURI>' . "\r\n";
+		$args .= '<CurrentURIMetaData>'.'</CurrentURIMetaData>' . "\r\n";
+		return $this->execute(__FUNCTION__, $args, "AVTransport");
 	}
 }
 

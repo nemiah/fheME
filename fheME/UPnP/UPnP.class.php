@@ -21,40 +21,18 @@ class UPnP extends PersistentObject {
 
 	function __call($name, $arguments) {
 		$C = new UPnPCommand($this);
-		
-		$R = new ReflectionMethod("UPnPCommand", $name);
-		$vars = $R->invokeArgs($C, $arguments);
-		
-		#$vars = $C->$name();
-		#print_r($vars);
-		$prmArguments = $vars[0];
-		$prmService = $vars[1];
-		$controlURL = $vars[2];
-		$client = new SoapClient(null, array(
-			'soap_version' => SOAP_1_1,
-			'location' => $controlURL,
-			'uri' => "urn:schemas-upnp-org:service:$prmService:1",
-			"trace" => true));
 
-
-		try {
-			$result = $client->__soapCall($name, array(
-				new SoapVar($prmArguments, XSD_ANYXML)
-			));
-			#print_r($result);
-		} catch(Exception $e){
-			echo "<pre>";
-			print_r($client->__getLastRequestHeaders());
-			$this->prettyfy($client->__getLastRequest());
-			echo "\n";
-			$this->prettyfy($client->__getLastResponse());
-			echo "</pre>";
-		}
+		if(!is_array($arguments))
+			$arguments = array($arguments);
+		
+		$R = new ReflectionMethod($C, $name);
+		$result = $R->invokeArgs($C, $arguments);
+		
 		
 		return $result;
 	}
 	
-	function prettyfy($response){
+	static function prettyfy($response){
 		$xml = new SimpleXMLElement($response);
 
 		$dom = new DOMDocument('1.0');
