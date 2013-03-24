@@ -33,9 +33,72 @@ class mUPnPGUI extends anyC implements iGUIHTMLMP2 {
 		$B = $gui->addSideButton("Geräte\nerkennen", "lieferschein");
 		$B->popup("", "UPnP-Geräte", "mUPnP", "-1", "discover");
 		
+		$B = $gui->addSideButton("Remote\nanzeigen", "./fheME/UPnP/remote.png");
+		$B->onclick("UPnP.show();");
+		
 		return $gui->getBrowserHTML($id);
 	}
 
+	public function remote(){
+		
+		echo "
+		<div id=\"UPnPSelection\">
+			<div style=\"float:right;\">
+				<div onclick=\"UPnP.hide();\" style=\"cursor:pointer;float:left;font-family:Roboto;font-size:30px;padding:10px;\">
+					<span>Schließen</span> <span style=\"font-size:30px;margin-right:10px;\" class=\"iconic x\"></span>
+				</div>
+			</div>
+			
+			<div style=\"width:35%;float:left;\">
+				<div onclick=\"UPnP.targetSelection();\" style=\"cursor:pointer;font-family:Roboto;font-size:30px;padding:10px;\">
+					<span id=\"UPnPTargetName\">Abspielgerät auswählen</span> <span style=\"font-size:30px;\" class=\"iconic arrow_down\"></span>
+				</div>
+			</div>
+			
+			<div style=\"display:none;float:left;width:35%;\">
+				<div onclick=\"UPnP.sourceSelection();\" style=\"cursor:pointer;float:left;font-family:Roboto;font-size:30px;padding:10px;\">
+					<span id=\"UPnPSourceName\">Quelle auswählen</span> <span style=\"font-size:30px;\" class=\"iconic arrow_down\"></span>
+				</div>
+			</div>
+
+			<div style=\"clear:both;\">
+			</div>
+		</div>
+		<div id=\"UPnPTargetSelection\" style=\"padding:10px;display:none;\"></div>
+		<div id=\"UPnPSourceSelection\" style=\"padding:10px;display:none;margin-left:35%;\"></div>
+		<div id=\"UPnPMediaSelection\" style=\"padding:10px;padding-right:0px;width:200%;overflow:hidden;\"></div>";
+	}
+	
+	public function getTargets(){
+		$this->addAssocV3("UPnPAVTransport", "=", "1");
+		
+		$L = new HTMLList();
+		$L->addListStyle("font-size:30px;font-family:Roboto;margin-left:10px;");
+		while($T = $this->getNextEntry()){
+			$L->addItem($T->A("UPnPName"));
+			
+			$L->addItemEvent("onclick", "UPnP.selectTarget('".$T->getID()."', '".$T->A("UPnPName")."');");
+			$L->addItemStyle("cursor:pointer;padding:10px;");
+		}
+		
+		echo $L;
+	}
+	
+	public function getSources(){
+		$this->addAssocV3("UPnPContentDirectory", "=", "1");
+		
+		$L = new HTMLList();
+		$L->addListStyle("font-size:30px;font-family:Roboto;margin-left:10px;");
+		while($T = $this->getNextEntry()){
+			$L->addItem($T->A("UPnPName"));
+			
+			$L->addItemEvent("onclick", "UPnP.selectSource('".$T->getID()."', '".$T->A("UPnPName")."');");
+			$L->addItemStyle("cursor:pointer;padding:10px;");
+		}
+		
+		echo $L;
+	}
+	
 	public function discover(){
 		echo "<p>Starte Suche. Das könnte etwas dauern...</p>";
 		echo OnEvent::script(OnEvent::popup("", "mUPnP", "-1", "discoverNow"));

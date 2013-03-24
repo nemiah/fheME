@@ -88,13 +88,18 @@ var Ajax = {
 	physion: "default",
 	
 	Request: function(anurl, options){
-		$j.ajax({url: anurl+(Ajax.physion != "default" ? "&physion="+Ajax.physion : ""), success: function(transport){
+		$j.ajax({
+			url: anurl+(Ajax.physion != "default" ? "&physion="+Ajax.physion : ""), success: function(transport){
 
-			var t = {
-				responseText: transport
-			}
-			options.onSuccess(t); 
-		}, type: options.method ? options.method : "GET", data: options.parameters ? options.parameters : null});
+				var t = {
+					responseText: transport
+				}
+				options.onSuccess(t); 
+			},
+			type: options.method ? options.method : "GET",
+			data: options.parameters ? options.parameters : null,
+			cache : false
+		});
 	},
 	
 	Responders: {
@@ -298,10 +303,29 @@ if(Modernizr.touch && useTouch == null){
 	});
 }
 
-if(useTouch){
-	var currentHTMLMethod = jQuery.fn.html;
-	jQuery.fn.html = function(){
-		currentHTMLMethod.apply(this, arguments);
+
+var Touch = {
+	hook: function(){
+		var currentHTMLMethod = jQuery.fn.html;
+		jQuery.fn.html = function(){
+			currentHTMLMethod.apply(this, arguments);
+			Touch.make();
+		}
+		
+		var currentPrependMethod = jQuery.fn.prepend;
+		jQuery.fn.prepend = function(){
+			currentPrependMethod.apply(this, arguments);
+			Touch.make();
+		}
+		
+		var currentAppendMethod = jQuery.fn.append;
+		jQuery.fn.append = function(){
+			currentAppendMethod.apply(this, arguments);
+			Touch.make();
+		}
+	},
+			
+	make: function(){
 		$j("[onclick]").on("touchstart", function(){
 			$j(this).addClass("highlight");
 		}).on("touchend", function(){
@@ -310,7 +334,11 @@ if(useTouch){
 			$j(this).attr("ontouchend", $j(this).attr("onclick")).removeAttr("onclick");//prop("ontouchend", $j(e).prop("onclick"))
 		});
 	}
+}
 
+if(useTouch){
+	Touch.hook();
+	
 	$j(document).on("touchend", ".contentBrowser td", function(ev){
 		$j(this).parent().removeClass("highlight");
 		

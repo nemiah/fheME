@@ -186,13 +186,13 @@ var contentManager = {
     				if(scripts[i] == "") continue;
     				s = document.createElement('script');
 
-    				src = document.createAttribute("src")
-    				src.nodeValue = scripts[i];
-    				s.setAttributeNode(src);
+    				//src = document.createAttribute("src")
+    				//src.nodeValue = scripts[i];
+    				s.setAttribute("src", scripts[i]);
 
-    				t = document.createAttribute("type")
-    				t.nodeValue = "text/javascript";
-    				s.setAttributeNode(t);
+    				//t = document.createAttribute("type")
+    				//t.nodeValue = "text/javascript";
+    				s.setAttribute("type", "text/javascript");
 
     				$('DynamicJS').appendChild(s);
     			}

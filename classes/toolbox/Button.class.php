@@ -107,6 +107,7 @@ class Button {
 			break;
 			
 			case "seamless":
+			case "touch":
 				$this->type = $type;
 				$this->class = "";
 			break;
@@ -251,13 +252,13 @@ class Button {
 	}
 	
 	function __toString(){
-		if($this->type != "seamless")
+		if($this->type != "seamless" AND $this->type != "touch")
 			$this->label = T::_($this->label);
 		
 		if($this->before != "")
 			$this->rme = str_replace("%AFTER", $this->rme, $this->before);
 
-		if($this->image != "" AND $this->image[0] != "." AND strpos($this->image, ":") === false AND $this->image[0] != "/" AND $this->type != "iconic" AND $this->type != "seamless")
+		if($this->image != "" AND $this->image[0] != "." AND strpos($this->image, ":") === false AND $this->image[0] != "/" AND $this->type != "iconic" AND $this->type != "seamless" AND $this->type != "touch")
 			$this->image = "./images/navi/$this->image.png";# : $this->image );
 
 		$onclick = $this->onclick != null ? $this->onclick : "";
@@ -276,6 +277,18 @@ class Button {
 			$B->style("float:right;margin-left:10px;margin-top:-1px;");
 			
 			return "<div style=\"$this->style\" onclick=\"$onclick\" class=\"seamlessButton\">$B".T::_($this->label)."</div>";
+		}
+		
+		if($this->type == "touch"){
+			$B = new Button($this->label, $this->image, "iconicL");
+			#$B->style("float:left;margin-left:10px;margin-top:-1px;");
+			
+			return "
+			<div class=\"touchButton\" onclick=\"$onclick\" style=\"$this->style\">
+				".$B."
+				<div class=\"label\">".T::_($this->label)."</div>
+				<div style=\"clear:both;\"></div>
+			</div>";
 		}
 	}
 }

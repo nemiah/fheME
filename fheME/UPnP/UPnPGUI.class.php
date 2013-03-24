@@ -55,6 +55,52 @@ class UPnPGUI extends UPnP implements iGUIHTML2 {
 		return $gui->getEditHTML();
 	}
 	
+	public function directoryTouch($ObjectID, $UPnPTargetID = null, $isBack = false){
+		$result = $this->Browse($ObjectID, "BrowseDirectChildren", "");
+		
+		$xml = new SimpleXMLElement($result["Result"]);
+		
+		#$L = new HTMLList();
+		$L = "";
+		$ex = explode("$", $ObjectID);
+		array_pop($ex);
+		
+		#$B = new Button("Zurück", "back");
+		#$B->popup("", "", "UPnP", $this->getID(), "directory", implode("$", $ex));
+		#$B->style("margin:10px;");
+		$B = "
+		<div id=\"UPnPBackButton\" style=\"width:33%;display:inline-block;cursor:pointer;overflow:hidden;\" onclick=\"".OnEvent::rme($this, "directoryTouch", array("'".implode("$", $ex)."'", $UPnPTargetID, 1), "function(transport){ \$j('#UPnPMediaSelection').prepend(transport.responseText); \$j('.UPnPDirectory:first').animate({'margin-left': '0'}, 600, function(){ \$j('.UPnPDirectory:last').remove(); }); }")."\">
+			<div style=\"font-family:Roboto;font-size:30px;padding:10px;\"><span class=\"iconic iconicL arrow_left\"></span> Zurück</div>
+		</div>";
+		
+		if(count($ex) == 0)
+			$B = "<div id=\"UPnPBackButton\" style=\"width:33%;display:inline-block;cursor:pointer;overflow:hidden;\">
+			<div style=\"font-family:Roboto;font-size:30px;padding:10px;\">&nbsp;</div>
+		</div>";
+		
+		foreach($xml->container AS $container){
+			$L .= "
+				<div style=\"width:33%;display:inline-block;cursor:pointer;overflow:hidden;margin-bottom:30px;\" onclick=\"".OnEvent::rme($this, "directoryTouch", array("'".$container->attributes()->id."'", $UPnPTargetID), "function(transport){ \$j('#UPnPMediaSelection').append(transport.responseText); \$j('.UPnPDirectory:first').animate({'margin-left': '-50%'}, 600, function(){ \$j('.UPnPDirectory:first').remove(); }); }")."\">
+					<div style=\"font-family:Roboto;font-size:30px;padding:10px;\">
+					<span class=\"iconic iconicL folder_stroke\"></span> ".$container->children("http://purl.org/dc/elements/1.1/")."
+					</div>
+				</div>";
+		}
+		
+		$L .= "<div style=\"width:100%;display:inline-block;\">&nbsp;</div>";
+		
+		foreach($xml->item AS $item){
+			$L .= "
+				<div onclick=\"".OnEvent::rme(new UPnP($this->getID()), "readSetStart", array("'".$item->attributes()->id."'", "UPnP.currentTargetID"))."\" style=\"width:33%;display:inline-block;overflow:hidden;margin-bottom:30px;\">
+					<div style=\"font-family:Roboto;font-size:20px;padding:10px;width:1000%;\">
+					<span class=\"iconic iconicL document_alt_stroke\" style=\"float:left;\"></span> ".$item->children("http://purl.org/dc/elements/1.1/")."
+					</div>
+				</div>";
+		}
+		
+		echo "<div class=\"UPnPDirectory\" style=\"".($isBack ? "margin-left:-50%;" : "")."width:50%;display:inline-block;\">".$B."<div class=\"UPnPDirectoryBrowser\" style=\"overflow-y: auto;;\">".$L."</div>".OnEvent::script("\$j('.UPnPDirectoryBrowser').css('height', (\$j(window).height() - \$j('#UPnPSelection').outerHeight() - \$j('#UPnPBackButton').outerHeight() - 10)+'px');")."</div>";
+	}
+	
 	public function directory($ObjectID){
 		$result = $this->Browse($ObjectID, "BrowseDirectChildren", "");
 		
@@ -82,14 +128,14 @@ class UPnPGUI extends UPnP implements iGUIHTML2 {
 			$L->addItem("<a href=\"#\" onclick=\"".OnEvent::popup("", "UPnP", $this->getID(), "directory", $container->attributes()->id)." return false;\">".$container->children("http://purl.org/dc/elements/1.1/")."</a>");
 		}
 		
-		foreach($xml->item AS $item){
-			$L->addItem("<a href=\"#\" onclick=\"".OnEvent::popup("", "UPnP", $this->getID(), "readSetStart", array("'".$item->attributes()->id."'"))."return false;\">".$item->children("http://purl.org/dc/elements/1.1/")."</a>");
+		foreach($xml->item AS $item){#".OnEvent::popup("", "UPnP", $this->getID(), "readSetStart", array("'".$item->attributes()->id."'"))."
+			$L->addItem("<a href=\"#\" onclick=\"return false;\">".$item->children("http://purl.org/dc/elements/1.1/")."</a>");
 		}
 		
 		echo $B."<div style=\"max-height:450px;overflow:auto;padding:5px;\">".$L."</div>";
 	}
 	
-	public function readSetStart($ObjectID){
+	public function readSetStart($ObjectID, $targetUPnPID){
 		$B = new Button("Reload", "refresh");
 		$B->onclick(OnEvent::popup("", "UPnP", $this->getID(), "readSetStart", array("'".$ObjectID."'")));
 		$B->style("margin:10px;");
@@ -103,7 +149,7 @@ class UPnPGUI extends UPnP implements iGUIHTML2 {
 		$xml = new SimpleXMLElement($result["Result"]);
 		print_r($xml->item[0]->res[0]."");
 		
-		$U = new UPnP(9);
+		$U = new UPnP($targetUPnPID);
 		$U->SetAVTransportURI(0, $xml->item[0]->res[0]."");
 		$U->Play();
 		

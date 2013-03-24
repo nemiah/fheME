@@ -27,6 +27,7 @@
 		<folder>UPnP</folder>
 
 		<adminOnly>false</adminOnly>
+		<javascript>UPnP.js</javascript>
 		
 		<version>0.6</version>
 

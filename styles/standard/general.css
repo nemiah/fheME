@@ -340,6 +340,7 @@ caption {
 	margin-bottom:15px;
 	cursor:pointer;
 	padding:5px;
+	color:#333;
 }
 
 .touchButton .label {
