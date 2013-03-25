@@ -25,17 +25,40 @@ var UPnP = {
 	currentSourceID: null,
 	currentSourceName: "",
 	
+	start: function(){
+		$j('.UPnPDirectory').css('margin-top', ($j('#UPnPSelection').height())+'px');
+		$j('.UPnPBackButton').css('top', $j('#UPnPSelection').outerHeight()+'px').css("margin-top", ($j('.UPnPBackButton').outerHeight() * -1)+"px"); 
+		$j('.UPnPDirectoryBrowser').css('min-height', ($j(window).height() - $j('#UPnPSelection').height())+'px');
+		
+		$j('.UPnPItem').hammer().on("hold", function(){
+			var item = $j(this);
+			Popup.load("Details", "UPnP", UPnP.currentSourceID, "details", [item.data("oid")]);
+		});
+	},
+	
 	show: function(){
 		$j('#UPnPOverlay').remove();//Clean up the hard way!
 		
 		$j('body').append('<div class="darkOverlay" id="UPnPOverlay" style="display:none;"></div>');
+		$j('#UPnPOverlay').css("position", "absolute");
 		/*$j('#UPnPOverlay').on("click", function(){
 			$j('#UPnPOverlay').remove();
 		});*/
 		
+		
 		contentManager.rmePCR("mUPnP", "-1", "remote", "", function(transport){
 			//console.log($j('#UPnPOverlay'));
 			$j('#UPnPOverlay').html(transport.responseText);
+			
+			var source = $j.jStorage.get('phynxUPnPSource', null);
+			var target = $j.jStorage.get('phynxUPnPTarget', null);
+			
+			if(target != null)
+				UPnP.selectTarget(target.ID, target.Name);
+			
+			if(source != null)
+				UPnP.selectSource(source.ID, source.Name);
+			
 			$j('#UPnPOverlay').fadeIn("fast", function(){
 				
 				//UPnP.clock();
@@ -53,7 +76,7 @@ var UPnP = {
 	
 	targetSelection: function(){
 		contentManager.rmePCR("mUPnP", "-1", "getTargets", "", function(transport){ 
-			$j('#UPnPTargetSelection').html(transport.responseText);
+			$j('#UPnPTargetSelection').css("top", $j('#UPnPSelection').height()+'px').html(transport.responseText);
 			$j('#UPnPTargetSelection').slideDown(400);
 			$j('#UPnPMediaSelection').slideUp(400);
 		});
@@ -61,7 +84,7 @@ var UPnP = {
 	
 	sourceSelection: function(){
 		contentManager.rmePCR("mUPnP", "-1", "getSources", "", function(transport){ 
-			$j('#UPnPSourceSelection').html(transport.responseText);
+			$j('#UPnPSourceSelection').css("top", $j('#UPnPSelection').height()+'px').html(transport.responseText);
 			$j('#UPnPSourceSelection').slideDown(400);
 			$j('#UPnPMediaSelection').slideUp(400);
 		});
@@ -71,10 +94,13 @@ var UPnP = {
 		UPnP.currentSourceID = UPnPID;
 		UPnP.currentSourceName = UPnPName;
 		
+		$j.jStorage.set('phynxUPnPSource', {ID: UPnPID, Name: UPnPName});
+		
 		contentManager.rmePCR("UPnP", UPnP.currentSourceID, "directoryTouch", ["0", UPnP.currentTargetID], function(transport){
-			$j('#UPnPMediaSelection').html(transport.responseText);
+			$j('#UPnPMediaSelection').slideDown(400, function(){
+				$j('#UPnPMediaSelection').html(transport.responseText);
+			});
 			
-			$j('#UPnPMediaSelection').slideDown(400);
 			$j('#UPnPSourceSelection').slideUp(400, function(){
 				$j('#UPnPSourceName').html(UPnPName);
 			}); 
@@ -85,6 +111,7 @@ var UPnP = {
 		UPnP.currentTargetID = UPnPID;
 		UPnP.currentTargetName = UPnPName;
 		
+		$j.jStorage.set('phynxUPnPTarget', {ID: UPnPID, Name: UPnPName});
 		
 		$j('#UPnPMediaSelection').slideDown(400);
 		$j('#UPnPTargetSelection').slideUp(400, function(){

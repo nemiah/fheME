@@ -18,6 +18,22 @@
  *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class UPnPGUI extends UPnP implements iGUIHTML2 {
+	public static $prettifyerRules = array(
+		"^OneDDL.com-|^1-3-3-8.com[_-]|Ddlsource.com_" => "",
+		"-ctu|-immerse|[-.]2hd|-bia|-wasabi|-Hannibal|-FoV|.immerse|-EVOLVE|c4tv|-HoC|Repack|-compulsion|-ASAP|KiNGS|-SiNNERS|-ECI|BluRay|-AVS" => "",
+		"[-.]DIMENSION|-MADHACKER|-FEVER|[-.]PiLAF|.PROPER|WEBRip|AAC" => "",
+		"s([0-9]+)e([0-9]+)" => "S\\1E\\2",
+		"^([a-z])" => "strtoupper('\\1')",
+		".hdtv|-orenji|[-.]x264|[_.]WEB[-.]DL|[._]h.264|-kyr" => "",
+		"([0-9]{1,2})×([0-9]{2})" => "S\\1E\\2",
+		"(.[a-z])" => "strtoupper('\\1')",
+		"Mkv" => "mkv",
+		"Mp4" => "mp4",
+		".720p" => "",
+		".(20[0-9]{2})." => "' (\\1) '",
+		"." => "' '"
+	);
+	
 	function getHTML($id){
 		$gui = new HTMLGUIX($this);
 		$gui->name("UPnP");
@@ -56,7 +72,7 @@ class UPnPGUI extends UPnP implements iGUIHTML2 {
 	}
 	
 	public function directoryTouch($ObjectID, $UPnPTargetID = null, $isBack = false){
-		$result = $this->Browse($ObjectID, "BrowseDirectChildren", "");
+		$result = $this->Browse($ObjectID, "BrowseDirectChildren", "*");
 		
 		$xml = new SimpleXMLElement($result["Result"]);
 		
@@ -69,20 +85,22 @@ class UPnPGUI extends UPnP implements iGUIHTML2 {
 		#$B->popup("", "", "UPnP", $this->getID(), "directory", implode("$", $ex));
 		#$B->style("margin:10px;");
 		$B = "
-		<div id=\"UPnPBackButton\" style=\"width:33%;display:inline-block;cursor:pointer;overflow:hidden;\" onclick=\"".OnEvent::rme($this, "directoryTouch", array("'".implode("$", $ex)."'", $UPnPTargetID, 1), "function(transport){ \$j('#UPnPMediaSelection').prepend(transport.responseText); \$j('.UPnPDirectory:first').animate({'margin-left': '0'}, 600, function(){ \$j('.UPnPDirectory:last').remove(); }); }")."\">
-			<div style=\"font-family:Roboto;font-size:30px;padding:10px;\"><span class=\"iconic iconicL arrow_left\"></span> Zurück</div>
+		<div class=\"UPnPBackButton\" style=\"width:66%;display:inline-block;cursor:pointer;overflow:hidden;position:fixed;background-color:black;left:0;top:0;\">
+			<div  onclick=\"".OnEvent::rme($this, "directoryTouch", array("'".implode("$", $ex)."'", $UPnPTargetID, 1), "function(transport){ \$j('.UPnPItem').remove(); \$j('#UPnPMediaSelection').prepend(transport.responseText); \$j('.UPnPDirectory:first').animate({'margin-left': '0'}, 600, function(){ \$j('.UPnPDirectory:last').remove(); \$j('.UPnPItem').css('display', 'inline-block'); }); }")."\">
+				<div style=\"font-family:Roboto;font-size:30px;padding:10px;\"><span class=\"iconic iconicL arrow_left\" style=\"margin-right:10px;float:left;margin-top:5px;\"></span> Zurück</div>
+			</div>
 		</div>";
 		
 		if(count($ex) == 0)
-			$B = "<div id=\"UPnPBackButton\" style=\"width:33%;display:inline-block;cursor:pointer;overflow:hidden;\">
+			$B = "<div class=\"UPnPBackButton\" style=\"width:66%;display:inline-block;overflow:hidden;position:fixed;background-color:black;left:0;top:0;\">
 			<div style=\"font-family:Roboto;font-size:30px;padding:10px;\">&nbsp;</div>
 		</div>";
 		
-		foreach($xml->container AS $container){
+		foreach($xml->container AS $container){#\$j('.UPnPItem').appear(); \$j('.UPnPItem').on('appear', function(){ \$j(this).children().show(); }); \$j.force_appear();
 			$L .= "
-				<div style=\"width:33%;display:inline-block;cursor:pointer;overflow:hidden;margin-bottom:30px;\" onclick=\"".OnEvent::rme($this, "directoryTouch", array("'".$container->attributes()->id."'", $UPnPTargetID), "function(transport){ \$j('#UPnPMediaSelection').append(transport.responseText); \$j('.UPnPDirectory:first').animate({'margin-left': '-50%'}, 600, function(){ \$j('.UPnPDirectory:first').remove(); }); }")."\">
+				<div style=\"width:49.7%;display:inline-block;cursor:pointer;overflow:hidden;margin-bottom:30px;\" onclick=\"".OnEvent::rme($this, "directoryTouch", array("'".$container->attributes()->id."'", $UPnPTargetID), "function(transport){ \$j('.UPnPItem').remove(); \$j('#UPnPMediaSelection').append(transport.responseText); \$j('.UPnPDirectory:first').animate({'margin-left': '-50%'}, 600, function(){ \$j('.UPnPDirectory:first').remove(); \$j('.UPnPItem').css('display', 'inline-block'); });  }")."\">
 					<div style=\"font-family:Roboto;font-size:30px;padding:10px;\">
-					<span class=\"iconic iconicL folder_stroke\"></span> ".$container->children("http://purl.org/dc/elements/1.1/")."
+						<span class=\"iconic iconicL folder_stroke\" style=\"margin-right:10px;float:left;margin-top:5px;\"></span> ".$container->children("http://purl.org/dc/elements/1.1/")."
 					</div>
 				</div>";
 		}
@@ -90,15 +108,31 @@ class UPnPGUI extends UPnP implements iGUIHTML2 {
 		$L .= "<div style=\"width:100%;display:inline-block;\">&nbsp;</div>";
 		
 		foreach($xml->item AS $item){
+			$newName = $item->children("http://purl.org/dc/elements/1.1/");
+			foreach(self::$prettifyerRules AS $reg => $replace)
+				$newName = preg_replace("/".str_replace(".", "\.", $reg)."/ei", str_replace(array("."), array("\."), $replace), $newName);
+			
 			$L .= "
-				<div onclick=\"".OnEvent::rme(new UPnP($this->getID()), "readSetStart", array("'".$item->attributes()->id."'", "UPnP.currentTargetID"))."\" style=\"width:33%;display:inline-block;overflow:hidden;margin-bottom:30px;\">
-					<div style=\"font-family:Roboto;font-size:20px;padding:10px;width:1000%;\">
-					<span class=\"iconic iconicL document_alt_stroke\" style=\"float:left;\"></span> ".$item->children("http://purl.org/dc/elements/1.1/")."
+				<div class=\"UPnPItem\" data-OID=\"".$item->attributes()->id."\" onclick=\"".OnEvent::rme(new UPnP($this->getID()), "readSetStart", array("'".$item->attributes()->id."'", "UPnP.currentTargetID"))."\" style=\"width:49.7%;display:none;overflow:hidden;margin-bottom:30px;\">
+					<div style=\"font-family:Roboto;font-size:17px;padding:10px;overflow:hidden;\">
+						<span class=\"iconic iconicL document_alt_stroke\" style=\"margin-right:10px;float:left;\"></span><div style=\"white-space: nowrap;margin-left:40px;display:block;overflow:hidden;\">".$newName."</div>
+						<div style=\"font-size:12px;\">".$item->children("http://www.pv.com/pvns/")->extension[0].""."<span style=\"float:right;\">".Util::formatSeconds(Util::parseTime("de_DE", $item->res->attributes()->duration[0].""))."</span></div>
 					</div>
 				</div>";
 		}
 		
-		echo "<div class=\"UPnPDirectory\" style=\"".($isBack ? "margin-left:-50%;" : "")."width:50%;display:inline-block;\">".$B."<div class=\"UPnPDirectoryBrowser\" style=\"overflow-y: auto;;\">".$L."</div>".OnEvent::script("\$j('.UPnPDirectoryBrowser').css('height', (\$j(window).height() - \$j('#UPnPSelection').outerHeight() - \$j('#UPnPBackButton').outerHeight() - 10)+'px');")."</div>";
+		echo "<div class=\"UPnPDirectory\" style=\"".($isBack ? "margin-left:-50%;" : "")."width:50%;display:inline-block;vertical-align:top;\">".$B."<div class=\"UPnPDirectoryBrowser\" style=\"background-color:#2F2F2F;\">".$L."</div>".OnEvent::script("UPnP.start();")."</div>";
+	}
+	
+	public function details($ObjectID){
+		$result = $this->Browse($ObjectID, "BrowseMetadata", "*");
+		
+		$xml = new SimpleXMLElement($result["Result"]);
+		echo "<pre style=\"max-height:300px;overflow:auto;padding:5px;\">";
+		$this->prettyfy($result["Result"]);
+		echo "Dauer: ".Util::formatSeconds(Util::parseTime("de_DE", $xml->item[0]->res->attributes()->duration[0].""))."\n";
+		echo "Typ: ".$xml->item[0]->children("http://www.pv.com/pvns/")->extension[0]."\n";
+		echo "</pre>";
 	}
 	
 	public function directory($ObjectID){
