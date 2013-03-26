@@ -284,7 +284,7 @@ class Button {
 			#$B->style("float:left;margin-left:10px;margin-top:-1px;");
 			
 			return "
-			<div class=\"touchButton\" onclick=\"$onclick\" style=\"$this->style\">
+			<div class=\"touchButton\" ".($this->id ? "id=\"$this->id\" " : "")." onclick=\"$onclick\" style=\"$this->style\">
 				".$B."
 				<div class=\"label\">".T::_($this->label)."</div>
 				<div style=\"clear:both;\"></div>

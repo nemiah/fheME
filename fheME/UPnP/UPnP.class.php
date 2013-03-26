@@ -19,12 +19,17 @@
  */
 class UPnP extends PersistentObject {
 
-	function __call($name, $arguments) {
+	function __call($name, $args) {
 		$C = new UPnPCommand($this);
-
+		$arguments = func_get_args();
+		unset($arguments[0]);
+		
 		if(!is_array($arguments))
 			$arguments = array($arguments);
 		
+		if(is_array($args))
+			$arguments = $args;
+		#die();
 		$R = new ReflectionMethod($C, $name);
 		$result = $R->invokeArgs($C, $arguments);
 		

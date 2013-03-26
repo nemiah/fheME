@@ -20,7 +20,7 @@
 class UPnPGUI extends UPnP implements iGUIHTML2 {
 	public static $prettifyerRules = array(
 		"^OneDDL.com-|^1-3-3-8.com[_-]|Ddlsource.com_" => "",
-		"-ctu|-immerse|[-.]2hd|-bia|-wasabi|-Hannibal|-FoV|.immerse|-EVOLVE|c4tv|-HoC|Repack|-compulsion|-ASAP|KiNGS|-SiNNERS|-ECI|BluRay|-AVS" => "",
+		"-ctu|-immerse|[-.]2hd|-bia|-wasabi|-Hannibal|-FoV|.immerse|-EVOLVE|c4tv|-HoC|Repack|-compulsion|-ASAP|-SiNNERS|-ECI|BluRay|-AVS|-KILLERS|-LOL" => "",
 		"[-.]DIMENSION|-MADHACKER|-FEVER|[-.]PiLAF|.PROPER|WEBRip|AAC" => "",
 		"s([0-9]+)e([0-9]+)" => "S\\1E\\2",
 		"^([a-z])" => "strtoupper('\\1')",
@@ -41,18 +41,22 @@ class UPnPGUI extends UPnP implements iGUIHTML2 {
 		$gui->label("UPnPConnectionManager", "Available?");
 		$gui->label("UPnPAVTransport", "Available?");
 		$gui->label("UPnPContentDirectory", "Available?");
+		$gui->label("UPnPRenderingControl", "Available?");
 		
 		$gui->label("UPnPContentDirectorySCPDURL", "SCPDURL");
 		$gui->label("UPnPAVTransportSCPDURL", "SCPDURL");
 		$gui->label("UPnPConnectionManagerSCPDURL", "SCPDURL");
+		$gui->label("UPnPRenderingControlSCPDURL", "SCPDURL");
 	
 		$gui->label("UPnPContentDirectorycontrolURL", "controlURL");
 		$gui->label("UPnPAVTransportcontrolURL", "controlURL");
 		$gui->label("UPnPConnectionManagercontrolURL", "controlURL");
+		$gui->label("UPnPRenderingControlcontrolURL", "controlURL");
 		
 		$gui->space("UPnPConnectionManager", "ConnectionManager");
 		$gui->space("UPnPAVTransport", "AVTransport");
 		$gui->space("UPnPContentDirectory", "ContentDirectory");
+		$gui->space("UPnPRenderingControl", "RenderingControl");
 		
 		$B = $gui->addSideButton("Info\nabrufen", "lieferschein");
 		$B->popup("", "Info abrufen", "UPnP", $this->getID(), "loadInfo");
@@ -71,23 +75,55 @@ class UPnPGUI extends UPnP implements iGUIHTML2 {
 		return $gui->getEditHTML();
 	}
 	
-	public function directoryTouch($ObjectID, $UPnPTargetID = null, $isBack = false){
-		$result = $this->Browse($ObjectID, "BrowseDirectChildren", "*");
+	private function findSeries(&$entries){
+		$series = array();
+		#$lastName = null;
+		foreach($entries AS $newName => $item){
+			preg_match("/(.*) S[0-9]{2}E[0-9]{2}/", $newName, $matches);
+			#print_r($matches);
+			if(isset($matches[1])){
+				if(!isset($series[$matches[1]]))
+					$series[$matches[1]] = array();
+			
+				$series[$matches[1]][$newName] = $item;
+				unset($entries[$newName]);
+			}
+		}
 		
+		return $series;
+	}
+	
+	private function findEntries($xml){
+		$entries = array();
+		foreach($xml->item AS $item){
+			$newName = $item->children("http://purl.org/dc/elements/1.1/");
+			foreach(self::$prettifyerRules AS $reg => $replace)
+				$newName = preg_replace("/".str_replace(".", "\.", $reg)."/ei", str_replace(array("."), array("\."), $replace), $newName);
+			
+			$entries[$newName] = $item;
+		}
+		ksort($entries);
+		
+		return $entries;
+	}
+	
+	public function directoryTouch($ObjectID, $UPnPTargetID = null, $isBack = false, $seriesName = null){
+		$result = $this->Browse($ObjectID, "BrowseDirectChildren", "*");
 		$xml = new SimpleXMLElement($result["Result"]);
 		
 		#$L = new HTMLList();
 		$L = "";
 		$ex = explode("$", $ObjectID);
-		array_pop($ex);
+		if($seriesName == null)
+			array_pop($ex);
 		
 		#$B = new Button("Zurück", "back");
 		#$B->popup("", "", "UPnP", $this->getID(), "directory", implode("$", $ex));
 		#$B->style("margin:10px;");
 		$B = "
 		<div class=\"UPnPBackButton\" style=\"width:66%;display:inline-block;cursor:pointer;overflow:hidden;position:fixed;background-color:black;left:0;top:0;\">
-			<div  onclick=\"".OnEvent::rme($this, "directoryTouch", array("'".implode("$", $ex)."'", $UPnPTargetID, 1), "function(transport){ \$j('.UPnPItem').remove(); \$j('#UPnPMediaSelection').prepend(transport.responseText); \$j('.UPnPDirectory:first').animate({'margin-left': '0'}, 600, function(){ \$j('.UPnPDirectory:last').remove(); \$j('.UPnPItem').css('display', 'inline-block'); }); }")."\">
-				<div style=\"font-family:Roboto;font-size:30px;padding:10px;\"><span class=\"iconic iconicL arrow_left\" style=\"margin-right:10px;float:left;margin-top:5px;\"></span> Zurück</div>
+			<div  onclick=\"".OnEvent::rme($this, "directoryTouch", array("'".implode("$", $ex)."'", $UPnPTargetID, 1), "function(transport){ \$j('.UPnPItem, .UPnPSeries').remove(); \$j('#UPnPMediaSelection').prepend(transport.responseText); \$j('.UPnPDirectory:first').animate({'margin-left': '0'}, 600, function(){ \$j('.UPnPDirectory:last').remove(); \$j('.UPnPItem, .UPnPSeries').css('display', 'inline-block'); }); }")."\">
+				<div style=\"font-family:Roboto;font-size:30px;padding:10px;\"><span class=\"iconic iconicL arrow_left\" style=\"color:#bbb;margin-right:10px;float:left;margin-top:5px;\"></span> Zurück</div>
 			</div>
 		</div>";
 		
@@ -96,32 +132,50 @@ class UPnPGUI extends UPnP implements iGUIHTML2 {
 			<div style=\"font-family:Roboto;font-size:30px;padding:10px;\">&nbsp;</div>
 		</div>";
 		
-		foreach($xml->container AS $container){#\$j('.UPnPItem').appear(); \$j('.UPnPItem').on('appear', function(){ \$j(this).children().show(); }); \$j.force_appear();
-			$L .= "
-				<div style=\"width:49.7%;display:inline-block;cursor:pointer;overflow:hidden;margin-bottom:30px;\" onclick=\"".OnEvent::rme($this, "directoryTouch", array("'".$container->attributes()->id."'", $UPnPTargetID), "function(transport){ \$j('.UPnPItem').remove(); \$j('#UPnPMediaSelection').append(transport.responseText); \$j('.UPnPDirectory:first').animate({'margin-left': '-50%'}, 600, function(){ \$j('.UPnPDirectory:first').remove(); \$j('.UPnPItem').css('display', 'inline-block'); });  }")."\">
-					<div style=\"font-family:Roboto;font-size:30px;padding:10px;\">
-						<span class=\"iconic iconicL folder_stroke\" style=\"margin-right:10px;float:left;margin-top:5px;\"></span> ".$container->children("http://purl.org/dc/elements/1.1/")."
-					</div>
-				</div>";
-		}
+		if($seriesName == null)
+			foreach($xml->container AS $container){#\$j('.UPnPItem').appear(); \$j('.UPnPItem').on('appear', function(){ \$j(this).children().show(); }); \$j.force_appear();
+				$L .= "
+					<div style=\"width:33%;display:inline-block;cursor:pointer;overflow:hidden;margin-bottom:30px;\" onclick=\"".OnEvent::rme($this, "directoryTouch", array("'".$container->attributes()->id."'", $UPnPTargetID), "function(transport){ \$j('.UPnPItem, .UPnPSeries').remove(); \$j('#UPnPMediaSelection').append(transport.responseText); \$j('.UPnPDirectory:first').animate({'margin-left': '-50%'}, 600, function(){ \$j('.UPnPDirectory:first').remove(); \$j('.UPnPItem, .UPnPSeries').css('display', 'inline-block'); });  }")."\">
+						<div style=\"font-family:Roboto;font-size:30px;padding:10px;\">
+							<span class=\"iconic iconicL folder_stroke\" style=\"color:#bbb;margin-right:10px;float:left;margin-top:5px;\"></span> ".$container->children("http://purl.org/dc/elements/1.1/")."
+						</div>
+					</div>";
+			}
 		
 		$L .= "<div style=\"width:100%;display:inline-block;\">&nbsp;</div>";
 		
-		foreach($xml->item AS $item){
-			$newName = $item->children("http://purl.org/dc/elements/1.1/");
-			foreach(self::$prettifyerRules AS $reg => $replace)
-				$newName = preg_replace("/".str_replace(".", "\.", $reg)."/ei", str_replace(array("."), array("\."), $replace), $newName);
-			
-			$L .= "
-				<div class=\"UPnPItem\" data-OID=\"".$item->attributes()->id."\" onclick=\"".OnEvent::rme(new UPnP($this->getID()), "readSetStart", array("'".$item->attributes()->id."'", "UPnP.currentTargetID"))."\" style=\"width:49.7%;display:none;overflow:hidden;margin-bottom:30px;\">
-					<div style=\"font-family:Roboto;font-size:17px;padding:10px;overflow:hidden;\">
-						<span class=\"iconic iconicL document_alt_stroke\" style=\"margin-right:10px;float:left;\"></span><div style=\"white-space: nowrap;margin-left:40px;display:block;overflow:hidden;\">".$newName."</div>
-						<div style=\"font-size:12px;\">".$item->children("http://www.pv.com/pvns/")->extension[0].""."<span style=\"float:right;\">".Util::formatSeconds(Util::parseTime("de_DE", $item->res->attributes()->duration[0].""))."</span></div>
-					</div>
-				</div>";
-		}
+		$entries = $this->findEntries($xml);
+		
+		$series = $this->findSeries($entries);
+
+		if($seriesName == null)
+			foreach($series AS $name => $list){
+				$L .= "
+					<div class=\"UPnPSeries\" style=\"cursor:pointer;width:33%;display:none;overflow:hidden;margin-bottom:30px;\" onclick=\"".OnEvent::rme($this, "directoryTouch", array("'$ObjectID'", $UPnPTargetID, 0, "'$name'"), "function(transport){ \$j('.UPnPItem, .UPnPSeries').remove(); \$j('#UPnPMediaSelection').append(transport.responseText); \$j('.UPnPDirectory:first').animate({'margin-left': '-50%'}, 600, function(){ \$j('.UPnPDirectory:first').remove(); \$j('.UPnPItem, .UPnPSeries').css('display', 'inline-block'); });  }")."\">
+						<div style=\"font-family:Roboto;font-size:17px;padding:10px;overflow:hidden;\">
+							<span class=\"iconic iconicL list\" style=\"margin-right:10px;float:left;color:#bbb;\"></span><div style=\"white-space: nowrap;margin-left:40px;display:block;overflow:hidden;\">".$name."</div>
+							<div style=\"font-size:12px;\">".count($list)." Folge".(count($list) != 1 ? "n" : "")."</div>
+						</div>
+					</div>";
+			}
+		
+		if($seriesName != null)
+			$entries = $series[$seriesName];
+		
+		foreach($entries AS $newName => $item)
+			$L .= $this->printItem($item, $newName);
 		
 		echo "<div class=\"UPnPDirectory\" style=\"".($isBack ? "margin-left:-50%;" : "")."width:50%;display:inline-block;vertical-align:top;\">".$B."<div class=\"UPnPDirectoryBrowser\" style=\"background-color:#2F2F2F;\">".$L."</div>".OnEvent::script("UPnP.start();")."</div>";
+	}
+	
+	private function printItem($item, $newName){
+		return "
+			<div class=\"UPnPItem\" data-OID=\"".$item->attributes()->id."\" onclick=\"".OnEvent::rme(new UPnP($this->getID()), "readSetStart", array("'".$item->attributes()->id."'", "UPnP.currentTargetID"))."\" style=\"cursor:pointer;width:33%;display:none;overflow:hidden;margin-bottom:30px;\">
+				<div style=\"font-family:Roboto;font-size:17px;padding:10px;overflow:hidden;\">
+					<span class=\"iconic iconicL document_alt_stroke\" style=\"color:#bbb;margin-right:10px;float:left;\"></span><div style=\"white-space: nowrap;margin-left:40px;display:block;overflow:hidden;\">".$newName."</div>
+					<div style=\"font-size:12px;\">".$item->children("http://www.pv.com/pvns/")->extension[0].""."<span style=\"float:right;\">".Util::formatSeconds(Util::parseTime("de_DE", $item->res->attributes()->duration[0].""))."</span></div>
+				</div>
+			</div>";
 	}
 	
 	public function details($ObjectID){
@@ -192,24 +246,71 @@ class UPnPGUI extends UPnP implements iGUIHTML2 {
 	}
 	
 	public function controls(){
-		$desiredCommands = array("Play", "Pause", "Stop", "Next");
+		#$desiredCommands = array("Play", "Pause", "Stop", "Next", "Previous");
+		$icons = array("Play" => "play", "Pause" => "pause", "Stop" => "stop", "Next" => "arrow_right", "Previous" => "arrow_left", "Mute" => "volume_mute", "UnMute" => "volume");
 		
-		$url = parse_url($this->A("UPnPLocation"));
+		#$url = parse_url($this->A("UPnPLocation"));
 		#print_r($url);
-		$info = file_get_contents($url["scheme"]."://".$url["host"].":".$url["port"].$this->A("UPnPAVTransportSCPDURL"));
-		$xml = new SimpleXMLElement($info);
+		#$info = file_get_contents($url["scheme"]."://".$url["host"].":".$url["port"].$this->A("UPnPAVTransportSCPDURL"));
+		#$xml = new SimpleXMLElement($info);
 		#echo "<pre style=\"padding:5px;font-size:9px;overflow:auto;height:400px;\">";
-		foreach ($xml->actionList->action AS $action){
+		/*foreach ($xml->actionList->action AS $action){
 			$name = $action->name[0]."";
 			if(!in_array($name, $desiredCommands))
 				continue;
-			
-			echo "<p><a href=\"#\" onclick=\"".OnEvent::rme($this, $name, array("'0'"))." return false;\">".$name."</a></p>";
-		}
+			$B = new Button($name, $icons[$name], "touch");
+			$B->rmePCR("UPnP", $this->getID(), $name, array("'0'"));
+			echo $B;
+			#echo "<p><a href=\"#\" onclick=\"".OnEvent::rme($this, $name, array("'0'"))." return false;\">".$name."</a></p>";
+		}*/
 		#$this->prettyfy($info);
 		#echo "</pre>";
 		
 		#print_r($info);
+		
+		echo "<br />";
+		
+		$B = new Button("Play", $icons["Play"], "touch");
+		$B->rmePCR("UPnP", $this->getID(), "Play", array("'0'"));
+		$B->style("display:inline-block;width:30%;");
+		echo $B;
+		
+		$B = new Button("Pause", $icons["Pause"], "touch");
+		$B->rmePCR("UPnP", $this->getID(), "Pause", array("'0'"));
+		$B->style("display:inline-block;width:30%;");
+		echo $B;
+		
+		$B = new Button("Stop", $icons["Stop"], "touch");
+		$B->rmePCR("UPnP", $this->getID(), "Stop", array("'0'"));
+		$B->style("display:inline-block;width:30%;");
+		echo $B;
+		
+		echo "<br />";
+		
+		$B = new Button("Previous", $icons["Previous"], "touch");
+		$B->rmePCR("UPnP", $this->getID(), "Previous", array("'0'"));
+		$B->style("display:inline-block;width:47%;");
+		echo $B;
+		
+		$B = new Button("Next", $icons["Next"], "touch");
+		$B->rmePCR("UPnP", $this->getID(), "Next", array("'0'"));
+		$B->style("display:inline-block;width:47%;");
+		echo $B;
+		
+		
+		$B = new Button("Mute", $icons["Mute"], "touch");
+		$B->rmePCR("UPnP", $this->getID(), "SetMute", array("'0'", "'Master'", "'1'"), "function(){ \$j('#UPnPControlsMute').hide(); \$j('#UPnPControlsUnMute').show(); }");
+		$B->style("width:47%;".($this->GetMute(0, "Master") == "0" ? "" : "display:none;"));
+		$B->id("UPnPControlsMute");
+		echo $B;
+		
+		$B = new Button("UnMute", $icons["UnMute"], "touch");
+		$B->rmePCR("UPnP", $this->getID(), "SetMute", array("'0'", "'Master'", "'0'"), "function(){ \$j('#UPnPControlsMute').show(); \$j('#UPnPControlsUnMute').hide(); }");
+		$B->style("width:47%;".($this->GetMute(0, "Master") == "1" ? "" : "display:none;"));
+		$B->id("UPnPControlsUnMute");
+		echo $B;
+		
+		echo "<div style=\"height:1px;\"></div>";
 	}
 	
 	public function loadInfo(){

@@ -45,19 +45,19 @@ class mUPnPGUI extends anyC implements iGUIHTMLMP2 {
 		<div style=\"width:100%;margin-bottom:20px;position:fixed;top:0;left:0;background-color:black;\" id=\"UPnPSelection\">
 			<div style=\"float:right;margin-right:20px;\">
 				<div onclick=\"UPnP.hide();\" style=\"cursor:pointer;float:left;font-family:Roboto;font-size:30px;padding:10px;\">
-					<span style=\"margin-left:10px;float:right;margin-top:5px;\" class=\"iconic iconicL x\"></span> <span>Schließen</span>
+					<span style=\"margin-left:10px;float:right;margin-top:5px;color:#bbb;\" class=\"iconic iconicL x\"></span> <span>Schließen</span>
 				</div>
 			</div>
 			
 			<div style=\"width:33%;float:left;\">
 				<div onclick=\"UPnP.targetSelection();\" style=\"cursor:pointer;font-family:Roboto;font-size:30px;padding:10px;white-space: nowrap;\">
-					<span style=\"margin-right:10px;float:left;margin-top:5px;\" class=\"iconic iconicL arrow_down\"></span> <span id=\"UPnPTargetName\">Abspielgerät auswählen</span> 
+					<span style=\"margin-right:10px;float:left;margin-top:5px;color:#bbb;\" class=\"iconic iconicL arrow_down\"></span> <span id=\"UPnPTargetName\">Abspielgerät auswählen</span> 
 				</div>
 			</div>
 			
 			<div style=\"display:none;float:left;width:33%;\">
 				<div onclick=\"UPnP.sourceSelection();\" style=\"cursor:pointer;float:left;font-family:Roboto;font-size:30px;padding:10px;white-space: nowrap;\">
-					<span style=\"margin-right:10px;float:left;margin-top:5px;\" class=\"iconic iconicL arrow_down\"></span> <span id=\"UPnPSourceName\">Quelle auswählen</span> 
+					<span style=\"margin-right:10px;float:left;margin-top:5px;color:#bbb;\" class=\"iconic iconicL arrow_down\"></span> <span id=\"UPnPSourceName\">Quelle auswählen</span> 
 				</div>
 			</div>
 
@@ -65,8 +65,8 @@ class mUPnPGUI extends anyC implements iGUIHTMLMP2 {
 			</div>
 			
 			<div style=\"float:right;margin-right:20px;\">
-				<div onclick=\"UPnP.hide();\" style=\"cursor:pointer;float:left;font-family:Roboto;font-size:30px;padding:10px;\">
-					<span style=\"margin-left:10px;float:right;margin-top:5px;\" class=\"iconic iconicL cog\"></span> <span>Steuerung</span>
+				<div onclick=\" Popup.load('Steuerung', 'UPnP', UPnP.currentTargetID, 'controls', [''], '', 'edit');\" style=\"cursor:pointer;float:left;font-family:Roboto;font-size:30px;padding:10px;\">
+					<span style=\"margin-left:10px;float:right;margin-top:5px;color:#bbb;\" class=\"iconic iconicL cog\"></span> <span>Steuerung</span>
 				</div>
 			</div>
 		</div>
@@ -74,7 +74,7 @@ class mUPnPGUI extends anyC implements iGUIHTMLMP2 {
 		
 		<div id=\"UPnPTargetSelection\" style=\"padding:10px;display:none;width:66%;position:absolute;\"></div>
 		<div id=\"UPnPSourceSelection\" style=\"padding:10px;display:none;margin-left:33%;position:absolute;\"></div>
-		<div style=\"overflow-x:hidden;width:66%;\">
+		<div style=\"overflow-x:hidden;width:100%;\">
 			<div id=\"UPnPMediaSelection\" style=\"padding-right:0px;width:200%;\"></div>
 		</div>";
 	}
@@ -114,7 +114,7 @@ class mUPnPGUI extends anyC implements iGUIHTMLMP2 {
 		echo OnEvent::script(OnEvent::popup("", "mUPnP", "-1", "discoverNow"));
 	}
 	
-	public static $desiredServices = array("AVTransport" => "urn:upnp-org:serviceId:AVTransport", "ContentDirectory" => "urn:upnp-org:serviceId:ContentDirectory", "ConnectionManager" => "urn:upnp-org:serviceId:ConnectionManager");
+	public static $desiredServices = array("AVTransport" => "urn:upnp-org:serviceId:AVTransport", "ContentDirectory" => "urn:upnp-org:serviceId:ContentDirectory", "ConnectionManager" => "urn:upnp-org:serviceId:ConnectionManager", "RenderingControl" => "urn:upnp-org:serviceId:RenderingControl");
 	
 	public function discoverNow(){
 		$C = new phpUPnP();

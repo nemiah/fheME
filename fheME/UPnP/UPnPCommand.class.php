@@ -64,6 +64,19 @@ class UPnPCommand {
 		return $this->execute(__FUNCTION__, $args, "ContentDirectory");
 	}
 	
+	function GetMute($InstanceID, $Channel){
+		$args = '<InstanceID>'.$InstanceID.'</InstanceID>' . "\r\n";
+		$args .= '<Channel>'.$Channel.'</Channel>' . "\r\n";
+		return $this->execute(__FUNCTION__, $args, "RenderingControl");
+	}
+	
+	function SetMute($InstanceID, $Channel, $DesiredMute){
+		$args = '<InstanceID>'.$InstanceID.'</InstanceID>' . "\r\n";
+		$args .= '<Channel>'.$Channel.'</Channel>' . "\r\n";
+		$args .= '<DesiredMute>'.$DesiredMute.'</DesiredMute>' . "\r\n";
+		return $this->execute(__FUNCTION__, $args, "RenderingControl");
+	}
+	
 	function Next() {
 		$args = '<InstanceID>0</InstanceID>' . "\r\n";
 		return $this->execute(__FUNCTION__, $args, "AVTransport");
