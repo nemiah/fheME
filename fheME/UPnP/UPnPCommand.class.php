@@ -37,19 +37,19 @@ class UPnPCommand {
 			"trace" => true));
 
 
-		try {
+		#try {
 			$result = $client->__soapCall($method, array(
 				new SoapVar($prmArguments, XSD_ANYXML)
 			));
 			#print_r($result);
-		} catch(Exception $e){
-			echo "<pre>";
-			print_r($client->__getLastRequestHeaders());
-			UPnP::prettyfy($client->__getLastRequest());
-			echo "\n";
-			UPnP::prettyfy($client->__getLastResponse());
-			echo "</pre>";
-		}
+		#} catch(Exception $e){
+		#	echo "<pre>";
+		#	print_r($client->__getLastRequestHeaders());
+		#	UPnP::prettyfy($client->__getLastRequest());
+		#	echo "\n";
+		#	UPnP::prettyfy($client->__getLastResponse());
+		#	echo "</pre>";
+		#}
 		
 		return $result;
 	}
@@ -67,7 +67,13 @@ class UPnPCommand {
 	function GetMute($InstanceID, $Channel){
 		$args = '<InstanceID>'.$InstanceID.'</InstanceID>' . "\r\n";
 		$args .= '<Channel>'.$Channel.'</Channel>' . "\r\n";
-		return $this->execute(__FUNCTION__, $args, "RenderingControl");
+		try {
+			$return = $this->execute(__FUNCTION__, $args, "RenderingControl");
+		} catch(Exception $e){
+			$return = 0;
+		}
+		
+		return $return;
 	}
 	
 	function SetMute($InstanceID, $Channel, $DesiredMute){

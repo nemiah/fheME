@@ -77,7 +77,7 @@ var Popup = {
 		}
 	
 		if($j('#'+targetPluginContainer+'SidePanel').length == 0){
-			$j('#windows').append('<div id="'+targetPluginContainer+'SidePanel" style="display:none;top:'+($j("#"+targetPluginContainer).position().top - $j(window).scrollTop() + 10)+'px;left:'+($j("#"+targetPluginContainer).position().left+  $j("#"+targetPluginContainer).width())+'px;" class="backgroundColor0 borderColor1 popupSidePanel"></div>');
+			$j('#windows').append('<div id="'+targetPluginContainer+'SidePanel" style="display:none;top:'+($j("#"+targetPluginContainer).position().top - $j(window).scrollTop() + 10)+'px;left:'+($j("#"+targetPluginContainer).position().left+  $j("#"+targetPluginContainer).width())+'px;" class="backgroundColor0 popupSidePanel"></div>');
 
 			$j("#"+targetPluginContainer).bind("dragstart", function(event, ui) {
 				$j('#'+targetPluginContainer+'SidePanel').fadeOut();
@@ -187,7 +187,7 @@ var Popup = {
 			{
 				id: type+'Details'+ID,
 				style: 'display:none;top:'+top+'px;'+(right != null ? 'right:'+right : 'left:'+left)+'px;width:'+width+'px;z-index:'+Popup.zIndex,
-				"class": "borderColor1 popup"
+				"class": "popup"
 			}, [
 				Builder.node("div", {"class": "backgroundColor1 cMHeader", id: type+'DetailsHandler'+ID}, [
 					Builder.node("a", {id: type+"DetailsCloseWindow"+ID, "class": "closeContextMenu backgroundColor0 borderColor0", style:"cursor:pointer;"+(hasX ? "" : "display:none;")}, ["X"])

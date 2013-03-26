@@ -47,5 +47,11 @@ class UPnP extends PersistentObject {
 		
 		echo htmlentities($dom->saveXML());
 	}
+	
+	public function VendorShutdown(){
+		$url = parse_url($this->A("UPnPLocation"));
+		if(strpos($this->A("UPnPModelName"), "XBMC") !== false)
+			echo Util::PostToHost($url["host"], 8080, "/jsonrpc?System.Shutdown", "", '{"jsonrpc":"2.0","method":"System.Shutdown","id":1}', null, null, "application/json");
+	}
 }
 ?>

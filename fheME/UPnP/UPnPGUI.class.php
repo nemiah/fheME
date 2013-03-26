@@ -38,6 +38,24 @@ class UPnPGUI extends UPnP implements iGUIHTML2 {
 		$gui = new HTMLGUIX($this);
 		$gui->name("UPnP");
 	
+		$gui->attributes(array(
+			"UPnPName",
+			"UPnPLocation",
+			"UPnPModelName",
+			"UPnPContentDirectory",
+			"UPnPContentDirectorySCPDURL",
+			"UPnPContentDirectorycontrolURL",
+			"UPnPAVTransport",
+			"UPnPAVTransportSCPDURL",
+			"UPnPAVTransportcontrolURL",
+			"UPnPConnectionManager",
+			"UPnPConnectionManagerSCPDURL",
+			"UPnPConnectionManagercontrolURL",
+			"UPnPRenderingControl",
+			"UPnPRenderingControlSCPDURL",
+			"UPnPRenderingControlcontrolURL"
+		));
+		
 		$gui->label("UPnPConnectionManager", "Available?");
 		$gui->label("UPnPAVTransport", "Available?");
 		$gui->label("UPnPContentDirectory", "Available?");
@@ -247,10 +265,21 @@ class UPnPGUI extends UPnP implements iGUIHTML2 {
 	
 	public function controls(){
 		#$desiredCommands = array("Play", "Pause", "Stop", "Next", "Previous");
-		$icons = array("Play" => "play", "Pause" => "pause", "Stop" => "stop", "Next" => "arrow_right", "Previous" => "arrow_left", "Mute" => "volume_mute", "UnMute" => "volume");
+		$icons = array(
+			"Play" => "play",
+			"Pause" => "pause",
+			"Stop" => "stop",
+			"Next" => "arrow_right",
+			"Previous" => "arrow_left",
+			"Mute" => "volume_mute",
+			"UnMute" => "volume",
+			"Shutdown" => "download");
 		
-		#$url = parse_url($this->A("UPnPLocation"));
-		#print_r($url);
+		if(file_get_contents($this->A("UPnPLocation")) === false){
+			$B = new Button("Achtung", "notice", "icon");
+			$B->style("float:left;margin:10px;");
+			echo $B."<p>Der Server ist nicht erreichbar!</p>";
+		}
 		#$info = file_get_contents($url["scheme"]."://".$url["host"].":".$url["port"].$this->A("UPnPAVTransportSCPDURL"));
 		#$xml = new SimpleXMLElement($info);
 		#echo "<pre style=\"padding:5px;font-size:9px;overflow:auto;height:400px;\">";
@@ -268,7 +297,7 @@ class UPnPGUI extends UPnP implements iGUIHTML2 {
 		
 		#print_r($info);
 		
-		echo "<br />";
+		echo "<div style=\"clear:both;height:10px;\"></div>";
 		
 		$B = new Button("Play", $icons["Play"], "touch");
 		$B->rmePCR("UPnP", $this->getID(), "Play", array("'0'"));
@@ -309,6 +338,14 @@ class UPnPGUI extends UPnP implements iGUIHTML2 {
 		$B->style("width:47%;".($this->GetMute(0, "Master") == "1" ? "" : "display:none;"));
 		$B->id("UPnPControlsUnMute");
 		echo $B;
+		
+		if(strpos($this->A("UPnPModelName"), "XBMC") !== false){
+			$B = new Button("Shutdown", $icons["Shutdown"], "touch");
+			$B->doBefore("if(confirm('Möchten Sie das Gerät herunterfahren?')) %AFTER");
+			$B->rmePCR("UPnP", $this->getID(), "VendorShutdown");
+			$B->style("display:inline-block;width:47%;");
+			echo $B;
+		}
 		
 		echo "<div style=\"height:1px;\"></div>";
 	}

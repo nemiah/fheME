@@ -227,13 +227,13 @@ if($_SESSION["S"]->checkIfUserLoggedIn() == false) $_SESSION["CurrentAppPlugins"
 			<p style="color:grey;left:10px;position:fixed;bottom:10px;"><a style="color:grey;" target="_blank" href="http://www.furtmeier.it"><?php echo T::_("Unternehmenssoftware"); ?></a> <?php echo T::_("von Furtmeier Hard- und Software"); ?></p>
 			<?php } ?>
 			<form id="loginForm" onsubmit="return false;">
-				<table class="loginWindow">
+				<table class="loginWindow" style="border-spacing: 0 0px;">
 					<colgroup>
-						<col class="backgroundColor2" style="width:120px;" />
-						<col class="backgroundColor3" />
+						<col class="" style="width:120px;" />
+						<col class="" />
 					</colgroup>
 					<tr>
-						<td class="backgroundColor2"><label><?php echo T::_("Benutzername"); ?>:</label></td>
+						<td><label><?php echo T::_("Benutzername"); ?>:</label></td>
 						<td><input style="width:285px;" tabindex="1" onfocus="focusMe(this);" onblur="blurMe(this);" type="text" name="loginUsername" id="loginUsername" onkeydown="userControl.abortAutoCertificateLogin(); userControl.abortAutoLogin(); if(event.keyCode == 13) userControl.doLogin();" /></td>
 					</tr>
 					<tr>
@@ -270,7 +270,7 @@ if($_SESSION["S"]->checkIfUserLoggedIn() == false) $_SESSION["CurrentAppPlugins"
 							
 							if(Environment::getS("showApplicationsList", "1") == "1"){ ?>
 								<select
-									style="width:160px;"
+									style=""
 									id="anwendung"
 									name="anwendung"
 									tabindex="3"
@@ -309,11 +309,11 @@ if($_SESSION["S"]->checkIfUserLoggedIn() == false) $_SESSION["CurrentAppPlugins"
 							</td>
 					</tr>
 					<tr>
-						<td colspan="2">
+						<td colspan="2" style="background-color:#EEE;">
 							<input
-								class="bigButton backgroundColor3"
+								class="bigButton"
 								type="button"
-								style="float:right;background-image:url(./images/navi/keys.png);"
+								style="float:right;background-image:url(./images/navi/keys.png);background-color:#CCC;"
 								onclick="userControl.doLogin();"
 								value="<?php echo T::_("Anmelden"); ?>" />
 							

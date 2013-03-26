@@ -302,29 +302,32 @@ input[disabled], select[disabled], input[readonly] {
 }
 
 .bigButton {
+	border:0;
 	text-align:left;
 	width:150px;
 	height:40px;
 	background-position:115px;
 	cursor:pointer;
-	border-radius:3px;
+	/*border-radius:3px;*/
 }
 
 .bigButton:active  {
-	box-shadow: 1px 1px 2px #777777;
+	box-shadow: 0px 0px 0px 3px rgba(150, 150, 150, 0.5);
 }
 
 .LPBigButton {
+	border:0;
 	text-align:left;
 	width:38px;
 	height:40px;
 	background-position:3px;
 	cursor:pointer;
-	border-radius:3px;
+	/*border-radius:3px;*/
 }
 
 .LPBigButton:active {
-	box-shadow: 0 0 2px #777777;
+	/*box-shadow: 0 0 2px #777777;*/
+	box-shadow: 0px 0px 0px 3px rgba(150, 150, 150, 0.5);
 }
 /*
 caption {
@@ -644,22 +647,25 @@ input[name=currentSaveButton] {
 
 .popup {
 	position:fixed;
-	box-shadow: 0px 0px 3px #777;
-	border-top-left-radius:5px;
-	border-top-right-radius:5px;
+	box-shadow: 0px 0px 0px 8px rgba(200, 200, 200, .5);
+	/*border-top-left-radius:5px;
+	border-top-right-radius:5px;*/
+	border-color: #777;
 	border-style:solid;
 	border-width:1px;
 }
 
 .popup > div:first-child {
-	border-top-left-radius:5px;
-	border-top-right-radius:5px;
+	/*border-top-left-radius:5px;
+	border-top-right-radius:5px;*/
 }
 
 .popupSidePanel {
-	border-top-right-radius:5px;
-	box-shadow: 0px 0px 2px #777;
+	/*border-top-right-radius:5px;
+	box-shadow: 0px 0px 2px #777;*/
+	box-shadow: 0px 0px 0px 8px rgba(200, 200, 200, .5);
 	width:200px;
+	border-color: #777;
 	border-width:1px;
 	border-style:solid;
 	position:fixed;
@@ -667,7 +673,7 @@ input[name=currentSaveButton] {
 }
 
 .popupSidePanel > div > div:first-child {
-	border-top-right-radius:5px;
+	/*border-top-right-radius:5px;*/
 }
 
 .popupSidePanel label {

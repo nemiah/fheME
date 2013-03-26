@@ -28,8 +28,8 @@ var phynxContextMenu = {
 	init: function(){
 		//var b = document.getElementsByTagName("body");
 		
-		var cMDiv = Builder.node('div', {id:"cMDiv", "class":"contextMenu backgroundColor0 borderColor1", style:"display:none;width:200px;"});
-		var fakecMDiv = Builder.node('div', {id:"fakecMDiv", style:"top:-10000px;width:200px;", "class":'contextMenu backgroundColor0 borderColor1'});
+		var cMDiv = Builder.node('div', {id:"cMDiv", "class":"contextMenu backgroundColor0", style:"display:none;width:200px;"});
+		var fakecMDiv = Builder.node('div', {id:"fakecMDiv", style:"top:-10000px;width:200px;", "class":'contextMenu backgroundColor0'});
 		
 		var cMHeader = Builder.node('div', {id:"cMHeader", "class":"backgroundColor1"});
 		var fakecMHeader = Builder.node('div', {id:"fakecMHeader", "class":"backgroundColor1 cMHeader"});

@@ -118,13 +118,15 @@ class mUPnPGUI extends anyC implements iGUIHTMLMP2 {
 	
 	public function discoverNow(){
 		$C = new phpUPnP();
-		#echo "<pre style=\"padding:5px;font-size:9px;overflow:auto;height:400px;\">";
+		#
 		$result = $C->mSearch();
 		echo "<p>Gefundene Geräte:</p>";
 		#$locations = array();
 		$L = new HTMLList();
 		$foundLocations = array();
-		
+		#echo "<pre style=\"padding:5px;font-size:9px;overflow:auto;height:400px;\">";
+		#print_r($result);
+		#echo "</pre>";
 		foreach($result AS $r){
 			if(isset($foundLocations[$r["location"]]))
 				continue;
@@ -150,6 +152,7 @@ class mUPnPGUI extends anyC implements iGUIHTMLMP2 {
 			$U = $F->exists(true);
 			if($U !== false){
 				$U->changeA("UPnPName", $xml->device->friendlyName);
+				$U->changeA("UPnPModelName", $xml->device->modelName);
 				
 				foreach(self::$desiredServices AS $S => $nil)
 					$U->changeA("UPnP$S", 0);
@@ -162,6 +165,7 @@ class mUPnPGUI extends anyC implements iGUIHTMLMP2 {
 				$U->saveMe();
 			} else {
 				$F->sA("UPnPName", $xml->device->friendlyName);
+				$F->sA("UPnPModelName", $xml->device->modelName);
 				
 				foreach(self::$desiredServices AS $S => $nil)
 					$F->sA("UPnP$S", 0);

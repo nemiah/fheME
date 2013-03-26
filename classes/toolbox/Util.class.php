@@ -21,7 +21,7 @@ class Util {
 	public static function ext($filename){
 		return strtolower(pathinfo($filename, PATHINFO_EXTENSION));
 	}
-	
+
 	public static function filesTree($files){
 
 		$zipDirectories = array();
