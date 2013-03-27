@@ -77,6 +77,8 @@ var Wecker = {
 							window.clearInterval(Wecker.interval);
 							Wecker.interval = null;
 							Wecker.active = null;
+							
+							$j.jStorage.set('phynxWeckerActive', false);
 						});
 					} else
 						$j("#ClockOverlay").animate({"margin-top" : "0px"});
@@ -87,7 +89,7 @@ var Wecker = {
 			ev.stopPropagation();
 		});
 		
-		
+		$j.jStorage.set('phynxWeckerActive', true);
 		$j('#ClockOverlay').slideDown("fast", function(){
 			Wecker.clock();
 		});

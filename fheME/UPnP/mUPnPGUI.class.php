@@ -192,5 +192,27 @@ class mUPnPGUI extends anyC implements iGUIHTMLMP2 {
 		echo $L;
 		#echo "</pre>";
 	}
+	
+	public function getOverviewContent(){
+		$html = "<div class=\"touchHeader\"><span class=\"lastUpdate\" id=\"lastUpdatemUPnPGUI\"></span><p>Multimedia</p></div>
+			<div style=\"padding:10px;\">";
+
+		
+			$B = new Button("Mediencenter", "share", "iconicL");
+			#Overlay.showDark();
+			$html .= "
+			<div class=\"touchButton\" onclick=\"UPnP.show();\">
+				".$B."
+				<div class=\"label\">Mediencenter</div>
+				<div style=\"clear:both;\"></div>
+			</div>";
+		
+		$html .= "</div>";
+		echo $html;
+	}
+	
+	public static function getOverviewPlugin(){
+		return new overviewPlugin("mUPnPGUI", "Multimedia", 100);
+	}
 }
 ?>

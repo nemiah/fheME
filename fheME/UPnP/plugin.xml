@@ -30,6 +30,7 @@
 		<javascript>UPnP.js</javascript>
 		
 		<version>0.6</version>
+		<registry>Overview;mUPnPGUI::getOverviewPlugin</registry>
 
 		<deploy>
 			<table name="UPnP" />

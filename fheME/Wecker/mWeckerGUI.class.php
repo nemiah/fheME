@@ -51,7 +51,7 @@ class mWeckerGUI extends anyC implements iGUIHTMLMP2 {
 				<div style=\"clear:both;\"></div>
 			</div>";
 		
-		$html .= "</div><!--<audio></audio>-->";
+		$html .= "</div>".OnEvent::script("if(\$j.jStorage.get('phynxWeckerActive', false) === true) Wecker.loadThemAll(function(){ Wecker.show(); });");
 		echo $html;
 	}
 	
