@@ -19,10 +19,11 @@
  */
 
 class mUPnPGUI extends anyC implements iGUIHTMLMP2 {
-
+	
 	public function getHTML($id, $page){
 		$this->loadMultiPageMode($id, $page, 0);
-
+		T::load(dirname(__FILE__), "UPnP");
+		
 		$gui = new HTMLGUIX($this);
 		$gui->version("mUPnP");
 

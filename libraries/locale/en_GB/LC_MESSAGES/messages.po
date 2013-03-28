@@ -22,7 +22,7 @@ msgid "Passwort"
 msgstr "Password"
 
 msgid "Optionen anzeigen"
-msgstr "show options"
+msgstr "Show options"
 
 msgid "Passwort vergessen?"
 msgstr "Lost password?"
@@ -37,7 +37,7 @@ msgid "Sprache"
 msgstr "Language"
 
 msgid "Zugangsdaten speichern"
-msgstr "save login data"
+msgstr "Save login data"
 
 msgid "Automatisch anmelden"
 msgstr "automatic login"
@@ -62,4 +62,16 @@ msgstr "Business software"
 
 msgid "von Furtmeier Hard- und Software"
 msgstr "by Furtmeier Hard- und Software"
+
+msgid "Einstellungen anzeigen"
+msgstr "Show settings"
+
+msgid "Eintrag erstellen"
+msgstr "Create entry"
+
+msgid "Eintrag bearbeiten"
+msgstr "Edit entry"
+
+msgid "Eintrag löschen"
+msgstr "Delete entry"
 

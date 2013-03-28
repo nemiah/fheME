@@ -21,26 +21,36 @@
 class T {
 	public static $generate = false;
 	public static $lastPath;
-	private static $poFileContent;
+	private static $poFileContent = array();
+	private static $localeSet = false;
+	private static $currentDomain = "";
+	public static $domainPaths = array();
+	
+	public static function D($domain){
+		self::$currentDomain = $domain;
+	}
 	
 	public static function _($text){
-		if(self::$generate AND self::$lastPath != null){
-			if(self::$poFileContent === null)
-				self::$poFileContent = file_get_contents(self::$lastPath."/".Session::getLanguage()."/LC_MESSAGES/messages.po");
-			
-			$putText = $text;
+		if(trim($text) == "" OR trim($text) == "&nbsp;")
+			return $text;
+		#echo self::$currentDomain.":".$text."<br />";
+		if(self::$generate AND self::$domainPaths[self::$currentDomain] != null AND Session::getLanguage() != "de_DE"){
+			if(!isset(self::$poFileContent[self::$currentDomain]))
+				self::$poFileContent[self::$currentDomain] = file_get_contents(self::$domainPaths[self::$currentDomain]."/".Session::getLanguage()."/LC_MESSAGES/messages".self::$currentDomain.".po");
+			#var_dump(self::$poFileContent);
+			$putText = str_replace("\"", "\\\"", $text);
 			if(strpos($putText, "\n") !== false){
 				$putText = str_replace("\n", "\\n\"\n\"", $putText);
 				$putText = "\"\n\"$putText";
 			}
 				
-			if(strpos(self::$poFileContent, "msgid \"$putText\"") === false){
-				file_put_contents(self::$lastPath."/".Session::getLanguage()."/LC_MESSAGES/messages.po", "msgid \"$putText\"\nmsgstr \"\"\n\n", FILE_APPEND);
-				self::$poFileContent = file_get_contents(self::$lastPath."/".Session::getLanguage()."/LC_MESSAGES/messages.po");
+			if(strpos(self::$poFileContent[self::$currentDomain], "msgid \"$putText\"") === false){
+				file_put_contents(self::$domainPaths[self::$currentDomain]."/".Session::getLanguage()."/LC_MESSAGES/messages".self::$currentDomain.".po", "msgid \"$putText\"\nmsgstr \"\"\n\n", FILE_APPEND);
+				self::$poFileContent[self::$currentDomain] = file_get_contents(self::$domainPaths[self::$currentDomain]."/".Session::getLanguage()."/LC_MESSAGES/messages".self::$currentDomain.".po");
 			}
 		}
 		
-		$text = _($text);
+		$text = dgettext("messages".self::$currentDomain, $text);
 		
 		$args = func_get_args();
 		if(count($args) > 1){
@@ -49,15 +59,22 @@ class T {
 			
 		}
 		
+		$text = Aspect::joinPoint("translate", null, __METHOD__, $text, $text);
+		
 		return $text;
 	}
 	
-	public static function load($pluginPath){
-		self::$lastPath = $pluginPath."/locale";
+	public static function load($pluginPath, $domain = ""){
+		self::$domainPaths[$domain] = $pluginPath."/locale";
+
+		if(!self::$localeSet){
+			setlocale(LC_MESSAGES, Session::getLanguage().".UTF-8");
+			self::$localeSet = true;
+		}
+		self::D($domain);
 		
-		setlocale(LC_MESSAGES, Session::getLanguage().".UTF-8");
-		bindtextdomain("messages", self::$lastPath);
-		bind_textdomain_codeset("messages", "UTF-8");
+		bindtextdomain("messages$domain", self::$domainPaths[$domain]);
+		bind_textdomain_codeset("messages$domain", "UTF-8");
 	}
 }
 ?>

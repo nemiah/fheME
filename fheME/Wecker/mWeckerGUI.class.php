@@ -21,6 +21,7 @@
 class mWeckerGUI extends anyC implements iGUIHTMLMP2 {
 
 	public function getHTML($id, $page){
+		T::load(dirname(__FILE__), "Wecker");
 		$this->setParser("WeckerTime", "Util::CLTimeParser");
 		
 		$this->addJoinV3("Device", "WeckerDeviceID", "=", "DeviceID");

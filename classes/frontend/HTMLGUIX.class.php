@@ -591,7 +591,8 @@ class HTMLGUIX {
 	 */
 	// <editor-fold defaultstate="collapsed" desc="getBrowserHTML">
 	function getBrowserHTML($lineWithId = -1, $useBPS = true){
-
+		T::load(Util::getRootPath()."libraries");
+		
 		$bps = BPS::getAllProperties("m".$this->className."GUI");
 		if(!$useBPS)
 			$bps = false;
@@ -721,18 +722,21 @@ class HTMLGUIX {
 	}
 	
 	private function topButtons($bps = null){
+		T::D($this->className);
 		$TT = "";
 		if(count($this->topButtons) > 0 AND ($bps == null OR !isset($bps["selectionMode"]))){
 			$TT = new HTMLTable(1);
 
 			foreach($this->topButtons AS $B)
-				$TT->addRow($B);
+				$TT->addRow($B."");
 		}
 
+		T::D("");
 		return $TT;
 	}
 
 	private function sideButtons($bps = null){
+		T::D($this->className);
 		$ST = "";
 		if(count($this->sideButtons) > 0 AND ($bps == null OR !isset($bps["selectionMode"]))){
 			$position = "left";
@@ -745,9 +749,10 @@ class HTMLGUIX {
 			$ST->setTableID("SideTable".get_class($this->object));
 
 			foreach($this->sideButtons AS $B)
-				$ST->addRow($B);
+				$ST->addRow($B."");
 		}
 
+		T::D("");
 		return $ST;
 	}
 

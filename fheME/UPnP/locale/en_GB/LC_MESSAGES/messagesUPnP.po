@@ -1,0 +1,65 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: fheME UPnP\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: Rainer Furtmeier <Rainer@Furtmeier.IT>\n"
+"Language-Team: ENGLISH <Support@Furtmeier.IT>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: English\n"
+"X-Poedit-Country: UNITED KINGDOM\n"
+"X-Poedit-SourceCharset: utf-8\n"
+
+msgid "UPnP-Geräte"
+msgstr "UPnP devices"
+
+msgid ""
+"Geräte\n"
+"erkennen"
+msgstr ""
+"discover\n"
+"devices"
+
+msgid ""
+"Remote\n"
+"anzeigen"
+msgstr ""
+"show\n"
+"remote"
+
+msgid "Info abrufen"
+msgstr "Load info"
+
+msgid "Verzeichnis"
+msgstr "Directory"
+
+msgid "Verfügbar?"
+msgstr "Available?"
+
+msgid "SCPDURL"
+msgstr "SCPDURL"
+
+msgid "controlURL"
+msgstr "controlURL"
+
+msgid "ConnectionManager"
+msgstr "ConnectionManager"
+
+msgid "AVTransport"
+msgstr "AVTransport"
+
+msgid "ContentDirectory"
+msgstr "ContentDirectory"
+
+msgid "RenderingControl"
+msgstr "RenderingControl"
+
+msgid ""
+"Info\n"
+"abrufen"
+msgstr ""
+"Load\n"
+"info"
+

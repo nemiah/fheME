@@ -34,6 +34,13 @@ class UPnPGUI extends UPnP implements iGUIHTML2 {
 		"." => "' '"
 	);
 	
+	function __construct($ID) {
+		parent::__construct($ID);
+		
+		T::load(dirname(__FILE__), "UPnP");
+		T::D("UPnP");
+	}
+	
 	function getHTML($id){
 		$gui = new HTMLGUIX($this);
 		$gui->name("UPnP");
@@ -56,10 +63,10 @@ class UPnPGUI extends UPnP implements iGUIHTML2 {
 			"UPnPRenderingControlcontrolURL"
 		));
 		
-		$gui->label("UPnPConnectionManager", "Available?");
-		$gui->label("UPnPAVTransport", "Available?");
-		$gui->label("UPnPContentDirectory", "Available?");
-		$gui->label("UPnPRenderingControl", "Available?");
+		$gui->label("UPnPConnectionManager", "Verfügbar?");
+		$gui->label("UPnPAVTransport", "Verfügbar?");
+		$gui->label("UPnPContentDirectory", "Verfügbar?");
+		$gui->label("UPnPRenderingControl", "Verfügbar?");
 		
 		$gui->label("UPnPContentDirectorySCPDURL", "SCPDURL");
 		$gui->label("UPnPAVTransportSCPDURL", "SCPDURL");

@@ -1,0 +1,56 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: fheME Wecker\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: Rainer Furtmeier <Rainer@Furtmeier.IT>\n"
+"Language-Team: ENGLISH <Support@Furtmeier.IT>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: English\n"
+"X-Poedit-Country: UNITED KINGDOM\n"
+"X-Poedit-SourceCharset: utf-8\n"
+
+msgid "Gerät"
+msgstr "Device"
+
+msgid "Aktiv?"
+msgstr "Active?"
+
+msgid "Zeit"
+msgstr "Time"
+
+msgid "URL"
+msgstr "URL"
+
+msgid "Datei"
+msgstr "File"
+
+msgid "Lautstärke"
+msgstr "Volume"
+
+msgid "Wiederholen nach"
+msgstr "Repeat after"
+
+msgid "Laufzeit"
+msgstr "Runtime"
+
+msgid "Die Adresse zu einem Internetradio-Stream"
+msgstr "The address of an internet radio stream"
+
+msgid "Diese Datei wird abgespielt, wenn nach 15 Sekunden kein Internetradio geladen werden konnte. Bitte beachten Sie, dass nicht alle Browser <a href=\"http://en.wikipedia.org/wiki/HTML5_Audio\" target=\"_blank\">alle Formate abspielen können</a>."
+msgstr "This file is played, if no internet radio stream could be loaded after 15 seconds. Please be aware, that not all browsers <a href=\"http://en.wikipedia.org/wiki/HTML5_Audio\" target=\"_blank\">can play all formats</a>."
+
+msgid "Wecker"
+msgstr "Alarm clock"
+
+msgid "Minuten"
+msgstr "minutes"
+
+msgid "Stunde"
+msgstr "hour"
+
+msgid "Minute"
+msgstr "minute"
+

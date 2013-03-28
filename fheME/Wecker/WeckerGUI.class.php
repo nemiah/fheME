@@ -24,6 +24,7 @@ class WeckerGUI extends Wecker implements iGUIHTML2 {
 		$this->setParser("WeckerTime", "Util::CLTimeParser");
 	}
 	function getHTML($id){
+		T::load(dirname(__FILE__), "Wecker");
 		$gui = new HTMLGUIX($this);
 		$gui->name("Wecker");
 	
@@ -31,7 +32,7 @@ class WeckerGUI extends Wecker implements iGUIHTML2 {
 		$gui->type("WeckerIsActive", "checkbox");
 		$gui->type("WeckerRepeat", "checkbox");
 		#$gui->type("WeckerFallback", "file");
-		$gui->type("WeckerRuntime", "select", array(/*1 => "1 Minute", */10 => "10 Minuten", 20 => "20 Minuten", 30 => "30 Minuten", 40 => "40 Minuten", 50 => "50 Minuten", 60 => "1 Stunde"));
+		$gui->type("WeckerRuntime", "select", array(/*1 => "1 Minute", */10 => "10 ".T::_("Minuten"), 20 => "20 ".T::_("Minuten"), 30 => "30 ".T::_("Minuten"), 40 => "40 ".T::_("Minuten"), 50 => "50 ".T::_("Minuten"), 60 => "1 ".T::_("Stunde")));
 		
 		$gui->type("WeckerMo", "checkbox");
 		$gui->type("WeckerDi", "checkbox");
@@ -42,7 +43,7 @@ class WeckerGUI extends Wecker implements iGUIHTML2 {
 		$gui->type("WeckerSo", "checkbox");
 		$gui->type("WeckerRepeat", "hidden");
 		
-		$gui->type("WeckerRepeatAfter", "select", array(60 => "1 Minute", 5 * 60 => "5 Minuten", 10 * 60 => "10 Minuten", 15 * 60 => "15 Minuten", 20 * 60 => "20 Minuten"));
+		$gui->type("WeckerRepeatAfter", "select", array(60 => "1 ".T::_("Minute"), 5 * 60 => "5 ".T::_("Minuten"), 10 * 60 => "10 ".T::_("Minuten"), 15 * 60 => "15 ".T::_("Minuten"), 20 * 60 => "20 ".T::_("Minuten")));
 		$gui->type("WeckerVolume", "select", array(10 => "10%", 20 => "20%", 30 => "30%", 40 => "40%", 50 => "50%", 60 => "60%", 70 => "70%", 80 => "80%", 90 => "90%", 100 => "100%"));
 		$gui->space("WeckerTime");
 		$gui->space("WeckerRepeat");
@@ -66,13 +67,14 @@ class WeckerGUI extends Wecker implements iGUIHTML2 {
 	}
 	
 	public static function parserFallback($w, $l, $E){
+		T::D("Wecker");
 		$I = new HTMLInput("WeckerFallback", "text", $w);
 		$I->style("margin-top:10px;");
 		
 		$IF = new HTMLInput("WeckerFallbackUpload", "file");
 		$IF->onchange(OnEvent::rme($E, "processUpload", array("fileName"), "\$j('[name=WeckerFallback]').val(fileName).trigger('change');"));
 		
-		return $IF.$I."<br /><small style=\"color:grey;\">Diese Datei wird abgespielt, wenn nach 15 Sekunden kein Internetradio geladen werden konnte. Bitte beachten Sie, dass nicht alle Browser <a href=\"http://en.wikipedia.org/wiki/HTML5_Audio\" target=\"_blank\">alle Formate abspielen können</a>.</small>";
+		return $IF.$I."<br /><small style=\"color:grey;\">".T::_("Diese Datei wird abgespielt, wenn nach 15 Sekunden kein Internetradio geladen werden konnte. Bitte beachten Sie, dass nicht alle Browser <a href=\"http://en.wikipedia.org/wiki/HTML5_Audio\" target=\"_blank\">alle Formate abspielen können</a>.")."</small>";
 	}
 	
 	public function processUpload($fileName){
