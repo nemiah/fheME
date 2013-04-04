@@ -75,22 +75,27 @@ var UPnP = {
 	},
 	
 	targetSelection: function(){
+		$j('#UPnPSourceSelection:visible').hide();
+		
 		contentManager.rmePCR("mUPnP", "-1", "getTargets", "", function(transport){ 
-			$j('#UPnPTargetSelection').css("top", $j('#UPnPSelection').height()+'px').html(transport.responseText);
+			$j('#UPnPTargetSelection').css("top", ($j('#UPnPSelection').height() / 2)+'px').html(transport.responseText);
 			$j('#UPnPTargetSelection').slideDown(400);
 			$j('#UPnPMediaSelection').slideUp(400);
 		});
 	},
 	
 	sourceSelection: function(){
+		$j('#UPnPTargetSelection:visible').hide();
+		
 		contentManager.rmePCR("mUPnP", "-1", "getSources", "", function(transport){ 
-			$j('#UPnPSourceSelection').css("top", $j('#UPnPSelection').height()+'px').html(transport.responseText);
+			$j('#UPnPSourceSelection').css("top", ($j('#UPnPSelection').height() / 2)+'px').html(transport.responseText);
 			$j('#UPnPSourceSelection').slideDown(400);
 			$j('#UPnPMediaSelection').slideUp(400);
 		});
 	},
 	
 	selectSource: function(UPnPID, UPnPName){
+		
 		UPnP.currentSourceID = UPnPID;
 		UPnP.currentSourceName = UPnPName;
 		

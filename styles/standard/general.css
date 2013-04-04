@@ -18,7 +18,7 @@ html {
   font-family: 'Roboto';
   font-style: normal;
   font-weight: 300;
-  src: local('Roboto Light'), local('Roboto-Light'), url('../../libraries/roboto/Roboto-Light.woff') format('woff');
+  src: local('Roboto Light'), local('Roboto-Light'), url('../../libraries/roboto/Roboto-Light.woff') format('woff'), url('../../libraries/roboto/Roboto-Light.ttf') format('truetype');
 }
 
 .iconic {
@@ -253,7 +253,7 @@ a.hiddenLink:hover {
 	filter:alpha(opacity=50);
 }
 
-input, select, .AJAXUpload {
+input, select, .AJAXUpload, button {
 	border:0;
 	border-bottom-width:1px;
 	border-bottom-style: dotted;
@@ -309,6 +309,10 @@ input[disabled], select[disabled], input[readonly] {
 	background-position:115px;
 	cursor:pointer;
 	/*border-radius:3px;*/
+}
+
+.bigButton:hover  {
+	box-shadow: inset 0px 0px 0px 1px rgba(0, 0, 0, 0.2);
 }
 
 .bigButton:active  {
@@ -726,6 +730,10 @@ input[name=currentSaveButton] {
 	width:200px;
 }
 
+.ui-front {
+	z-index: 2600;
+}
+
 .ui-datepicker-header {
 	height:25px;
 }
@@ -752,7 +760,7 @@ input[name=currentSaveButton] {
 
 .ui-tooltip-text {
 	font-size:12px;
-	line-height: 1.5;
+	line-height: 1.5; 
 }
 
 .ui-widget-overlay {

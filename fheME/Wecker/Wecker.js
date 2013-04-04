@@ -93,6 +93,9 @@ var Wecker = {
 		$j('#ClockOverlay').slideDown("fast", function(){
 			Wecker.clock();
 		});
+		
+		if(typeof alex != "undefined")
+			alex.louder(100);
 	},
 	
 	fadeIn: function(element){
@@ -109,6 +112,11 @@ var Wecker = {
 	},
 	
 	stop: function(){
+		if(typeof alex != "undefined"){
+			alex.beQuiet();
+			return;
+		}
+		
 		if(Wecker.currentAudio == null)
 			return;
 		
@@ -120,13 +128,18 @@ var Wecker = {
 	},
 	
 	play: function(){
-		Wecker.currentAudio = $j('#ClockAudio');
-		
-		Wecker.currentAudio.prop("src", Wecker.active.WeckerSource).get(0).volume = 0;
-		Wecker.currentAudio.bind("canplay", function(){
-			Wecker.fadeIn(Wecker.currentAudio);
-		});
-		Wecker.currentAudio.get(0).play();
+		if(typeof alex != "undefined"){
+			alex.sing(Wecker.active.WeckerSource, 0, Wecker.active.WeckerVolume * 1);
+		} else {
+			Wecker.currentAudio = $j('#ClockAudio');
+
+			Wecker.currentAudio.prop("src", Wecker.active.WeckerSource).get(0).volume = 0;
+			Wecker.currentAudio.bind("canplay", function(){
+				Wecker.fadeIn(Wecker.currentAudio);
+			});
+			Wecker.currentAudio.get(0).play();
+		}
+
 		
 		Wecker.runtime = Wecker.active.WeckerRuntime * 60;
 				
@@ -138,6 +151,16 @@ var Wecker = {
 	fallback: function(){
 		if(Wecker.active != null && Wecker.snoozeTimer != null && Wecker.snoozeTimer > 0)
 			return;
+		
+		
+		if(typeof alex != "undefined"){
+			if(!alex.singing()){
+				Wecker.stop();
+				alex.sing($j('#ClockAudioFallback_'+Wecker.active.WeckerID).prop("src"), 0, Wecker.active.WeckerVolume * 1);
+			}
+			alex.sing(Wecker.active.WeckerSource);
+			return;
+		}
 		
 		if(Wecker.currentAudio.get(0).networkState == HTMLMediaElement.NETWORK_NO_SOURCE){
 			Wecker.stop();

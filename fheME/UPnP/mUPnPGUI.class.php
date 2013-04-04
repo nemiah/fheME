@@ -92,6 +92,10 @@ class mUPnPGUI extends anyC implements iGUIHTMLMP2 {
 			$L->addItemStyle("cursor:pointer;padding:10px;");
 		}
 		
+		$L->addItem("Liste aktualisieren...");
+		$L->addItemEvent("onclick", OnEvent::popup("Abspielgeräte aktualisieren", "mUPnP", "-1", "discover", array("'targets'"), "", "{hPosition: 'center'}"));
+		$L->addItemStyle("cursor:pointer;padding:10px;");
+		
 		echo $L;
 	}
 	
@@ -107,23 +111,28 @@ class mUPnPGUI extends anyC implements iGUIHTMLMP2 {
 			$L->addItemStyle("cursor:pointer;padding:10px;");
 		}
 		
+		$L->addItem("Liste aktualisieren...");
+		$L->addItemEvent("onclick", OnEvent::popup("Abspielgeräte aktualisieren", "mUPnP", "-1", "discover", array("'sources'"), "", "{hPosition: 'center'}"));
+		$L->addItemStyle("cursor:pointer;padding:10px;");
+		
 		echo $L;
 	}
 	
-	public function discover(){
+	public function discover($reloadWhat = null){
 		echo "<p>Starte Suche. Das könnte etwas dauern...</p>";
-		echo OnEvent::script(OnEvent::popup("", "mUPnP", "-1", "discoverNow"));
+		echo OnEvent::script(OnEvent::popup("", "mUPnP", "-1", "discoverNow", array("'$reloadWhat'")));
 	}
 	
 	public static $desiredServices = array("AVTransport" => "urn:upnp-org:serviceId:AVTransport", "ContentDirectory" => "urn:upnp-org:serviceId:ContentDirectory", "ConnectionManager" => "urn:upnp-org:serviceId:ConnectionManager", "RenderingControl" => "urn:upnp-org:serviceId:RenderingControl");
 	
-	public function discoverNow(){
+	public function discoverNow($reloadWhat = null){
 		$C = new phpUPnP();
 		#
 		$result = $C->mSearch();
 		echo "<p>Gefundene Geräte:</p>";
 		#$locations = array();
 		$L = new HTMLList();
+		$L->addListStyle("list-style-type:none;");
 		$foundLocations = array();
 		#echo "<pre style=\"padding:5px;font-size:9px;overflow:auto;height:400px;\">";
 		#print_r($result);
@@ -191,6 +200,17 @@ class mUPnPGUI extends anyC implements iGUIHTMLMP2 {
 		}
 		
 		echo $L;
+		
+		$B = new Button("OK", "bestaetigung");
+		$B->style("float:right;margin:10px;");
+		if($reloadWhat == "targets")
+			$B->onclick(OnEvent::closePopup("mUPnP")." UPnP.targetSelection();");
+		
+		if($reloadWhat == "sources")
+			$B->onclick(OnEvent::closePopup("mUPnP")." UPnP.sourceSelection();");
+		
+		if($reloadWhat)
+			echo $B."<div style=\"clear:both;\"></div>";
 		#echo "</pre>";
 	}
 	
