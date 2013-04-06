@@ -19,6 +19,7 @@
  */
 
 class LinuxKeycodes {
+	private static $temp;
 	public static $table = "ESC,1
 1,2
 2,3
@@ -140,9 +141,10 @@ Del,111
 Pause,119";
 	
 	public static function codeToKey($code){
-		$ex = explode("\n", self::$table);
+		if(self::$temp == null)
+			self::$temp = explode("\n", self::$table);
 		
-		foreach ($ex AS $line){
+		foreach (self::$temp AS $line){
 			$e = explode(",", $line);
 			if($e[1] == $code)
 				return $e[0];

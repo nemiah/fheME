@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2012, Rainer Furtmeier - Rainer@Furtmeier.de
+ *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class KalenderEntry {
 	protected $title;
@@ -35,8 +35,10 @@ class KalenderEntry {
 	protected $repeat = false;
 	protected $repeatInterval;
 	protected $repeatWeekOfMonth = 0;
+	protected $repeatDayOfWeek = "";
 
 	protected $remind = -1;
+	protected $reminded = 0;
 	
 	function __construct() {
 		$this->onClick = OnEvent::popup("Event", "mKalender", -1, "getInfo", array("'%%CLASSNAME%%'", "'%%CLASSID%%'", "'%%TIME%%'"), "", "Kalender.popupOptions");
@@ -77,11 +79,17 @@ class KalenderEntry {
 		$this->title = $title;
 	}*/
 
-	function remind($minutes = null){
-		if($minutes != null)
+	function remind($minutes = null, $reminded = 0){
+		if($minutes != null){
 			$this->remind = $minutes;
-
+			$this->reminded = $reminded;
+		}
+		
 		return $this->remind;
+	}
+	
+	function reminded(){
+		return $this->reminded;
 	}
 	
 	function location($location = null){
@@ -95,11 +103,12 @@ class KalenderEntry {
 		return $this->title;
 	}
 
-	function repeat($activate = null, $interval = null, $weekOfMonth = 0){
+	function repeat($activate = null, $interval = null, $weekOfMonth = 0, $dayOfWeek = ""){
 		if($activate != null){
 			$this->repeat = $activate;
 			$this->repeatInterval = $interval;
 			$this->repeatWeekOfMonth = $weekOfMonth;
+			$this->repeatDayOfWeek = $dayOfWeek;
 		}
 
 		if($this->repeat === false)

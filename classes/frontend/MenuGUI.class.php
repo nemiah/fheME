@@ -115,6 +115,8 @@ class MenuGUI extends UnpersistentClass implements iGUIHTML2, icontextMenu {
 			if($t == null AND $collapsedTabs)
 				$t = "small";
 
+			$key = Aspect::joinPoint("renameTab", $this, __METHOD__, array($key), $key);
+			
 			if(isset($_COOKIE["phynx_layout"]) AND ($_COOKIE["phynx_layout"] == "vertical" OR $_COOKIE["phynx_layout"] == "desktop")) $t = "big";
 
 			#$emptyFrame = "contentLeft";

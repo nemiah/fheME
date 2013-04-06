@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2012, Rainer Furtmeier - Rainer@Furtmeier.de
+ *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class mTodoGUI extends mTodo implements iGUIHTMLMP2, iKalender {
 	public function  __construct() {
@@ -61,6 +61,146 @@ class mTodoGUI extends mTodo implements iGUIHTMLMP2, iKalender {
 		return $gui->getBrowserHTML($id);
 	}
 
+	public function getInviteForm($id) {
+		$gui = new HTMLForm("inviteForm", array("todoid", "adress_0"));
+		$gui->setType("todoid", "hidden", $id);
+		$gui->setAutoComplete("adress_0", "mTodo", "function(selection) { (typeof selection.UserEmail == 'undefined')? \$j('input[name=adress_0]').val(selection.email) : \$j('input[name=adress_0]').val(selection.UserEmail); return false; }");
+		$gui->getTable()->setColWidth(1, 120);
+		$gui->setLabel("adress_0", "Teilnehmer 1");
+		$gui->addJSEvent("adress_0", "onfocus", OnEvent::rme($this, "newInput", 0, "function(transport) {\$j('input[name=adress_0]').closest('tr').after(transport.responseText); \$j('input[name=adress_0]').attr('onfocus', ''); }"));
+		$gui->setSaveJSON("Einladung verschicken", "", "mTodo", -1, "sendInvitation", "Popup.close('mKalender');");
+		
+		$gui->getAllFields();
+		echo $gui->getHTML();
+	}
+	
+	public function newInput($number) {
+		$htmlTable = new HTMLTable(2);
+		$input = new HTMLInput("adress_" . ++$number, "text");
+		$input->autocomplete("mTodo", "function(selection) { (typeof selection.UserEmail == 'undefined')? \$j('input[name=adress_" . $number . "]').val(selection.email) : \$j('input[name=adress_" . $number . "]').val(selection.UserEmail); return false; }");
+		$input->onfocus(OnEvent::rme($this, "newInput", $number, "function(transport) {\$j('input[name=adress_" . $number . "]').closest('tr').after(transport.responseText); \$j('input[name=adress_" . $number . "]').attr('onfocus', ''); }"));
+		$htmlTable->addLV("Teilnehmer " . ($number + 1), $input);
+		echo $htmlTable->getHTMLForUpdate(true);
+	}
+	
+	public function getACData($attributeName, $query) {
+		$users = Users::getUsers();
+		$users->addAssocV3("name", " LIKE ", "%" . $query . "%");
+		$users->addAssocV3("UserEmail", " LIKE ", "%" . $query . "%", "OR");
+		$users->addAssocV3("username", " LIKE ", "%" . $query . "%", "OR");
+		$selection = array();
+		while ($user = $users->getNextEntry()) {
+			$subSelection = array();
+			foreach ($user->getA() as $key => $value)
+				$subSelection[$key] = $value;
+			$selection[] = $subSelection;
+		}
+		
+		if (Session::isPluginLoaded("mWAdresse")) {
+			$adresses = new Adressen();
+			$adresses->setSearchStringV3($query);
+			$adresses->setSearchFieldsV3(array("firma", "nachname", "email"));
+			$adresses->setFieldsV3(array("firma AS label", "AdresseID AS value", "vorname", "nachname", "CONCAT(strasse, ' ', nr, ', ', plz, ' ', ort) AS description","email", "firma"));
+			$adresses->setLimitV3("10");
+			$adresses->setParser("label", "AdressenGUI::parserACLabel");
+			if($attributeName == "SendMailTo")
+				$adresses->addAssocV3 ("email", "!=", "");
+			
+			while ($adress  = $adresses->getNextEntry()) {
+				$subSelection = array();
+				foreach ($adress->getA() as $key => $value)
+					$subSelection[$key] = $value;
+				$selection[] = $subSelection;
+			}
+		}
+		
+		echo json_encode($selection);
+	}
+	
+	public static function getRandomId($length) {
+		$length = (int) $length;
+		if ($length == null || $length == 0)
+			throw new Exception("Submitted length could not be processed.");
+		
+		$id = "";
+		$i = 0;
+		$excludedSigns = array(58, 59, 60, 61, 62, 63, 64, 73, 79, 91, 92, 93, 94, 95, 96, 108, 111);
+		while ($i < $length) {
+			mt_srand((double) microtime() * 1000000);
+			$randomNum = mt_rand(50, 122);
+			if (in_array($randomNum, $excludedSigns))
+				continue;
+			$id .= chr($randomNum);
+			$i++;
+		}
+		return $id;
+	}
+	
+	public function sendInvitation($json) {
+		$participants = json_decode($json);
+		$todoId = 0;
+		
+		// Filtern der TodoId
+		foreach ($participants as $i => $participant) {
+			if ($participant->name == "todoid") {
+				$todoId = (int) $participant->value;
+				unset($participants[$i]);
+				break;
+			}
+		}
+		if ($todoId == 0 || !preg_match("/^\d+$/", $todoId))
+			return null;
+		
+		// Einladungen speichern und versenden
+		$todo = new Todo($todoId);
+		$userMail = Session::currentUser()->A("UserEmail");
+		$userName = Session::currentUser()->A("name");
+		$startTime = $todo->A("TodoFromDay") + $todo->A("TodoFromTime");
+		$endTime = $todo->A("TodoTillDay") + $todo->A("TodoTillTime");
+		foreach ($participants as $i => $participant) {
+			if (!Util::checkIsEmail($userMail))
+				continue;
+			
+			$todoInvitation = new TodoInvitation();
+			$todoInvitation->changeA("TodoInvitationTodoID", $todoId);
+			$todoInvitation->changeA("ToDoInvitationUserEmail", $participant->value);
+			$todoInvitation->changeA("ToDoInvitationStatus", 0);
+			$todoInvitation->newMe();
+			
+			$htmlMimeMail = new htmlMimeMail5();
+			$htmlMimeMail->setFrom($userMail);
+			$htmlMimeMail->setSubject($todo->A("TodoName"));
+			$htmlMimeMail->setReturnPath($userMail);
+			$htmlMimeMail->setText(" ");
+			$attachment = "BEGIN:VCALENDAR
+PRODID:-//lightCRM Kalender//DE
+VERSION:2.0
+METHOD:REQUEST
+BEGIN:VEVENT
+ATTENDEE;CN=\"" . $userName . "\";RSVP=TRUE:mailto:" . $participant->value . "
+CLASS:PUBLIC
+DESCRIPTION:\n\n\n
+DTEND:" . gmdate("Ymd", $endTime) . "T" . gmdate("His", $endTime) . "Z
+DTSTAMP:" . gmdate("Ymd", time()) . "T" . gmdate("His", time()) . "Z
+DTSTART:" . gmdate("Ymd", $startTime) . "T" . gmdate("His", $startTime) . "Z
+ORGANIZER;CN=\"" . $userName . "\":mailto:" . $userMail . "
+PRIORITY:5
+SEQUENCE:0
+SUMMARY;LANGUAGE=de:" . $todo->A("TodoName") . "
+TRANSP:OPAQUE
+UID:" . self::getRandomId(72) . "
+BEGIN:VALARM
+TRIGGER:-PT15M
+ACTION:DISPLAY
+DESCRIPTION:Reminder
+END:VALARM
+END:VEVENT
+END:VCALENDAR";
+			$htmlMimeMail->addAttachment(new stringAttachment($attachment, "invite.ics", "application/ics"));
+			$htmlMimeMail->send(array($participant->value));
+		}
+	}
+
 	function editInPopup($id, $date = null, $targetClass = null, $targetClassID = null, $time = null, $description = null, $location = null){
 		if($date != null)
 			BPS::setProperty("TodoGUI", "TodoTillDay", Util::CLDateParser($date));
@@ -76,7 +216,7 @@ class mTodoGUI extends mTodo implements iGUIHTMLMP2, iKalender {
 		
 		$T = new TodoGUI($id);
 		$T->GUI = new HTMLGUIX($T);
-		$T->GUI->displayMode("popupC");
+		$T->GUI->displayMode("popupS");
 		$T->GUI->requestFocus("TodoKunde", "TodoName");
 		#if($id == -1)
 		$T->GUI->addToEvent("onSave", OnEvent::popup("Event", "mKalender", "-1", "getInfo", array("'mTodoGUI'", "transport.responseText", "'$date'")));
@@ -164,7 +304,7 @@ class mTodoGUI extends mTodo implements iGUIHTMLMP2, iKalender {
 			
 			if($T->A("TodoType") == "1" AND Session::isPluginLoaded("mAkquise")){
 				$B = new Button("Akquise", "./lightCRM/Akquise/callTel.png");
-				$B->doBefore(OnEvent::rme($T, "setStatus", array("'2'"), OnEvent::closePopup("mKalender").OnEvent::reload("Left"))." %AFTER");
+				$B->doBefore(OnEvent::rme($T, "setStatus", array("'2'"), OnEvent::closePopup("mKalender").OnEvent::reload("Screen"))." %AFTER");
 				$B->popup("", "Akquise", "mAkquise", "-1", "showTelPopup", array($T->A("TodoClassID")), "", "{width: 950, top:20, left:20}");
 				
 				$KE->addTopButton($B);
@@ -199,7 +339,7 @@ class mTodoGUI extends mTodo implements iGUIHTMLMP2, iKalender {
 
 		
 		if($T->A("TodoRemind") != "-1")
-			$KE->remind($T->A("TodoRemind") / 60);
+			$KE->remind($T->A("TodoRemind") / 60, $T->A("TodoReminded"));
 		
 		$editMethod = "editInPopup";
 		if($T->A("TodoOrganizer") != ""){
@@ -213,16 +353,19 @@ class mTodoGUI extends mTodo implements iGUIHTMLMP2, iKalender {
 
 		$KE->location($T->A("TodoLocation"));
 
-		$KE->repeat($T->A("TodoRepeat") != "", $T->A("TodoRepeat"), $T->A("TodoRepeatWeekOfMonth") * 1);
+		$KE->repeat($T->A("TodoRepeat") != "", $T->A("TodoRepeat"), $T->A("TodoRepeatWeekOfMonth") * 1, $T->A("TodoRepeatDayOfWeek"));
 
 		$KE->UID("TodoID".$T->getID()."@".substr(Util::eK(), 0, 20));
 		
 		return $KE;
 	}
 
-	public static function getCalendarData($firstDay, $lastDay) {
+	public static function getCalendarData($firstDay, $lastDay, $UserID = null) {
+		if($UserID === null)
+			$UserID = Session::currentUser();
+		#echo $UserID;
 		$K = new Kalender();
-		$include = array();
+		#$include = array();
 		//TERMINE IN DIESEM MONAT
 		$AC = new anyC();
 		$AC->setCollectionOf("Todo");
@@ -231,16 +374,18 @@ class mTodoGUI extends mTodo implements iGUIHTMLMP2, iKalender {
 		$AC->addAssocV3("TodoTillDay","<=",$lastDay, "AND", "1");
 		$AC->addAssocV3("TodoRepeat", "=", "", "AND", "1");
 		
-		
-		$AC->addAssocV3("TodoUserID", "=", Session::currentUser()->getID(), "AND", "2");
+		if($UserID != 0)
+			$AC->addAssocV3("TodoUserID", "=", $UserID, "AND", "2");
+		else
+			$AC->addAssocV3("TodoUserID", ">", "0", "AND", "2");
 		$AC->addAssocV3("TodoUserID", "=", "-1", "OR", "2");
 
-		$ACS = anyC::get("Userdata", "name", "shareCalendarTo".Session::currentUser()->getID());
+		/*$ACS = anyC::get("Userdata", "name", "shareCalendarTo".($UserID != 0 ? $UserID : "0")); //disabled for all users at the moment!
 		while($Share = $ACS->getNextEntry()){
 			$include[$Share->A("UserID")] = mUserdata::getUDValueS("showCalendarOf".$Share->A("UserID"), "1");
 			if($include[$Share->A("UserID")] == "1")
 				$AC->addAssocV3("TodoUserID", "=", $Share->A("UserID"), "OR", "2");
-		}
+		}*/
 		
 		$AC->addOrderV3("TodoTillTime");
 
@@ -256,15 +401,17 @@ class mTodoGUI extends mTodo implements iGUIHTMLMP2, iKalender {
 		$AC->addAssocV3("TodoTillDay",">",$lastDay, "AND", "1");
 		$AC->addAssocV3("TodoRepeat", "=", "", "AND", "1");
 		
-		
-		$AC->addAssocV3("TodoUserID", "=", Session::currentUser()->getID(), "AND", "2");
+		if($UserID != 0)
+			$AC->addAssocV3("TodoUserID", "=", $UserID, "AND", "2");
+		else
+			$AC->addAssocV3("TodoUserID", ">", "0", "AND", "2");
 		$AC->addAssocV3("TodoUserID", "=", "-1", "OR", "2");
 
-		$ACS->resetPointer();
-		while($Share = $ACS->getNextEntry()){
-			if($include[$Share->A("UserID")] == "1")
-				$AC->addAssocV3("TodoUserID", "=", $Share->A("UserID"), "OR", "2");
-		}
+		#$ACS->resetPointer();
+		#while($Share = $ACS->getNextEntry()){
+		#	if($include[$Share->A("UserID")] == "1")
+		#		$AC->addAssocV3("TodoUserID", "=", $Share->A("UserID"), "OR", "2");
+		#}
 		
 		$AC->addOrderV3("TodoTillTime");
 
@@ -284,14 +431,17 @@ class mTodoGUI extends mTodo implements iGUIHTMLMP2, iKalender {
 			$AC->addAssocV3("MONTH(FROM_UNIXTIME(TodoFromDay))","=", date("m", $firstDay), "OR", "1");
 		$AC->addAssocV3("TodoRepeat", "!=", "", "AND", "3");*/
 		
-		$AC->addAssocV3("TodoUserID", "=", Session::currentUser()->getID(), "AND", "2");
+		if($UserID != 0)
+			$AC->addAssocV3("TodoUserID", "=", $UserID, "AND", "2");
+		else
+			$AC->addAssocV3("TodoUserID", ">", "0", "AND", "2");
 		$AC->addAssocV3("TodoUserID", "=", "-1", "OR", "2");
 
-		$ACS->resetPointer();
-		while($Share = $ACS->getNextEntry()){
-			if($include[$Share->A("UserID")] == "1")
-				$AC->addAssocV3("TodoUserID", "=", $Share->A("UserID"), "OR", "2");
-		}
+		#$ACS->resetPointer();
+		#while($Share = $ACS->getNextEntry()){
+		#	if($include[$Share->A("UserID")] == "1")
+		#		$AC->addAssocV3("TodoUserID", "=", $Share->A("UserID"), "OR", "2");
+		#}
 		
 		$AC->addOrderV3("TodoTillTime");
 
@@ -320,8 +470,15 @@ class mTodoGUI extends mTodo implements iGUIHTMLMP2, iKalender {
 		$T->saveMe();
 	}
 	
+	public function setReminded($className, $classID){
+		$T = new Todo($classID);
+		$T->changeA("TodoReminded", time());
+
+		$T->saveMe(true, false, false);
+	}
+	
 	public function editRepeatable($todoID){
-		$F = new HTMLForm("RepeatableForm", array("TodoRepeat", "TodoRepeatWeekOfMonth"), "Wiederholungen");
+		$F = new HTMLForm("RepeatableForm", array("TodoRepeat", "TodoRepeatWeekOfMonth", "TodoRepeatDayOfWeek"), "Wiederholungen");
 		$F->getTable()->setColWidth(1, 120);
 		
 		$T = new Todo($todoID);
@@ -330,6 +487,7 @@ class mTodoGUI extends mTodo implements iGUIHTMLMP2, iKalender {
 		
 		$F->setLabel("TodoRepeat","Wiederholen");
 		$F->setLabel("TodoRepeatWeekOfMonth", "Tag");
+		$F->setLabel("TodoRepeatDayOfWeek", "Tage");
 		
 		#$currentWeek = ceil((date("d", $T->A("TodoFromDay")) - date("w", $T->A("TodoFromDay")) - 1) / 7) + 1;
 		#echo $currentWeek;
@@ -341,14 +499,39 @@ class mTodoGUI extends mTodo implements iGUIHTMLMP2, iKalender {
 		
 		$weeks = array(0 => "am ".date("d", $T->A("TodoFromDay")).". jeden Monats");
 		$weeks[$nthDay] = "jeden $nthDay. ".Util::CLWeekdayName(date("w", $T->A("TodoFromDay")))." des Monats";
+		$weeks[127] = "am letzten Tag des Monats";
 		$F->setType("TodoRepeat", "select", "", Todo::$repeatTypes);
 		$F->setType("TodoRepeatWeekOfMonth", "select", "", $weeks);
 		
-		$F->hideIf("TodoRepeat", "!=", "monthly", "onchange", array("TodoRepeatWeekOfMonth"));
+		#$F->setType("TodoRepeatDayOfWeek", "checkbox");
+		$F->setType("TodoRepeatDayOfWeek", "parser", $T->A("TodoRepeatDayOfWeek"), array("mTodoGUI::parserDayOfWeek"));
 		
-		$F->setSaveClass("Todo", $todoID, "function(){ /*\$j('#eventAdditionalContent').slideUp();*/ contentManager.reloadFrame('contentLeft'); Kalender.refreshInfoPopup(); }", "Aktivität");
+		$F->hideIf("TodoRepeat", "!=", "monthly", "onchange", array("TodoRepeatWeekOfMonth"));
+		$F->hideIf("TodoRepeat", "!=", "daily", "onchange", array("TodoRepeatDayOfWeek"));
+		
+		$F->setSaveClass("Todo", $todoID, "function(){ /*\$j('#eventAdditionalContent').slideUp();*/ contentManager.reloadFrame('contentScreen'); Kalender.refreshInfoPopup(); }", "Aktivität");
 		
 		return $F;
+	}
+	
+	public static function parserDayOfWeek($value){
+		$I = new HTMLInput("TodoRepeatDayOfWeek", "hidden", $value);
+	
+		$checked = array();
+		if($value != "")
+			$checked = explode(",", $value);
+		
+		$Is = "";
+		for($i = 0; $i < 7; $i++){
+			$I2 = new HTMLInput("DOW$i", "checkbox", in_array($i, $checked) ? "1" : "0");
+			$I2->style("float:left;margin-right:5px;");
+			$I2->onchange("var selectedDOW = ''; \$j('.DOWSelector:checked').each(function(k, v){ selectedDOW += (selectedDOW == '' ? '' : ',')+\$j(v).prop('name').replace('DOW', '');}); \$j('[name=TodoRepeatDayOfWeek]').val(selectedDOW);");
+			$I2->setClass("DOWSelector");
+			
+			$Is .= "<div style=\"margin-bottom:5px;\">".$I2.Util::CLWeekdayName($i)."</div>";
+		}
+		
+		return $Is.$I;
 	}
 }
 ?>

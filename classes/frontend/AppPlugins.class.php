@@ -248,9 +248,15 @@ class AppPlugins {
 	
 	public function getMenuEntries(){
 		$entries = $this->menuEntries;
+		$hidden = Environment::getS("hiddenPlugins", array());
+		
 		foreach($entries as $key => $value){
 			#print_r($this->menuEntries);
-			if(isset($this->blacklist[$value])) unset($entries[$key]);
+			if(in_array($value, $hidden))
+				unset($entries[$key]);
+			
+			if(isset($this->blacklist[$value]))
+				unset($entries[$key]);
 			#$t = ((!isset($this->classes[$key]) OR !isset($this->isAdminOnlyByPlugin[$this->classes[$key]])) ? 
 			#	0 : $this->isAdminOnlyByPlugin[$this->classes[$key]]);
 			$t = 0;

@@ -13,25 +13,25 @@
  *  GNU General Public License for more details.
 
  *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with this program.  If not, see <http://www.gnu.org/licenses></http:>.
  * 
  *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
 -->
 <phynx>
 	<plugin>
-		<name>Wetter</name>
-		<menuName>Wetter</menuName>
-		<collection>mWetter</collection>
+		<name>prettifyDB</name>
+		<menuName></menuName>
+		<collection>mprettifyDB</collection>
 		
-		<icon>./ubiquitous/Wetter/Wetter.png</icon>
-		<folder>Wetter</folder>
+		<icon>./ubiquitous/prettifyDB/prettifyDB.png</icon>
+		<folder>../ubiquitous/prettifyDB</folder>
 
 		<adminOnly>false</adminOnly>
 		
-		<version>0.1</version>
+		<version>0.6</version>
 
 		<deploy>
-			<table name="Wetter" />
+			<table name="prettifyDB" />
 		</deploy>
 	</plugin>
 </phynx>

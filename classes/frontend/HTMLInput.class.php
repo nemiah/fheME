@@ -441,7 +441,8 @@ class HTMLInput {
 					if($this->autocomplete[4] != null){
 						$B2 = $this->autocomplete[4];
 						$B2->style("float:right;margin-left:5px;");
-						$this->style .= "width:80%";
+						if(strpos($this->style, "width") === false)
+							$this->style .= "width:80%";
 					} else {
 						if(strpos($this->style, "width") === false)
 							$this->style .= "width:87%";
@@ -474,9 +475,9 @@ class HTMLInput {
 							 
 						},
 						select: function(event, ui) { var r = OnSelectCallback$this->id(ui.item); ".($this->autocomplete[2] ? "$('$this->id').style.display = 'none';" : "")." return r; }
-					}).data(\"autocomplete\")._renderItem = function( ul, item ) {
-						return \$j( \"<li></li>\" )
-							.data( \"item.autocomplete\", item )
+					}).data(\"ui-autocomplete\")._renderItem = function( ul, item ) {
+						return \$j( \"<li>\" )
+							.data( \"item.ui-autocomplete\", item )
 							.append( \"<a>\" + item.label + (item.description ? \"<br /><small>\"+item.description+\"</small>\" : \"\")+\"</a>\" )
 							.appendTo( ul );
 					};");

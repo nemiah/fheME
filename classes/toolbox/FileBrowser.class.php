@@ -102,11 +102,15 @@ class FileBrowser {
 		$labeled = array();
 		foreach($this->foundFiles as $key => $value){
 			$class = str_replace($this->onlyExtensions,"",$value);
-			if($this->parameter != "nil") $class = new $class($this->parameter);
-			else $class = new $class();
-			
-			if($class->getLabel() == null) continue;
-			$labeled[$class->getLabel()] = get_class($class);
+			try {
+				if($this->parameter != "nil") $class = new $class($this->parameter);
+				else $class = new $class();
+
+				if($class->getLabel() == null) continue;
+				$labeled[$class->getLabel()] = get_class($class);
+			} catch(ClassNotFoundException $e){
+				continue;
+			}
 		}
 		if($sorted) ksort($labeled);
 		return $labeled;

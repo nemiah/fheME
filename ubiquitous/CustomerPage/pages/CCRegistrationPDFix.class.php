@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2012, Rainer Furtmeier - Rainer@Furtmeier.de
+ *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class CCRegistrationPDFix implements iCustomContent {
 	private $EC;
@@ -322,23 +322,16 @@ class CCRegistrationPDFix implements iCustomContent {
 				$mail->setText(utf8_decode("Sehr geehrte Damen und Herren,
  
 Sie selbst oder Ihr Mitarbeiter/Ihre Mitarbeiterin 
-".$valuesAssocArray["userVorNachname"]." hat sich soeben bei ".$_SERVER["HTTP_HOST"]." angemeldet. 
+".$valuesAssocArray["userVorNachname"]." hat sich soeben bei www.pdfix.de angemeldet. 
  
 Der Account wurde angelegt.
  
-Zum Download von pdfix besuchen Sie bitte
-http://www.meine-smn.de und klicken auf \"Login\"
- 
-melden Sie sich an mit:
- 
-Benutzername: ".$valuesAssocArray["userUsername"]."
-Passwort: ".$valuesAssocArray["userPassword"]."
- 
-Bestätigen Sie jeweils am Ende der Seiten die AGB´s und Lizenzbedingungen und
-laden \"pdfix\" down.
- 
+Im Anhang finden Sie unsere AGB und den Softwarelizenzvertrag.
+Mit der Aktivierung des Accounts werden die AGB und Nutzungsbedingungen
+annerkannt.
+
 Sobald die Abbuchungserklärung bei uns eingegangen ist,
-wird der Account innerhalb 24 Std. freigeschalten,und
+wird der Account innerhalb 24 Std. freigeschalten und
 \"pdfix\" kann dann genutzt werden.
  
 Wenn Sie die Kosten übernehmen, dann klicken Sie auf
@@ -362,9 +355,28 @@ DR. Michael Samer Ring 2a
 AG Augsburg
 HRB 26204
 info@pdfix.de"));
+				
+/*
+Zum Download von pdfix besuchen Sie bitte
+http://www.meine-smn.de und klicken auf \"Login\"
+ 
+melden Sie sich an mit:
+ 
+Benutzername: ".$valuesAssocArray["userUsername"]."
+Passwort: ".$valuesAssocArray["userPassword"]."
+ 
+Bestätigen Sie jeweils am Ende der Seiten die AGB´s und Lizenzbedingungen und
+laden \"pdfix\" down.
+ 
+Sobald die Abbuchungserklärung bei uns eingegangen ist,
+wird der Account innerhalb 24 Std. freigeschalten,und
+\"pdfix\" kann dann genutzt werden.
+ */
 				#$mail->setTextCharset("UTF-8");
 				
-				$mail->addAttachment(new fileAttachment(Util::getRootPath()."open3A/PDFix/abbuchungserkl.pdf", "application/pdf"));
+				#$mail->addAttachment(new fileAttachment(Util::getRootPath()."open3A/PDFix/abbuchungserkl.pdf", "application/pdf"));
+				$mail->addAttachment(new fileAttachment(Util::getRootPath()."../download/Agbs.pdf", "application/pdf"));
+				$mail->addAttachment(new fileAttachment(Util::getRootPath()."../download/Softwarelizenzvertrag.pdf", "application/pdf"));
 				
 				if(!$mail->send(array($valuesAssocArray["userEmail"]))) //from email
 					Red::errorD("Die E-Mail konnte nicht verschickt werden, bitte versuchen Sie es erneut!");
@@ -388,16 +400,8 @@ info@pdfix.de"));
  
 Ihr Account wurde soeben angelegt.
  
-Zum Download von pdfix besuchen Sie bitte
-http://www.meine-smn.de und klicken auf \"Login\"
- 
-melden Sie sich an mit:
- 
 Benutzername: ".$PU->A("PDFixUserUsername")."
 Passwort: ".$PU->A("PDFixUserPassword")."
- 
-Bestätigen Sie jeweils am Ende der Seiten die AGB´s und Lizenzbedingungen und
-laden \"pdfix\" down.
  
 Sobald die Abbuchungserklärung bei uns eingegangen ist,
 wird der Account innerhalb 24 Std. freigeschalten und
@@ -414,6 +418,16 @@ DR. Michael Samer Ring 2a
 AG Augsburg
 HRB 26204
 info@pdfix.de"));
+				
+/*
+Zum Download von pdfix besuchen Sie bitte
+http://www.meine-smn.de und klicken auf \"Login\"
+ 
+melden Sie sich an mit:
+ 
+Bestätigen Sie jeweils am Ende der Seiten die AGB´s und Lizenzbedingungen und
+laden \"pdfix\" down.
+ */
 				#$mail->setTextCharset("UTF-8");
 				
 				if(!$mail->send(array($PU->A("PDFixUserEmail"))))

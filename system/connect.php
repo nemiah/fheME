@@ -60,7 +60,7 @@ spl_autoload_register("phynxAutoloader");
 
 if(ini_get("open_basedir") == "" OR strpos(ini_get("open_basedir"), ini_get("session.save_path")) !== false){
 	if(!is_writable(session_save_path()) AND (!file_exists(dirname(__FILE__)."/session") OR !is_writable(dirname(__FILE__)."/session")))
-		emoFatalError("Sitzungs-Erstellung fehlgeschlagen", "Das Sitzungs-Verzeichnis (".session_save_path().") Ihres Webservers ist leider nicht beschreibbar.<br />Bitte melden Sie dies Ihrem Webhoster.<br /><br />Um das Problem ohne Webhoster zu l&ouml;sen, erstellen Sie das Verzeichnis /system/session<br />im Verzeichnis dieser Anwendung und machen es durch den Webserver beschreibbar (Modus 666).<br />Stellen Sie dabei sicher, dass es von Au&szlig;erhalb nicht erreichbar ist (zum Beispiel durch eine .htaccess-Datei).", "Sitzungs-Fehler", true);
+		emoFatalError("Sitzungs-Erstellung fehlgeschlagen", "Das Sitzungs-Verzeichnis (".session_save_path().") Ihres Webservers ist leider nicht beschreibbar.<br />Bitte melden Sie dies Ihrem Webhoster.<br /><br />Um das Problem ohne Webhoster zu l&ouml;sen, erstellen Sie das Verzeichnis /system/session<br />im Verzeichnis dieser Anwendung und machen es durch den Webserver beschreibbar (mindestens Modus 755, eventuell ist auch 777 notwendig).<br />Stellen Sie dabei sicher, dass es von Au&szlig;erhalb nicht erreichbar ist (zum Beispiel durch eine .htaccess-Datei).", "Sitzungs-Fehler", true);
 
 	if(!is_writable(session_save_path()))
 		session_save_path(dirname(__FILE__)."/session");
@@ -156,8 +156,9 @@ function fatalErrorShutdownHandler() {
 }
 
 session_start();
-
-if(isset($_SESSION["phynx_customer"]) AND isset($_GET["cloud"]) AND $_SESSION["phynx_customer"] != $_GET["cloud"]){ //if someone switches the cloud, kick him and reinitialize
+#print_r($_SESSION);
+#print_r($_GET);
+if(isset($_GET["cloud"]) AND ((isset($_SESSION["phynx_customer"]) AND $_SESSION["phynx_customer"] != $_GET["cloud"]) OR !isset($_SESSION["phynx_customer"]))){ //if someone switches the cloud, kick him and reinitialize
 	session_destroy();
 	session_start();
 }

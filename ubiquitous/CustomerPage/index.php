@@ -444,11 +444,10 @@ if(isset($_GET["CC"])){
 				
 				var ps = "";
 				if(typeof parameters == "object"){
-					$.each(parameters, function(k, v){
-						ps += "&"+($.isNumeric(k) ? "P" : "")+k+"="+v;
-					});
+					for(var i = 0; i < parameters.length; i++)
+						ps += "&P"+i+"="+parameters[i];
 				}
-
+				
 				if(typeof parameters == "string")
 					ps = "&"+parameters;
 				

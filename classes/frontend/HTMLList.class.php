@@ -30,9 +30,27 @@ class HTMLList {
 	private $class = "";
 	private $data = array();
 	private $sortable = "";
+	private $itemsStyle = "";
 	
 	public function minHeight($height){
 		$this->style .= "min-height:{$height}px;";
+	}
+	
+
+	/**
+	 * Creates a new Button and adds it to the list.
+	 * Then the Button will be returned to add some more functionality
+	 *
+	 * @param string $label
+	 * @param string $image
+	 * @return Button
+	 */
+	function addButton($label, $image = "", $type = "bigButton"){
+		$B = new Button($label, $image, $type);
+
+		$this->addItem($B);
+
+		return $B;
 	}
 	
 	public function sortable($handle, $saveTo = null, $connectWith = null, $dropPlaceholder = null, $axis = "y", $additionalParameters = array()){
@@ -61,6 +79,9 @@ class HTMLList {
 	
 	public function addItem($content){
 		$this->items[] = $content;
+		
+		if($this->itemsStyle != "")
+			$this->addItemStyle($this->itemsStyle);
 	}
 	
 	public function addItems(array $items){
@@ -95,6 +116,10 @@ class HTMLList {
 			$this->itemStyle[count($this->items) - 1] = "";
 		
 		$this->itemStyle[count($this->items) - 1] .= $style." ";
+	}
+	
+	public function setItemsStyle($style){
+		$this->itemsStyle = $style;
 	}
 	
 	public function setItemID($ID){

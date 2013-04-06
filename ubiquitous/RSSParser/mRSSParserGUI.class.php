@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2012, Rainer Furtmeier - Rainer@Furtmeier.de
+ *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
 class mRSSParserGUI extends anyC implements iGUIHTMLMP2 {
@@ -37,7 +37,7 @@ class mRSSParserGUI extends anyC implements iGUIHTMLMP2 {
 		$html = "";
 		$i = 0;
 		while($RSS = $this->getNextEntry()){
-			$html .= "<div class=\"Tab backgroundColor1\"><span class=\"lastUpdate\" id=\"lastUpdatemRSSParserGUI\"></span><p>".$RSS->A("RSSParserName")."</p></div><div style=\"padding:10px;\">$html";
+			$html .= "<div class=\"touchHeader\"><span class=\"lastUpdate\" id=\"lastUpdatemRSSParserGUI\"></span><p>".$RSS->A("RSSParserName")."</p></div><div style=\"padding:10px;\">$html";
 			
 			$list = new HTMLList();
 			$list->addListStyle("list-style-type:none;");
@@ -65,6 +65,13 @@ class mRSSParserGUI extends anyC implements iGUIHTMLMP2 {
 			echo $html;
 		
 		return $html;
+	}
+	
+	public static function getOverviewPlugin(){
+		$P = new overviewPlugin("mRSSParserGUI", "RSS", 249);
+		$P->updateInterval(3600);
+		
+		return $P;
 	}
 
 }

@@ -35,11 +35,11 @@ class mWeckerGUI extends anyC implements iGUIHTMLMP2 {
 		$gui->attributes(array("DeviceName", "WeckerTime"));
 		$gui->colStyle("WeckerTime", "text-align:right;");
 		
-		$B = $gui->addSideButton("Alex,\nsing!", "new");
-		$B->onclick("alex.sing('http://gffstream.ic.llnwd.net/stream/gffstream_w14a', 0, 100)");
+		#$B = $gui->addSideButton("Alex,\nsing!", "new");
+		#$B->onclick("alex.sing('http://gffstream.ic.llnwd.net/stream/gffstream_w14a', 0, 100)");
 		
-		$B = $gui->addSideButton("Alex,\nstop!", "new");
-		$B->onclick("alex.beQuiet()");
+		#$B = $gui->addSideButton("Alex,\nstop!", "new");
+		#$B->onclick("alex.beQuiet()");
 		
 		return $gui->getBrowserHTML($id);
 	}

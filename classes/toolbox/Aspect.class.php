@@ -27,7 +27,7 @@ class Aspect {
 	public static function joinPoint($mode, $class, $method, $args = null, $defaultValue = null){
 		$value = Aspect::findPointCut($mode, $class, $method, $args);
 
-		if($value == null)
+		if($value === null)
 			return $defaultValue;
 
 		return $value;
@@ -64,8 +64,12 @@ class Aspect {
 
 	public static function invokeParser($method, $class, $args = null){
 		$c = explode("::", $method);
-		$method = new ReflectionMethod($c[0], $c[1]);
-		return $method->invoke(null, $class, $args);
+		try {
+			$method = new ReflectionMethod($c[0], $c[1]);
+			return $method->invoke(null, $class, $args);
+		} catch (ReflectionException $e){
+			return null;
+		}
 	}
 
 	public static function registerPointCut($mode, $pointCut, $advice, $persistent = false){

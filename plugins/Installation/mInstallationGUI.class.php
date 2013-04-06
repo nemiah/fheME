@@ -414,7 +414,9 @@ class mInstallationGUI extends mInstallation implements iGUIHTML2 {
 			$BSetup->onclick($ASetup);
 			$BSetup->id("setupButton");
 			
-			$html = $this->box($BSetup, $ASetup, "Die Datenbank<br />einrichten");
+			$hidden = "<a class=\"hiddenLink\" href=\"#\" onclick=\"".OnEvent::popup("Fehlerausgabe", "mInstallation", "-1", "setupAllTables", array("'1'"))."return false;\">&nbsp;</a>";
+			
+			$html = $this->box($BSetup, $ASetup, "Die Datenbank<br />einrichten", "", $hidden);
 			$containers = 1;
 			
 			
@@ -510,8 +512,16 @@ class mInstallationGUI extends mInstallation implements iGUIHTML2 {
 			echo "<p style=\"padding:5px;color:red;\">Fehler beim Übergeben der E-Mail 2. Bitte überprüfen Sie Ihre Server-Einstellungen.<br />Fehler: ".nl2br(print_r($mimeMail2->ErrorInfo, true))."</p>";*/
 	}
 
-	public function setupAllTables(){
-		parent::setupAllTables();
+	public function setupAllTables($echoStatus = false){
+		$return = parent::setupAllTables();
+		if($echoStatus){
+			#ksort($return);
+			echo "<pre style=\"font-size:10px;padding:5px;overflow:auto;max-height:400px;\">";
+			foreach($return AS $plugin => $status){
+				echo phynx_mb_str_pad($plugin, 20).": $status\n";
+			}
+			echo "</pre>";
+		}
 		
 		$message = "<p style=\"padding:10px;font-size:20px;color:green;margin-bottom:40px;text-align:center;\">Ihre Datenbank wurde erfolgreich eingerichtet.</p>";
 		

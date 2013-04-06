@@ -108,6 +108,7 @@ class Environment {
 			
 			case "pluginsExtra":
 			case "allowedPlugins":
+			case "hiddenPlugins":
 				if($return == null)
 					return $default;
 				
@@ -142,7 +143,7 @@ class Environment {
 		
 		$h = "Environment".str_replace(array(":", "-"), "_", implode("", array_map("ucfirst", explode(".", $_SERVER["HTTP_HOST"]))));
 		
-		if(isset($_SESSION["viaInterface"])){
+		if(defined("PHYNX_VIA_INTERFACE")){
 			if(file_exists(Util::getRootPath()."specifics/$h.class.php")){
 				require_once(Util::getRootPath()."specifics/$h.class.php");
 				Environment::$currentEnvironment = new $h();

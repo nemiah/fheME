@@ -122,8 +122,7 @@ class UPnPGUI extends UPnP implements iGUIHTML2 {
 		$entries = array();
 		foreach($xml->item AS $item){
 			$newName = $item->children("http://purl.org/dc/elements/1.1/");
-			foreach(self::$prettifyerRules AS $reg => $replace)
-				$newName = preg_replace("/".str_replace(".", "\.", $reg)."/ei", str_replace(array("."), array("\."), $replace), $newName);
+			$newName = prettifyDB::apply("seriesEpisodeNameDownloaded", $newName);
 			
 			$entries[$newName] = $item;
 		}

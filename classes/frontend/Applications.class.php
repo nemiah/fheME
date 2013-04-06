@@ -29,6 +29,13 @@ class Applications {
 		$_SESSION[self::$sessionVariable] = new Applications();
 	}
 	
+	/**
+	 * @return Applications 
+	 */
+	public static function i(){
+		return $_SESSION[self::$sessionVariable];
+	}
+	
 	public function __construct() {
 		$this->scanApplications();
 	}

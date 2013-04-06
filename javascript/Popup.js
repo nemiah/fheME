@@ -77,14 +77,14 @@ var Popup = {
 		}
 	
 		if($j('#'+targetPluginContainer+'SidePanel').length == 0){
-			$j('#windows').append('<div id="'+targetPluginContainer+'SidePanel" style="display:none;top:'+($j("#"+targetPluginContainer).position().top - $j(window).scrollTop() + 10)+'px;left:'+($j("#"+targetPluginContainer).position().left+  $j("#"+targetPluginContainer).width())+'px;" class="backgroundColor0 popupSidePanel"></div>');
+			$j('#windows').append('<div id="'+targetPluginContainer+'SidePanel" style="display:none;top:'+($j("#"+targetPluginContainer).css("top").replace("px", "") * 1)+'px;left:'+($j("#"+targetPluginContainer).position().left + $j("#"+targetPluginContainer).width() + 10)+'px;" class="backgroundColor0 popupSidePanel"></div>');
 
 			$j("#"+targetPluginContainer).bind("dragstart", function(event, ui) {
 				$j('#'+targetPluginContainer+'SidePanel').fadeOut();
 			});
 
 			$j("#"+targetPluginContainer).bind("dragstop", function(event, ui) {
-				$j('#'+targetPluginContainer+'SidePanel').css({top: $j("#"+targetPluginContainer).position().top - $j(window).scrollTop() + 10, left: $j("#"+targetPluginContainer).position().left + $j("#"+targetPluginContainer).width()}).fadeIn();
+				$j('#'+targetPluginContainer+'SidePanel').css({top: ($j("#"+targetPluginContainer).css("top").replace("px", "") * 1), left: $j("#"+targetPluginContainer).position().left + $j("#"+targetPluginContainer).width() + 10}).fadeIn();
 			});
 		}
 		//$j("#"+targetPluginContainer).bind("DOMNodeRemoved", function(event, ui) {

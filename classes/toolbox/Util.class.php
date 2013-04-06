@@ -21,7 +21,7 @@ class Util {
 	public static function ext($filename){
 		return strtolower(pathinfo($filename, PATHINFO_EXTENSION));
 	}
-
+	
 	public static function filesTree($files){
 
 		$zipDirectories = array();
@@ -57,11 +57,26 @@ class Util {
 			return null;
 		
 		$h = "CloudHost".str_replace(array(":", "-"), "_", implode("", array_map("ucfirst", explode(".", $_SERVER["HTTP_HOST"]))));
+		
+		if(defined("PHYNX_VIA_INTERFACE")){
+			if(file_exists(Util::getRootPath()."specifics/$h.class.php"))
+				require_once(Util::getRootPath()."specifics/$h.class.php");
+
+			if(file_exists(Util::getRootPath()."specifics/CloudHostAny.class.php"))
+				require_once(Util::getRootPath()."specifics/CloudHostAny.class.php");
+		}
+		
 		try {
+			if(defined("PHYNX_VIA_INTERFACE") AND !class_exists($h, false))
+				throw new ClassNotFoundException($h);
+			
 			$c = new $h();
 			return $c;
 		} catch (ClassNotFoundException $e){
 			try {
+				if(defined("PHYNX_VIA_INTERFACE") AND !class_exists("CloudHostAny", false))
+					throw new ClassNotFoundException("CloudHostAny");
+			
 				$c = new CloudHostAny();
 				return $c;
 			} catch (ClassNotFoundException $e){

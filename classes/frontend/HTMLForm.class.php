@@ -104,7 +104,7 @@ class HTMLForm {
 		}
 	}
 
-	public function setAutoComplete($fieldName, $targetClass, $onSelectionFunction){
+	public function setAutoComplete($fieldName, $targetClass, $onSelectionFunction = ""){
 		$this->autocomplete[$fieldName] = array($targetClass, $onSelectionFunction);
 	}
 	

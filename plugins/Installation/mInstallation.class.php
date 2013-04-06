@@ -31,7 +31,7 @@ class mInstallation extends anyC {
 		#$DB = new DBStorageU();
 	}
 
-	public function setupAllTables(){
+	public function setupAllTables($echo = 0){
 		$apps = Applications::getList();
 		$apps["plugins"] = "plugins";
 		#$apps["plugins"] = "ubiquitous";
@@ -43,25 +43,35 @@ class mInstallation extends anyC {
 			$AP = $_SESSION["CurrentAppPlugins"] = new AppPlugins($app);
 			$AP->scanPlugins("plugins");
 			$p = array_flip($AP->getAllPlugins());
-		
+			Applications::i()->setActiveApplication($app); //or the autoloader won't work
+			
+			$return[$app] = "<b>Start</b>";
+			
 			#$p = array_flip(AppPlugins::i()->getAllPlugins());
 			foreach($p as $key => $value){
 				if($key == "CIs") continue;
-
+				
+				$status = "initialized...";
+				
 				try {
 					$c = new $key();
+					$status = "instantialized $key...";
 				} catch (ClassNotFoundException $e){
 					$key2 = $key."GUI";
+					$status = "instantialized {$key}GUI...";
 
 					try {
 						$c = new $key2();
 					} catch (ClassNotFoundException $e2){
+						$return[$key] = "<span style=\"color:red;\">Class ".$e2->getClassName()." not found!</span>";
 						continue;
 					}
 				}
 
+				$return[$key] = $status;
+
 				if($c->checkIfMyDBFileExists()){
-					$return[$value] = $c->createMyTable(true);
+					/*$return[$value] = */$c->createMyTable(true);
 				}
 			}
 		}
@@ -84,6 +94,7 @@ class mInstallation extends anyC {
 			$AP = $_SESSION["CurrentAppPlugins"] = new AppPlugins($app);
 			$AP->scanPlugins("plugins");
 			$p = array_flip($AP->getAllPlugins());
+			#Applications::i()->setActiveApplication($app); //or the autoloader won't work; yes, it does because of addClassPath later on
 		
 			foreach($p as $key => $value){
 				if($key == "CIs") continue;

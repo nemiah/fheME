@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2012, Rainer Furtmeier - Rainer@Furtmeier.de
+ *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class KalenderHolidays extends KalenderEntry {
 	private $firstDay;
@@ -30,7 +30,7 @@ class KalenderHolidays extends KalenderEntry {
 		$this->firstDay = $firstDay;
 		$this->lastDay = $lastDay;
 		$this->title = $title;
-		$this->bgColor = $this->bgColors[self::$count];
+		$this->bgColor = self::$bgColors[self::$count];
 		self::$count++;
 		
 		parent::__construct();

@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2012, Rainer Furtmeier - Rainer@Furtmeier.de
+ *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class mKalenderGUI extends mKalender implements iGUIHTML2 {
 	function  __construct() {
@@ -27,9 +27,8 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 	public static $colors = array();
 	
 	public function getHTML($id){
-
 		$bps = $this->getMyBPSData();
-		$_SESSION["BPS"]->unregisterClass(get_class($this));
+		#$_SESSION["BPS"]->unregisterClass(get_class($this));
 		
 		$ansicht = mUserdata::getUDValueS("KalenderAnsicht", "monat");
 		#$ansicht = $ansicht->getUDValue("KalenderAnsicht");
@@ -96,7 +95,7 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 		$lastDay = $D->time();
 		
 
-		$K = $this->getData($firstDay, $lastDay);
+		$K = $this->getData($firstDay, $lastDay, isset($bps["KID"]) ? $bps["KID"] : Session::currentUser()->getID());
 		
 		$D = clone $Date;
 		
@@ -116,18 +115,13 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 			$html .= "
 			
 						
-			if(\$j('#tagDiv').length) {
-				\$j('#tagDiv').animate({scrollTop: 7*40}, 0);
-				var pos = \$j('#tagDiv').offset();
-				pos.position = 'absolute';
-
-				\$j('#tagDiv').css(pos)
-			}
 		</script>
 		
 		<style type=\"text/css\">
 		.Day {
 			-moz-user-select:none;
+			border-left:1px solid #EEE;
+			border-bottom:1px solid #EEE;
 		}
 		
 		/*.Day:hover {
@@ -163,10 +157,31 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 			opacity:1;
 		}
 		
-		.cellHeight {
-			height:100px;
+		.KalenderUser {
+			margin-left:10px;
 		}
 		
+		.KalenderUser div {
+			padding:10px;
+			padding-top:10px;
+			padding-bottom:5px;
+			display:inline-block;
+			margin-right:20px;
+			cursor:pointer;
+			min-width:150px;
+		}
+		
+		.cellHeight {
+		}
+		
+		.ui-datepicker {
+			width: auto;
+		}
+
+		#contentScreen tr:hover {
+			background-color:inherit;
+		}
+
 		#calendar1stMonth .ui-datepicker-prev, #calendar1stMonth .ui-datepicker-next/*,
 		#calendar2ndMonth .ui-datepicker-prev, #calendar2ndMonth .ui-datepicker-next */{
 			display:none;
@@ -184,45 +199,46 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 			border:0px;
 		}
 		
-		@media only screen and (max-height: 820px) {
+		/*@media only screen and (max-height: 820px) {
 			.cellHeight {
 				height:55px;
 			}
-		}
+		}*/
 		</style>";
 		// </editor-fold>
 
 		$BLeft = new Button("Zurück","back", "icon");
-		$BLeft->rmePCR("mKalender", "", "setDisplay", $display - 1, "contentManager.loadFrame('contentLeft','mKalender');");
+		$BLeft->rmePCR("mKalender", "", "setDisplay", $display - 1, "contentManager.loadFrame('contentScreen','mKalender');");
 		$BLeft->style("margin-right:10px;");
 
 		$BRight = new Button("Weiter","navigation", "icon");
-		$BRight->rmePCR("mKalender", "", "setDisplay", $display + 1, "contentManager.loadFrame('contentLeft','mKalender');");
+		$BRight->rmePCR("mKalender", "", "setDisplay", $display + 1, "contentManager.loadFrame('contentScreen','mKalender');");
 		$BRight->style("margin-right:10px;");
 
 		$BToday = new Button("Aktuelles Datum","down", "icon");
-		$BToday->rmePCR("mKalender", "", "setToday", '', "contentManager.loadFrame('contentLeft','mKalender');");
+		$BToday->rmePCR("mKalender", "", "setToday", '', "contentManager.loadFrame('contentScreen','mKalender');");
 		$BToday->style("margin-right:10px;");
 
 		$BMonat = new Button("Monat","./ubiquitous/Kalender/month.png", "icon");
-		$BMonat->rmePCR("mKalender", "", "setView", "monat", "contentManager.loadFrame('contentLeft','mKalender');");
+		$BMonat->rmePCR("mKalender", "", "setView", "monat", "contentManager.loadFrame('contentScreen','mKalender');");
 		$BMonat->style("float:right;margin-right:100px;");
 		$BMonat->id("monatButton");
 
 		$BWoche = new Button("Woche","./ubiquitous/Kalender/workweek.png", "icon");
-		$BWoche->rmePCR("mKalender", "", "setView", "woche", "contentManager.loadFrame('contentLeft','mKalender');");
+		$BWoche->rmePCR("mKalender", "", "setView", "woche", "contentManager.loadFrame('contentScreen','mKalender');");
 		$BWoche->style("float:right;margin-right:10px;");
 		$BWoche->id("wocheButton");
 
 		$BTag = new Button("Tag","./ubiquitous/Kalender/day.png", "icon");
-		$BTag->rmePCR("mKalender", "", "setView", "tag", "contentManager.loadFrame('contentLeft','mKalender');");
+		$BTag->rmePCR("mKalender", "", "setView", "tag", "contentManager.loadFrame('contentScreen','mKalender');");
 		$BTag->style("float:right;margin-right:10px;");
 		$BTag->id("tagButton");
 
 
 
-		$ST = new HTMLSideTable("right");
-		$ST->setTableStyle("width:40px;margin:0px;margin-right:-215px;float:right;/*margin-right:-50px;margin-top:95px;*/");
+		$ST = new HTMLTable(1);
+		$ST->setColClass(1, "");
+		#$ST->setTableStyle("width:40px;margin:0px;margin-right:-215px;float:right;/*margin-right:-50px;margin-top:95px;*/");
 		
 		$newWindow = new Button("Kalender in neuem Fenster öffnen", "new_window", "iconicL");
 		$newWindow->style("margin-right:10px;");
@@ -231,31 +247,56 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 		if(Session::physion())
 			$newWindow = "";
 		
+		$reminder = "";
+		if(Session::isPluginLoaded("mReminder")){
+			$reminder = Reminder::getButton();
+			$reminder->style("margin-right:10px;");
+		}
+		
 		$ST->addRow("<div id=\"calendar1stMonth\"></div>");
 		$ST->addRow("<div id=\"calendar2ndMonth\"></div>");
 		
-
-		$TS = new HTMLTable(3);
-		$TS->setColClass(1, "");
-		$TS->setColClass(3, "");
-		$TS->setColClass(2, "");
-		$TS->setColWidth(2, "20");
-		$TS->setColWidth(1, "10");
+		
+		$BrowserColNum = 10;
+		
+		$BThis = new Button("", "arrow_down", "iconicG");
+		$BThis->style("float:left;margin-top:-6px;margin-right:5px;");
+		
+		$TCalendars = "<div>";
+		#$TCalendars = new HTMLTable(1);
+		#$TCalendars->setTableStyle("margin-left:10px;border-collapse:collapse;");
+		$Calendars = "<div onclick=\"".OnEvent::reload("Screen", "_mKalenderGUI;KID:".Session::currentUser()->getID())."\">".((!isset($bps["KID"]) OR $bps["KID"] == Session::currentUser()->getID()) ? $BThis : "")." Mein Kalender</div>";
+		
+		#$TS = new HTMLTable(3);
+		#$TS->setColClass(1, "");
+		#$TS->setColClass(3, "");
+		#$TS->setColClass(2, "");
+		#$TS->setColWidth(2, "20");
+		#$TS->setColWidth(1, "10");
 		$ACS = anyC::get("Userdata", "name", "shareCalendarTo".Session::currentUser()->getID());
 		while($Share = $ACS->getNextEntry()){
-			$show = mUserdata::getUDValueS("showCalendarOf".$Share->A("UserID"), "1");
+			#$show = mUserdata::getUDValueS("showCalendarOf".$Share->A("UserID"), "1");
 			
 			$U = new User($Share->A("UserID"));
-			$I = new HTMLInput("showCalendar".$Share->A("UserID"), "checkbox", $show);
-			$I->onclick(OnEvent::rme($this, "saveShowCalendarOf", array($Share->A("UserID"), $show == "1" ? "0" : "1"), OnEvent::reload("Left")));
-			$TS->addRow(array("", $I, $U->A("name")));
-			self::$colors[$Share->A("UserID")] = KalenderEntry::$bgColors[count(self::$colors)];
+			#$I = new HTMLInput("showCalendar".$Share->A("UserID"), "checkbox", $show);
+			#$I->onclick(OnEvent::rme($this, "saveShowCalendarOf", array($Share->A("UserID"), $show == "1" ? "0" : "1"), OnEvent::reload("Left")));
+			#$TS->addRow(array("", $I, $U->A("name")));
+			#self::$colors[$Share->A("UserID")] = KalenderEntry::$bgColors[count(self::$colors)];
 			
-			$TS->addCellStyle(1, "background-color:".self::$colors[$Share->A("UserID")].";");
+			#$TS->addCellStyle(1, "background-color:".self::$colors[$Share->A("UserID")].";");
+			
+			$Calendars .= "<div onclick=\"".OnEvent::reload("Screen", "_mKalenderGUI;KID:".$U->getID())."\">".(($bps["KID"] == $U->getID()) ? $BThis : "")." ".$U->A("name")."</div>";
 		}
 		
-		$ST->addRow($TS);
-		
+		if($ACS->numLoaded() > 0){
+			$TCalendars .= "<div class=\"KalenderUser\">".$Calendars."</div>";
+			#$TCalendars->addRow($Calendars);
+			#$TCalendars->addCellClass(1, "borderColor1");
+			#$TCalendars->addCellStyle(1, "border-top-style:solid;border-top-width:1px;");
+			#$TCalendars->addRowClass("backgroundColor0");
+			#$TCalendars->addRowClass("KalenderUser");
+		}
+		$TCalendars .= "</div>";
 		
 		$pCalButton = "";
 		if(Session::isPluginLoaded("mpCal")){
@@ -277,25 +318,34 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 			$GoogleDLButton->popup("", "Daten herunterladen", "Google", "-1", "syncByDateRange", array("'".date("Y-m-d", $firstDay)."'", "'".date("Y-m-d", $lastDay)."'"));
 			$GoogleDLButton->style("margin-right:10px;");
 		}
+		
+		if (Session::isPluginLoaded("mxCal")) {
+			$xCalButton = xCal::getButton();
+			$xCalButton->style("margin-right:10px;");
+		}
+		
+		#if (Session::isPluginLoaded("mJabber")) {
+		#	$jabberButton = Jabber::getButton();
+		#	$jabberButton->style("margin-right:10px;");
+		#}
 
 		$BShare = new Button("Kalender teilen", "fork", "iconicL");
 		$BShare->popup("", "Kalender teilen", "mKalender", "-1", "share");
+		$BShare->style("margin-right:10px;");
 		#$BShare->style("margin-right:10px;");
 			
 		
-		$AWVButton = new Button("Müllabfuhr-Daten herunterladen", "trash_stroke", "iconicL");
-		$AWVButton->popup("", "Müllabfuhr-Daten", "mKalender", "-1", "downloadTrashData");
+		#$AWVButton = new Button("Müllabfuhr-Daten herunterladen", "trash_stroke", "iconicL");
+		#$AWVButton->popup("", "Müllabfuhr-Daten", "mKalender", "-1", "downloadTrashData");
+		$AWVButton = "";
 		
-		$ST->addRow($newWindow.$GoogleButton.$GoogleDLButton.$pCalButton.$BShare.$AWVButton);
+		$ST->addRow($pCalButton.$GoogleButton.$GoogleDLButton);
 		
 		
-		$DBrowser = clone $currentMonth;	
-		#$BrowserColNum = 13;
-		#if($ansicht == "monat")
-			$BrowserColNum = 10;
+		$DBrowser = clone $currentMonth;
 		
 		$TBrowser = new HTMLTable($BrowserColNum);
-		$TBrowser->setTableStyle("width:964px;margin-left:10px;border-collapse:collapse;");
+		$TBrowser->setTableStyle("width:100%;margin-left:10px;border-collapse:collapse;");
 		
 		if($ansicht == "tag"){
 			$DBrowser->subDay();
@@ -348,46 +398,61 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 		$TBrowser->addRowStyle("cursor:pointer;");
 		$TBrowser->addCellStyle($CBrowser, "background-color:#CCC;");
 		for($i = 0; $i < $BrowserColNum; $i++){
-			#$BLeft->rmePCR("mKalender", "", "setDisplay", $display - 1, "contentManager.loadFrame('contentLeft','mKalender');");
-			$TBrowser->addCellEvent($i + 1, "click", OnEvent::rme($this, "setDisplay", $display + $i - 2, OnEvent::reload("Left")));
+			#$BLeft->rmePCR("mKalender", "", "setDisplay", $display - 1, "contentManager.loadFrame('contentScreen','mKalender');");
+			$TBrowser->addCellEvent($i + 1, "click", OnEvent::rme($this, "setDisplay", $display + $i - 2, OnEvent::reload("Screen")));
 			$TBrowser->setColWidth($i, (100/$BrowserColNum)."%");
 			$TBrowser->addCellStyle($i + 1, "padding-top:10px;padding-bottom:5px;");
 		}
 		
-		$colWidth = "137px";
+		#$bgcolors = array("#FFF", "#F4F4F4");
 		
 		$html .= "
-		<div style=\"width:984px;\">
-			$TBrowser
-			$ST
+		<div style=\"width:205px;float:right;margin-right:40px;\">
+				<div style=\"padding-top:30px;padding-bottom:15px;padding-left:0px;\">
+					$newWindow$BShare$AWVButton$xCalButton$reminder
+				</div>
 		</div>
-		<div class=\"Tab backgroundColor1\" style=\"width:964px;margin-top:0px;\">
+		
+		<div style=\"margin-right:270px;\">
+		<!--<div style=\"\">
+			$TBrowser
+		</div>-->
+		<div id=\"KalenderTitle\" class=\"prettyTitle\">
+			
 			<span style=\"float:right;\">
 				$BLeft$BToday$BRight
 			</span>
 			$BMonat$BWoche$BTag
-			<p><b>Kalender für ".($ansicht == "monat" ? "den Monat ".Util::CLMonthName(date("m",$currentMonth->time())).date(" Y",$currentMonth->time()) : ($ansicht == "woche" ? "die ".date("W",$currentMonth->time()).". Woche ".date("Y",$currentMonth->time() + 6 * 24 * 3600) : Util::CLDateParserL($currentMonth->time(), "load")))."</b></p>
+			".($ansicht == "monat" ? "Monat ".Util::CLMonthName(date("m",$currentMonth->time())).date(" Y",$currentMonth->time()) : ($ansicht == "woche" ? "".date("W",$currentMonth->time()).". Woche ".date("Y",$currentMonth->time() + 6 * 24 * 3600) : Util::CLDateParserL($currentMonth->time(), "load")))."
 		</div>
+		</div>
+		<div id=\"KalenderAuswahl\">
+			$TCalendars
+		</div>
+		<div style=\"width:205px;float:right;margin-right:40px;\">
+			<div style=\"height:23px;\"></div>$ST
+		</div>
+		<div style=\"margin-right:270px;\">
 		
-		<table style=\"margin-left:10px;\">
+		<table style=\"margin-left:10px;border-spacing: 0px;\" id=\"KalenderTable\">
 			<colgroup>";
 		for($j = 0; $j < $cols -2; $j++)#
 			$html .= "
-				<col class=\"backgroundColor".($j % 2 + 2)."\" style=\"width:$colWidth;\" />";
+				<col ".($ansicht == "woche" ? "class=\"backgroundColor".($j % 2 + 2)."\" " : "")." style=\"width:".(100 / $cols)."%;\" />";
 			
 			$html .= "
-				<col style=\"background-color:#EBEBEB;\" />
-				<col style=\"background-color:#DDD;\" />
+				<col style=\"background-color:#F4F4F4;width:".(100 / $cols)."%;\" />
+				<col style=\"background-color:#EBEBEB;width:".(100 / $cols)."%;\" />
 			</colgroup>";
 
 		if($ansicht != "tag"){
 			$html .= "
-				<tr style=\"height:40px;\">";
+				<tr>";
 
 			$D2 = clone $Date;
 				for($j = 0; $j < $cols; $j++) {
 					$html .= "
-						<th style=\"border-bottom-width:1px;border-bottom-style:solid;\" class=\"borderColor1 backgroundColor0\">".Util::CLWeekdayName(date("w",$D2->time()))."</th>";
+						<th style=\"border-bottom-width:1px;border-bottom-style:solid;border-bottom-color:#EEE;padding-top:10px;\" class=\"backgroundColor0\">".Util::CLWeekdayName(date("w",$D2->time()))."</th>";
 					$D2->addDay();
 				}
 			unset($D2);
@@ -397,7 +462,7 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 		}
 		for($i = 0; $i < $rows; $i++){
 			$html .= "
-			<tr ".($ansicht == "monat" ? "class=\"cellHeight\"" : ($ansicht == "tag" ? "style=\"height:584px;" : ""))."\">";
+			<tr class=\"cellHeight\">";
 			for($j = 0; $j < $cols; $j++){
 				
 				$entry = "";
@@ -435,14 +500,16 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 					for($i = 0; $i < 24; $i++){
 						if(count($events) > 0)
 							foreach($events AS $time => $ev){
-								if(substr($time, 0, 2) * 1 == $i)
-									foreach($ev AS $KE)
-										$eventsDiv .= $KE->getDayViewHTML($D->time());
+								if(substr($time, 0, 2) * 1 != $i)
+									continue;
+								
+								foreach($ev AS $KE)
+									$eventsDiv .= $KE->getDayViewHTML($D->time());
 							}
 
 					}
 					$entry = "
-						<div style=\"overflow:auto;height:560px;width:961px;\" id=\"tagDiv\">
+						<div class=\"cellHeight\" style=\"overflow:auto;width:961px;\" id=\"tagDiv\">
 							<div style=\"height:961px;\">
 							$dayDivs
 							</div>
@@ -485,15 +552,17 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 					for($i = 0; $i < 24; $i++){
 						if(count($events) > 0)
 							foreach($events AS $time => $ev){
-								if(substr($time, 0, 2) * 1 == $i)
-									foreach($ev AS $KE)
-										$eventsDiv .= $KE->getWeekViewHTML($D->time(), $hasMultiDay);
+								if(substr($time, 0, 2) * 1 != $i)
+									continue;
+								
+								foreach($ev AS $KE)
+									$eventsDiv .= $KE->getWeekViewHTML($D->time(), $hasMultiDay);
 							}
 
 					}
 					
 					$entry = "
-						<div style=\"overflow:auto;height:".(11 * 6 + 22 * 18 + 1 + $hasMultiDay * 22)."px;width:$colWidth;;\">
+						<div style=\"overflow:auto;height:".(11 * 6 + 22 * 18 + 1 + $hasMultiDay * 22)."px;width:100%;\">
 							<div style=\"height:".(11 * 6 + 22 * 18 + 1)."px;\">
 								$dayDivs
 							</div>
@@ -517,7 +586,7 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 
 				$BD = new Button("Tagesansicht", "./ubiquitous/Kalender/showDetails.png");
 				$BD->type("icon");
-				$BD->rmePCR("mKalender", "-1", "setView", array("'tag'","'".$D->time()."'"), "contentManager.loadFrame('contentLeft','mKalender');");
+				$BD->rmePCR("mKalender", "-1", "setView", array("'tag'","'".$D->time()."'"), "contentManager.loadFrame('contentScreen','mKalender');");
 				$BD->style("float:left;");
 
 				$BN = "";
@@ -533,15 +602,15 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 					style=\"vertical-align:top;padding:0px;\"
 					class=\"".((date("d.m.Y",$D->time()) == date("d.m.Y") AND $ansicht != "tag")? "backgroundColor1" : "")." Day borderColor1\">
 					<div
-						style=\"height:21px;padding-top:2px;padding-left:5px;text-align:right;padding-right:5px;\"
-						class=\"".($ansicht == "tag" ? "backgroundColor0" : "")."\">
+						style=\"".($ansicht == "tag" ? "display:none;" : "")."height:21px;padding-top:2px;padding-left:5px;text-align:right;padding-right:5px;\"
+						class=\"innerCellTitle\">
 						".($ansicht != "tag" ? "<span class=\"dayOptions\">$BD$BN</span>" : "")."
 						<span
 							style=\"color:grey;\">
 							".($ansicht != "tag" ? date("d",$D->time()) : "&nbsp;")."
 						</span>
 					</div>
-					<div style=\"font-size:10px;overflow:auto;".($ansicht == "monat" ? "margin-top:0px;width:$colWidth;" : "")."\" class=\"".($ansicht == "monat" ? "cellHeight" : "")."\">$entry</div>
+					<div style=\"font-size:10px;overflow:auto;".($ansicht == "monat" ? "margin-top:0px;width:100%;" : "")."\" class=\"".($ansicht == "monat" ? "innerCellHeight" : "")."\">$entry</div>
 				</td>";
 				$D->addDay();
 			}
@@ -553,7 +622,8 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 			</tr>";
 		}
 		$html .= "
-		</table>";
+		</table>
+		</div>";
 
 		$nextMonths = new Datum();
 		$nextMonths->setToMonth1st();
@@ -561,8 +631,34 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 		$nextMonths->addMonth();
 		$nextMonth = $nextMonths->time();
 		$html .= OnEvent::script("\$j(function() {
-		\$j('#calendar1stMonth').datepicker({ minDate: '".date("d.m.Y", $thisMonth)."'".($currentMonth->time() < $nextMonth ? ",defaultDate: '".date("d.m.Y",$currentMonth->time())."'" : "").", showWeek: true,  showOtherMonths: true, onSelect: function(dateText, inst) { var day = Math.round(+new Date(inst.selectedYear, inst.selectedMonth, inst.selectedDay, 0, 1, 0)/1000); ".OnEvent::rme($this, "setView", array("'tag'", "day"), "function(){ ".OnEvent::reload("Left")." }")." } });
-	});")."
+		\$j('#calendar1stMonth').datepicker({ minDate: '".date("d.m.Y", $thisMonth)."'".($currentMonth->time() < $nextMonth ? ",defaultDate: '".date("d.m.Y",$currentMonth->time())."'" : "").", showWeek: true,  showOtherMonths: true, onSelect: function(dateText, inst) { var day = Math.round(+new Date(inst.selectedYear, inst.selectedMonth, inst.selectedDay, 0, 1, 0)/1000); ".OnEvent::rme($this, "setView", array("'tag'", "day"), "function(){ ".OnEvent::reload("Screen")." }")." } });
+			
+		\$j('.KalenderUser div[class!=backgroundColor1]').hover(function(){ \$j(this).addClass('backgroundColor2'); }, function(){ \$j(this).removeClass('backgroundColor2'); });
+		fitKalender();
+			
+		\$j(window).resize(function() {
+			fitKalender();
+		});
+		
+		});
+		
+		function fitKalender(){
+			if(!\$j('#KalenderTitle').length)
+				return;
+				
+			var height = ((contentManager.maxHeight() - \$j('#KalenderTable tr:first th').parent().outerHeight() - \$j('#KalenderAuswahl').outerHeight() - \$j('#KalenderTitle').outerHeight()) / (\$j('#KalenderTable tr').length - ".($ansicht == "monat" ? "1" : "0")."));
+			\$j('.cellHeight').css('height', height+'px');
+			\$j('.innerCellHeight').css('height', (height - \$j('.innerCellTitle:visible').outerHeight())+'px');
+			
+			if(\$j('#tagDiv').length) {
+				\$j('#tagDiv').css('width', \$j('#KalenderTable tr').width()+'px');
+				\$j('#tagDiv').animate({scrollTop: 7*40}, 0);
+				var pos = \$j('#tagDiv').offset();
+				pos.position = 'absolute';
+
+				\$j('#tagDiv').css(pos)
+			}
+		}")."
 		<style type=\"text/css\">
 			".($currentMonth->time() < $thisMonth ? "#calendar1stMonth .ui-state-default { border: 1px solid #D3D3D3; background-color:transparent; }" : "")."
 			".($currentMonth->time() < $nextMonth ? "#calendar2ndMonth .ui-state-default { border: 1px solid #D3D3D3; background-color:transparent; }" : "")."
@@ -572,7 +668,7 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 		</style>";
 
 		$html .= OnEvent::script("\$j(function() {
-		\$j('#calendar2ndMonth').datepicker({ minDate: '".date("d.m.Y",$nextMonth)."'".($currentMonth->time() >= $nextMonth ? ", defaultDate: '".date("d.m.Y",$currentMonth->time())."'" : "").", showWeek: true, showOtherMonths: true,  onSelect: function(dateText, inst) { var day = Math.round(+new Date(inst.selectedYear, inst.selectedMonth, inst.selectedDay, 0, 1, 0)/1000); ".OnEvent::rme($this, "setView", array("'tag'", "day"), "function(){ ".OnEvent::reload("Left")." }")." } });
+		\$j('#calendar2ndMonth').datepicker({ minDate: '".date("d.m.Y",$nextMonth)."'".($currentMonth->time() >= $nextMonth ? ", defaultDate: '".date("d.m.Y",$currentMonth->time())."'" : "").", showWeek: true, showOtherMonths: true,  onSelect: function(dateText, inst) { var day = Math.round(+new Date(inst.selectedYear, inst.selectedMonth, inst.selectedDay, 0, 1, 0)/1000); ".OnEvent::rme($this, "setView", array("'tag'", "day"), "function(){ ".OnEvent::reload("Screen")." }")." } });
 	});");
 		
 		return $html;
@@ -600,8 +696,8 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 			$type = $ansicht;
 		}
 		
-		$_SESSION["BPS"]->registerClass(get_class($this));
-		$_SESSION["BPS"]->setACProperty("noReloadRight","true");
+		#$_SESSION["BPS"]->registerClass(get_class($this));
+		#$_SESSION["BPS"]->setACProperty("noReloadRight","true");
 		
 		$U = new mUserdata();
 		$U->setUserdata("KalenderDisplay".ucfirst($type),$to);
@@ -640,7 +736,7 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 		
 		$hasEvent = array();
 		
-		$html = "<div class=\"Tab backgroundColor1\"><span class=\"lastUpdate\" id=\"lastUpdatemKalenderGUI\"></span><p>Kalender</p></div><div style=\"padding:10px;padding-left:0px;\">";
+		$html = "<div class=\"touchHeader\"><span class=\"lastUpdate\" id=\"lastUpdatemKalenderGUI\"></span><p>Kalender</p></div><div style=\"padding:10px;padding-left:0px;\">";
 		
 		$html .= "<div style=\"width:25px;float:left;margin-right:5px;color:grey;font-size:11px;\">%%SMALLCALCONTENT%%</div>";
 		
@@ -731,9 +827,21 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 		return $html;
 	}
 	
+	public static function getOverviewPlugin(){
+		$P = new overviewPlugin("mKalenderGUI", "Kalender", 130);
+		$P->updateInterval(900);
+		
+		return $P;
+	}
+	
 	public function getRepeatable($targetClass, $targetClassID, $targetClassMethod){
 		$C = new $targetClass($targetClassID);
 		echo $C->$targetClassMethod($targetClassID);
+	}
+	
+	public function getInviteForm($targetClass, $targetClassId, $targetClassMethod) {
+		$class = new $targetClass($targetClassId);
+		echo $class->$targetClassMethod($targetClassId);
 	}
 	
 	public function share(){
@@ -835,6 +943,9 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 				if($T == "BT")
 					$name .= ($name != "" ? ", " : "")."Biotonne";
 			}
+			
+			if($name == "")
+				continue;
 			
 			$F = new Factory("Todo");
 			$F->sA("TodoName", $name);

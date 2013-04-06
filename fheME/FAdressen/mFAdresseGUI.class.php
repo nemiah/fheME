@@ -64,8 +64,6 @@ class mFAdresseGUI extends AdressenGUI {
 		$name = $T->A("vorname")." ".$T->A("nachname");
 
 		$day = mktime(8, 0, 0, date("m", $T->A("geb")), date("d", $T->A("geb")), date("Y"));
-
-		$time = $T->A("TodoTillTime");
 		
 		$KE = new KalenderEvent($className, $classID, $K->formatDay($day),"0900", $name);
 		

@@ -319,6 +319,22 @@ input[disabled], select[disabled], input[readonly] {
 	box-shadow: 0px 0px 0px 3px rgba(150, 150, 150, 0.5);
 }
 
+.prettyTitle {
+	font-family:Roboto;
+	font-size:30px;
+	padding:10px;
+	padding-top:30px;
+	padding-bottom:15px;
+}
+
+.prettySubtitle {
+	font-family:Roboto;
+	font-size:23px;
+	padding:10px;
+	padding-top:30px;
+	padding-bottom:15px;
+}
+
 .LPBigButton {
 	border:0;
 	text-align:left;

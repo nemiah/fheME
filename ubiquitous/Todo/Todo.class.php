@@ -15,10 +15,10 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2012, Rainer Furtmeier - Rainer@Furtmeier.de
+ *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class Todo extends PersistentObject {
-	public static $repeatTypes = array("" => "nicht Wiederholen", "weekly" => "Wöchentlich", "monthly" => "Monatlich", "yearly" => "Jährlich");
+	public static $repeatTypes = array("" => "nicht Wiederholen", "daily" => "Täglich", "weekly" => "Wöchentlich", "monthly" => "Monatlich", "yearly" => "Jährlich");
 	/*public function invitePerson($id, $TeamId = 0, $nooutput = false){
 		return mTeilnehmerGUI::invitePerson("Todo", $this->ID, $id, $TeamId, $nooutput);
 	}
@@ -33,15 +33,17 @@ class Todo extends PersistentObject {
 		$this->updateGoogle = $b;
 	}
 	
-	public function saveMe($checkUserData = true, $output = false) {
+	public function saveMe($checkUserData = true, $output = false, $update = true) {
 		$old = new Todo($this->getID());
 		$old->loadMe();
 		#$fromDay = date("Y-m-d", Util::CLDateParser($this->A("TodoFromDay"), "store"));
 		#$fromTime = Util::formatTime("de_DE", Util::CLTimeParser($this->A("TodoFromTime"), "store"));
 		#die($this->getID());
 		
-		$this->changeA("TodoLastChange", time());
-		
+		if($update){
+			$this->changeA("TodoLastChange", time());
+			$this->changeA("TodoReminded", "0");
+		}
 		#$name = $this->getOwnerObject()->getCalendarTitle();
 		
 		if($this->A("TodoAllDay")){
@@ -49,7 +51,7 @@ class Todo extends PersistentObject {
 			$this->changeA("TodoTillTime", Util::CLTimeParser(0));
 		}
 		
-		if($this->A("TodoRepeatWeekOfMonth") > 0){
+		if($this->A("TodoRepeatWeekOfMonth") > 0 AND $this->A("TodoRepeatWeekOfMonth") != 127){
 			$D = new Datum($this->hasParsers ? Util::CLDateParser($this->A("TodoFromDay"), "store") : $this->A("TodoFromDay"));
 			$nthDay = $D->getNthDayOfMonth();
 			if($nthDay > 4)
@@ -57,6 +59,10 @@ class Todo extends PersistentObject {
 			
 			$this->changeA("TodoRepeatWeekOfMonth", $nthDay);
 		}
+		
+		if($this->A("TodoClass") != "" AND $this->A("TodoClass") != "Kalender" AND $this->A("TodoName") == "")
+			$this->changeA("TodoName", $this->getOwnerObject()->getCalendarTitle());
+		
 		
 		parent::saveMe($checkUserData, false);
 		
@@ -98,6 +104,9 @@ class Todo extends PersistentObject {
 		#if($this->A("TodoGUID") == "")
 		#	$this->changeA("TodoGUID", uniqid()."-".uniqid());
 		
+		if($this->A("TodoClass") != "" AND $this->A("TodoClass") != "Kalender" AND $this->A("TodoName") == "")
+			$this->changeA("TodoName", $this->getOwnerObject()->getCalendarTitle());
+		
 		$id = parent::newMe($checkUserData, false);
 		
 		if(Session::isPluginLoaded("mSync") AND ($this->A("TodoExceptionForID") == "0" OR $this->A("TodoExceptionForID") == ""))
@@ -112,6 +121,7 @@ class Todo extends PersistentObject {
 		if($this->A("TodoClass") == "DBMail" AND Session::isPluginLoaded("mMail")){
 			Mail::assign("Todo", $id, $this->A("TodoClassID"));
 		}
+		
 			
 		return $id;
 	}

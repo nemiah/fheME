@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2012, Rainer Furtmeier - Rainer@Furtmeier.de
+ *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
 class mWetterGUI extends mWetter implements iGUIHTMLMP2 {
@@ -43,7 +43,7 @@ class mWetterGUI extends mWetter implements iGUIHTMLMP2 {
 	}
 
 	public function getOverviewContent($echo = true){
-		$html = "<div class=\"Tab backgroundColor1\"><span class=\"lastUpdate\" id=\"lastUpdatemWetterGUI\"></span><p>Wetter</p></div><div style=\"padding:10px;height:300px;overflow:auto;\">";
+		$html = "<div class=\"touchHeader\"><span class=\"lastUpdate\" id=\"lastUpdatemWetterGUI\"></span><p>Wetter</p></div><div style=\"padding:10px;height:249px;overflow:auto;\">";
 		while($W = $this->getNextEntry()){
 			$data = $W->getData();
 			
@@ -79,7 +79,7 @@ class mWetterGUI extends mWetter implements iGUIHTMLMP2 {
 			$html .= "</div>";
 		}
 		
-		$M = Mond::phase();
+		/*$M = Mond::phase();
 		
 		$B = new Button("", "./ubiquitous/Wetter/icons48/".$M->image, "icon");
 		$B->style("float:left;margin-top:30px;");
@@ -87,7 +87,7 @@ class mWetterGUI extends mWetter implements iGUIHTMLMP2 {
 		$html .= "<div style=\"clear:both;\"></div>".$B."<div style=\"margin-top:30px;margin-left:60px;\">
 			<small style=\"color:grey;\">$M->zodiac, $M->days ".($M->days == 1 ? "Tag" : "Tage")."</small><br />
 			<b style=\"font-size:15px;font-weight:bold;\">".$M->phase."</b>
-			</div>";
+			</div>";*/
 		
 		$html .= "</div>";
 		
@@ -95,6 +95,13 @@ class mWetterGUI extends mWetter implements iGUIHTMLMP2 {
 		if($echo)
 			echo $html;
 		return $html;
+	}
+	
+	public static function getOverviewPlugin(){
+		$P = new overviewPlugin("mWetterGUI", "Wetter", 249);
+		$P->updateInterval(1800);
+		
+		return $P;
 	}
 
 }

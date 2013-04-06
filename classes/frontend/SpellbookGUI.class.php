@@ -96,6 +96,9 @@ class SpellbookGUI implements iGUIHTMLMP2 {
 			if($t == null AND $collapsedTabs)
 				$t = "small";
 
+			if($t == null)
+				$t = "big";
+			
 			$IM = new HTMLInput("minPlugin$value", "checkbox", $t == "big" ? "0" : "1");
 			$IM->id("minPlugin$value");
 			$IM->onchange("toggleTab('$value');");
@@ -109,8 +112,8 @@ class SpellbookGUI implements iGUIHTMLMP2 {
 			#border-width:1px;border-style:solid;
 			$html .= "
 			<div style=\"width:33%;float:left;\">
-				<div style=\"margin:10px;border-radius:5px;\" class=\"borderColor1 spell\">
-					<div class=\"backgroundColor2\" style=\"padding:10px;padding-bottom:5px;border-top-left-radius:5px;border-top-right-radius:5px;\">
+				<div style=\"margin:10px;\" class=\"borderColor1 spell\">
+					<div class=\"backgroundColor2\" style=\"padding:10px;padding-bottom:5px;\">
 						$BG$B<h2 style=\"margin-bottom:0px;width:150px;\">$key</h2>
 					</div>
 					<div style=\"padding:7px;\">

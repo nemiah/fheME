@@ -63,6 +63,7 @@ class ExtConn {
 		$this->paths[] = $this->absolutePath."classes/exceptions/StorageException.class.php";
 		$this->paths[] = $this->absolutePath."classes/exceptions/NoDBUserDataException.class.php";
 		$this->paths[] = $this->absolutePath."classes/exceptions/AOPNoAdviceException.class.php";
+		$this->paths[] = $this->absolutePath."classes/exceptions/ClassNotFoundException.class.php";
 		
 		$this->paths[] = $this->absolutePath."classes/toolbox/SysMessages.class.php";
 		$this->paths[] = $this->absolutePath."classes/toolbox/SystemCommand.class.php";
@@ -139,6 +140,24 @@ class ExtConn {
 		$_SESSION["viaInterface"] = true;
 	}
 
+	function autofailer(){
+		spl_autoload_register("ExtConn::autofail");
+	}
+	
+	static function autofail($c){
+		if(class_exists($c, false))
+			return;
+		
+		if(strpos($c, "Zend_") === 0)
+			return;
+		
+		eval('class '.$c.' { ' .
+			'    public function __construct() { ' .
+			'        throw new ClassNotFoundException("'.$c.'"); ' .
+			'    } ' .
+			'} ');
+	}
+	
 	function forbidCustomizers(){
 		define("PHYNX_FORBID_CUSTOMIZERS", true);
 	}

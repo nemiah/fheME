@@ -36,7 +36,11 @@ var contentManager = {
 	lastLoaded: [],
 	
 	maxHeight: function(){
-		return height = ($j(window).height() - $j('#navTabsWrapper').height() - $j('#footer').height() - 40);
+		return ($j(window).height() - $j('#navTabsWrapper').height() - $j('#footer').height() - 40);
+	},
+			
+	maxWidth: function(){
+		return ($j(window).width() - $j('#phim:visible').outerWidth());
 	},
 	
 	init: function(){
