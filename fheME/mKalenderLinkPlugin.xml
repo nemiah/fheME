@@ -28,7 +28,7 @@
 		<icon>./ubiquitous/Kalender/Calendar.png</icon>
 		<folder>../ubiquitous/Kalender</folder>
 		
-		<menuEntryTarget>contentLeft</menuEntryTarget>
+		<menuEntryTarget>contentScreen</menuEntryTarget>
 
 		<registry>Overview;mKalenderGUI::getOverviewPlugin</registry>
 	</plugin>

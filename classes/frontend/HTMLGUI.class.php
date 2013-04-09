@@ -862,10 +862,15 @@ class HTMLGUI implements icontextMenu {
 		if(PMReflector::implementsInterface($pluginName,"iXMLExport")) $os .= "1";
 		else $os .= "0";
 
-		if($id != -1 AND $os != "00000")
-			$html .= "<span title=\"Operationen\" id=\"".$pluginName."Operations\" class=\"iconic wrench\" onclick=\"phynxContextMenu.start(this, 'HTML','operations:$pluginName:$id:$os','".$this->texts["Operationen"].":');\" style=\"float:right;margin-top:-3px;\" ></span>";
-
-		return $html;
+		if($id != -1 AND $os != "00000"){
+			$B = new Button("Operationen", "wrench", "iconic");
+			$B->id($pluginName."Operations");
+			$B->onclick("phynxContextMenu.start(this, 'HTML','operations:$pluginName:$id:$os','".$this->texts["Operationen"].":');");
+			$B->style("float:right;margin-top:-3px;");
+			
+			return $B;#"<span title=\"Operationen\" id=\"".$pluginName."Operations\" class=\"iconic wrench\" onclick=\"\" style=\"\" ></span>";
+		}
+		return "";
 	}
 	
 	/**

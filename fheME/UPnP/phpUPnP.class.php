@@ -49,28 +49,72 @@ class phpUPnP {
 
 		// SET TIMEOUT FOR RECIEVE
 		socket_set_option($sock, SOL_SOCKET, SO_RCVTIMEO, array('sec' => $sockTimout, 'usec' => '0'));
-
+		echo "<pre style=\"max-height:500px;overflow:auto;\">";
 		// RECIEVE RESPONSE
 		$response = array();
 		do {
 			unset($buf);
 			@socket_recv($sock, $buf, 1024, MSG_WAITALL); //, $from, $port );
-			if (!is_null($buf))
-				$response[] = $this->parseMSearchResponse($buf);
+			if (!is_null($buf)){
+				print_r($buf);
+				$response[] = $this->parseHeaders($buf);
+			}
 		} while (!is_null($buf));
-
+echo "</pre>";
 		// CLOSE SOCKET
 		socket_close($sock);
 
 		return $response;
 	}
+	
+	public function mServer(){
+		$sock = socket_create(AF_INET, SOCK_DGRAM, getprotobyname('udp'));
+		$mIP = '239.255.255.250';
+		if (!socket_bind($sock, $mIP, 1900)) {
+			$errorcode = socket_last_error();
+			$errormsg = socket_strerror($errorcode);
+			
+			die("Could not bind socket : [$errorcode] $errormsg \n");
+		}
+		
+		socket_set_option($sock, IPPROTO_IP, MCAST_JOIN_GROUP, array("group" => '239.255.255.250', "interface" => 0));
 
-	private function parseMSearchResponse($response) {
+		while (1) {
+			echo "Waiting for data ... \n";
+			socket_recvfrom($sock, $buf, 512, 0, $remote_ip, $remote_port);
+			echo "$remote_ip : $remote_port -- " . $buf;
+			
+			$query = $this->parseHeaders($buf);
+			if(!isset($query["m-search"]))
+				continue;
+			
+			$response = "HTTP/1.1 200 OK\r\n";
+			$response .= "CACHE-CONTROL: max-age=1810\r\n";
+			$response .= "DATE: ".date("r")."\r\n";
+			$response .= "EXT:\r\n";
+			$response .= "LOCATION: http://192.168.7.123:9000/TMSDeviceDescription.xml\r\n";
+			$response .= "SERVER: Linux/3.x, UPnP/1.1, fheME/0.6\r\n";
+			$response .= "ST: urn:fheme.de:service:X_FIT_HomeAutomation:1\r\n";
+			$response .= "USN: uuid:f6da16ab-0d1b-fe1c-abca-82aacf4afcac::urn:fheme.de:service:X_FIT_HomeAutomation:1\r\n";
+			$response .= "Content-Length: 0\r\n";
+			$response .= "\r\n";
+			
+			//Send back the data to the client
+			socket_sendto($sock, $response, strlen($response), 0, $mIP, $remote_port);
+		}
+
+		socket_close($sock);
+	}
+
+	private function parseHeaders($response) {
 		$responseArr = explode("\r\n", $response);
 
 		$parsedResponse = array();
 
 		foreach ($responseArr as $row) {
+			if (stripos($row, "m-search") === 0)
+				$parsedResponse['m-search'] = $row;
+					
 			if (stripos($row, 'http') === 0)
 				$parsedResponse['http'] = $row;
 

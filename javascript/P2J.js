@@ -429,19 +429,20 @@ var Touch = {
 	},
 			
 	make: function(){
-		$j("[onclick]").hammer().on("touch", function(){
-			$j(this).addClass("highlight");
-		}).on("release", function(){
-			$j(this).removeClass("highlight");
-		}).each(function(i, e){
-			$j(this).attr("ontouchend", $j(this).attr("onclick")).removeAttr("onclick");//prop("ontouchend", $j(e).prop("onclick"))
+		$j("[onclick]").each(function(k, e){
+			$j(e).attr("ontouchend", $j(e).attr("onclick")).removeAttr("onclick");
 		});
+		
+		/**$j("[onclick]").hammer().on("tap", function(ev){
+			ev.gesture.preventDefault();
+			//$j(this).attr("ontouchend", $j(this).attr("onclick")).removeAttr("onclick");
+		});*/
 	}
 }
 
 if(useTouch){
 	Touch.hook();
-	
+
 	$j(document).on("touchend", ".contentBrowser td", function(ev){
 		$j(this).parent().removeClass("highlight");
 		
@@ -452,6 +453,15 @@ if(useTouch){
 			return;
 
 		$j(this).parent().find("td").first().find(".editButton").triggerHandler("touchend");
+	});
+
+	$j(document).on("touchend mouseup", "[ontouchend]", function(ev){
+		$j(this).removeClass("highlight");
+	});
+	
+
+	$j(document).on("touchstart mousedown", "[ontouchend]", function(ev){
+		$j(this).addClass("highlight");
 	});
 
 	$j(document).on("touchstart", ".contentBrowser td", function(ev){

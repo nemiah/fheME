@@ -62,10 +62,12 @@ class Session {
 		if($newFolder == null)
 			$newFolder = Util::getRootPath()."system/DBData/";
 		
-		if(!isset($_SERVER["HTTP_HOST"])) $_SERVER["HTTP_HOST"] = "*";
+		$findFor = "*";
+		if(isset($_SERVER["HTTP_HOST"]))
+			$findFor = $_SERVER["HTTP_HOST"];
 		$data = new mInstallation();
 		if($newFolder != "") $data->changeFolder($newFolder);
-		$data->setAssocV3("httpHost","=",$_SERVER["HTTP_HOST"]);
+		$data->setAssocV3("httpHost","=",$findFor);
 		#$data->loadCollectionV2();
 		
 		$n = $data->getNextEntry();

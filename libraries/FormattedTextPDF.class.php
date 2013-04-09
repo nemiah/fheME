@@ -57,6 +57,7 @@ class FormattedTextPDF extends FPDI {
 	protected $heightStack = array(3);
 	protected $paragraph = 0;
 	protected $fontStack = array("Helvetica");
+	protected $inHTML = false;
 
 	protected function stackFont(array $font){
 		if(count($this->fontStack) > 0)
@@ -73,7 +74,9 @@ class FormattedTextPDF extends FPDI {
 
 		foreach($dom->childNodes as $child){
 			if($child->nodeType == XML_TEXT_NODE){
+				$this->inHTML = $this->getFont();
 				$this->Write($this->heightStack[count($this->heightStack) - 1] / 1.9, utf8_decode($child->nodeValue));
+				$this->inHTML = false;
 				#$this->Write(5, utf8_decode($child->nodeValue));
 			} else {
 				$p = simplexml_import_dom($child);
@@ -84,10 +87,14 @@ class FormattedTextPDF extends FPDI {
 		}
 	}
 
+	protected function getFont(){
+		return array($this->FontFamily, $this->FontStyle, $this->FontSizePt);
+	}
+	
 	private function startTag($xml){
 		if($xml->getName() == "p"){
 			if($this->paragraph > 0)
-				$this->Ln($this->heightStack[count($this->heightStack) - 1] * 2);
+				$this->Ln(4);#$this->heightStack[count($this->heightStack) - 1] * 2);
 			
 			array_push($this->heightStack, $this->findMaxStyle("font-size", $xml));
 			
@@ -133,8 +140,12 @@ class FormattedTextPDF extends FPDI {
 
 					if(stripos($S, "font-family:") !== false){
 						$font = trim(str_replace(array("font-family:", ";"), "", $S));
-						if($font == "times new roman")
+						if(strtolower($font) == "times new roman")
 							$font = "times";
+						
+						if(strtolower($font) == "courier new")
+							$font = "courier";
+						
 						array_push($this->fontStack, $font);
 					}
 				}
