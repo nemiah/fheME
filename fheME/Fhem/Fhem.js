@@ -62,88 +62,14 @@ var Fhem = {
 	updateControls: function(transport){
 		var json = jQuery.parseJSON(transport.responseText);
 		Fhem.lastStates = json;
-		//var values = transport.responseText.split("\n");
-		var c = null;
 
 		Fhem.isUpdate = true;
-		//console.log(json);
-		//for(i = 0; i < values.length - 1;i++){
+		
 		for (var e in json) {
-			//sub = values[i].split(":");
-
-			cID = e;
-			cModel = json[e].model;
-			cValue = json[e].state;
-
-			if(cValue == "???") continue;
-			if(cValue == "dimupdown") continue;
-			if(cValue == "toggle") continue;
-			if(cModel == "fs20rsu")
+			if($j("#FhemID_"+e).length == 0)
 				continue;
 
-			if(cModel == "web"){
-				if(!Fhem.controlsRGB["R"+cID]) continue;
-
-				var vs = cValue.split(";");
-
-				Fhem.controlsRGB["R"+cID].setValue(vs[0]);
-				Fhem.controlsRGB["G"+cID].setValue(vs[1]);
-				Fhem.controlsRGB["B"+cID].setValue(vs[2]);
-
-				continue;
-			}
-
-			if(cModel == "fht80b" || cModel == "fs20du" || cModel == "fs20st" || cModel == "itswitch" || cModel == "itdimmer" || cModel == "switch" || cModel == "dimmer" || cModel == "EMEM" || cModel == "HM-LC-Sw1-Pl" || cModel == "HM-LC-Sw1-FM" || cModel == "HM-LC-Sw1PB-FM" || cModel == "HM-LC-Sw1-SM" || cModel == "HM-LC-Sw1PBU-FM" || cModel == "HM-LC-Dim1PBU-FM" || cModel == "HM-LC-Dim1T-Pl" || cModel == "HM-LC-Dim1L-Pl" || cModel == "HM-LC-Dim1L-CV" || cModel == "HM-LC-Dim1T-CV" || cModel == "HM-LC-Sw4-WM" || cModel == "HM-LC-Sw2-FM" || cModel == "HM-LC-Dim2T-SM" || cModel == "HM-LC-Dim2L-SM"){
-				if(!$("FhemID_"+cID))
-					continue;
-
-				$("FhemID_"+cID).update(cValue);
-				continue;
-			}
-
-			//if(cModel == "fs20du"){
-			cValue = cValue.replace("dim","").replace("%","");
-			//} else if(cModel == "fs20st"){
-
-			if(cValue == "on") cValue = 100;
-			if(cValue == "off") cValue = 0;
-			//}
-			//console.log(cID+": "+cValue);
-
-			//if(cModel == "itdimmer"){
-			cValue = cValue.replace("dim","").replace("%","");
-			//} else if(cModel == "itswitch"){
-
-			if(cValue == "on") cValue = 100;
-			if(cValue == "off") cValue = 0;
-			//}
-			//console.log(cID+": "+cValue);
-
-			//if(cModel == "dimmer" || cModel == "HM-LC-Dim1PBU-FM" || cModel == "HM-LC-Dim1T-Pl" || cModel == "HM-LC-Dim1L-Pl" || cModel == "HM-LC-Dim1L-CV" || cModel == "HM-LC-Dim1T-CV" || cModel == "HM-LC-Dim2T-SM" || cModel == "HM-LC-Dim2L-SM"){
-			cValue = cValue.replace("dim","").replace("%","");
-			//} else if(cModel == "switch" || cModel == "HM-LC-Sw1-Pl" || cModel == "HM-LC-Sw1-FM" || cModel == "HM-LC-Sw1PB-FM" || cModel == "HM-LC-Sw1-SM" || cModel == "HM-LC-Sw1PBU-FM" || cModel == "HM-LC-Sw4-WM" || cModel == "HM-LC-Sw2-FM"){
-
-			if(cValue == "on") cValue = 100;
-			if(cValue == "off") cValue = 0;
-			//}
-			//console.log(cID+": "+cValue);
-
-			if(!Fhem.controls[cID]) continue;
-
-			var availableValues = null;
-
-			if(Fhem.controls[cID] == "full")
-				availableValues = Fhem.sliderFullValues
-
-			if(Fhem.controls[cID] == "onOff")
-				availableValues = Fhem.sliderOnOffValues
-
-			for(j = 0; j < availableValues.length; j++)
-				if(availableValues[j] == cValue)
-					cValue = j;
-
-
-			$j('#track'+cID).slider("option", "value", cValue);
+			$j("#FhemID_"+e).html(json[e].state);
 		}
 
 		Fhem.isUpdate = false;

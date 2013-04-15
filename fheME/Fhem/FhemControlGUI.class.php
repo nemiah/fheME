@@ -133,31 +133,6 @@ class FhemControlGUI implements iGUIHTML2 {
 
 		if($f->A("FhemType") == "FS20")
 			switch($f->A("FhemModel")){
-				/*case "fs20du":
-					$html = "
-					<script type=\"text/javascript\">
-						Fhem.startSlider('".$f->getID()."', ".($f->getID() != "timer" ? "100" : "0.00001").");
-					</script>
-
-
-					<fieldset
-						style=\"
-							float:left;
-							margin-left:".($f->getID() != "timer" ? "50px" : "0").";
-							border-width:0px;
-							padding:10px;
-							width:60px;\"
-						class=\"\">
-						<legend>".$f->getA()->FhemName."</legend>
-
-						<div style=\"width:32px;margin:auto;margin-bottom:10px;\"><img src=\"./fheME/Fhem/fhem.png\" /></div>
-
-						<div id=\"track".$f->getID()."\" style=\"margin:auto;width:20px;height:300px;background-image:none;\" class=\"borderColor1 backgroundColor3\">
-							<div id=\"slider".$f->getID()."\" style=\"width:40px;height:20px;margin-left:-8px;\" class=\"ui-slider-handle backgroundColor1\"></div>
-						</div>
-					</fieldset>";
-				break;*/
-
 				case "fs20du":
 				case "fs20st":
 					$togggle = false;
@@ -240,30 +215,6 @@ class FhemControlGUI implements iGUIHTML2 {
 
 		if($f->A("FhemType") == "IT")
 			switch($f->A("FhemITModel")){
-				/*case "itdimmer":
-					$html = "
-					<script type=\"text/javascript\">
-						Fhem.startSlider('".$f->getID()."', ".($f->getID() != "timer" ? "100" : "0.00001").");
-					</script>
-
-					<fieldset
-						style=\"
-							float:left;
-							margin-left:".($f->getID() != "timer" ? "50px" : "0").";
-							border-width:0px;
-							padding:10px;
-							width:60px;\"
-						class=\"\">
-						<legend>".$f->getA()->FhemName."</legend>
-
-						<div style=\"width:32px;margin:auto;margin-bottom:10px;\"><img src=\"./fheME/Fhem/fhem.png\" /></div>
-
-						<div id=\"track".$f->getID()."\" style=\"margin:auto;width:20px;height:300px;background-image:none;\" class=\"borderColor1 backgroundColor3\">
-							<div id=\"slider".$f->getID()."\" style=\"width:40px;height:20px;margin-left:-8px;\" class=\"ui-slider-handle backgroundColor1\"></div>
-						</div>
-					</fieldset>";
-				break;*/
-
 				case "itdimmer":
 				case "itswitch":
 					$onclick = "";
@@ -287,31 +238,6 @@ class FhemControlGUI implements iGUIHTML2 {
 
 		if($f->A("FhemType") == "CUL_HM")
 			switch($f->A("FhemHMModel")){
-				/*case "dimmer":
-				  case "HM-LC-Dim1PBU-FM":
-					$html = "
-					<script type=\"text/javascript\">
-						Fhem.startSlider('".$f->getID()."', ".($f->getID() != "timer" ? "100" : "0.00001").");
-					</script>
-
-					<fieldset
-						style=\"
-							float:left;
-							margin-left:".($f->getID() != "timer" ? "50px" : "0").";
-							border-width:0px;
-							padding:10px;
-							width:60px;\"
-						class=\"\">
-						<legend>".$f->getA()->FhemName."</legend>
-
-						<div style=\"width:32px;margin:auto;margin-bottom:10px;\"><img src=\"./fheME/Fhem/fhem.png\" /></div>
-
-						<div id=\"track".$f->getID()."\" style=\"margin:auto;width:20px;height:300px;background-image:none;\" class=\"borderColor1 backgroundColor3\">
-							<div id=\"slider".$f->getID()."\" style=\"width:40px;height:20px;margin-left:-8px;\" class=\"ui-slider-handle backgroundColor1\"></div>
-						</div>
-					</fieldset>";
-				break;*/
-
 				case "dimmer":
 				case "HM-LC-Dim1L-CV":
 				case "HM-LC-Dim1L-Pl":
@@ -345,6 +271,14 @@ class FhemControlGUI implements iGUIHTML2 {
 							</div>
 						</div>";
 
+				break;
+				
+				case "HM-Sec-RHS":
+					$html = "<div id=\"FhemControlID_".$f->getID()."\" onclick=\"\" style=\"cursor:pointer;\" class=\"touchButton\">
+							<div id=\"FhemID_".$f->getID()."\">
+								
+							</div>
+						</div>";
 				break;
 			}
 
@@ -671,15 +605,11 @@ class FhemControlGUI implements iGUIHTML2 {
 
 		while($s = $S->getNextEntry()){
 			try {
-				$T = new Telnet($s->getA()->FhemServerIP, $s->getA()->FhemServerPort);
-				$T->setPrompt("</FHZINFO>");
-				$answer = $T->fireAndGet("xmllist")."</FHZINFO>";
+				$x = simplexml_load_string($s->getListXML());
 			} catch(NoServerConnectionException $e) {
 				continue;
 			}
-
-			$x = simplexml_load_string($answer);
-
+			
 			if(isset($x->FS20_LIST->FS20) AND count($x->FS20_LIST->FS20) > 0)
 				foreach($x->FS20_LIST->FS20 AS $k => $v){
 					$F = new mFhemGUI();
@@ -742,12 +672,14 @@ class FhemControlGUI implements iGUIHTML2 {
 					if($F == null)
 						continue;
 
-					$state = $v->attributes()->state;
+					$result[$F->getID()] = $F->getStatus($v);
+					
+					/*$state = $v->attributes()->state;
 
 					$state = strtolower(str_replace("dim", "", $state));
 
 					$HM = new Button("", "./fheME/Fhem/off.png", "icon");
-					$HM->style("float:right;margin-right:-10px;margin-top:-13px;margin-left:3px;");
+					$HM->style("float:left;margin-right:5px;");
 
 					if($state != "off" && $state != "aus")
 						$HM->image("./fheME/Fhem/on.png");
@@ -755,7 +687,7 @@ class FhemControlGUI implements iGUIHTML2 {
 					if(!is_numeric(str_replace("%", "", $state)))
 						$state = "";
 
-					$result[$F->getID()] = array("model" => $F->A("FhemHMModel"), "state" => "$HM<b>".($F->A("FhemAlias") == "" ? $F->A("FhemName") : $F->A("FhemAlias"))."</b> <small style=\"color:grey;\">$state</small>");
+					$result[$F->getID()] = array("state" => "$HM<b>".($F->A("FhemAlias") == "" ? $F->A("FhemName") : $F->A("FhemAlias"))."</b> <small style=\"color:grey;\">$state</small><div style=\"clear:both;\">");*/
 				}
 
 			if(isset($x->CUL_EM_LIST->CUL_EM) AND count($x->CUL_EM_LIST->CUL_EM) > 0)

@@ -29,5 +29,40 @@ class FhemServer extends PersistentObject {
 			break;
 		}
 	}
+	
+	public function getListXML(){
+		$T = new Telnet($this->A("FhemServerIP"), $this->A("FhemServerPort"));
+		$T->setPrompt("</FHZINFO>");
+		return $T->fireAndGet("xmllist")."</FHZINFO>";
+	}
+	
+	public function getListDevices(){
+		$xml = new SimpleXMLElement($this->getListXML());
+		
+		$devices = array();
+		
+		if(isset($xml->CUL_HM_LIST->CUL_HM) AND count($xml->CUL_HM_LIST->CUL_HM) > 0)
+			foreach($xml->CUL_HM_LIST->CUL_HM AS $k => $v){
+				#echo "<pre style=\"font-size:10px;overflow:auto;\">";
+				#print_r(htmlentities($v->asXML()));
+				#echo "</pre>";
+				
+				$D = new stdClass();
+				
+				$D->name = $v->attributes()->name;
+				$D->state = $v->attributes()->state;
+				$D->type = "CUL_HM";
+				
+				foreach($v->INT AS $int){
+					if($int->attributes()->key == "DEF")
+						$D->address = $int->attributes()->value;
+					
+				}
+				
+				$devices[] = $D;
+			}
+			
+		return $devices;
+	}
 }
 ?>

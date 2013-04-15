@@ -231,6 +231,22 @@ class Fhem extends PersistentObject implements iCloneable {
 	public function cloneMe(){
 		echo $this->newMe();
 	}
+	
+	public function getStatus($data){
+		$state = "unknown";
+		
+		$B = new Button("", "./fheME/Fhem/off.png", "icon");
+		$B->style("float:left;margin-right:5px;");
+		
+		switch($this->A("FhemType")){
+			case "CUL_HM":
+				$state = FhemHM::status($data, $this);
+				FhemHM::icon($data, $this, $B);
+			break;
+		}
+		
+		return array("state" => "$B<b>".($this->A("FhemAlias") == "" ? $this->A("FhemName") : $this->A("FhemAlias"))."</b> <small style=\"color:grey;\">$state</small><div style=\"clear:both;\">");
+	}
 
 }
 ?>

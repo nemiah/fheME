@@ -89,18 +89,20 @@ class mFhemGUI extends anyC implements iGUIHTML2 {
 		$this->addOrderV3("FhemServerID");
 		$this->addOrderV3("FhemType");
 		$this->addOrderV3("FhemName");
-		$B2 = new Button("register\nsettings","./fheME/Fhem/fhem.png");
-		$B2->rme("FhemControl","","registerSettings","","if(checkResponse(transport)) $(\'contentLeft\').update(transport.responseText);");
 		
-		$B3 = new Button("reset\nServers","empty");
-		$B3->rme("FhemControl","","resetServers","","if(checkResponse(transport)) $(\'contentLeft\').update(transport.responseText);");
-		$B3->style("float:right;");
-		
-		$t2 = new HTMLTable(1);
-		$t2->addRow($B3.$B2);
-			
 		$gui = new HTMLGUIX($this);
 		$gui->displayGroup("FhemServerID", "mFhemGUI::DGParser");
+		
+		$B = $gui->addSideButton("Load devices\nfrom server", "refresh");
+		$B->popup("", "Load devices", "mFhem", "-1", "loadDevices");
+		
+		$B = $gui->addSideButton("Register\nsettings","./fheME/Fhem/fhem.png");
+		$B->rme("FhemControl","","registerSettings","","if(checkResponse(transport)) $(\'contentLeft\').update(transport.responseText);");
+		
+		$B = $gui->addSideButton("Reset\nServers","empty");
+		$B->rme("FhemControl","","resetServers","","if(checkResponse(transport)) $(\'contentLeft\').update(transport.responseText);");
+		
+		
 		
 		#$this->lCV3($id);
 		
@@ -111,7 +113,7 @@ class mFhemGUI extends anyC implements iGUIHTML2 {
 		if($bps != -1 AND isset($bps["selectionMode"]))
 			$t2 = "";
 		
-		return ($id == -1 ? $t2 : "").$gui->getBrowserHTML($id);
+		return $gui->getBrowserHTML($id);
 	}
 	
 	public static function DGParser($w){
@@ -151,6 +153,42 @@ class mFhemGUI extends anyC implements iGUIHTML2 {
 		$P->updateFunction("function(){".OnEvent::rme(new FhemControlGUI(-1), "updateGUI", "", "function(transport){ fheOverview.updateTime('mFhemGUI'); Fhem.updateControls(transport); }")."}");
 		
 		return $P;
+	}
+	
+	public function loadDevices(){
+		$AC = anyC::get("FhemServer", "FhemServerType", "0");
+		
+		while($S = $AC->getNextEntry()){
+			$T = new HTMLTable(4, $S->A("FhemServerName"));
+			
+			try {
+				$Devices = $S->getListDevices();
+				
+				foreach($Devices AS $D){
+					$ACD = anyC::get("Fhem", "FhemName", $D->name);
+					$ACD->addAssocV3("FhemServerID", "=", $S->getID());
+					
+					$Dev = $ACD->getNextEntry();
+					
+					if($Dev == null){
+						$F = new Factory("Fhem");
+						$F->sA("FhemServerID", $S->getID());
+						$F->sA("FhemName", $D->name);
+						$F->sA("FhemType", $D->type);
+						$F->sA("FhemSpecific", $D->address);
+						
+						$F->store();
+					}
+					
+					$T->addRow(array($D->name, $D->state, $D->type, $D->address));
+				}
+				
+			} catch(NoServerConnectionException $e) {
+				continue;
+			}
+			
+			echo $T;
+		}
 	}
 }
 ?>
