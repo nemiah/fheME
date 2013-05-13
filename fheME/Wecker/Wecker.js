@@ -30,6 +30,7 @@ var Wecker = {
 	currentTime: null,
 	currentSide: "left",
 	runtime: null,
+	oldBackgroundColor: null,
 	
 	loadThemAll: function(onSuccessFunction){
 		if($j.jStorage.get('phynxDeviceID', null) == null)
@@ -69,7 +70,7 @@ var Wecker = {
 				case "release":
 					if(Wecker.startAt - ev.gesture.center.pageY > 200){
 						$j('#Clock').fadeOut();
-						$j('#ClockOverlay').animate({"margin-top": "-100%"}, 400, "swing", function(){
+						$j('#ClockOverlay').animate({"margin-top": $j(window).height() * -1}, 200, "swing", function(){
 							Wecker.stop();
 		
 							$j('#ClockOverlay').remove();
@@ -79,6 +80,7 @@ var Wecker = {
 							Wecker.active = null;
 							
 							$j.jStorage.set('phynxWeckerActive', false);
+							$j('body').animate({"background-color": Wecker.oldBackgroundColor});
 						});
 					} else
 						$j("#ClockOverlay").animate({"margin-top" : "0px"});
@@ -92,6 +94,8 @@ var Wecker = {
 		$j.jStorage.set('phynxWeckerActive', true);
 		$j('#ClockOverlay').slideDown("fast", function(){
 			Wecker.clock();
+			Wecker.oldBackgroundColor = $j('body').css("background-color");
+			$j('body').animate({"background-color": "#000000"});
 		});
 		
 		if(typeof alex != "undefined")
@@ -295,8 +299,8 @@ var Wecker = {
 			}
 			
 			wecker += "\
-				<div style=\"padding:5px;cursor:pointer;\" onclick=\"/*Wecker.setWecker("+Wecker.data[i].WeckerID+");*/\">\n\
-						<span class=\"iconic clock\"></span> <div style=\"display:inline-block;text-align:right;width:55px;\">"+stunden+":"+(minuten < 10 ? '0' : '')+minuten+"</div> <small>"+days+"</small>\n\
+				<div style=\"padding:5px;cursor:pointer;\" onclick=\"Wecker.toggleRadio("+i+");/*Wecker.setWecker("+Wecker.data[i].WeckerID+");*/\">\n\
+						<span class=\"iconic play WeckerRadio"+i+"\" style=\"float:right;margin-top:5px;margin-left:15px;\"></span><span class=\"iconic clock\" style=\"float:left;margin-top:5px;\"></span> <div style=\"display:inline-block;text-align:right;width:55px;\">"+stunden+":"+(minuten < 10 ? '0' : '')+minuten+"</div> <small>"+days+"</small>\n\
 				</div>";
 		}
 		$j("#ClockWecker").html(wecker);
@@ -364,6 +368,21 @@ var Wecker = {
 		});
 	},
 	
+	radio: false,
+	toggleRadio: function(use){
+		if(Wecker.radio){
+			Wecker.stop();
+			Wecker.active = null;
+			$j('.WeckerRadio'+use).removeClass("pause").addClass("play");
+		} else {
+			Wecker.active = Wecker.data[use];
+			Wecker.play();
+			$j('.WeckerRadio'+use).removeClass("play").addClass("pause");
+		}
+		
+		Wecker.radio = !Wecker.radio;
+	},
+	
 	clock: function(){
 		$j("#ClockOverlay").append("\
 		<div id=\"ClockDay\" style=\"font-size:30px;color:#666;font-family:Roboto;font-weight:300;display:none;padding:20px;padding-bottom:0px;float:left;\"></div>\n\
@@ -387,7 +406,7 @@ var Wecker = {
 		Wecker.updateWecker();
 		Wecker.update();
 		$j('#Clock').css("margin-top", ($j(window).height() - $j('#Clock').outerHeight())+"px").fadeIn("slow", function(){
-			$j('#ClockDay').fadeIn("fast", function(){
+			$j('#ClockDay, #ClockRadio').fadeIn("fast", function(){
 				$j('#ClockWecker').fadeIn();
 			});
 			

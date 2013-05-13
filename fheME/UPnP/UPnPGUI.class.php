@@ -158,8 +158,9 @@ class UPnPGUI extends UPnP implements iGUIHTML2 {
 		
 		if($seriesName == null)
 			foreach($xml->container AS $container){#\$j('.UPnPItem').appear(); \$j('.UPnPItem').on('appear', function(){ \$j(this).children().show(); }); \$j.force_appear();
+				$action = OnEvent::rme($this, "directoryTouch", array("'".$container->attributes()->id."'", $UPnPTargetID), "function(transport){ \$j('.UPnPItem, .UPnPSeries').remove(); \$j('#UPnPMediaSelection').append(transport.responseText); \$j('.UPnPDirectory:first').animate({'margin-left': '-50%'}, 600, function(){ \$j('.UPnPDirectory:first').remove(); \$j('.UPnPItem, .UPnPSeries').css('display', 'inline-block'); });  }");
 				$L .= "
-					<div style=\"width:33%;display:inline-block;cursor:pointer;overflow:hidden;margin-bottom:30px;\" onclick=\"".OnEvent::rme($this, "directoryTouch", array("'".$container->attributes()->id."'", $UPnPTargetID), "function(transport){ \$j('.UPnPItem, .UPnPSeries').remove(); \$j('#UPnPMediaSelection').append(transport.responseText); \$j('.UPnPDirectory:first').animate({'margin-left': '-50%'}, 600, function(){ \$j('.UPnPDirectory:first').remove(); \$j('.UPnPItem, .UPnPSeries').css('display', 'inline-block'); });  }")."\">
+					<div style=\"width:33%;display:inline-block;cursor:pointer;overflow:hidden;margin-bottom:30px;\" ontouchmove=\"\$j(this).removeClass('highlight'); UPnP.skipNext = true;\" onclick=\"if(UPnP.skipNext) { UPnP.skipNext = false; return; } ".$action."\">
 						<div style=\"font-family:Roboto;font-size:30px;padding:10px;\">
 							<span class=\"iconic iconicL folder_stroke\" style=\"color:#bbb;margin-right:10px;float:left;margin-top:5px;\"></span> ".$container->children("http://purl.org/dc/elements/1.1/")."
 						</div>
@@ -174,8 +175,9 @@ class UPnPGUI extends UPnP implements iGUIHTML2 {
 
 		if($seriesName == null)
 			foreach($series AS $name => $list){
+				$action = OnEvent::rme($this, "directoryTouch", array("'$ObjectID'", $UPnPTargetID, 0, "'$name'"), "function(transport){ \$j('.UPnPItem, .UPnPSeries').remove(); \$j('#UPnPMediaSelection').append(transport.responseText); \$j('.UPnPDirectory:first').animate({'margin-left': '-50%'}, 600, function(){ \$j('.UPnPDirectory:first').remove(); \$j('.UPnPItem, .UPnPSeries').css('display', 'inline-block'); });  }");
 				$L .= "
-					<div class=\"UPnPSeries\" style=\"cursor:pointer;width:33%;display:none;overflow:hidden;margin-bottom:30px;\" onclick=\"".OnEvent::rme($this, "directoryTouch", array("'$ObjectID'", $UPnPTargetID, 0, "'$name'"), "function(transport){ \$j('.UPnPItem, .UPnPSeries').remove(); \$j('#UPnPMediaSelection').append(transport.responseText); \$j('.UPnPDirectory:first').animate({'margin-left': '-50%'}, 600, function(){ \$j('.UPnPDirectory:first').remove(); \$j('.UPnPItem, .UPnPSeries').css('display', 'inline-block'); });  }")."\">
+					<div class=\"UPnPSeries\" style=\"cursor:pointer;width:33%;display:none;overflow:hidden;margin-bottom:30px;\" ontouchmove=\"\$j(this).removeClass('highlight'); UPnP.skipNext = true;\" onclick=\"if(UPnP.skipNext) { UPnP.skipNext = false; return; } ".$action."\">
 						<div style=\"font-family:Roboto;font-size:17px;padding:10px;overflow:hidden;\">
 							<span class=\"iconic iconicL list\" style=\"margin-right:10px;float:left;color:#bbb;\"></span><div style=\"white-space: nowrap;margin-left:40px;display:block;overflow:hidden;\">".$name."</div>
 							<div style=\"font-size:12px;\">".count($list)." Folge".(count($list) != 1 ? "n" : "")."</div>
@@ -194,8 +196,9 @@ class UPnPGUI extends UPnP implements iGUIHTML2 {
 	
 	private function printItem($item, $newName){
 		return "
-			<div class=\"UPnPItem\" data-OID=\"".$item->attributes()->id."\" onclick=\"".OnEvent::rme(new UPnP($this->getID()), "readSetStart", array("'".$item->attributes()->id."'", "UPnP.currentTargetID"))."\" style=\"cursor:pointer;width:33%;display:none;overflow:hidden;margin-bottom:30px;\">
+			<div class=\"UPnPItem\" data-oid=\"".$item->attributes()->id."\" ontouchmove=\"\$j(this).removeClass('highlight'); UPnP.skipNext = true;\" onclick=\"if(UPnP.skipNext) { UPnP.skipNext = false; return; }  ".OnEvent::rme(new UPnP($this->getID()), "readSetStart", array("'".$item->attributes()->id."'", "UPnP.currentTargetID"))." \$j(this).find('.iconic.check').css('display', 'inline'); \$j.jStorage.set('phynxUPnPPlayed".$item->attributes()->id."', true);\" style=\"cursor:pointer;width:33%;display:none;overflow:hidden;margin-bottom:30px;\">
 				<div style=\"font-family:Roboto;font-size:17px;padding:10px;overflow:hidden;\">
+					<span class=\"iconic iconicL check\" style=\"color:#bbb;margin-right:10px;float:right;color:#88cf00;display:none;\"></span>
 					<span class=\"iconic iconicL document_alt_stroke\" style=\"color:#bbb;margin-right:10px;float:left;\"></span><div style=\"white-space: nowrap;margin-left:40px;display:block;overflow:hidden;\">".$newName."</div>
 					<div style=\"font-size:12px;\">".$item->children("http://www.pv.com/pvns/")->extension[0].""."<span style=\"float:right;\">".Util::formatSeconds(Util::parseTime("de_DE", $item->res->attributes()->duration[0].""))."</span></div>
 				</div>

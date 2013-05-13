@@ -24,6 +24,7 @@ var UPnP = {
 	
 	currentSourceID: null,
 	currentSourceName: "",
+	skipNext: false,
 	
 	start: function(){
 		$j('.UPnPDirectory').css('margin-top', ($j('#UPnPSelection').height())+'px');
@@ -34,6 +35,13 @@ var UPnP = {
 			var item = $j(this);
 			Popup.load("Details", "UPnP", UPnP.currentSourceID, "details", [item.data("oid")]);
 		});
+		
+		$j('.UPnPItem').each(function(k, v){
+			console.log($j(v).data('oid'));
+			var played = $j.jStorage.get('phynxUPnPPlayed'+$j(v).data('oid'), false);
+			if(played)
+				$j(v).find('.iconic.check').css("display", "inline");
+		})
 	},
 	
 	show: function(){
