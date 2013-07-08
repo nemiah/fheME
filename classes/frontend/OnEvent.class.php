@@ -34,6 +34,10 @@ class OnEvent {
 		return "windowWithRme('".str_replace("GUI", "", get_class($targetObject))."', ".($targetObject->getID() == "" ? "-1" : $targetObject->getID()).", '$targetMethod', ".(is_array($targetMethodParameters) ? "['".implode("','", $targetMethodParameters)."']" : "'$targetMethodParameters'").($bps != null ? ", '$bps'" : "").($target != null ? ", '$target'" : "")."); ";
 	}
 	
+	public static function clear($frame){
+		return "contentManager.emptyFrame('content$frame');";
+	}
+	
 	public static function selectCustom($targtFrame, $callingPluginID, $selectPlugin, $selectJSFunction, $addBPS = "", $options = ""){
 		return "contentManager.backupFrame('$targtFrame','selectionOverlay'); contentManager.customSelection('$targtFrame', '$callingPluginID', '$selectPlugin', '$selectJSFunction', '$addBPS', ".($options == "" ? "{}" : $options).");";
 	}
@@ -119,11 +123,12 @@ class OnEvent {
 		return "Popup.close('$plugin', '$id');";
 	}
 	
-	public static function reloadPopup($plugin, $bps = ""){
+	public static function reloadPopup($plugin, $bps = "", $firstParameter = null){
 		if($plugin instanceof Collection)
 			$plugin = str_replace("GUI", "", get_class($plugin));
 		
-		return "Popup.refresh('$plugin'".($bps != "" ? ", '$bps'" : "").");";
+		
+		return "Popup.refresh('$plugin'".(($bps != "" OR $firstParameter != null) ? ", '$bps'" : "")." ".($firstParameter != null ? ", '$firstParameter'" : "").");";
 	}
 	
 	public static function reload($frame, $bps = null){

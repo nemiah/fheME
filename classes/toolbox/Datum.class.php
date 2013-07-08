@@ -170,7 +170,7 @@ class Datum {
 		$woche[5] = "Freitag";
 		$woche[6] = "Samstag";
 
-		if($day != null) return $woche[$day];
+		if($day !== null) return $woche[$day];
 		return $woche;
 	}
 	static function getMonthOptions($month){

@@ -20,7 +20,7 @@
 var Popup = {
 	windowsOpen: 0,
 	zIndex: 2500,
-
+	
 	lastPopups: Array(),
 	lastSidePanels: Array(),
 	
@@ -40,12 +40,18 @@ var Popup = {
 		 
 		contentManager.rmePCR(targetPlugin, targetPluginID, targetPluginMethod, targetPluginMethodParameters, 'Popup.displayNamed(\''+name+'\', \''+title+'\', transport, \''+targetPlugin+'\''+(typeof options != "undefined" ? ", "+options : "")+');', bps);
 		 
-		Popup.lastPopups[targetPlugin] = [title, targetPlugin, targetPluginID, targetPluginMethod, arrayCopy];
+		Popup.lastPopups[targetPlugin] = [title, targetPlugin, targetPluginID, targetPluginMethod, arrayCopy, null];
 	},
 
-	refresh: function(targetPlugin, bps){
+	refresh: function(targetPlugin, bps, firstParameter){
 		var values = Popup.lastPopups[targetPlugin];
 		var arrayCopy = values[4].slice(0, values[4].length); //because targetPluginMethodParameters is only a reference
+		if(typeof firstParameter != "undefined"){
+			arrayCopy[0] = firstParameter;
+			values[5] = firstParameter;
+		}
+		if(values[5] != null)
+			arrayCopy[0] = values[5];
 		//Popup.lastPopups[targetPlugin] = [title, targetPlugin, targetPluginID, targetPluginMethod, targetPluginMethodParameters];
 		contentManager.rmePCR(targetPlugin, values[2], values[3], arrayCopy, 'Popup.displayNamed(\'edit\', \''+values[0]+'\', transport, \''+targetPlugin+'\');', bps);
 	},
@@ -128,7 +134,7 @@ var Popup = {
 		var top = null;
 		var right = null;
 		var left = null;
-
+		var hasMinimize = false;
 		if(typeof options == "object"){
 			if(options.width)
 				width = options.width;
@@ -156,6 +162,9 @@ var Popup = {
 			
 			if(options.blackout)
 				Overlay.showDark();
+			
+			if(typeof options.hasMinimize == "boolean")
+				hasMinimize = options.hasMinimize;
 		}
 		
 		if(persistent)
@@ -182,7 +191,7 @@ var Popup = {
 				top = 20;
 		}
 		
-		var element = Builder.node(
+		/*var element = Builder.node(
 			"div",
 			{
 				id: type+'Details'+ID,
@@ -196,19 +205,34 @@ var Popup = {
 					Builder.node("div", {id: type+'DetailsContent'+ID})
 				])
 				
-			]);
+			]);*/
 
-		$(targetContainer).appendChild(element);
+
+		var element = "<div id=\""+type+'Details'+ID+"\" style=\""+'display:none;top:'+top+'px;'+(right != null ? 'right:'+right : 'left:'+left)+'px;width:'+width+'px;z-index:'+Popup.zIndex+"\" class=\"popup\">\n\
+			<div class=\"backgroundColor1 cMHeader\" id=\""+type+'DetailsHandler'+ID+"\">\n\
+				<span id=\""+type+"DetailsCloseWindow"+ID+"\" style=\"cursor:pointer;"+(hasX ? "" : "display:none;")+"\" class=\"closeContextMenu iconic x\"></span>\n\
+				"+(hasMinimize ? "<span id=\""+type+"DetailsMinimizeWindow"+ID+"\" style=\"cursor:pointer;"+(hasX ? "" : "display:none;")+"\" class=\"minimizeContextMenu iconic upload\"></span><span id=\""+type+"DetailsRestoreWindow"+ID+"\" style=\"display:none;cursor:pointer;margin-right:40px;"+(hasX ? "" : "display:none;")+"\" class=\"minimizeContextMenu iconic download\"></span>" : "")+name+"\n\
+			</div>\n\
+			<div class=\"backgroundColor0\" style=\"clear:both;\" id=\""+type+'DetailsContentWrapper'+ID+"\"><div id=\""+type+'DetailsContent'+ID+"\"></div></div>\n\
+		</div>";
+
+		$j("#"+targetContainer).append(element);
 		
 		//new Draggable($(type+'Details'+ID), {handle: $(type+'DetailsHandler'+ID)});
 		$j("#"+type+'Details'+ID).draggable({
 			handle: $j('#'+type+'DetailsHandler'+ID),
 			containment: "window",
 			start: function(){
+				if($j('#'+type+'DetailsHandler'+ID).data("minimized"))
+					return;
+				
 				$j('#'+type+'DetailsContentWrapper'+ID).css('height', $j('#'+type+'DetailsContent'+ID).height());
 				$j('#'+type+'DetailsContent'+ID).fadeOut("fast");
 			},
 			stop: function(){
+				if($j('#'+type+'DetailsHandler'+ID).data("minimized"))
+					return;
+				
 				$j('#'+type+'DetailsContent'+ID).fadeIn("fast", function(){
 					$j('#'+type+'DetailsContentWrapper'+ID).css('height', '');
 				});
@@ -219,6 +243,10 @@ var Popup = {
 			}
 		});
 		Event.observe(type+'DetailsCloseWindow'+ID, 'click', function() {Popup.close(ID, type);});
+		if(hasMinimize){
+			Event.observe(type+'DetailsMinimizeWindow'+ID, 'click', function() {Popup.minimize(ID, type);});
+			Event.observe(type+'DetailsRestoreWindow'+ID, 'click', function() {Popup.restore(ID, type);});
+		}
 		//Event.observe(type+'Details'+ID, 'click', function(event) {Popup.updateZ(event.target);});
 
 	},
@@ -244,6 +272,22 @@ var Popup = {
 				$j(this).remove();
 			});//$('windows').removeChild($(type+'Details'+ID));
 		Overlay.hideDark(0.1);
+	},
+
+	minimize: function(ID, type){
+		$j('#'+type+"DetailsCloseWindow"+ID).hide();
+		$j('#'+type+"DetailsMinimizeWindow"+ID).hide();
+		$j('#'+type+"DetailsRestoreWindow"+ID).show();
+		$j('#'+type+'DetailsContent'+ID).slideUp("fast");
+		$j('#'+type+'DetailsHandler'+ID).data("minimized", true);
+	},
+			
+	restore: function(ID, type){
+		$j('#'+type+"DetailsCloseWindow"+ID).show();
+		$j('#'+type+"DetailsMinimizeWindow"+ID).show();
+		$j('#'+type+"DetailsRestoreWindow"+ID).hide();
+		$j('#'+type+'DetailsContent'+ID).slideDown("fast");
+		$j('#'+type+'DetailsHandler'+ID).data("minimized", false);
 	},
 
 	update: function(transport, ID, type){

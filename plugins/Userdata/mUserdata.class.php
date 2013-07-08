@@ -103,6 +103,9 @@ class mUserdata extends anyC {
 	}
 	
 	public static function getPluginSpecificData($forPlugin){
+		if(Session::currentUser() === null)
+			return array();
+		
 		$UD = new mUserdata();
 		$UD->addAssocV3("typ","=","pSpec");
 		$UD->addAssocV3("wert","=","$forPlugin", "AND");

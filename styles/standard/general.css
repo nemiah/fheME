@@ -253,20 +253,49 @@ a.hiddenLink:hover {
 	filter:alpha(opacity=50);
 }
 
-input, select, .AJAXUpload, button {
+input[type=text],
+input[type=submit],
+input[type=password],
+input[type=radio],
+input[type=checkbox],
+input[type=button],
+input[type=submit],
+select,
+.AJAXUpload,
+button {
 	border:0;
 	border-bottom-width:1px;
 	border-bottom-style: dotted;
-	width:95%;
 	background:transparent;
-	padding:2px;
+	padding:5px;
 	background-repeat:no-repeat;
 	background-position:right;
 	color:black;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+}
+
+input[type=text],
+input[type=submit],
+input[type=password],
+input[type=radio],
+input[type=checkbox],
+input[type=button]:not(.bigButton),
+input[type=submit],
+select,
+.AJAXUpload,
+button {
+	width:90%;
+}
+
+input[type=checkbox]{
+	margin:5px;
+	padding:0;
 }
 
 textarea {
-	width:95%;
+	width:90%;
 	background-color:transparent;
 	border:0px;
 	border-bottom-width:1px;
@@ -274,6 +303,10 @@ textarea {
 	padding-left:2px;
 	font-size:1.1em;
 	height:60px;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	padding:5px;
 }
 
 .hasFocus {
@@ -282,7 +315,7 @@ textarea {
 }
 
 select {
-	background-color:white;
+	/*background-color:white;*/
 }
 
 input[type=submit] {
@@ -396,7 +429,7 @@ img[onclick] {
 label {
 	display:block;
 	float:right;
-	font-weight:bold;
+	font-weight:normal;
 	margin-right:2px;
 	text-align:right;
 	width:120px;
@@ -439,7 +472,7 @@ h1 {
 	margin-bottom:5px;
 	padding:5px;
 	padding-bottom:5px;
-	margin-top:20px;
+	padding-top:25px;
 }
 
 h2 {
@@ -487,7 +520,7 @@ pre {
 	width:50px;
 	text-align:right;
 }
-.multiEditInput2 {
+input.multiEditInput2 {
 	width:50px;
 	text-align:right;
 }
@@ -628,8 +661,9 @@ div + .Tab {
 	padding-top:8px;
 }
 
-input[name=currentSaveButton] {
-	width:100%;
+input[type=button][name=currentSaveButton] {
+	width:99%;
+	text-transform:uppercase;
 }
 
 .spell {

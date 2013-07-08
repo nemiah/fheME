@@ -96,19 +96,6 @@ class HTMLGUI2 extends HTMLGUI {
 			break;
 		}
 	}
-
-	public function insertAttribute($where, $fieldName, $insertedFieldName){
-		if($where == "after")
-			$add = 1;
-
-		if($where == "before")
-			$add = 0;
-
-		$first = array_splice($this->showAttributes, 0, array_search($fieldName, $this->showAttributes) + $add);
-		$last = array_splice($this->showAttributes, array_search($fieldName, $this->showAttributes));
-
-		$this->showAttributes = array_merge($first, array($insertedFieldName), $last);
-	}
 	
 	function setMode($mode){
 		if($mode != "") {

@@ -49,42 +49,65 @@ Ajax.Responders.register({
 
 function checkResponse(transport, hideError) {
 	if(typeof hideError == "undefined") hideError = false;
+	
+	var response = transport.responseText;
+	if(response.charAt(0) == "{" && response.charAt(response.length - 1) == "}"){
+		var obj = jQuery.parseJSON(response);
+		if(obj.type)
+			response = obj.type+":'"+obj[obj.type]+"'";
+		else
+			return false;
+	}
 
-	if(transport.responseText == "SESSION EXPIRED"){
+	if(response == "SESSION EXPIRED"){
 		alert("Ihre Sitzung ist abgelaufen, bitte loggen Sie sich erneut ein.");
 		window.location.reload();
 		return false;
 	}
 	
-	if(transport.responseText.search(/^redirect:/) > -1){
-		eval(transport.responseText.replace(/redirect:/,""));
+	if(response.search(/^redirect:/) > -1){
+		eval(response.replace(/redirect:/,""));
 		return false;
 	}
 	
-	if(transport.responseText.search(/^error:/) > -1){
-		eval("var message = "+transport.responseText.replace(/error:/,""));
+	if(response.search(/^error:/) > -1){
+		eval("var message = "+response.replace(/error:/,""));
 		alert("Es ist ein Fehler aufgetreten:\n"+message);
-		//alert("Es ist ein Fehler aufgetreten:\n"+transport.responseText.replace(/error:/,""));
+		//alert("Es ist ein Fehler aufgetreten:\n"+response.replace(/error:/,""));
 		return false;
 	}
-	if(transport.responseText.search(/^alert:/) > -1){
-		eval("var message = "+transport.responseText.replace(/alert:/,""));
+	if(response.search(/^alert:/) > -1){
+		eval("var message = "+response.replace(/alert:/,""));
 		alert(message);
 		return false;
 	}
-	if(transport.responseText.search(/^message:/) > -1){
-		eval("var message = "+transport.responseText.replace(/message:/,""));
+	if(response.search(/^message:/) > -1){
+		eval("var message = "+response.replace(/message:/,""));
 		
 		if(navigator && navigator.platform != "iPod" && navigator.platform != "iPhone") showMessage(message);
 		else alert(message);
 		return true;
 	}
-	if(transport.responseText.search(/^\s*Fatal error/) > -1 || transport.responseText.search(/^\s*Parse error/) > -1 || transport.responseText.search(/^<br \/>\s*<b>Fatal error<\/b>/) > -1){
-		if(!hideError) alert(transport.responseText.replace(/<br \/>/g,"\n").replace(/<b>/g,"").replace(/<\/b>/g,"").replace(/&gt;/g,">").replace(/^\s+/, '').replace(/\s+$/, ''));
+	if(response.search(/^\s*Fatal error/) > -1 || response.search(/^\s*Parse error/) > -1 || response.search(/^<br \/>\s*<b>Fatal error<\/b>/) > -1){
+		if(!hideError) {
+			//alert(response.replace(/<br \/>/g,"\n").replace(/<b>/g,"").replace(/<\/b>/g,"").replace(/&gt;/g,">").replace(/^\s+/, '').replace(/\s+$/, ''));
+			
+			Popup.load("Fehler", "Support", -1, "fatalError", [response+""], "", "edit", "{width: 600, blackout: true, hPosition: 'center', top:30}");
+			/*contentManager.rmePCR("Util", "-1", "fatalError", response, function(transport){
+				Popup.load();
+				Popup.create("error", "display", "Es ist ein Fehler aufgetreten", );
+				Popup.update(r, "error", "display", false);
+			});*/
+			
+			/*var r = {
+				responseText: "<pre style=\"padding:5px;font-size:10px;max-size:800px;overflow:auto;\">"+response.replace(/<br \/>/g,"\n").replace(/<b>/g,"").replace(/<\/b>/g,"").replace(/&gt;/g,">").replace(/^\s+/, '').replace(/\s+$/, '')+"</pre>"
+			};*/
+			
+		}
 		return false;
 	}
-	if(transport.responseText.search(/^\s*FPDF error:/) > -1){
-		alert(transport.responseText.replace("FPDF error:","").replace(/<br \/>/g,"\n").replace(/<b>/g,"").replace(/<\/b>/g,"").replace(/<code>/g,"").replace(/<\/code>/g,"").replace(/&gt;/g,">").replace(/^\s+/, '').replace(/\s+$/, ''));
+	if(response.search(/^\s*FPDF error:/) > -1){
+		alert(response.replace("FPDF error:","").replace(/<br \/>/g,"\n").replace(/<b>/g,"").replace(/<\/b>/g,"").replace(/<code>/g,"").replace(/<\/code>/g,"").replace(/&gt;/g,">").replace(/^\s+/, '').replace(/\s+$/, ''));
 		return false;
 	}
 	

@@ -53,10 +53,13 @@ class Util {
 	}
 	
 	public static function getCloudHost(){
-		if($_SERVER["HTTP_HOST"] == "*")
+		
+		$host = Aspect::joinPoint("host", null, __METHOD__, array($_SERVER["HTTP_HOST"]), $_SERVER["HTTP_HOST"]);
+		
+		if($host == "*")
 			return null;
 		
-		$h = "CloudHost".str_replace(array(":", "-"), "_", implode("", array_map("ucfirst", explode(".", $_SERVER["HTTP_HOST"]))));
+		$h = "CloudHost".str_replace(array(":", "-"), "_", implode("", array_map("ucfirst", explode(".", $host))));
 		
 		if(defined("PHYNX_VIA_INTERFACE")){
 			if(file_exists(Util::getRootPath()."specifics/$h.class.php"))
@@ -71,7 +74,7 @@ class Util {
 				throw new ClassNotFoundException($h);
 			
 			$c = new $h();
-			return $c;
+			return Aspect::joinPoint("fix", null, __METHOD__, array($c), $c);;
 		} catch (ClassNotFoundException $e){
 			try {
 				if(defined("PHYNX_VIA_INTERFACE") AND !class_exists("CloudHostAny", false))
@@ -235,7 +238,8 @@ class Util {
 			case "GB":
 			case "US":
 				$r .= "{firma}\n";
-				$r .= "{position}{vorname}{nachname}\n";
+				$r .= "{abteilung}\n";
+				$r .= "{position}{titelPrefix}{vorname}{nachname}{titelSuffix}\n";
 				$r .= "{zusatz1}\n";
 				$r .= "{nr}{strasse}\n";
 				$r .= "{ort}\n";
@@ -245,7 +249,8 @@ class Util {
 		
 			case "CH":
 				$r .= "{firma}\n";
-				$r .= "{vorname}{nachname}\n";
+				$r .= "{abteilung}\n";
+				$r .= "{position}{titelPrefix}{vorname}{nachname}{titelSuffix}\n";
 				$r .= "{zusatz1}\n";
 				$r .= "{strasse}{nr}\n";
 				$r .= "{plz}{ort}\n";
@@ -255,7 +260,8 @@ class Util {
 			case "LU":
 			case "GR":
 				$r .= "{firma}\n";
-				$r .= "{vorname}{nachname}\n";
+				$r .= "{abteilung}\n";
+				$r .= "{position}{titelPrefix}{vorname}{nachname}{titelSuffix}\n";
 				$r .= "{nr}, {strasse}\n";
 				$r .= "{plz}{ort}\n";
 				$r .= "{land}";
@@ -263,7 +269,8 @@ class Util {
 		
 			case "BE":
 				$r .= "{firma}\n";
-				$r .= "{vorname}{nachname}\n";
+				$r .= "{abteilung}\n";
+				$r .= "{position}{titelPrefix}{vorname}{nachname}{titelSuffix}\n";
 				$r .= "{strasse}, {nr}\n";
 				$r .= "{plz}{ort}\n";
 				$r .= "{land}";
@@ -271,7 +278,8 @@ class Util {
 		
 			case "DK":
 				$r .= "{firma}\n";
-				$r .= "{vorname}{nachname}\n";
+				$r .= "{abteilung}\n";
+				$r .= "{position}{titelPrefix}{vorname}{nachname}{titelSuffix}\n";
 				$r .= "{strasse}{nr}\n";
 				$r .= "{bezirk}\n";
 				$r .= "{plz}{ort}\n";
@@ -280,7 +288,8 @@ class Util {
 			
 			case "HU":
 				$r .= "{firma}\n";
-				$r .= "{vorname}{nachname}\n";
+				$r .= "{abteilung}\n";
+				$r .= "{position}{titelPrefix}{vorname}{nachname}{titelSuffix}\n";
 				$r .= "{ort}\n";
 				$r .= "{strasse}{nr}\n";
 				$r .= "{plz}\n";
@@ -290,7 +299,8 @@ class Util {
 			case "LT":
 			case "HR":
 				$r .= "{firma}\n";
-				$r .= "{vorname}{nachname}\n";
+				$r .= "{abteilung}\n";
+				$r .= "{position}{titelPrefix}{vorname}{nachname}{titelSuffix}\n";
 				$r .= "{strasse}{nr}\n";
 				$r .= "$ISOCountry-{plz}{ort}\n";
 				$r .= "{land}";
@@ -298,7 +308,8 @@ class Util {
 			
 			case "ES":
 				$r .= "{firma}\n";
-				$r .= "{vorname}{nachname}\n";
+				$r .= "{abteilung}\n";
+				$r .= "{position}{titelPrefix}{vorname}{nachname}{titelSuffix}\n";
 				$r .= "{bezirk}\n";
 				$r .= "{strasse}{nr}\n";
 				$r .= "{plz}{ort}\n";
@@ -315,7 +326,8 @@ class Util {
 			case "IT":
 			default:
 				$r .= "{firma}\n";
-				$r .= "{vorname}{nachname}\n";
+				$r .= "{abteilung}\n";
+				$r .= "{position}{titelPrefix}{vorname}{nachname}{titelSuffix}\n";
 				$r .= "{strasse}{nr}\n";
 				$r .= "{plz}{ort}\n";
 				$r .= "{land}";
@@ -681,17 +693,23 @@ class Util {
 	public static function parseTime($language, $time){
 		$format = Util::getLangTimeFormat($language);
 		
+		$fak = 1;
+		if($time[0] == "-"){
+			$time = substr($time, 1);
+			$fak = -1;
+		}
+		
 		$s = explode($format[2], $time);
 		$r = explode($format[2], $format[0]);
 		
-		return mktime(
+		return (mktime(
 			$s[array_search("H", $r)] * 1, 
 			$s[array_search("i", $r)] * 1, 
 			(isset($s[array_search("s", $r)]) ? 
 				$s[array_search("s", $r)] * 1 : 
 				0), 
 			1, 1, 1970)
-			+ 3600;
+			+ 3600) * $fak;
 	}
 	
 	/**
@@ -858,7 +876,7 @@ class Util {
 		Aspect::joinPoint("before", null, __METHOD__, $MArgs);
 		// </editor-fold>
 		
-		$languageTag = mb_substr($languageTag, strpos($languageTag, "_") + 1);
+		$languageTag = substr($languageTag, strpos($languageTag, "_") + 1);
 
 		/* array(
 		 * Currency symbol, 
@@ -1175,10 +1193,11 @@ class Util {
 		return $filename;
 	}
     
-	public static function PDFViewer($filename){
+	public static function PDFViewer($filename, $delete = true){
 		if(!strstr($filename, "IECache")) {
 			$_SESSION["BPS"]->registerClass("showPDF");
 			$_SESSION["BPS"]->setACProperty("filename","$filename");
+			$_SESSION["BPS"]->setACProperty("delete", $delete ? "1" : "0");
 			echo "<!DOCTYPE html><html><script type=\"text/javascript\">document.location='./showPDF.php';</script></html>";
 		} else echo "<!DOCTYPE html><html><script type=\"text/javascript\">document.location='../system/IECache/".$_SESSION["S"]->getCurrentUser()->getID()."/".basename($filename)."?rand=".rand(100, 1000000)."';</script></html>";
 	}

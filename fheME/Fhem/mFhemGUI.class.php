@@ -139,7 +139,7 @@ class mFhemGUI extends anyC implements iGUIHTML2 {
 		while($t = $ac->getNextEntry())
 			$html .= $FC->getControl($t);
 		
-		$html .= "</div></div>".OnEvent::script(OnEvent::rme(new FhemControlGUI(-1), "updateGUI", "", "function(transport){ Fhem.updateControls(transport); }"));
+		$html .= "</div></div>".OnEvent::script("contentManager.rmePCR('FhemControl','','updateGUI','','Fhem.updateControls(transport);', '', false);");
 		
 		if($echo)
 			echo $html;

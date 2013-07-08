@@ -29,6 +29,8 @@ class JSLoaderGUI extends JSLoader implements iGUIHTML2 {
 		for($i = 0;$i<count($scripts);$i++) $js .= "
 ./".$apps[$i]."/".(is_array($folders[$i]) ? $folders[$i][0] : $folders[$i])."/".$scripts[$i]."?r=".rand();
 		
+		$js .= "\n./javascript/DynamicJS.php?r=".rand();
+		
 		return $js;
 
 	}

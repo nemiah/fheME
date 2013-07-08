@@ -56,7 +56,18 @@ class Red {
 		die("message:'".addslashes($Lang[$message])."'");
 	}
 
-	public static function messageD($message){
+	public static function messageD($message, array $data = null){
+		if($data != null){
+			$value = array("type" => "message", "message" => $message);
+			foreach($data AS $k => $v)
+				$value[$k] = $v;
+			
+			if(defined("JSON_UNESCAPED_UNICODE"))
+				$flags = JSON_UNESCAPED_UNICODE;
+			
+			die(json_encode($value, $flags = 0));
+		}
+		
 		die("message:'".addslashes($message)."'");
 	}
 	

@@ -72,6 +72,7 @@ function findClass($class_name){
 	$standardPaths[] = $root."classes/interfaces/";
 	$standardPaths[] = $root."libraries/";
 	$standardPaths[] = $root."libraries/fpdf/";
+	$standardPaths[] = $root."libraries/iban/";
 	$standardPaths[] = $root."specifics/";
 	$standardPaths[] = $root."classes/exceptions/";
 	$standardPaths[] = $root."libraries/geshi/";

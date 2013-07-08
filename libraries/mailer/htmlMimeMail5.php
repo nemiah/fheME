@@ -916,6 +916,8 @@ class htmlMimeMail5 {
 				}
 				unset($addresses); // These are reused
 				unset($address);   // These are reused
+				
+				$this->setHeader('Date', date('D, d M Y H:i:s O')); //add date header!
 				// Get flat representation of headers, parsing
 				// Cc and Bcc as we go
 				foreach ($this->headers as $name => $value) {
@@ -933,7 +935,7 @@ class htmlMimeMail5 {
 				}
 				// Add To header based on $recipients argument
 				$headers[] = 'To: ' . $this->encodeHeader(implode(', ', $recipients), $this->build_params['head_charset']);
-
+				
 				// Add headers to send_params
 				$send_params['headers'] = $headers;
 				$send_params['recipients'] = array_values(array_unique($smtp_recipients));
@@ -948,7 +950,7 @@ class htmlMimeMail5 {
 				} else {
 					$send_params['from'] = 'postmaster@' . $this->smtp_params['helo'];
 				}
-
+				
 				// Send it
 				if (!$smtp->send($send_params)) {
 					$this->errors = $smtp->getErrors();
@@ -972,7 +974,7 @@ class htmlMimeMail5 {
 	 */
 	public function getRFC822($recipients, $type = 'mail') {
 		// Make up the date header as according to RFC822
-		$this->setHeader('Date', date('D, d M y H:i:s O'));
+		$this->setHeader('Date', date('D, d M Y H:i:s O'));
 
 		if (!defined('CRLF')) {
 			$this->setCRLF($type == 'mail' ? "\n" : "\r\n");

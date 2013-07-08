@@ -83,7 +83,7 @@ if(!defined("PHYNX_NO_SESSION_RELOCATION")
 	if(basename($_SERVER["SCRIPT_FILENAME"]) == "index.php") {
 		setcookie("phynx_relocate", time(), time() + 600);
 		$CH = Util::getCloudHost();
-		if($CH AND isset($CH->appPrefix))#$_SERVER["HTTP_HOST"] != "cloud.furtmeier.it"
+		if($CH AND isset($CH->appPrefix) AND isset($_GET["cloud"]))#$_SERVER["HTTP_HOST"] != "cloud.furtmeier.it"
 			header("location: /".$CH->appPrefix."_$_GET[cloud]");
 		else
 			header("location: index.php");
@@ -187,6 +187,6 @@ if(Session::isPluginLoaded("mAutoLogin") AND isset($_GET["application"])) //for 
 
 
 if($physion != "default")
-	Session::physion($_GET["physion"], isset($_GET["application"]) ? $_GET["application"] : null, isset($_GET["plugin"]) ? $_GET["plugin"] : null);
+	Session::physion($_GET["physion"], isset($_GET["application"]) ? $_GET["application"] : null, isset($_GET["plugin"]) ? $_GET["plugin"] : null, isset($_GET["icon"]) ? $_GET["icon"] : null);
 
 ?>

@@ -20,7 +20,7 @@
 class StorageException extends o3AException {
 
 	function __construct($message = ""){
-		parent::__construct();
+		parent::__construct($message);
 		/*if(isset($_SESSION["messages"])) {
 			$_SESSION["messages"]->addMessage("There is a problem with the storage-system...");
 			if($message != "") $_SESSION["messages"]->addMessage($message);

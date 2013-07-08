@@ -1,34 +1,32 @@
-<?php
-/*
- *  This file is part of phynx.
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- 
+ *  This file is part of lightCRM.
 
- *  phynx is free software; you can redistribute it and/or modify
+ *  lightCRM is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 3 of the License, or
  *  (at your option) any later version.
 
- *  phynx is distributed in the hope that it will be useful,
+ *  lightCRM is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
 
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * 
  *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
- */
-class Phynx {
-	public static function build(){
-		if(!file_exists(Util::getRootPath()."system/build.xml"))
-			return false;
+-->
+<phynx>
+	<plugin>
+		<name>xCal</name>
+		<menuName></menuName>
 		
-		try {
-			$xml = new SimpleXMLElement(file_get_contents(Util::getRootPath()."system/build.xml"));
+		<icon>./images/navi/edit.png</icon>
+		<folder>../ubiquitous/xCal</folder>
 		
-			return $xml->build->prefix."-".$xml->build->number;
-		} catch(Exception $e){
-			return false;
-		}
-	}
-}
-?>
+		<version>0.6</version>
+		
+		<registry>Kalender;mxCalGUI::getCalendarData;events</registry>
+	</plugin>
+</phynx>

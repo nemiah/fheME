@@ -56,7 +56,7 @@ var Fhem = {
 	},
 
 	requestUpdate: function(){
-		contentManager.rmePCR('FhemControl','','updateGUI','','Fhem.updateControls(transport);');
+		contentManager.rmePCR('FhemControl','','updateGUI','','Fhem.updateControls(transport);', "", false);
 	},
 
 	updateControls: function(transport){

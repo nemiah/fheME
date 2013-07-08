@@ -32,6 +32,10 @@ class HTMLList {
 	private $sortable = "";
 	private $itemsStyle = "";
 	
+	public function noDots(){
+		$this->addListStyle("list-style-type:none;");
+	}
+	
 	public function minHeight($height){
 		$this->style .= "min-height:{$height}px;";
 	}

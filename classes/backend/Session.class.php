@@ -26,9 +26,9 @@ class Session {
 	
 	public $physion = null;
 	
-	public static function physion($sessionName = null, $application = null, $plugin = null){
+	public static function physion($sessionName = null, $application = null, $plugin = null, $favico = null){
 		if($sessionName != null)
-			$_SESSION[self::$sessionVariable]->physion = array($sessionName, $application, $plugin);
+			$_SESSION[self::$sessionVariable]->physion = array($sessionName, $application, $plugin, $favico);
 		
 		return $_SESSION[self::$sessionVariable]->physion;
 	}
@@ -80,23 +80,26 @@ class Session {
 			$data->setAssocV3("httpHost","=","*");
 			$n = $data->getNextEntry();
 		}
-		
+
 		if($n != null){
 			$n->changeFolder($newFolder);
 			$d = $n->getA();
 		} else {
-			$I = new Installation(-1);
-			$I->changeFolder($newFolder);
-			$I->makeNewInstallation();
-			$d = $I->getA();
+			if(!isset($_SERVER["HTTP_CLOUD"])){
+				$I = new Installation(-1);
+				$I->changeFolder($newFolder);
+				$I->makeNewInstallation();
+				$d = $I->getA();
+			} 
 		}
 		$I2 = new Installation(-1);
 		$s = PMReflector::getAttributesArray($I2->newAttributes());
 		
 		$t = array();
-		foreach($s as $key => $value)
-			$t[$value] = $d->$value;
-			
+		if(isset($d))
+			foreach($s as $key => $value)
+				$t[$value] = $d->$value;
+		
 		$rt = Environment::getS("databaseData", $t);
 		
 		return $rt;

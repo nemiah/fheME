@@ -26,10 +26,11 @@ class LDAPStorage {
 	function __construct(){
 		$this->LD = LoginData::get("LDAPServerUserPass");
 		if($this->LD == null) throw new NoDBUserDataException();
-
+		
 		$this->c = ldap_connect($this->LD->A("server"));
 		ldap_set_option($this->c, LDAP_OPT_PROTOCOL_VERSION, 3);
 		$r = ldap_bind($this->c,$this->LD->A("benutzername"), $this->LD->A("passwort"));
+		
 		#if(!$r) throw new StorageException("Could not authenticate to LDAP server: ".ldap_error($this->c));
 	}
 
@@ -79,6 +80,7 @@ class LDAPStorage {
 	private function translate($table, $A){
 		$t = new $table(-1);
 		$schema = $t->getLDAPSchema();
+		#print_r($schema);
 		#if($as == null)
 		$as = PMReflector::getAttributesArray($A);
 
@@ -156,17 +158,19 @@ class LDAPStorage {
 
 		$new = $table."ID";
 		$A->$new = $id;
-
+		#echo "<pre style=\"font-size:9px;\">";
+		#print_r($A);
 		$A = $this->translate($table, $A);
-		
+		#
 		$info = $this->searchID($A["uid"], $dir);
 
 		if($info["count"] > 0) throw new DuplicateEntryException("Entry with uid $A[uid] already exists!");
 
 		if(trim($A["cn"]) == "") throw new LDAPNoCNException();
-
+		#print_r($A);
 		$r = ldap_add($this->c, "cn=$A[cn],".$dir, $A);
-
+		#echo "</pre>";
+		
 		if(ldap_error($this->c) AND ldap_errno($this->c) == 68) throw new DuplicateEntryException(ldap_error($this->c));
 		if(ldap_error($this->c) AND ldap_errno($this->c) == 32) throw new LDAPDirDoesNotExistException(ldap_error($this->c));
 		if(!$r) throw new StorageException("Error executing LDAP statement: ".ldap_errno($this->c).": ".ldap_error($this->c));

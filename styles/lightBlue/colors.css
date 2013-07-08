@@ -44,7 +44,13 @@ a:link, a:active, a:visited {
 	color:black;
 }
 
-input, select, textarea, .AJAXUpload {
+input[type=text],
+input[type=submit],
+input[type=password],
+input[type=radio],
+input[type=checkbox],
+input[type=button],
+input[type=submit], select, textarea, .AJAXUpload {
 	border-bottom-color:#7097cd;
 }
 

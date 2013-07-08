@@ -8,7 +8,7 @@ body {
 	margin-left:250px;
 	margin-top:50px;
 	margin-right:50px;
-
+	position:fixed;
 	-moz-box-shadow: 2px 2px 2px #AAA;
 	-webkit-box-shadow: 2px 2px 2px #AAA;
 	box-shadow: 2px 2px 2px #AAA;
@@ -37,7 +37,6 @@ body {
 	float:left;
 	width:250px;
 	background-image:none;
-	margin-top:-50px;
 }
 
 #navigation .navTab {
@@ -60,13 +59,14 @@ body {
 	float:none;
 	display:block;
 	margin:auto;
-	margin-top:3px;
+	margin-top:-5px;
 }
 
 #navTabsWrapper {
 	margin-left:0px;
 	width:250px;
 	padding-top:60px;
+	margin-bottom:40px;
 }
 
 #navigation div.theOne {
@@ -94,7 +94,11 @@ body {
 	/*z-index:-10;*/
 	/*bottom:0px;*/
 	height:40px;
-	margin-top:20px;
+	/*padding-top:40px;*/
 	/*left:0px;*/
 	/*width:100%;*/
+}
+
+#footer .iconic {
+	color:#777;
 }

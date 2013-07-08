@@ -36,6 +36,8 @@ header("Content-Disposition: inline; filename=\"".basename($f)."\"");
 
 readfile($f);
 
-unlink($f);
+if(BPS::getProperty("showPDF", "delete", true))
+	unlink($f);
+
 exit();
 ?>

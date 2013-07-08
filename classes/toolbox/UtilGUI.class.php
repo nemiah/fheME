@@ -43,10 +43,12 @@ class UtilGUI extends Util {
 	 * @param string $dataClass
 	 * @param string $dataClassID 
 	 */
-	public static function EMailPopup($dataClass, $dataClassID, $callbackParameter = null, $onSuccessFunction = null){
+	public static function EMailPopup($dataClass, $dataClassID, $callbackParameter = null, $onSuccessFunction = null, $onAbortFunction = null, $return = false){
 		$c = new $dataClass($dataClassID);
 		$data = $c->getEMailData($callbackParameter);
 
+		$html = "";
+		
 		$tab = new HTMLTable(2);
 		$tab->setColWidth(1, "120px;");
 		$tab->addLV("Absender:", "$data[fromName]<br /><small>&lt;$data[fromAddress]&gt;</small>");
@@ -75,8 +77,8 @@ class UtilGUI extends Util {
 		
 		$tab->addLV("Betreff:", "<input type=\"text\" id=\"EMailSubject$dataClassID\" value=\"$data[subject]\" />");
 		
-		echo $tab;
-		echo "<div style=\"width:94%;margin:auto;\"><textarea id=\"EMailBody$dataClassID\" style=\"width:100%;height:300px;font-size:10px;\">$data[body]</textarea></div>";
+		$html .= $tab;
+		$html .= "<div style=\"width:94%;margin:auto;\"><textarea id=\"EMailBody$dataClassID\" style=\"width:100%;height:300px;font-size:10px;\">$data[body]</textarea></div>";
 		
 		#$tab->addRow(array(""));
 		#$tab->addRowColspan(1, 2);
@@ -90,14 +92,17 @@ class UtilGUI extends Util {
 		
 
 		$BAbort = new Button("Abbrechen","stop");
-		$BAbort->onclick("Popup.close('Util', 'edit');");
+		if($onAbortFunction == null)
+			$BAbort->onclick("Popup.close('Util', 'edit');");
+		else
+			$BAbort->onclick($onAbortFunction);
 		$BAbort->style("margin-bottom:10px;margin-top:10px;");
 		
 		$BGo = new Button("E-Mail\nsenden","okCatch");
 		$BGo->style("float:right;margin-top:10px;");
 		if(strpos($data["body"], "<p") !== false)
-		$BGo->doBefore("nicEditors.findEditor('EMailBody$dataClassID').saveContent(); %AFTER");
-		$BGo->rmePCR($dataClass, $dataClassID, "sendEmail", array("$('EMailSubject$dataClassID').value", "$('EMailBody$dataClassID').value", (is_array($data["recipients"]) AND count($data["recipients"]) == 1) ? "0" : "$('EMailRecipient$dataClassID').value", "'".$callbackParameter."'"), $onSuccessFunction);
+			$BGo->doBefore("nicEditors.findEditor('EMailBody$dataClassID').saveContent(); %AFTER");
+		$BGo->rmePCR(str_replace("GUI", "", $dataClass), $dataClassID, "sendEmail", array("$('EMailSubject$dataClassID').value", "$('EMailBody$dataClassID').value", (is_array($data["recipients"]) AND count($data["recipients"]) == 1) ? "0" : "$('EMailRecipient$dataClassID').value", "'".$callbackParameter."'"), $onSuccessFunction);
 		#$BGo->onclick("CloudKunde.directMail('$this->ID', '$data[recipientAddress]', $('EMailSubject$this->ID').value, $('EMailBody$this->ID').value); ");
 
 
@@ -105,7 +110,7 @@ class UtilGUI extends Util {
 		$tab->addRowColspan(1, 2);
 		#$tab->addRowClass("backgroundColor0");
 
-		echo $tab;
+		$html .= $tab;
 		
 		if(strpos($data["body"], "<p") !== false)
 			echo OnEvent::script("
@@ -115,10 +120,15 @@ class UtilGUI extends Util {
 				buttonList : ['bold','italic','underline'],
 				maxHeight : 400
 			}).panelInstance('EMailBody$dataClassID');}, 100);");
+		
+		if($return)
+			return $html;
+		else
+			echo $html;
 	}
 
-	public static function newSession($physion, $application, $plugin, $cloud = ""){
-		echo "<p>Bitte haben Sie etwas Geduld, während die neue Sitzung initialisiert wird...</p><iframe onload=\"window.open(contentManager.getRoot()+'?physion=$physion&application=$application&plugin=$plugin".($cloud != "" ? "&cloud=$cloud" : "")."');".OnEvent::closePopup("Util")."\" src=\"interface/rme.php?class=Users&construct=&method=doLogin&parameters=%27".Session::currentUser()->A("username")."%27,%27".Session::currentUser()->A("SHApassword")."%27,%27".Applications::activeApplication()."%27,%27".Session::currentUser()->A("language")."%27&physion=$physion".($cloud != "" ? "&cloud=$cloud" : "")."\" style=\"display:none;\"></iframe>";
+	public static function newSession($physion, $application, $plugin, $cloud = "", $title = "", $icon = ""){
+		echo "<p>Bitte haben Sie etwas Geduld, während die neue Sitzung initialisiert wird...</p><iframe onload=\"window.open(contentManager.getRoot()+'?physion=$physion&application=$application&plugin=$plugin".($cloud != "" ? "&cloud=$cloud" : "")."".($title != "" ? "&title=$title" : "")."".($icon != "" ? "&icon=$icon" : "")."');".OnEvent::closePopup("Util")."\" src=\"interface/rme.php?class=Users&construct=&method=doLogin&parameters=%27".Session::currentUser()->A("username")."%27,%27".Session::currentUser()->A("SHApassword")."%27,%27".Applications::activeApplication()."%27,%27".Session::currentUser()->A("language")."%27&physion=$physion".($cloud != "" ? "&cloud=$cloud" : "")."\" style=\"display:none;\"></iframe>";
 	}
 }
 

@@ -20,6 +20,10 @@
 require "../system/connect.php";
 if($_SESSION["S"]->checkIfUserLoggedIn() == true) die("-1");
 
+$build = Phynx::build();
+if($build)
+	header("X-Build: ".$build);
+
 $data = $_GET;
 if(isset($_POST) AND count($_POST) > 0) $data = $_POST;
 

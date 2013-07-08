@@ -85,6 +85,10 @@
 	background-color:rgba(255,204,0,0.3);
 }
 
+label {
+	color:#444;
+}
+
 /*.backgroundColorHeader td + td {
 	background-color:#FCFCFC;
 }*/
@@ -111,7 +115,13 @@ caption {
 	color:black;
 }
 
-input, select, textarea, .AJAXUpload {
+input[type=text],
+input[type=submit],
+input[type=password],
+input[type=radio],
+input[type=checkbox],
+input[type=button],
+input[type=submit], select, textarea, .AJAXUpload {
 	border-bottom-color:#9E9EF0;
 	
 	-moz-transition: background-color 1s;
@@ -125,13 +135,13 @@ input, select, textarea, .AJAXUpload {
   **/
   
 .hasFocus {
-	background-color:white;
-	border-bottom-color:#9E9EF0;
+	background-color:white !important;
+	border-bottom-color:#9E9EF0 !important;
 }
 
 .recentlyChanged {
 	/*background-color:#b8de9a;*/
-	background-color: rgba(184, 222, 154, 0.5);
+	background-color: rgba(184, 222, 154, 0.5) !important;
 	
 	-moz-transition: background-color .3s;
 	-webkit-transition: background-color .3s;
@@ -206,6 +216,7 @@ input, select, textarea, .AJAXUpload {
 }
 
 #contentRight .contentBrowser tr:hover .iconic.inactive,
+.popup .contentBrowser tr:hover .iconic.inactive,
 #contentLeft .contentBrowser tr:hover .iconic.inactive,
 .Tab:hover .iconic.inactive,
 #contentScreen tr:hover .iconic.inactive {

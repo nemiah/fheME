@@ -40,7 +40,9 @@ class Environment {
 		if($user != null)
 			$this->cloudUser = $user;
 		
-		return $this->cloudUser;
+		$return = Aspect::joinPoint("cloudUser", $this, __METHOD__, array($this->cloudUser), $this->cloudUser);
+		
+		return $return;
 	}
 	
 	public function get($value, $default){
@@ -131,16 +133,16 @@ class Environment {
 
 	public static function load(){
 		if(Environment::$currentEnvironment != null) return;
-		
-		if(file_exists(Util::getRootPath()."plugins/Cloud/Cloud.class.php") AND !defined("PHYNX_VIA_INTERFACE")){
+
+		if(file_exists(Util::getRootPath()."plugins/Cloud/Cloud.class.php")/* AND !defined("PHYNX_VIA_INTERFACE")*/){ //!defined("PHYNX_VIA_INTERFACE") removed because of ZPush/lightCRM 03.07.2013
 			require_once Util::getRootPath()."plugins/Cloud/Cloud.class.php";
 			require_once Util::getRootPath()."plugins/Cloud/mCloud.class.php";
 			require_once Util::getRootPath()."plugins/Cloud/CloudStorage.class.php";
-
+			
 			Environment::$currentEnvironment = mCloud::getEnvironment();
 			return;
 		}
-		
+
 		$h = "Environment".str_replace(array(":", "-"), "_", implode("", array_map("ucfirst", explode(".", $_SERVER["HTTP_HOST"]))));
 		
 		if(defined("PHYNX_VIA_INTERFACE")){

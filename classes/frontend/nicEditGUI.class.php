@@ -25,7 +25,7 @@ class nicEditGUI {
 		
 		if($variablesCallback != null)
 			echo "<div style=\"float:right;width:190px;margin:5px;\">
-					<p><small>Sie können folgende Variablen in Ihrem Text verwenden (bitte beachen Sie Groß- und Kleinschreibung):</small></p>
+					<p><small id=\"tinyMCEVarsDescription\"></small></p>
 					<p style=\"margin-top:5px;\" id=\"tinyMCEVars\"></p></div>";
 
 		echo "<div style=\"width:".($variablesCallback != null ? "800" : "1000")."px;\">".$ITA."</div>";
@@ -46,7 +46,7 @@ setTimeout(function(){
 			\$j('#$formID [name=$fieldName]').val(content.replace(/<br>/g, '<br />'));
 			".OnEvent::closePopup("nicEdit")."
 		}
-	}).panelInstance('nicEditor');".($variablesCallback != null ? "$variablesCallback();" : "")."}, 100);");
+	}).panelInstance('nicEditor');".($variablesCallback != null ? "$variablesCallback('$fieldName');" : "")."}, 100);");
 	}
 	
 	public function openInPopup($className, $classID, $fieldName){

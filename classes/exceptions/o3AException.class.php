@@ -18,8 +18,9 @@
  *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class o3AException extends Exception {
-	function __construct(){
+	function __construct($message){
 		if(isset($_SESSION["messages"])) $_SESSION["messages"]->addMessage(get_class($this)." thrown!");
+		parent::__construct($message);
 	}
 }
 ?>

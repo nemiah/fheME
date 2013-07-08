@@ -73,5 +73,36 @@ class mWeckerGUI extends anyC implements iGUIHTMLMP2 {
 		
 		die($AC->asJSON());
 	}
+	
+	public function checkTermine(){
+		$today = Util::parseDate("de_DE", date("d.m.Y"), "store");
+		
+		$Kalender = mxCalGUI::getCalendarData($today, $today + 3600 * 24 * 1, Session::currentUser()->getID());
+		
+		$found = false;
+		for($i = 0; $i < 2; $i++){
+			if($found !== false)
+				break;
+			
+			$events = $Kalender->getEventsOnDay(date("dmY", $today + 3600 * 24 * $i));
+			foreach($events AS $v)
+				foreach($v AS $s){
+					if($s->timestamp() > time() AND $found === false){
+						$found = $s;
+						break;
+					}
+				}
+		}
+		
+		if(!$found)
+			die("false");
+		
+		$O = new stdClass();
+		$O->name = $found->title();
+		$O->start = $found->timestamp();
+		
+		echo json_encode(array($O));
+		
+	}
 }
 ?>

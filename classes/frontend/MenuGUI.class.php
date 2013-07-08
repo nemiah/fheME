@@ -203,6 +203,8 @@ class MenuGUI extends UnpersistentClass implements iGUIHTML2, icontextMenu {
 			if($al == "true") echo "<script type=\"text/javascript\">contentManager.startAutoLogoutInhibitor();</script>";
 		}
 		
+		echo OnEvent::script("contentManager.isAltUser = ".(Session::isAltUserS() ? "true" : "false").";");
+		
 		try {
 			$c = get_class(Session::currentUser());
 			$U = new $c(Session::currentUser()->getID());

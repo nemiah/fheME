@@ -34,6 +34,8 @@ var contentManager = {
 	oldValue: null,
 	emptyContentBelow: true,
 	lastLoaded: [],
+	isAltUser: false,
+	updateTitle: true,
 	
 	maxHeight: function(){
 		return ($j(window).height() - $j('#navTabsWrapper').height() - $j('#footer').height() - 40);
@@ -80,11 +82,17 @@ var contentManager = {
 		}
 	},
 	
-	newSession: function(physion, application, plugin, cloud){
+	newSession: function(physion, application, plugin, cloud, title, icon){
 		if(typeof cloud == "undefined")
 			cloud = "";
 		
-		Popup.load("Neue Sitzung", "Util", "-1", "newSession", [physion, application, plugin, cloud]);
+		if(typeof title == "undefined")
+			title = "";
+		
+		if(typeof icon == "undefined")
+			icon = "";
+		
+		Popup.load("Neue Sitzung", "Util", "-1", "newSession", [physion, application, plugin, cloud, title, icon]);
 	},
 	
 	contentBelow: function(content){
@@ -205,10 +213,15 @@ var contentManager = {
 	},
 
 	loadTitle: function(){
-    	new Ajax.Request("./interface/rme.php?class=Menu&method=getActiveApplicationName&constructor=&parameters=",{onSuccess: function(transport){
+		if(!contentManager.updateTitle)
+			return;
+		
+		contentManager.rmePCR("Menu", "-1", "getActiveApplicationName", "",  function(transport){
 			if(!Interface.isDesktop) document.title = transport.responseText;
 			else $("wrapperHandler").update(transport.responseText);
-    	}});
+    	});
+		
+    	//new Ajax.Request("./interface/rme.php?class=Menu&method=getActiveApplicationName&constructor=&parameters=",{onSuccess: });
 	},
 
 	setRoot: function(path){
@@ -344,9 +357,12 @@ var contentManager = {
 			alert("Backup unknown");
 			return;
 		}
-		if(contentManager.backupFrames[backupName][0] != -1 || (targetFrame == 'contentRight' && contentManager.backupFrames[backupName][1] != "") || force)
-			contentManager.loadFrame(targetFrame, contentManager.backupFrames[backupName][1], contentManager.backupFrames[backupName][0], contentManager.backupFrames[backupName][2],contentManager.backupFrames[backupName][1]+"GUI;-",onSuccessFunction,true);
-		else
+		if(contentManager.backupFrames[backupName][0] != -1 || (targetFrame == 'contentRight' && contentManager.backupFrames[backupName][1] != "") || force){
+			if(contentManager.backupFrames[backupName][1] == "")
+				contentManager.emptyFrame(targetFrame);
+			else
+				contentManager.loadFrame(targetFrame, contentManager.backupFrames[backupName][1], contentManager.backupFrames[backupName][0], contentManager.backupFrames[backupName][2],contentManager.backupFrames[backupName][1]+"GUI;-",onSuccessFunction,true);
+		} else
 			contentManager.emptyFrame(targetFrame);
 
 		contentManager.backupFrames[backupName] = null;
@@ -488,7 +504,7 @@ var contentManager = {
 		if(typeof targetMethodParameters != "string"){
 			for(var i = 0; i < targetMethodParameters.length; i++)
 				targetMethodParameters[i] = "'"+encodeURIComponent(targetMethodParameters[i]).replace(/\'/g,'\\\'')+"'";
-
+				
 			targetMethodParameters = targetMethodParameters.join(",");
 		}
 		else targetMethodParameters = "'"+targetMethodParameters.replace(/\'/g,'\\\'')+"'";

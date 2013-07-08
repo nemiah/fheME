@@ -46,6 +46,7 @@ class HTMLInput {
 	private $placeholder;
 	private $callback;
 	private $maxlength;
+	private $size;
 	
 	public function __construct($name, $type = "text", $value = null, $options = null){
 		$this->name = $name;
@@ -56,6 +57,10 @@ class HTMLInput {
 
 	public function maxlength($length){
 		$this->maxlength = $length;
+	}
+	
+	public function size($size){
+		$this->size = $size;
 	}
 	
 	public function autocomplete($targetClass, $onSelectionFunction = null, $hideOnSelection = false, $getACData3rdParameter = null, Button $ButtonEmptyValues = null){
@@ -359,6 +364,9 @@ class HTMLInput {
 
 			case "time":
 				$this->type = "text";
+				if(!$this->id)
+					$this->id = rand (100000, 9999999).$this->name;
+				
 				#$this->onkeyup .= "if(\$j(this).val().length == 2 && \$j(this).val().lastIndexOf(':') == -1) \$j(this).val(\$j(this).val()+':'); ";
 				if($this->connectTo)
 					$this->onkeyup .= "contentManager.connectedTimeInput(event, '$this->id', '$this->connectTo'); ";
@@ -531,7 +539,7 @@ class HTMLInput {
 					$this->id($this->name."ID".$this->multiEditOptions[1]);
 				}
 
-				$html = "<select ".($this->isDisabled ? "disabled=\"disabled\"" : "")." ".($this->type == "select-multiple" ? " multiple=\"multiple\"" : "")."".($this->style != null ? " style=\"$this->style\"" : "")." ".($this->onchange != null ? "onchange=\"$this->onchange\"" : "")." name=\"$this->name\" ".($this->id != null ? "id=\"$this->id\"" : "").">";
+				$html = "<select ".($this->size ? "size=\"$this->size\"" : "")." ".($this->isDisabled ? "disabled=\"disabled\"" : "")." ".($this->type == "select-multiple" ? " multiple=\"multiple\"" : "")."".($this->style != null ? " style=\"$this->style\"" : "")." ".($this->onchange != null ? "onchange=\"$this->onchange\"" : "")." name=\"$this->name\" ".($this->id != null ? "id=\"$this->id\"" : "").">";
 
 				if($this->options != null AND is_array($this->options))
 					foreach($this->options AS $k => $v)

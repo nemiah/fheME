@@ -123,6 +123,19 @@ class HTMLGUI implements icontextMenu {
 		
 		$this->tip = HTMLGUIX::tipJS($targetClass);
 	}
+
+	public function insertAttribute($where, $fieldName, $insertedFieldName){
+		if($where == "after")
+			$add = 1;
+
+		if($where == "before")
+			$add = 0;
+
+		$first = array_splice($this->showAttributes, 0, array_search($fieldName, $this->showAttributes) + $add);
+		$last = array_splice($this->showAttributes, array_search($fieldName, $this->showAttributes));
+
+		$this->showAttributes = array_merge($first, array($insertedFieldName), $last);
+	}
 	
 	/**
 	 *  This Method activates several features. Possible values are:
@@ -987,7 +1000,7 @@ class HTMLGUI implements icontextMenu {
 			$html .= "
 					<tr ".(isset($this->style[$value]) ? "style=\"".$this->style[$value]."\"" : "").">
 						<td id=\"".$value."EditL\"><label for=\"".$value."\">".$label.":".(isset($this->labelDescriptions[$value]) ? "<br /><small>".$this->labelDescriptions[$value]."</small>" : "")."</label></td>
-						<td id=\"".$value."EditR\">".$this->getInput($value)."".(isset($this->fieldDescriptions[$value]) ? "<br /><small>".$this->fieldDescriptions[$value]."</small>" : "")."</td>
+						<td id=\"".$value."EditR\">".$this->getInput($value)."".(isset($this->fieldDescriptions[$value]) ? "<br /><small style=\"color:grey;\">".$this->fieldDescriptions[$value]."</small>" : "")."</td>
 					</tr>";
 			
 		}

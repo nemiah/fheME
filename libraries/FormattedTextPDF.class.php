@@ -127,19 +127,24 @@ class FormattedTextPDF extends FPDI {
 				$styles = explode(";", $a);
 				foreach($styles AS $S){
 					if(stripos($S, "font-size:") !== false)
-						array_push($this->sizeStack, trim(str_replace(array("font-size:", "pt"), "", $S)));
+						array_push($this->sizeStack, trim(str_ireplace(array("font-size:", "pt"), "", $S)));
 
 					if(stripos($S, "text-decoration:") !== false)
 						array_push($this->styleStack, "U");
 
 					if(stripos($S, "color:") !== false)
-						array_push($this->colorStack, trim(str_replace(array("color:", "#"), "", $S)));
+						array_push($this->colorStack, trim(str_ireplace(array("color:", "#"), "", $S)));
 
 					if(stripos($S, "text-align:") !== false)
-						array_push($this->alignStack, trim(str_replace("text-align:", "", $S)));
+						array_push($this->alignStack, trim(str_ireplace("text-align:", "", $S)));
 
-					if(stripos($S, "font-family:") !== false){
-						$font = trim(str_replace(array("font-family:", ";"), "", $S));
+					if(stripos(trim($S), "font-family:") === 0){
+						$font = trim(trim(str_ireplace(array("font-family:", ";"), "", $S)), "\"'");
+						if(stripos($font, ",") !== false){
+							$ex = explode(",", $font);
+							$font = trim($ex[0], "\"'");
+						}
+						
 						if(strtolower($font) == "times new roman")
 							$font = "times";
 						
@@ -162,8 +167,10 @@ class FormattedTextPDF extends FPDI {
 			return;
 		}
 		
-		if($xml->getName() == "p")
+		if($xml->getName() == "p"){
 			array_pop($this->heightStack);
+			$this->ln(5);
+		}
 
 		if($xml->getName() == "strong")
 			array_pop($this->styleStack);
@@ -183,6 +190,7 @@ class FormattedTextPDF extends FPDI {
 		if(preg_match_all("/h([0-9])/", $xml->getName(), $m)){
 			array_pop($this->styleStack);
 			array_pop($this->sizeStack);
+			$this->ln(5);
 		}
 
 		foreach($xml->attributes() AS $k => $a){
@@ -217,10 +225,31 @@ class FormattedTextPDF extends FPDI {
 		$this->sizeStack[] = $this->getFontSize();
 		
 		$html = str_replace("\n", "", $html);
+		$html = preg_replace('/<!--\[if[^\]]*]>.*?<!\[endif\]-->/i', '', $html);
 		
 		$bad = array("&gt;", "&lt;", "&amp;");
 		$good = array("::gt::", "::lt::", "::amp::");
-		$this->translateXML(new SimpleXMLElement(str_replace($good, $bad, "<phynx>".html_entity_decode(str_replace($bad, $good, $html), ENT_NOQUOTES, "UTF-8")."</phynx>")));
+		
+		libxml_use_internal_errors(true);
+		try {
+			$xml = new SimpleXMLElement(str_replace($good, $bad, "<phynx>".html_entity_decode(str_replace($bad, $good, $html), ENT_NOQUOTES, "UTF-8")."</phynx>"));
+		} catch (Exception $e){
+			try {
+				$tidy = new tidy();
+				$tidy->parseString($html, array("show-body-only" => true, "output-xhtml" => true, "wrap" => 0), 'utf8');
+				$tidy->cleanRepair();
+				$xml = new SimpleXMLElement(str_replace($good, $bad, "<phynx>".html_entity_decode(str_replace($bad, $good, $tidy), ENT_NOQUOTES, "UTF-8")."</phynx>"));
+			} catch (Exception $e){
+				$errors = "";
+				foreach(libxml_get_errors() as $error) {
+					#echo "\t", $error->message;
+					$errors .= htmlentities(trim($error->message))."<br />";
+				}
+				$xml = new SimpleXMLElement("<phynx><p style=\"color:#dd0000;\">Der Textbaustein konnte nicht geladen werden:<br />$errors</p></phynx>");
+			}
+		}
+
+		$this->translateXML($xml);
 	}
 
 	private function findMaxStyle($style, SimpleXMLElement $xml){

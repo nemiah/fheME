@@ -23,6 +23,7 @@ var Wecker = {
 	startAtX: null,
 	lastAtY: null,
 	interval: null,
+	intervalCounter: 0,
 	data: null,
 	active: null,
 	snoozeTimer: null,
@@ -31,6 +32,7 @@ var Wecker = {
 	currentSide: "left",
 	runtime: null,
 	oldBackgroundColor: null,
+	init: false,
 	
 	loadThemAll: function(onSuccessFunction){
 		if($j.jStorage.get('phynxDeviceID', null) == null)
@@ -49,6 +51,7 @@ var Wecker = {
 	},
 	
 	show: function(){
+		Wecker.init = false;
 		$j('#ClockOverlay, .ClockAudioPreload').remove();//Clean up the hard way!
 		
 		$j('body').append('<div class="darkOverlay" id="ClockOverlay" style="display:none;"></div>');
@@ -282,6 +285,7 @@ var Wecker = {
 		});
 	},
 	
+	lastTap: 0,
 	updateWecker: function(){
 		var jetzt = new Date();
 		var tage = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
@@ -297,13 +301,31 @@ var Wecker = {
 				if(Wecker.data[i]["Wecker"+tage[j]] == "1")
 					days += (days != "" ? ", " : "")+tage[j];
 			}
-			
+			//onclick=\"Wecker.toggleRadio("+i+");/*Wecker.setWecker("+Wecker.data[i].WeckerID+");*/\"
 			wecker += "\
-				<div style=\"padding:5px;cursor:pointer;\" onclick=\"Wecker.toggleRadio("+i+");/*Wecker.setWecker("+Wecker.data[i].WeckerID+");*/\">\n\
-						<span class=\"iconic play WeckerRadio"+i+"\" style=\"float:right;margin-top:5px;margin-left:15px;\"></span><span class=\"iconic clock\" style=\"float:left;margin-top:5px;\"></span> <div style=\"display:inline-block;text-align:right;width:55px;\">"+stunden+":"+(minuten < 10 ? '0' : '')+minuten+"</div> <small>"+days+"</small>\n\
+				<div class=\"WeckerInstanz\" style=\"padding:5px;cursor:pointer;\" data-i=\""+i+"\" >\n\
+						<span class=\"iconic play WeckerRadio"+i+"\" style=\"color:#888;float:right;margin-top:5px;margin-left:15px;\"></span><span class=\"iconic clock\" style=\"color:#888;float:left;margin-top:5px;\"></span> <div style=\"display:inline-block;text-align:right;width:55px;\">"+stunden+":"+(minuten < 10 ? '0' : '')+minuten+"</div> <small>"+days+"</small>\n\
 				</div>";
 		}
 		$j("#ClockWecker").html(wecker);
+		
+		$j('#ClockWecker .WeckerInstanz').hammer().on("touch", function(e){
+			$j(e.currentTarget).addClass("highlight");
+		}).on("release dragstart", function(e){
+			$j(e.currentTarget).removeClass("highlight");
+		}).on("tap", function(e){
+			if(e.timeStamp - Wecker.lastTap < 1000)
+				return;
+			
+			Wecker.lastTap = e.timeStamp;
+			
+			Wecker.toggleRadio($j(e.currentTarget).data("i"));
+			
+			$j(e.currentTarget).removeClass("highlight");
+			e.gesture.preventDefault();
+			e.stopPropagation();
+		});
+		
 	},
 	
 	update: function(){
@@ -311,8 +333,8 @@ var Wecker = {
 		//var tage = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
 		//var tageJS = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
 		//var wecker = "";
-		
-		$j('#Clock').html("<span style=\"font-size:200px;\">"+(jetzt.getHours() < 10 ? '0' : '')+jetzt.getHours()+':'+(jetzt.getMinutes() < 10 ? '0' : '')+jetzt.getMinutes()+"</span>");
+		//+(jetzt.getHours() < 10 ? '0' : '')
+		$j('#Clock').html("<span style=\"font-size:200px;\">"+jetzt.getHours()+':'+(jetzt.getMinutes() < 10 ? '0' : '')+jetzt.getMinutes()+"</span>");
 		$j('#ClockDay').html("<span>"+fheOverview.days[jetzt.getDay()]+', '+jetzt.getDate()+'. '+fheOverview.months[jetzt.getMonth()]+' '+jetzt.getFullYear()+'</span>');
 		
 		if(Wecker.active != null && Wecker.snoozeTimer != null && Wecker.snoozeTimer > 0){
@@ -384,16 +406,27 @@ var Wecker = {
 	},
 	
 	clock: function(){
+		if(Wecker.init)
+			return;
+
 		$j("#ClockOverlay").append("\
-		<div id=\"ClockDay\" style=\"font-size:30px;color:#666;font-family:Roboto;font-weight:300;display:none;padding:20px;padding-bottom:0px;float:left;\"></div>\n\
-		<div id=\"ClockWecker\" style=\"padding-left:15px;padding-top:15px;font-size:20px;color:#666;font-family:Roboto;font-weight:300;display:none;float:left;clear:both;\"></div>\n\
-		<div id=\"Clock\" style=\"color:#666;font-family:Roboto;font-weight:300;display:none;text-align:right;padding:30px;padding-bottom:10px;\"></div>\n\
+		<div id=\"ClockBottom\" style=\"position:absolute;width:100%;\">\n\
+			<div id=\"ClockDay\" style=\"font-size:30px;color:#444;font-family:Roboto;font-weight:300;padding:20px;padding-bottom:0px;float:left;\"></div>\n\
+			<div id=\"ClockWecker\" style=\"padding-left:15px;padding-top:15px;font-size:20px;color:#444;font-family:Roboto;font-weight:300;float:left;clear:both;\"></div>\n\
+			<div id=\"ClockNext\" style=\"margin-left:50%;display:none;\">\n\
+				<div style=\"font-size:30px;color:#444;font-family:Roboto;font-weight:300;padding:20px;padding-bottom:0px;\">Nächster Termin:</div>\n\
+				<div style=\"padding-left:15px;padding-top:15px;font-size:20px;color:#444;font-family:Roboto;font-weight:300;\">\n\
+					<div  id=\"ClockNext2\" style=\"padding:5px;\"></div>\n\
+				</div>\n\
+			</div>\n\
+		</div>\n\
+		<div id=\"Clock\" style=\"color:#444;font-family:Roboto;font-weight:300;display:none;text-align:right;padding:30px;padding-bottom:10px;padding-top:0px;\"></div>\n\
 		<div id=\"ClockTouch\" style=\"position:absolute;z-index:100;width:100%;\">\n\
 			<div style=\"padding:30px;padding-top:60px;\">\n\
 				<span style=\"font-size:200px;display:none;vertical-align:bottom;cursor:pointer;\" class=\"iconic curved_arrow\" id=\"ClockButtonSnooze\"></span>\n\
 				<div id=\"ClockButtonSnoozing\" style=\"display:none;vertical-align:bottom;\">\n\
 					<span style=\"font-size:200px;cursor:pointer;\" class=\"iconic moon_stroke\"></span><br />\n\
-					<span id=\"ClockSnoozeTimer\" style=\"color:#666;font-family:Roboto;font-weight:300;\"></span>\n\
+					<span id=\"ClockSnoozeTimer\" style=\"color:#444;font-family:Roboto;font-weight:300;\"></span>\n\
 				</div>\n\
 			</div>\n\
 		</div>\n\
@@ -405,17 +438,45 @@ var Wecker = {
 		
 		Wecker.updateWecker();
 		Wecker.update();
-		$j('#Clock').css("margin-top", ($j(window).height() - $j('#Clock').outerHeight())+"px").fadeIn("slow", function(){
-			$j('#ClockDay, #ClockRadio').fadeIn("fast", function(){
+		Wecker.nextTermin();
+		$j('#ClockBottom').css("margin-top", ($j(window).height())+"px");
+		
+		$j('#Clock')/*.css("margin-top", ($j(window).height() - $j('#Clock').outerHeight())+"px")*/.fadeIn("slow", function(){
+			/*$j('#ClockDay').fadeIn("fast", function(){
 				$j('#ClockWecker').fadeIn();
-			});
-			
+			});*/
+			$j('#ClockBottom').animate({"margin-top": ($j(window).height() / 5 * 3)+"px"}, 800);
 		});
 		
-		$j('#ClockTouch').css("height", $j('#Clock').outerHeight()).css("top", ($j('#Clock').offset().top)+"px");
+		$j('#ClockTouch').css("height", $j('#Clock').outerHeight()).css("top", /*($j('#Clock').offset().top)+*/"0px");
 		Wecker.interval = window.setInterval(function(){
+			if(Wecker.intervalCounter == 60 * 30){
+				Wecker.intervalCounter = 0;
+				Wecker.nextTermin();
+			}
+			
 			Wecker.update();
+			
+			Wecker.intervalCounter++;
 		}, 1000);
+		
+		Wecker.init = true;
+	},
+	
+	nextTermin: function(){
+		contentManager.rmePCR("mWecker", "-1", "checkTermine", "", function(transport){
+			if(transport.responseText == "false"){
+				$j('#ClockNext').fadeOut();
+				return;
+			}
+			
+			$j('#ClockNext').fadeIn();
+			var data = $j.parseJSON(transport.responseText);
+			var jetzt = new Date(data[0].start * 1000);
+			
+			$j('#ClockNext2').html("<span class=\"iconic arrow_right\" style=\"color:#888;float:left;margin-top:5px;margin-right:5px;\"></span> "+jetzt.getHours()+':'+(jetzt.getMinutes() < 10 ? '0' : '')+jetzt.getMinutes()+" Uhr - "+data[0].name);
+			
+		});
 	}
 }
 

@@ -31,6 +31,9 @@ class T {
 	}
 	
 	public static function _($text){
+		if(!function_exists("bindtextdomain"))
+			return $text;
+		
 		if(trim($text) == "" OR trim($text) == "&nbsp;")
 			return $text;
 		#echo self::$currentDomain.":".$text."<br />";
@@ -65,6 +68,9 @@ class T {
 	}
 	
 	public static function load($pluginPath, $domain = ""){
+		if(!function_exists("bindtextdomain"))
+			return;
+		
 		self::$domainPaths[$domain] = $pluginPath."/locale";
 
 		if(!self::$localeSet){
@@ -72,6 +78,7 @@ class T {
 			self::$localeSet = true;
 		}
 		self::D($domain);
+		
 		
 		bindtextdomain("messages$domain", self::$domainPaths[$domain]);
 		bind_textdomain_codeset("messages$domain", "UTF-8");

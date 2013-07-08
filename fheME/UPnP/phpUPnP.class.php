@@ -49,18 +49,18 @@ class phpUPnP {
 
 		// SET TIMEOUT FOR RECIEVE
 		socket_set_option($sock, SOL_SOCKET, SO_RCVTIMEO, array('sec' => $sockTimout, 'usec' => '0'));
-		echo "<pre style=\"max-height:500px;overflow:auto;\">";
+		#echo "<pre style=\"max-height:500px;overflow:auto;\">";
 		// RECIEVE RESPONSE
 		$response = array();
 		do {
 			unset($buf);
 			@socket_recv($sock, $buf, 1024, MSG_WAITALL); //, $from, $port );
 			if (!is_null($buf)){
-				print_r($buf);
+				#print_r($buf);
 				$response[] = $this->parseHeaders($buf);
 			}
 		} while (!is_null($buf));
-echo "</pre>";
+		#echo "</pre>";
 		// CLOSE SOCKET
 		socket_close($sock);
 

@@ -123,15 +123,26 @@ $validUntil = Environment::getS("validUntil", null);
 
 if($_SESSION["S"]->checkIfUserLoggedIn() == false) $_SESSION["CurrentAppPlugins"]->scanPlugins();
 
+$updateTitle = true;
+$title = Environment::getS("renameFramework", "phynx by Furtmeier Hard- und Software");
+if(isset($_GET["title"]) AND preg_match("/[a-zA-Z0-9 _-]*/", $_GET["title"])){
+	$title = $_GET["title"];
+	$updateTitle = false;
+}
+$favico = "./images/FHSFavicon.ico";
+$sephy = Session::physion();
+if($sephy AND isset($sephy[3]) AND $sephy[3])
+		$favico = $sephy[3];
+
 ?><!DOCTYPE html>
 <html>
 	<head>
 		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
 		<meta name="revisit-after" content="14 days" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-		<title><?php echo Environment::getS("renameFramework", "phynx by Furtmeier Hard- und Software"); ?></title>
+		<title><?php echo $title ?></title>
 
-		<link rel="shortcut icon" href="./images/FHSFavicon.ico" /> 
+		<link rel="shortcut icon" href="<?php echo $favico ?>" /> 
 		
 		<!--<script src="https://login.persona.org/include.js"></script>-->
 		
@@ -179,7 +190,7 @@ if($_SESSION["S"]->checkIfUserLoggedIn() == false) $_SESSION["CurrentAppPlugins"
 		<?php if(file_exists(Util::getRootPath()."ubiquitous/Wysiwyg/tiny_mce/tiny_mce.js")) echo '
 		<script type="text/javascript" src="./ubiquitous/Wysiwyg/tiny_mce/tiny_mce.js?r='.$build.'"></script>
 		<script type="text/javascript" src="./ubiquitous/Wysiwyg/tiny_mce/jquery.tinymce.js?r='.$build.'"></script>'; ?> 
-		<script type="text/javascript" src="./javascript/DynamicJS.php?r=<?php echo rand(); ?>"></script>
+		<!--<script type="text/javascript" src="./javascript/DynamicJS.php?r=<?php echo rand(); ?>"></script> MOVED TO JSLOADER 22042013!!-->
 
 		<script type="text/javascript">
 			if(typeof contentManager == "undefined")
@@ -313,7 +324,7 @@ if($_SESSION["S"]->checkIfUserLoggedIn() == false) $_SESSION["CurrentAppPlugins"
 							<input
 								class="bigButton"
 								type="button"
-								style="float:right;background-image:url(./images/navi/keys.png);background-color:#CCC;"
+								style="float:right;background-image:url(./images/navi/keys.png);background-color:#CCC;width: 150px;"
 								onclick="userControl.doLogin();"
 								value="<?php echo T::_("Anmelden"); ?>" />
 							
@@ -322,7 +333,7 @@ if($_SESSION["S"]->checkIfUserLoggedIn() == false) $_SESSION["CurrentAppPlugins"
 							<div style="padding-top:3px;" id="saveLoginDataContainer">
 								<input
 									type="checkbox"
-									style="margin-right:5px;float:left"
+									style="margin:0px;margin-right:5px;float:left;"
 									onclick="if($j(this).prop('checked')) $j('#doAutoLoginContainer').fadeIn(); else { $j('#doAutoLogin').prop('checked', false); $j('#doAutoLoginContainer').fadeOut(); }"
 									name="saveLoginData"
 									id="saveLoginData" />
@@ -335,7 +346,7 @@ if($_SESSION["S"]->checkIfUserLoggedIn() == false) $_SESSION["CurrentAppPlugins"
 							<div style="padding-top:5px;display:none;" id="doAutoLoginContainer">
 								<input
 									type="checkbox"
-									style="margin-right:5px;float:left"
+									style="margin:0px;margin-right:5px;float:left"
 									name="doAutoLogin"
 									id="doAutoLogin"
 									onclick="userControl.abortAutoLogin();"/>
@@ -654,7 +665,31 @@ if($_SESSION["S"]->checkIfUserLoggedIn() == false) $_SESSION["CurrentAppPlugins"
 		</div>
 		<script type="text/javascript">
 			$j(document).ready(function() {
-				Ajax.physion = '<?php echo $physion; ?>'
+				Ajax.physion = '<?php echo $physion; ?>';
+				<?php $build = Phynx::build(); if($build) echo "Ajax.build = '$build';\n"; ?>
+				$j(document).keydown(function(evt){
+					if(!(evt.keyCode == 83 && evt.ctrlKey))
+						return;
+					evt.preventDefault();
+					
+					var element = $j(evt.target).prop("tagName").toLowerCase();
+					
+					if(element != "input" && element != "select" && element != "textarea")
+						return;
+					
+					
+					var button = $j(evt.target).parent().parent().parent().find("input[name=currentSaveButton]");
+					if(button.length != 1)
+						return;
+					
+					button.trigger("click");
+				});
+
+				<?php
+				if(!$updateTitle)
+					echo "
+				contentManager.updateTitle = false;";
+				?>
 
 				contentManager.init();
 

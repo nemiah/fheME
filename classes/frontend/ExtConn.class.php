@@ -140,6 +140,21 @@ class ExtConn {
 		$_SESSION["viaInterface"] = true;
 	}
 
+	public function loadPlugin($app, $folder, $optional = false){
+		if(!file_exists(Util::getRootPath()."$app/$folder/plugin.xml") AND !$optional)
+			throw new Exception("Required plugin $app/$folder not available");
+			
+		if(!file_exists(Util::getRootPath()."$app/$folder/plugin.xml"))
+			return false;
+		
+		$xml = new XMLPlugin(Util::getRootPath()."$app/$folder/plugin.xml");
+		
+		require_once Util::getRootPath()."$app/$folder/".$xml->registerClassName().".class.php";
+		$this->addClassPath(Util::getRootPath()."$app/$folder");
+		
+		return true;
+	}
+	
 	function autofailer(){
 		spl_autoload_register("ExtConn::autofail");
 	}

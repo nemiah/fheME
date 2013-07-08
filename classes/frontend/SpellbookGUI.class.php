@@ -26,7 +26,7 @@ class SpellbookGUI implements iGUIHTMLMP2 {
 			"uri" => "http://www.open3a.de/page-SOAP");
 		try {
 			$S = new SoapClient(null, $options);
-			$I = $S->getPluginDescription($requestPlugins, false);
+			$I = $S->getPluginDescription($requestPlugins, false, Applications::activeApplication());
 		} catch (Exception $e){
 			$connection = false;
 		}
@@ -114,7 +114,7 @@ class SpellbookGUI implements iGUIHTMLMP2 {
 			<div style=\"width:33%;float:left;\">
 				<div style=\"margin:10px;\" class=\"borderColor1 spell\">
 					<div class=\"backgroundColor2\" style=\"padding:10px;padding-bottom:5px;\">
-						$BG$B<h2 style=\"margin-bottom:0px;width:150px;\">$key</h2>
+						$BG$B<h2 style=\"margin-bottom:0px;margin-top:0px;\">$key</h2>
 					</div>
 					<div style=\"padding:7px;\">
 						$I<label style=\"float:none;width:200px;text-align:left;display:inline;margin-left:10px;font-wight:normal;\" for=\"usePlugin$value\">Plugin verwenden</label>

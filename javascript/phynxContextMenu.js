@@ -21,7 +21,7 @@
 var phynxContextMenu = {
 	container: null,
 	fakeContainer: null,
-	headerText: "<a href=\"#\" onclick=\"phynxContextMenu.stop(); return false;\" class=\"closeContextMenu backgroundColor0 borderColor0\" />X</a>",
+	headerText: "<span onclick=\"phynxContextMenu.stop(); return false;\" class=\"closeContextMenu iconic x\" /></span>",
 	toButton: null,
 	goUp: false,
 	
@@ -100,7 +100,7 @@ var phynxContextMenu = {
 		$('cMData').update(transport.responseText);
 		$('fakecMData').update(transport.responseText);
 		
-		if(phynxContextMenu.goUp) $('cMDiv').style.top = (Observer.lastMouseY - phynxContextMenu.fakeContainer.offsetHeight)+"px";
+		if(phynxContextMenu.goUp) $j('#cMDiv').css("top", (parseInt($j('#cMDiv').css("top")) - phynxContextMenu.fakeContainer.offsetHeight)+"px");
 		
 		$j('#cMDiv').css("width", options.width ? options.width : "200px");
 		
@@ -126,12 +126,23 @@ var phynxContextMenu = {
 		if(phynxContextMenu.container == null) phynxContextMenu.init();
 		else phynxContextMenu.reInit();
 
-		$('cMHeader').innerHTML = phynxContextMenu.headerText+""+label;
-		$('fakecMHeader').innerHTML = phynxContextMenu.headerText+""+label;
+		$j('#cMHeader').html(phynxContextMenu.headerText+""+label);
+		$j('#fakecMHeader').html(phynxContextMenu.headerText+""+label);
 		
-		$('cMDiv').style.top = ($j(toButton).offset().top + $j(toButton).height() / 2)+"px";
-		if(!leftOrRight || leftOrRight == "right") $('cMDiv').style.left = ($j(toButton).offset().left  + $j(toButton).width() / 2)+"px";
-		else if(leftOrRight && leftOrRight == "left") $('cMDiv').style.left = ($j(toButton).offset().left  + $j(toButton).width() / 2 - $('cMDiv').style.width.replace(/px/,""))+"px";
+		var topPos = ($j(toButton).offset().top + $j(toButton).height() / 2);
+		var leftPos = $j(toButton).offset().left  + $j(toButton).width() / 2;
+		if(Interface.isDesktop){
+			leftPos -= $j('#navTabsWrapper').outerWidth();
+			topPos -= parseInt($j('#desktopWrapper').css("margin-top")) + $j(window).scrollTop();
+		}
+		//console.log(leftPos);
+		//console.log(topPos);
+		$j('#cMDiv').css("top", topPos+"px");
+		if(!leftOrRight || leftOrRight == "right")
+			$j('#cMDiv').css("left", leftPos+"px");
+		else if(leftOrRight && leftOrRight == "left")
+			$j('#cMDiv').css("left", (leftPos - $('cMDiv').style.width.replace(/px/,""))+"px");
+		
 		
 		contentManager.rmePCR(targetClass, "", "getContextMenuHTML", [identifier], function(transport){
 			phynxContextMenu.appear(transport, options);

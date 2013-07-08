@@ -170,15 +170,16 @@ class GUIFactory {
 		return $B;
 	}
 
-	private function getSelectButton(){
-		$B = new Button("Auswahl hinzufügen","./images/i2/cart.png");
+	public function getSelectButton($onClick = null){
+		$B = new Button("Auswahl hinzufügen","./images/i2/cart.png", "icon");
 		$B->onclick(str_replace(array("%COLLECTIONNAME","%CLASSNAME", "%CLASSID"), array($this->collectionName,$this->className, $this->classID), $this->functionSelect));
-		$B->type("icon");
+		if($onClick != null)
+			$B->onclick($onClick);
 		$B->className("selectionButton");
 		return $B;
 	}
 
-    private function getEditButton(){
+    public function getEditButton(){
 		$B = $this->getButton("Eintrag bearbeiten", "./images/i2/edit.png");
 		$B->type("icon");
 		$B->className("editButton");
@@ -187,7 +188,7 @@ class GUIFactory {
 		return $B;
 	}
 
-	private function getDeleteButton(){
+	public function getDeleteButton(){
 		$targetFrame = "contentRight";
 		
 		if($this->tableMode == "screen")
@@ -239,6 +240,9 @@ class GUIFactory {
 		if($this->targetFrame != null)
 			$this->multiPageDetails["target"] = $this->targetFrame;
 		
+		if(!isset($this->multiPageDetails["target"]))
+			$this->multiPageDetails["target"] = "";
+		
 		$pages = ceil($this->multiPageDetails["total"] / $this->multiPageDetails["perPage"]);
 
 		$pageLinks = $pages." Seite".($pages != 1 ? "n" : "").": ";
@@ -271,6 +275,24 @@ class GUIFactory {
 			else $pageLinks .= ($i+1)." ";
 
 		return $pageLinks;
+	}
+
+	public function getQuickfilterInput(){
+		$do = "if(checkResponse(transport)) contentManager.reloadFrameRight();";
+		if($this->tableMode == "popup")
+			$do = OnEvent::reloadPopup($this->collectionName);
+		
+		$I = new HTMLInput("quickFilter", "text", mUserdata::getUDValueS("searchFilterInHTMLGUI".$this->collectionName));
+		#$I->hasFocusEvent(true);
+		$I->id("quickFilter$this->collectionName");
+		$I->onEnter(OnEvent::rme(new HTMLGUI(-1), "saveContextMenu", array("'searchFilter'","'$this->collectionName;:;'+$('quickFilter$this->collectionName').value"), $do));
+		#$I->onkeyup("AC.update(event.keyCode, this, '$this->collectionName','quickSearchLoadFrame');");
+		$I->autocompleteBrowser(false);
+		#$I->onfocus("focusMe(this); ACInputHasFocus=true; AC.start(this); if(this.value != '') AC.update('10', this, '$this->collectionName', 'quickSearchLoadFrame');");
+		#$I->onblur("blurMe(this); ACInputHasFocus=false; AC.end(this);");
+		$I->placeholder("Filtern");
+		
+		return $I;
 	}
 
 	public function getQuicksearchInput(){
@@ -522,8 +544,9 @@ class GUIFactory {
 				$this->table->addRow($wholeLine1);
 				$this->table->addRowColspan(2, count($this->referenceLine) -1);
 				$this->table->addRowClass("backgroundColorHeader");
-			}
-			if($this->tableMode == "BrowserLeft" OR $this->tableMode == "screen"){
+			}$this->table->addRowClass("backgroundColorHeader");
+			
+			if($this->tableMode == "BrowserLeft" OR $this->tableMode == "screen" OR $this->tableMode == "popup"){
 				$wholeLine1 = array($this->multiPageDetails["total"]." ".($this->multiPageDetails["total"] != 1 ? "Einträge" : "Eintrag").", $wholeLine2");
 				$wholeLine1 = array_pad($wholeLine1, count($this->referenceLine) - 1, "");
 				if($this->multiPageDetails["perPage"] === "0")
@@ -612,25 +635,52 @@ class GUIFactory {
 
 			$this->setColStyle($this->referenceLine[count($this->referenceLine) - 1], "width:20px;");
 		}
+		
+		if($this->tableMode == "popup") {
+			$wholeLine2 = array($this->getQuickfilterInput());
+			$wholeLine2 = array_pad($wholeLine2, count($this->referenceLine) - 1, "");
+			$wholeLine2[] = $this->getQuicksearchButton();
+
+			$this->table->addRow($wholeLine2);
+			$this->table->addRowColspan(1, count($this->referenceLine) - 1);
+			$this->table->addRowClass("backgroundColorHeader");
+
+			$this->setColStyle($this->referenceLine[count($this->referenceLine) - 1], "width:20px;");
+		}
 
 	}
 	// </editor-fold>
 
 	// <editor-fold defaultstate="collapsed" desc="buildFilteredWarningLine">
 	public function buildFilteredWarningLine(){
-		$dB = new Button("Filter löschen", "./images/i2/delete.gif");
+		$dB = new Button("Filter löschen", "./images/i2/delete.gif", "icon");
 		$dB->style("float:right;");
-		$dB->type("icon");
-		$dB->rme("HTML","","saveContextMenu", array("'deleteFilters'","'$this->collectionName'"), "if(checkResponse(transport)) contentManager.reloadFrame(\'contentRight\');");
+		$dB->rmePCR("HTML","","saveContextMenu", array("'deleteFilters'","'$this->collectionName'"), "if(checkResponse(transport)) contentManager.reloadFrame(\'contentRight\');");
 
-		$BW = new Button("", "./images/i2/note.png");
-		$BW->type("icon");
+		$BW = new Button("", "./images/i2/note.png", "icon");
 
-		$wholeLine2 = array($BW, $dB."<span style=\"color:grey;\">Die Anzeige wurde gefiltert</span>");
+		if($this->tableMode == "popup"){
+			$dB->style("");
+			$dB->rmePCR("HTML","","saveContextMenu", array("'deleteFilters'","'$this->collectionName'"), OnEvent::reloadPopup($this->collectionName));
+			
+			$BW->style("margin-right:5px;float:left;");
+			
+			$wholeLine2 = array("$BW<span style=\"color:grey;\">Die Anzeige wurde gefiltert</span>");
+			for($i = 1; $i < count($this->referenceLine) - 1; $i++)
+				$wholeLine2[] = "";
+			
+			$wholeLine2[] = $dB;
 
-		$this->table->addRow($wholeLine2);
-		$this->table->addRowColspan(2, count($this->referenceLine) - 1);
-		$this->table->addRowClass("backgroundColor0");
+			$this->table->addRow($wholeLine2);
+			$this->table->addRowColspan(1, count($this->referenceLine) - 1);
+			$this->table->addRowClass("backgroundColor0");
+		} else {
+			$wholeLine2 = array($BW, $dB."<span style=\"color:grey;\">Die Anzeige wurde gefiltert</span>");
+
+			$this->table->addRow($wholeLine2);
+			$this->table->addRowColspan(2, count($this->referenceLine) - 1);
+			$this->table->addRowClass("backgroundColor0");
+		}
 	}
 	// </editor-fold>
 
@@ -638,6 +688,12 @@ class GUIFactory {
 		$this->blacklists = array(array_flip($IDs[0]), array_flip($IDs[1]));
 	}
 
+	public function editInPopup($par1 = null){
+		$new = "contentManager.editInPopup('%CLASSNAME', %CLASSID, 'Eintrag bearbeiten', ''".($par1 != null ? ", $par1" : "").");";
+		$this->replaceEvent("onNew", $new);
+		$this->replaceEvent("onEdit", $new);
+	}
+	
 	// <editor-fold defaultstate="collapsed" desc="setTableMode">
 	public function setTableMode($TM){
 		if($TM == null)
@@ -667,6 +723,14 @@ class GUIFactory {
 		if($this->tableMode == "screen")
 			$this->multiPageDetails["target"] = "contentScreen";
 		
+		
+		if($this->tableMode == "popup"){
+			$this->functionPageFirst = OnEvent::reloadPopup($this->collectionName, "", "0");
+			$this->functionPageLast = OnEvent::reloadPopup($this->collectionName, "", "%PAGE");
+			$this->functionPageNext = OnEvent::reloadPopup($this->collectionName, "", "%PAGE");
+			$this->functionPagePrevious = OnEvent::reloadPopup($this->collectionName, "", "%PAGE");
+			$this->functionPageSpecific = OnEvent::reloadPopup($this->collectionName, "", "%PAGE");
+		}
 	}
 	// </editor-fold>
 
@@ -722,15 +786,26 @@ class GUIFactory {
 		$js = OnEvent::script("
 			if(\$j('#$FormID input[name=currentSaveButton], #$FormID input[name=submitForm]').length > 0) {
 				
-				\$j('#$FormID input[type=text], #$FormID textarea').keyup(function(event){ 
+				\$j('#$FormID input[type=text], #$FormID textarea').keydown(function(event){
+					
+					if(event.keyCode == 17)
+						return;
+						
+					if(event.keyCode == 83 && event.ctrlKey)
+						return;
+					
 					\$j(event.currentTarget).addClass('recentlyChanged'); 
 					\$j('#$FormID input[name=currentSaveButton], #$FormID input[name=submitForm]').closest('tr').addClass('recentlyChanged');
 				}).change(function(event){ 
+					if(event.keyCode == 83 && event.ctrlKey)
+						return;
+						
 					\$j(event.currentTarget).addClass('recentlyChanged'); 
 					\$j('#$FormID input[name=currentSaveButton], #$FormID input[name=submitForm]').closest('tr').addClass('recentlyChanged');
 				});
 
 				\$j('#$FormID input[type=checkbox]').change(function(event){ 
+						
 					\$j(event.currentTarget).addClass('recentlyChanged'); 
 					\$j('#$FormID input[name=currentSaveButton], #$FormID input[name=submitForm]').closest('tr').addClass('recentlyChanged');
 				});

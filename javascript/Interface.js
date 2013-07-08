@@ -44,7 +44,7 @@ var Interface = {
 	
 	resizeWrapper: function() {
 		size = Overlay.getPageSize(true);
-		$('wrapper').style.height = (size[1] - 150)+'px';
+		$j('#wrapper').css("height", ($j(window).height() - 150)+'px').css("width", (contentManager.maxWidth() - 250 - 50)+'px');
 	},
 	
 	translateStatusMessage: function(message, writeToFieldID){
@@ -104,6 +104,49 @@ var Interface = {
 		}
 		
 		window.setTimeout("Interface.showLoading()", 800);
+	},
+	
+	notifyPermission: function(){
+		if(typeof webkitNotifications == "object"){
+			var perm = webkitNotifications.checkPermission();
+			if(perm == 0)
+				return "granted";
+			
+			if(perm == 1 || perm == 2)
+				return "denied";
+		}
+		
+		return Notification.permission;
+	},
+	
+	notifyRequest: function(callback){
+		Notification.requestPermission(function(perm){
+			if(typeof callback == "function")
+				callback(perm);
+		});
+
+	},
+	
+	notify: function(title, message){
+		if(typeof Notification != "function")
+			return;
+		
+		if(Interface.notifyPermission() != "granted")
+			return;
+		
+		Interface.notifySend(title, message);
+	},
+			
+	notifySend: function(title, message){
+		var N = new Notification(title, {
+			body: message
+		});
+		
+		if(typeof N.close == "function")
+			setTimeout(function(){
+				N.close();
+			}, 5000);
+
 	}
 
 }
@@ -127,7 +170,7 @@ function checkVirtualBox(image, targetFieldId, setValue){
 /**
  * @deprecated since 27.11.2012
  */
-function showHideTBody(what, image){
+/*function showHideTBody(what, image){
 	alert("showHideTBody is DEPRECATED");
 	
 	while(what.tagName != "TABLE") what = what.parentNode;
@@ -142,7 +185,7 @@ function showHideTBody(what, image){
 		what.style.display = "none";
 		//image.src.replace(/less/,"more");
 	}
-}
+}*/
 
 function showMessage(message){
 	if(!$("messenger")) {

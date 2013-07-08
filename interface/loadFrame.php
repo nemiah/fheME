@@ -22,6 +22,10 @@
 require "../system/connect.php";
 #$output = new Output('auto', true, false);
 
+$build = Phynx::build();
+if($build)
+	header("X-Build: ".$build);
+
 if($_SESSION["S"]->checkIfUserLoggedIn() == true) {
 	#setcookie(session_name(),"",time()-1000);
 	#echo session_id();

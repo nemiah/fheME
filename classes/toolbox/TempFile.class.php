@@ -167,7 +167,7 @@ class TempFile {
 		return $line;*/
 	}
 
-	public function makeUpload($A){
+	public function makeUpload($A, $quiet = false){
 		$maxSize = Util::getMaxUpload();
 
 		if(!isset($_FILES['qqfile'])){ //XHR upload for good browsers
@@ -204,7 +204,9 @@ class TempFile {
 		if(!isset($_SESSION["TempFiles"])) $_SESSION["TempFiles"] = new ArrayCollection();
 		$_SESSION["TempFiles"]->add($this);
 
-		echo "{\"success\":true}";
+		if(!$quiet)
+			echo "{\"success\":true}";
+		return true;
 	}
 
 	public function newMe(){

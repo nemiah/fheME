@@ -138,8 +138,8 @@ class Button {
 		$this->class = $class;
 	}
 
-	function newSession($physionName, $application, $plugin){
-		$this->onclick = "contentManager.newSession('$physionName', '$application', '$plugin'".(isset($_SESSION["phynx_customer"]) ? ", '".$_SESSION["phynx_customer"]."'" : "").");";
+	function newSession($physionName, $application, $plugin, $title = null, $icon = null){
+		$this->onclick = "contentManager.newSession('$physionName', '$application', '$plugin', ".(isset($_SESSION["phynx_customer"]) ? "'".$_SESSION["phynx_customer"]."'" : "''").", '".($title != null ? $title : "")."', '".($icon != null ? $icon : "")."');";
 	}
 	
 	function select($isMultiSelection, $selectPlugin, $callingPlugin, $callingPluginID, $callingPluginFunction){

@@ -44,7 +44,13 @@ a:link, a:active, a:visited {
 	color:black;
 }
 
-input, select, textarea, .AJAXUpload {
+input[type=text],
+input[type=submit],
+input[type=password],
+input[type=radio],
+input[type=checkbox],
+input[type=button],
+input[type=submit], select, textarea, .AJAXUpload {
 	border-bottom-color:#444;
 }
 
@@ -60,11 +66,11 @@ input, select, textarea, .AJAXUpload {
 /**
   * FRAMES
   **/
-  
+/*
 #wrapper {
 	border-color:#111111;
 	background-color:white;
-}
+}*/
 
 #contentLeft table, #contentRight table, #windows table {
 	border-color:#999;
@@ -81,7 +87,7 @@ input, select, textarea, .AJAXUpload {
 /**
   * NAVIGATION
   **/
-
+/*
 .navBackgroundColor {
 	background-color:#5c8599;
 }
@@ -99,4 +105,4 @@ input, select, textarea, .AJAXUpload {
 	background-color:white;
 	border-color:#111111;
 	border-bottom-color:white;
-}
+}*/

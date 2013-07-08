@@ -57,6 +57,7 @@ class DBStorageU {
 		if(mysql_error() AND (mysql_errno() == 1049 OR mysql_errno() == 1044)) throw new DatabaseNotFoundException();
 		
 		mysql_query("SET SESSION sql_mode = ''");
+		mysql_set_charset("utf8");
 		
 		self::$globalConnection[get_class($this)] = $this->connection;
 	}

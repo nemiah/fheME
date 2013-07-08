@@ -876,9 +876,10 @@ class HTMLGUIX {
 				#$this->functionEdit = $this->functionNew;
 			break;
 			case "editInPopup":
-				$new = "contentManager.editInPopup('%CLASSNAME', %CLASSID, 'Eintrag bearbeiten', ''".($par1 != null ? ", $par1" : "").");";
-				$this->GUIFactory->replaceEvent("onNew", $new);
-				$this->GUIFactory->replaceEvent("onEdit", $new);
+				#$new = "contentManager.editInPopup('%CLASSNAME', %CLASSID, 'Eintrag bearbeiten', ''".($par1 != null ? ", $par1" : "").");";
+				#$this->GUIFactory->replaceEvent("onNew", $new);
+				#$this->GUIFactory->replaceEvent("onEdit", $new);
+				$this->GUIFactory->editInPopup($par1);
 			break;
 			
 			case "addSaveDefaultButton":

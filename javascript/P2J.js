@@ -153,6 +153,8 @@ jQuery(function($j){
                 dayStatus: 'Setze DD als ersten Wochentag', dateStatus: 'Wähle D, M d',
                 dateFormat: 'dd.mm.yy', firstDay: 1, 
                 initStatus: 'Wähle ein Datum', isRTL: false};
+			
+		$j.datepicker.regional['de_CH'] = $j.datepicker.regional['de_DE'];
 });
 
 var P2J = {
@@ -201,11 +203,14 @@ function PeriodicalExecuter(callback, delayInSeconds) {
 
 var Ajax = {
 	physion: "default",
+	build: null,
 	
 	Request: function(anurl, options){
 		$j.ajax({
-			url: anurl+(Ajax.physion != "default" ? "&physion="+Ajax.physion : ""), success: function(transport){
-
+			url: anurl+(Ajax.physion != "default" ? "&physion="+Ajax.physion : ""), success: function(transport, textStatus, request){
+				//if(request.getResponseHeader("X-Build") && Ajax.build && Ajax.build != request.getResponseHeader("X-Build"))
+				//	console.log("Update required!");
+				
 				var t = {
 					responseText: transport
 				}
@@ -420,7 +425,7 @@ if(Modernizr.touch && useTouch == null){
 
 
 var Touch = {
-	use: false,
+	use:false,
 	hook: function(){
 		var currentHTMLMethod = jQuery.fn.html;
 		jQuery.fn.html = function(){
@@ -456,6 +461,7 @@ var Touch = {
 if(useTouch){
 	Touch.hook();
 	Touch.use = true;
+	
 	$j(document).on("touchend", ".contentBrowser td", function(ev){
 		$j(this).parent().removeClass("highlight");
 		
