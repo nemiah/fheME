@@ -27,15 +27,15 @@ $E = new ExtConn($absolutePathToPhynx);
 
 $E->addClassPath($absolutePathToPhynx . "/ubiquitous/xCal/");
 $E->addClassPath($absolutePathToPhynx . "/ubiquitous/Sync/");
+$E->addClassPath($absolutePathToPhynx . "/ubiquitous/Todo/");
+$E->addClassPath($absolutePathToPhynx . "/ubiquitous/Kalender/");
 
 $E->useDefaultMySQLData();
 
-$userToken = $_GET["auth_token"];
+
 $cutoffDatePast = $_GET["cutoff_past"];
 $cutoffDateFuture = $_GET["cutoff_future"];
 
-if (!preg_match("/^[a-z0-9]+$/i", $userToken))
-	die("incorrect login information");
 
 if (!preg_match("/^[0-9]*$/", $cutoffDatePast))
 	die("incorrect date format");
@@ -49,11 +49,22 @@ if (empty($cutoffDatePast))
 if (empty($cutoffDateFuture))
 	$cutoffDateFuture = time() + (84 * 24 * 3600);
 
-if (file_exists($absolutePathToPhynx . "/ubiquitous/Sync/mSync.class.php"))
-	require_once($absolutePathToPhynx . "/ubiquitous/Sync/mSync.class.php");
 
-$user = mSync::getUserByToken($userToken);
-$E->login($user->A("username"), $user->A("SHApassword"));
+if(isset($_GET["auth_token"])){
+	if (file_exists($absolutePathToPhynx . "/ubiquitous/Sync/mSync.class.php"))
+		require_once($absolutePathToPhynx . "/ubiquitous/Sync/mSync.class.php");
+
+	$userToken = $_GET["auth_token"];
+	if (!preg_match("/^[a-z0-9]+$/i", $userToken))
+		die("incorrect login information");
+	
+	$user = mSync::getUserByToken($userToken);
+	$E->login($user->A("username"), $user->A("SHApassword"));
+}
+else 
+	$E->login($_GET["username"], $_GET["password"]);
+
+
 
 $calendar = mTodoGUI::getCalendarData($cutoffDatePast, $cutoffDateFuture);
 $events = array();

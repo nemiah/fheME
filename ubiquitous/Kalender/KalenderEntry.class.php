@@ -33,7 +33,9 @@ class KalenderEntry {
 	protected $UID;
 	protected $organizer;
 	protected $repeat = false;
-	protected $repeatInterval;
+	protected $repeatType;
+	protected $repeatInterval = 0;
+	protected $repeatUntil = 0;
 	protected $repeatWeekOfMonth = 0;
 	protected $repeatDayOfWeek = "";
 
@@ -103,18 +105,20 @@ class KalenderEntry {
 		return $this->title;
 	}
 
-	function repeat($activate = null, $interval = null, $weekOfMonth = 0, $dayOfWeek = ""){
+	function repeat($activate = null, $type = null, $weekOfMonth = 0, $dayOfWeek = "", $interval = 0, $until = 0){
 		if($activate != null){
 			$this->repeat = $activate;
-			$this->repeatInterval = $interval;
+			$this->repeatType = $type;
 			$this->repeatWeekOfMonth = $weekOfMonth;
 			$this->repeatDayOfWeek = $dayOfWeek;
+			$this->repeatInterval = $interval;
+			$this->repeatUntil = $until;
 		}
 
 		if($this->repeat === false)
 			return false;
 		
-		return $this->repeatInterval;
+		return $this->repeatType;
 	}
 
 	function summary($text = null){

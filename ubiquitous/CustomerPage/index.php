@@ -34,6 +34,7 @@ if(isset($_GET["CC"])){
 		<title><?php echo $pageTitle; ?></title>
 		
 		<link rel="stylesheet" type="text/css" href="./lib/jquery-ui-1.8.24.custom.css" />
+		<link rel="stylesheet" type="text/css" href="./lib/jquery.jgrowl.min.css" />
 		<style type="text/css">
 			* { margin:0px; }
 			article, aside, details, figcaption, figure, footer, header, hgroup, nav, section { display: block; }
@@ -41,7 +42,7 @@ if(isset($_GET["CC"])){
 			audio:not([controls]) { display: none; }
 			[hidden] { display: none; }
 
-			html { font-size: 100%; overflow-y: scroll; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+			html { font-size: 100%; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
 			body { margin: 10px; font-size: 13px; line-height: 1.231; }
 			body, button, input, select, textarea { font-family: sans-serif; color: #222; }
 
@@ -437,10 +438,11 @@ if(isset($_GET["CC"])){
 		<script type="text/javascript" src="./lib/jquery-ui-1.8.24.custom.min.js"></script>
 		<script type="text/javascript" src="./lib/jquery.validate.min.js"></script>
 		<script type="text/javascript" src="./lib/jstorage.min.js"></script>
+		<script type="text/javascript" src="./lib/jquery.jgrowl.min.js"></script>
 		
 		<script type="text/javascript">
 		var CustomerPage = {
-			rme: function(method, parameters, onSuccessFunction){
+			rme: function(method, parameters, onSuccessFunction, onFailureFunction){
 				
 				var ps = "";
 				if(typeof parameters == "object"){
@@ -457,6 +459,9 @@ if(isset($_GET["CC"])){
 					if(typeof onSuccessFunction == "function" && CustomerPage.checkResponse(transport))
 						onSuccessFunction(transport);
 					
+				}, error: function(){
+					if(typeof onFailureFunction == "function")
+						onFailureFunction();
 				}, type: "GET"});
 			},
 	

@@ -28,6 +28,7 @@ class RSSParser extends PersistentObject {
 			
 			$I->title = $item->title."";
 			$I->description = $item->description."";
+			$I->pubDate = strtotime($item->pubDate);
 			$I->icon = null;
 			
 			$E[] = $I;

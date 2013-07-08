@@ -27,6 +27,8 @@ class TodoGUI extends Todo implements iGUIHTML2 {
 
 		$this->setParser("TodoFromDay","Util::CLDateParser");
 		$this->setParser("TodoFromTime","Util::CLTimeParser");
+		$this->setParser("TodoRepeatUntil","Util::CLDateParserE");
+		
 		try {
 			$this->GUI = new CRMHTMLGUI($this);
 		} catch (ClassNotFoundException $e){

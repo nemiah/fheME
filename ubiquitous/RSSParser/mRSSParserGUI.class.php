@@ -36,8 +36,26 @@ class mRSSParserGUI extends anyC implements iGUIHTMLMP2 {
 	public function getOverviewContent($echo = true){
 		$html = "";
 		$i = 0;
+		
+		$header = false;
+		$AC = anyC::get("RSSParser", "RSSParserOnCall", "1");
+		while($RSS = $AC->getNextEntry()){
+			if(!$header){
+				$html .= "<div class=\"touchHeader\"><p>RSS</p></div><div style=\"padding:10px;\">";
+				$header = true;
+			}
+			
+			$B = new Button($RSS->A("RSSParserName"), "rss", "touch");
+			$B->popup("", $RSS->A("RSSParserName"), "RSSParser", $RSS->getID(), "showFeed");
+			$html .= $B;
+		}
+		
+		if($header)
+			$html .= "</div>";
+		
+		$this->addAssocV3("RSSParserOnCall", "=", "0");
 		while($RSS = $this->getNextEntry()){
-			$html .= "<div class=\"touchHeader\"><span class=\"lastUpdate\" id=\"lastUpdatemRSSParserGUI\"></span><p>".$RSS->A("RSSParserName")."</p></div><div style=\"padding:10px;\">$html";
+			$html .= "<div class=\"touchHeader\"><span class=\"lastUpdate\" id=\"lastUpdatemRSSParserGUI\"></span><p>".$RSS->A("RSSParserName")."</p></div><div style=\"padding:10px;\">";
 			
 			$list = new HTMLList();
 			$list->addListStyle("list-style-type:none;");
@@ -45,15 +63,15 @@ class mRSSParserGUI extends anyC implements iGUIHTMLMP2 {
 			
 			foreach($E AS $item){
 				$B = new Button("", "empty", "icon");
-				$B->style("float:left;margin-right:10px;margin-top:-5px;");
+				$B->style("float:left;margin-right:10px;margin-top:-5px;margin-bottom:10px;");
 				
 				if($item->icon != null)
 					$B->image($item->icon);
 				else
 					$B = "";
 				
-				$list->addItem($B."<div id=\"RSSParserItem$i\" style=\"margin-top:33px;position:absolute;width:200px;display:none;border-width:1px;border-style:solid;padding:5px;border-radius:5px;\" onclick=\"\$j(this).toggle();\" class=\"backgroundColor0 borderColor1 RSSParserItem\"><small>".$item->description."</small></div>".($item->description != "" ? "<a href=\"#\" onclick=\"\$j('.RSSParserItem').hide(); \$j('#RSSParserItem$i').toggle();\" >" : "").$item->title.($item->description != "" ? "</a>" : ""));
-				$list->addItemStyle("clear:both;height:40px;display:block;margin-left:0px;");
+				$list->addItem($B."<div id=\"RSSParserItem$i\" style=\"margin-top:33px;position:absolute;width:400px;display:none;border-width:1px;border-style:solid;padding:5px;border-radius:5px;\" onclick=\"\$j(this).toggle();\" class=\"backgroundColor0 borderColor1 RSSParserItem\"><small>".$item->description."</small></div>".($item->description != "" ? "<a href=\"#\" onclick=\"\$j('.RSSParserItem').hide(); \$j('#RSSParserItem$i').toggle();\" >" : "").$item->title.($item->description != "" ? "</a>" : ""));
+				$list->addItemStyle("clear:both;display:block;margin-left:0px;");
 				
 				$i++;
 			}

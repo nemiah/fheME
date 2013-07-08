@@ -20,9 +20,13 @@
 class KalenderHolidays extends KalenderEntry {
 	private $firstDay;
 	private $lastDay;
-
+	private $colorBG;
+	private $colorText;
+	private $group;
 	public static $count = 0;
-
+	public static $colored = array();
+	public static $pos = array();
+	
 	function __construct($className, $classID, $firstDay, $lastDay, $title) {
 		$this->className = $className;
 		$this->classID = $classID;
@@ -30,10 +34,21 @@ class KalenderHolidays extends KalenderEntry {
 		$this->firstDay = $firstDay;
 		$this->lastDay = $lastDay;
 		$this->title = $title;
-		$this->bgColor = self::$bgColors[self::$count];
-		self::$count++;
+		
+		
+		#$this->bgColor = self::$colored[$this->className.$this->classID];
+		#self::$count++;
 		
 		parent::__construct();
+	}
+	
+	function group($group){
+		$this->group = $group;
+	}
+	
+	private function color($hexBG, $hexText){
+		$this->colorBG = (strpos($hexBG, "#") !== 0 ? "#" : "").$hexBG;
+		$this->colorText = (strpos($hexText, "#") !== 0 ? "#" : "").$hexText;
 	}
 
 	function when($startDay, $endDay){
@@ -99,6 +114,26 @@ class KalenderHolidays extends KalenderEntry {
 		return $T;
 	}
 
+	function maxPos($day, $pos){
+		$monat = substr($day, 2, 2);
+		
+		if(!isset(self::$pos[$monat]))
+			self::$pos[$monat] = array();
+		
+		if(!isset(self::$pos[$monat][$this->group]))
+			self::$pos[$monat][$this->group] = count(self::$pos[$monat]);
+		
+		/*
+		
+		if(!isset(self::$pos[$this->group][$monat]))
+			self::$pos[$this->group][$monat] = count(self::$pos[$this->group][$monat]);*/
+		
+		#if($pos > self::$pos[$this->group][$monat])
+		#	self::$pos[$this->group][$monat] = $pos;
+	}
+	
+	private static $stacking = array();
+	
 	function getMinimal($time){
 		$B = "";
 		if($this->icon != null){
@@ -106,11 +141,31 @@ class KalenderHolidays extends KalenderEntry {
 			$B->type("icon");
 		}
 		
+		if(self::$count == count(KalenderEntry::$bgColors))
+			self::$count = 0;
+		
+		if(!isset(self::$colored[$this->group]))
+			self::$colored[$this->group] = KalenderEntry::$bgColors[self::$count++];
+		
+		$this->color(self::$colored[$this->group], "FFF");
+				
 		$this->onClick = str_replace(array("%%CLASSNAME%%", "%%CLASSID%%"), array($this->className, $this->classID), $this->onClick);
 
+		if(!isset(self::$stacking[date("dmY", $time)]))
+			self::$stacking[date("dmY", $time)] = 0;
+		
+		$countBefore = self::$stacking[date("dmY", $time)];
+		$monat = date("m", $time);
+		#echo "<pre style=\"font-size:8px;\">";
+		#print_r(self::$stacking[date("dmY", $time)]);
+		#print_r(self::$pos);
+		#echo "</pre>";
+		if(self::$pos[$monat][$this->group] + 1 > self::$stacking[date("dmY", $time)])
+			self::$stacking[date("dmY", $time)] = self::$pos[$monat][$this->group] + 1;
+		
 		#$('time_$this->className$this->classID$this->time').style.display = ''; 
 		return "
-			<div onclick=\"$this->onClick\" style=\"clear:left;padding:2px;cursor:pointer;overflow:hidden;height:13px;".($this->bgColor != null ? "color:white;background-color:$this->bgColor" : "")."\">
+			<div onclick=\"$this->onClick\" style=\"margin-top:".(17 * (self::$pos[$monat][$this->group] - $countBefore))."px;clear:left;padding:2px;cursor:pointer;overflow:hidden;height:13px;".($this->colorBG != null ? "color:$this->colorText;background-color:$this->colorBG" : "")."\">
 				$this->title
 			</div>";
 	}

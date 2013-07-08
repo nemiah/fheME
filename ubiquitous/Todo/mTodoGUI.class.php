@@ -64,11 +64,11 @@ class mTodoGUI extends mTodo implements iGUIHTMLMP2, iKalender {
 	public function getInviteForm($id) {
 		$gui = new HTMLForm("inviteForm", array("todoid", "adress_0"));
 		$gui->setType("todoid", "hidden", $id);
-		$gui->setAutoComplete("adress_0", "mTodo", "function(selection) { (typeof selection.UserEmail == 'undefined')? \$j('input[name=adress_0]').val(selection.email) : \$j('input[name=adress_0]').val(selection.UserEmail); return false; }");
+		$gui->setAutoComplete("adress_0", "mTodo", "function(selection) { (typeof selection.email != 'undefined')? \$j('input[name=adress_0]').val(selection.email) : \$j('input[name=adress_0]').val(selection.value); return false; }");
 		$gui->getTable()->setColWidth(1, 120);
 		$gui->setLabel("adress_0", "Teilnehmer 1");
 		$gui->addJSEvent("adress_0", "onfocus", OnEvent::rme($this, "newInput", 0, "function(transport) {\$j('input[name=adress_0]').closest('tr').after(transport.responseText); \$j('input[name=adress_0]').attr('onfocus', ''); }"));
-		$gui->setSaveJSON("Einladung verschicken", "", "mTodo", -1, "sendInvitation", "Popup.close('mKalender');");
+		$gui->setSaveJSON("Einladung verschicken", "", "mTodo", -1, "sendInvitation", OnEvent::closePopup("mKalender"));
 		
 		$gui->getAllFields();
 		echo $gui->getHTML();
@@ -77,23 +77,26 @@ class mTodoGUI extends mTodo implements iGUIHTMLMP2, iKalender {
 	public function newInput($number) {
 		$htmlTable = new HTMLTable(2);
 		$input = new HTMLInput("adress_" . ++$number, "text");
-		$input->autocomplete("mTodo", "function(selection) { (typeof selection.UserEmail == 'undefined')? \$j('input[name=adress_" . $number . "]').val(selection.email) : \$j('input[name=adress_" . $number . "]').val(selection.UserEmail); return false; }");
+		$input->autocomplete("mTodo", "function(selection) { (typeof selection.email != 'undefined')? \$j('input[name=adress_" . $number . "]').val(selection.email) : \$j('input[name=adress_" . $number . "]').val(selection.value); return false; }");
 		$input->onfocus(OnEvent::rme($this, "newInput", $number, "function(transport) {\$j('input[name=adress_" . $number . "]').closest('tr').after(transport.responseText); \$j('input[name=adress_" . $number . "]').attr('onfocus', ''); }"));
-		$htmlTable->addLV("Teilnehmer " . ($number + 1), $input);
+		$htmlTable->addLV("Teilnehmer " . ($number + 1) . ":", $input);
 		echo $htmlTable->getHTMLForUpdate(true);
 	}
 	
 	public function getACData($attributeName, $query) {
 		$users = Users::getUsers();
-		$users->addAssocV3("name", " LIKE ", "%" . $query . "%");
-		$users->addAssocV3("UserEmail", " LIKE ", "%" . $query . "%", "OR");
-		$users->addAssocV3("username", " LIKE ", "%" . $query . "%", "OR");
 		$selection = array();
+		$query = (preg_match("/%/", $query))? preg_replace("/%/", $query, "") : $query;
 		while ($user = $users->getNextEntry()) {
-			$subSelection = array();
-			foreach ($user->getA() as $key => $value)
-				$subSelection[$key] = $value;
-			$selection[] = $subSelection;
+			if (preg_match("/.*" . $query . ".*/", $user->A("UserEmail")) || preg_match("/.*" . $query . ".*/", $user->A("name")) || preg_match("/.*" . $query . ".*/", $user->A("username"))) {
+				$subSelection = array(
+					"label" => $user->A("name"),
+					"value" => $user->A("UserEmail"),
+					"email" => $user->A("UserEmail"),
+					"description" => ""
+				);
+				$selection[] = $subSelection;
+			}
 		}
 		
 		if (Session::isPluginLoaded("mWAdresse")) {
@@ -117,7 +120,17 @@ class mTodoGUI extends mTodo implements iGUIHTMLMP2, iKalender {
 		echo json_encode($selection);
 	}
 	
+	/**
+	 * Erstellt eine zufallsgenerierte Zeichenkette. Zeichenkette besteht aus 
+	 * arabischen Ziffern und lateinischen Buchstaben, generiert aus ASCII.
+	 * Länge der Zeichenkette wird anhand des Parameters spezifiziert. 
+	 * 
+	 * @param int $length
+	 * @return String
+	 * @throws Exception
+	 */
 	public static function getRandomId($length) {
+		// TODO: Diese Methode möglicherweise in Util übernehmen?!
 		$length = (int) $length;
 		if ($length == null || $length == 0)
 			throw new Exception("Submitted length could not be processed.");
@@ -154,11 +167,19 @@ class mTodoGUI extends mTodo implements iGUIHTMLMP2, iKalender {
 		// Einladungen speichern und versenden
 		$todo = new Todo($todoId);
 		$userMail = Session::currentUser()->A("UserEmail");
+		// Wenn der aktuelle Benutzer über eine ungültige Adresse verfügt, 
+		// werden keine Einladungen verschickt.
+		if (!Util::checkIsEmail($userMail))
+			return;
+		
 		$userName = Session::currentUser()->A("name");
 		$startTime = $todo->A("TodoFromDay") + $todo->A("TodoFromTime");
 		$endTime = $todo->A("TodoTillDay") + $todo->A("TodoTillTime");
+		
 		foreach ($participants as $i => $participant) {
-			if (!Util::checkIsEmail($userMail))
+			// Falls E-Mail-Adresse leer ist, oder ungültig, wird dieser 
+			// Teilnehmer übersprungen.
+			if (!Util::checkIsEmail($participant->value))
 				continue;
 			
 			$todoInvitation = new TodoInvitation();
@@ -171,13 +192,13 @@ class mTodoGUI extends mTodo implements iGUIHTMLMP2, iKalender {
 			$htmlMimeMail->setFrom($userMail);
 			$htmlMimeMail->setSubject($todo->A("TodoName"));
 			$htmlMimeMail->setReturnPath($userMail);
-			$htmlMimeMail->setText(" ");
+			$htmlMimeMail->setText("huhu");
 			$attachment = "BEGIN:VCALENDAR
 PRODID:-//lightCRM Kalender//DE
 VERSION:2.0
 METHOD:REQUEST
 BEGIN:VEVENT
-ATTENDEE;CN=\"" . $userName . "\";RSVP=TRUE:mailto:" . $participant->value . "
+ATTENDEE;CN=\"\";RSVP=TRUE:mailto:" . $participant->value . "
 CLASS:PUBLIC
 DESCRIPTION:\n\n\n
 DTEND:" . gmdate("Ymd", $endTime) . "T" . gmdate("His", $endTime) . "Z
@@ -196,7 +217,9 @@ DESCRIPTION:Reminder
 END:VALARM
 END:VEVENT
 END:VCALENDAR";
-			$htmlMimeMail->addAttachment(new stringAttachment($attachment, "invite.ics", "application/ics"));
+//			$htmlMimeMail->setCalendar($attachment, "REQUEST");
+//			$htmlMimeMail->setCalendarCharset("UTF-8");
+//			$htmlMimeMail->addAttachment(new stringAttachment($attachment, "invite.ics", "application/ics"));
 			$htmlMimeMail->send(array($participant->value));
 		}
 	}
@@ -353,13 +376,42 @@ END:VCALENDAR";
 
 		$KE->location($T->A("TodoLocation"));
 
-		$KE->repeat($T->A("TodoRepeat") != "", $T->A("TodoRepeat"), $T->A("TodoRepeatWeekOfMonth") * 1, $T->A("TodoRepeatDayOfWeek"));
+		$KE->repeat($T->A("TodoRepeat") != "", $T->A("TodoRepeat"), $T->A("TodoRepeatWeekOfMonth") * 1, $T->A("TodoRepeatDayOfWeek"), $T->A("TodoRepeatInterval"), $T->A("TodoRepeatUntil"));
 
 		$KE->UID("TodoID".$T->getID()."@".substr(Util::eK(), 0, 20));
 		
 		return $KE;
 	}
 
+	public static function getCalendarCategories(){
+		$tabs = array();
+		$bps = BPS::getAllProperties("mKalenderGUI");
+		
+		$tabs[] = new stdClass();
+		$tabs[0]->onclick = OnEvent::reload("Screen", "_mKalenderGUI;KID:".Session::currentUser()->getID());
+		$tabs[0]->elementID = "TodoCurrentUser";
+		$tabs[0]->label = "Mein Kalender";
+		$tabs[0]->isCurrent = (!isset($bps["KID"]) OR $bps["KID"] == Session::currentUser()->getID());
+		
+		
+		$ACS = anyC::get("Userdata", "name", "shareCalendarTo".Session::currentUser()->getID());
+		while($Share = $ACS->getNextEntry()){
+			
+			$U = new User($Share->A("UserID"));
+			
+			$C = new stdClass();
+			$C->onclick = OnEvent::reload("Screen", "_mKalenderGUI;KID:".$U->getID());
+			$C->elementID = "TodoCurrentUser";
+			$C->label = $U->A("name");
+			$C->isCurrent = ($bps["KID"] == $U->getID());
+			
+			
+			$tabs[] = $C;
+		}
+		
+		return $tabs;
+	}
+	
 	public static function getCalendarData($firstDay, $lastDay, $UserID = null) {
 		if($UserID === null)
 			$UserID = Session::currentUser();
@@ -437,6 +489,8 @@ END:VCALENDAR";
 			$AC->addAssocV3("TodoUserID", ">", "0", "AND", "2");
 		$AC->addAssocV3("TodoUserID", "=", "-1", "OR", "2");
 
+		$AC->addAssocV3("TodoRepeatUntil", "=", "0", "AND", "3");
+		$AC->addAssocV3("TodoRepeatUntil", ">=", $firstDay, "OR", "3");
 		#$ACS->resetPointer();
 		#while($Share = $ACS->getNextEntry()){
 		#	if($include[$Share->A("UserID")] == "1")
@@ -478,16 +532,24 @@ END:VCALENDAR";
 	}
 	
 	public function editRepeatable($todoID){
-		$F = new HTMLForm("RepeatableForm", array("TodoRepeat", "TodoRepeatWeekOfMonth", "TodoRepeatDayOfWeek"), "Wiederholungen");
+		$F = new HTMLForm("RepeatableForm", array("TodoRepeat", "TodoRepeatWeekOfMonth", "TodoRepeatDayOfWeek", "TodoRepeatInterval", "TodoRepeatUntil"), "Wiederholungen");
 		$F->getTable()->setColWidth(1, 120);
 		
 		$T = new Todo($todoID);
 		
 		$F->setValues($T);
 		
+		$F->setValue("TodoRepeatUntil", Util::CLDateParserE($T->A("TodoRepeatUntil")));
+		
 		$F->setLabel("TodoRepeat","Wiederholen");
 		$F->setLabel("TodoRepeatWeekOfMonth", "Tag");
 		$F->setLabel("TodoRepeatDayOfWeek", "Tage");
+		$F->setLabel("TodoRepeatInterval", "Intervall");
+		$F->setLabel("TodoRepeatDayOfWeek", "Tage");
+		$F->setLabel("TodoRepeatUntil", "Bis");
+		
+		$F->setType("TodoRepeatInterval", "select", null, array("Wöchentlich", "Jede 2. Woche", "Jede 3. Woche"));
+		$F->setType("TodoRepeatUntil", "date");
 		
 		#$currentWeek = ceil((date("d", $T->A("TodoFromDay")) - date("w", $T->A("TodoFromDay")) - 1) / 7) + 1;
 		#echo $currentWeek;
@@ -508,6 +570,7 @@ END:VCALENDAR";
 		
 		$F->hideIf("TodoRepeat", "!=", "monthly", "onchange", array("TodoRepeatWeekOfMonth"));
 		$F->hideIf("TodoRepeat", "!=", "daily", "onchange", array("TodoRepeatDayOfWeek"));
+		$F->hideIf("TodoRepeat", "!=", "weekly", "onchange", array("TodoRepeatInterval", "TodoRepeatUntil"));
 		
 		$F->setSaveClass("Todo", $todoID, "function(){ /*\$j('#eventAdditionalContent').slideUp();*/ contentManager.reloadFrame('contentScreen'); Kalender.refreshInfoPopup(); }", "Aktivität");
 		
@@ -524,7 +587,7 @@ END:VCALENDAR";
 		$Is = "";
 		for($i = 0; $i < 7; $i++){
 			$I2 = new HTMLInput("DOW$i", "checkbox", in_array($i, $checked) ? "1" : "0");
-			$I2->style("float:left;margin-right:5px;");
+			$I2->style("float:left;margin:0px;margin-right:5px;");
 			$I2->onchange("var selectedDOW = ''; \$j('.DOWSelector:checked').each(function(k, v){ selectedDOW += (selectedDOW == '' ? '' : ',')+\$j(v).prop('name').replace('DOW', '');}); \$j('[name=TodoRepeatDayOfWeek]').val(selectedDOW);");
 			$I2->setClass("DOWSelector");
 			

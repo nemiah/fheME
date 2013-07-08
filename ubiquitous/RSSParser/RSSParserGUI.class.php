@@ -29,7 +29,37 @@ class RSSParserGUI extends RSSParser implements iGUIHTML2 {
 		
 		$gui->type("RSSParserParserClass", "select", $P);
 		
+		$gui->type("RSSParserLastUpdate", "hidden");
+		$gui->type("RSSParserOnCall", "checkbox");
+		
 		return $gui->getEditHTML();
+	}
+	
+	public function showFeed(){
+		$list = new HTMLList();
+		$list->addListStyle("list-style-type:none;padding:5px;max-height:400px;overflow:auto;");
+		$E = $this->parseFeed();
+		$i = 0;
+		foreach($E AS $item){
+			$B = new Button("", "empty", "icon");
+			$B->style("float:left;margin-right:10px;margin-top:-5px;");
+
+			if($item->icon != null)
+				$B->image($item->icon);
+			else
+				$B = "";
+
+			$list->addItem(
+				$B.
+				"<div id=\"RSSParserItemSF$i\" style=\"margin-top:33px;position:absolute;width:400px;display:none;border-width:1px;border-style:solid;padding:5px;border-radius:5px;\" onclick=\"\$j(this).toggle();\" class=\"backgroundColor0 borderColor1 RSSParserItemSF\"><small>".$item->description."</small></div>
+				".($item->description != "" ? "<a href=\"#\" onclick=\"\$j('.RSSParserItemSF').hide(); \$j('#RSSParserItemSF$i').toggle();\" >" : "").
+				$item->title.($item->description != "" ? "</a>" : "")."<br /><small style=\"color:grey;\">".Util::CLDateTimeParser($item->pubDate)."</small>");
+			$list->addItemStyle("clear:both;display:block;margin-left:0px;");
+
+			$i++;
+		}
+		
+		echo $list;
 	}
 }
 ?>

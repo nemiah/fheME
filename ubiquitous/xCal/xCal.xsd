@@ -1,0 +1,594 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <xsd:notation name="BINARY" public="-//IETF//NOTATION XCAL/Value Type/Binary//EN" />
+    <xsd:notation name="BOOLEAN" public="-//IETF//NOTATION XCAL/Value Type/Boolean//EN" />
+    <xsd:notation name="CALADR" public="-//IETF//NOTATION XCAL/Value Type/Calendar User Address//EN" />
+    <xsd:notation name="DATE" public="-//IETF//NOTATION XCAL/Value Type/Date//EN" />
+    <xsd:notation name="DATE-TIME" public="-//IETF//NOTATION XCAL/Value Type/Date-Time//EN" />
+    <xsd:notation name="DURATION" public="-//IETF//NOTATION XCAL/Value Type/Duration//EN" />
+    <xsd:notation name="FLOAT" public="-//IETF//NOTATION XCAL/Value Type/Float//EN" />
+    <xsd:notation name="INTEGER" public="-//IETF//NOTATION XCAL/Value Type/Integer//EN" />
+    <xsd:notation name="PERIOD" public="-//IETF//NOTATION XCAL/Value Type/Period of Time//EN" />
+    <xsd:notation name="RECUR" public="-//IETF//NOTATION XCAL/Value Type/Recurrence Rule//EN" />
+    <xsd:notation name="TEXT" public="-//IETF//NOTATION XCAL/Value Type/Text//EN" />
+    <xsd:notation name="TIME" public="-//IETF//NOTATION XCAL/Value Type/Time//EN" />
+    <xsd:notation name="URI" public="-//IETF//NOTATION XCAL/Value Type/URI//EN" />
+    <xsd:notation name="UTC-OFFSET" public="-//IETF//NOTATION XCAL/Value Type/UTC-Offset//EN" />
+    <xsd:notation name="X-NAME" public="-//IETF//NOTATION XCAL/Value Type/X-Name//EN" />
+    <xsd:element name="br">
+        <xsd:complexType />
+    </xsd:element>
+    <xsd:element name="attach">
+        <xsd:complexType>
+            <xsd:choice>
+                <xsd:element ref="extref" />
+                <xsd:element ref="b64bin" />
+            </xsd:choice>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="extref">
+        <xsd:complexType>
+            <xsd:attribute name="uri" use="required">
+                <xsd:simpleType>
+                    <xsd:restriction base="xsd:ENTITY" />
+                </xsd:simpleType>
+            </xsd:attribute>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="b64bin">
+        <xsd:complexType mixed="true">
+            <xsd:attribute name="fmttype" use="required">
+                <xsd:simpleType>
+                    <xsd:restriction base="xsd:string" />
+                </xsd:simpleType>
+            </xsd:attribute>
+            <xsd:attribute name="value">
+                <xsd:simpleType>
+                    <xsd:restriction base="xsd:NOTATION">
+                        <xsd:enumeration value="BINARY" />
+                    </xsd:restriction>
+                </xsd:simpleType>
+            </xsd:attribute>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="categories">
+        <xsd:complexType>
+            <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                <xsd:element ref="item" />
+            </xsd:choice>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="item">
+        <xsd:complexType mixed="true">
+            <xsd:attribute name="language">
+                <xsd:simpleType>
+                    <xsd:restriction base="xsd:string" />
+                </xsd:simpleType>
+            </xsd:attribute>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="class">
+        <xsd:complexType mixed="true" />
+    </xsd:element>
+    <xsd:element name="comment">
+        <xsd:complexType mixed="true">
+            <xsd:attribute name="altrep">
+                <xsd:simpleType>
+                    <xsd:restriction base="xsd:ENTITY" />
+                </xsd:simpleType>
+            </xsd:attribute>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="description">
+        <xsd:complexType mixed="true" />
+    </xsd:element>
+    <xsd:element name="geo">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="lat" />
+                <xsd:element ref="lon" />
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="lat">
+        <xsd:complexType mixed="true" />
+    </xsd:element>
+    <xsd:element name="lon">
+        <xsd:complexType mixed="true" />
+    </xsd:element>
+    <xsd:element name="location">
+        <xsd:complexType mixed="true" />
+    </xsd:element>
+    <xsd:element name="percent">
+        <xsd:complexType mixed="true" />
+    </xsd:element>
+    <xsd:element name="priority">
+        <xsd:complexType mixed="true" />
+    </xsd:element>
+    <xsd:element name="resources">
+        <xsd:complexType mixed="true" />
+    </xsd:element>
+    <xsd:element name="status">
+        <xsd:complexType mixed="true" />
+    </xsd:element>
+    <xsd:element name="summary">
+        <xsd:complexType mixed="true" />
+    </xsd:element>
+    <xsd:element name="dtstart">
+        <xsd:complexType mixed="true">
+            <xsd:attribute name="tzid">
+                <xsd:simpleType>
+                    <xsd:restriction base="xsd:string" />
+                </xsd:simpleType>
+            </xsd:attribute>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="dtend">
+        <xsd:complexType mixed="true" />
+    </xsd:element>
+    <xsd:element name="due">
+        <xsd:complexType mixed="true" />
+    </xsd:element>
+    <xsd:element name="completed">
+        <xsd:complexType mixed="true" />
+    </xsd:element>
+    <xsd:element name="duration">
+        <xsd:complexType mixed="true" />
+    </xsd:element>
+    <xsd:element name="freebusy">
+        <xsd:complexType mixed="true">
+            <xsd:attribute name="fbtype" default="BUSY">
+                <xsd:simpleType>
+                    <xsd:restriction base="xsd:NMTOKEN" />
+                </xsd:simpleType>
+            </xsd:attribute>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="transp">
+        <xsd:complexType mixed="true" />
+    </xsd:element>
+    <xsd:element name="tzid">
+        <xsd:complexType mixed="true" />
+    </xsd:element>
+    <xsd:element name="tzname">
+        <xsd:complexType mixed="true" />
+    </xsd:element>
+    <xsd:element name="tzoffsetfrom">
+        <xsd:complexType mixed="true" />
+    </xsd:element>
+    <xsd:element name="tzoffsetto">
+        <xsd:complexType mixed="true" />
+    </xsd:element>
+    <xsd:element name="tzurl">
+        <xsd:complexType />
+    </xsd:element>
+    <xsd:element name="attendee">
+        <xsd:complexType mixed="true">
+            <xsd:attribute name="cn" default="">
+                <xsd:simpleType>
+                    <xsd:restriction base="xsd:string" />
+                </xsd:simpleType>
+            </xsd:attribute>
+            <xsd:attribute name="role" default="REQ-PARTICIPANT">
+                <xsd:simpleType>
+                    <xsd:restriction base="xsd:NMTOKEN" />
+                </xsd:simpleType>
+            </xsd:attribute>
+            <xsd:attribute name="partstat" default="NEEDS-ACTION">
+                <xsd:simpleType>
+                    <xsd:restriction base="xsd:NMTOKEN" />
+                </xsd:simpleType>
+            </xsd:attribute>
+            <xsd:attribute name="rsvp" default="FALSE">
+                <xsd:simpleType>
+                    <xsd:restriction base="xsd:NMTOKEN" />
+                </xsd:simpleType>
+            </xsd:attribute>
+            <xsd:attribute name="cutype" default="INDIVIDUAL">
+                <xsd:simpleType>
+                    <xsd:restriction base="xsd:NMTOKEN" />
+                </xsd:simpleType>
+            </xsd:attribute>
+            <xsd:attribute name="member">
+                <xsd:simpleType>
+                    <xsd:restriction base="xsd:string" />
+                </xsd:simpleType>
+            </xsd:attribute>
+            <xsd:attribute name="delegated-to">
+                <xsd:simpleType>
+                    <xsd:restriction base="xsd:string" />
+                </xsd:simpleType>
+            </xsd:attribute>
+            <xsd:attribute name="delegated-from">
+                <xsd:simpleType>
+                    <xsd:restriction base="xsd:string" />
+                </xsd:simpleType>
+            </xsd:attribute>
+            <xsd:attribute name="sent-by">
+                <xsd:simpleType>
+                    <xsd:restriction base="xsd:string" />
+                </xsd:simpleType>
+            </xsd:attribute>
+            <xsd:attribute name="dir">
+                <xsd:simpleType>
+                    <xsd:restriction base="xsd:ENTITY" />
+                </xsd:simpleType>
+            </xsd:attribute>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="contact">
+        <xsd:complexType mixed="true" />
+    </xsd:element>
+    <xsd:element name="organizer">
+        <xsd:complexType mixed="true" />
+    </xsd:element>
+    <xsd:element name="recurrence-id">
+        <xsd:complexType mixed="true">
+            <xsd:attribute name="range" default="THISONLY">
+                <xsd:simpleType>
+                    <xsd:restriction base="xsd:NMTOKEN" />
+                </xsd:simpleType>
+            </xsd:attribute>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="related-to">
+        <xsd:complexType mixed="true">
+            <xsd:attribute name="reltype" default="PARENT">
+                <xsd:simpleType>
+                    <xsd:restriction base="xsd:NMTOKEN" />
+                </xsd:simpleType>
+            </xsd:attribute>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="url">
+        <xsd:complexType />
+    </xsd:element>
+    <xsd:element name="uid">
+        <xsd:complexType mixed="true" />
+    </xsd:element>
+    <xsd:element name="exdate">
+        <xsd:complexType mixed="true" />
+    </xsd:element>
+    <xsd:element name="exrule">
+        <xsd:complexType mixed="true" />
+    </xsd:element>
+    <xsd:element name="rdate">
+        <xsd:complexType mixed="true" />
+    </xsd:element>
+    <xsd:element name="rrule">
+        <xsd:complexType mixed="true" />
+    </xsd:element>
+    <xsd:element name="action">
+        <xsd:complexType mixed="true" />
+    </xsd:element>
+    <xsd:element name="repeat">
+        <xsd:complexType mixed="true" />
+    </xsd:element>
+    <xsd:element name="trigger">
+        <xsd:complexType mixed="true" />
+    </xsd:element>
+    <xsd:element name="created">
+        <xsd:complexType mixed="true" />
+    </xsd:element>
+    <xsd:element name="dtstamp">
+        <xsd:complexType mixed="true" />
+    </xsd:element>
+    <xsd:element name="last-modified">
+        <xsd:complexType mixed="true" />
+    </xsd:element>
+    <xsd:element name="sequence">
+        <xsd:complexType mixed="true" />
+    </xsd:element>
+    <xsd:element name="request-status">
+        <xsd:complexType mixed="true" />
+    </xsd:element>
+    <xsd:element name="iCalendar">
+        <xsd:complexType>
+            <xsd:choice>
+                <xsd:element ref="vcalendar" minOccurs="1" maxOccurs="unbounded" />
+            </xsd:choice>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="vcalendar">
+        <xsd:complexType>
+            <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                <xsd:element ref="vevent" />
+                <xsd:element ref="vtodo" />
+                <xsd:element ref="vjournal" />
+                <xsd:element ref="vfreebusy" />
+                <xsd:element ref="vtimezone" />
+            </xsd:choice>
+            <xsd:attribute name="xmlns" fixed="http://www.ietf.org/internet-drafts/draft-    ietf-calsch-many-xcal-01.txt">
+                <xsd:simpleType>
+                    <xsd:restriction base="xsd:string" />
+                </xsd:simpleType>
+            </xsd:attribute>
+            <xsd:attribute name="calscale" default="GREGORIAN">
+                <xsd:simpleType>
+                    <xsd:restriction base="xsd:string" />
+                </xsd:simpleType>
+            </xsd:attribute>
+            <xsd:attribute name="method" default="PUBLISH">
+                <xsd:simpleType>
+                    <xsd:restriction base="xsd:string" />
+                </xsd:simpleType>
+            </xsd:attribute>
+            <xsd:attribute name="version" use="required">
+                <xsd:simpleType>
+                    <xsd:restriction base="xsd:string" />
+                </xsd:simpleType>
+            </xsd:attribute>
+            <xsd:attribute name="prodid">
+                <xsd:simpleType>
+                    <xsd:restriction base="xsd:string" />
+                </xsd:simpleType>
+            </xsd:attribute>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="vevent">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                    <xsd:element ref="class" />
+                    <xsd:element ref="created" />
+                    <xsd:element ref="description" />
+                    <xsd:element ref="dtstamp" />
+                    <xsd:element ref="dtstart" />
+                    <xsd:element ref="geo" />
+                    <xsd:element ref="last-modified" />
+                    <xsd:element ref="location" />
+                    <xsd:element ref="organizer" />
+                    <xsd:element ref="priority" />
+                    <xsd:element ref="recurrence-id" />
+                    <xsd:element ref="sequence" />
+                    <xsd:element ref="status" />
+                    <xsd:element ref="summary" />
+                    <xsd:element ref="transp" />
+                    <xsd:element ref="uid" />
+                    <xsd:element ref="url" />
+                    <xsd:choice>
+                        <xsd:element ref="dtend" />
+                        <xsd:element ref="duration" />
+                    </xsd:choice>
+                </xsd:choice>
+                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                    <xsd:element ref="attach" />
+                    <xsd:element ref="attendee" />
+                    <xsd:element ref="categories" />
+                    <xsd:element ref="comment" />
+                    <xsd:element ref="contact" />
+                    <xsd:element ref="exdate" />
+                    <xsd:element ref="exrule" />
+                    <xsd:element ref="rdate" />
+                    <xsd:element ref="related-to" />
+                    <xsd:element ref="resources" />
+                    <xsd:element ref="request-status" />
+                    <xsd:element ref="rrule" />
+                </xsd:choice>
+                <xsd:element ref="valarm" minOccurs="0" maxOccurs="unbounded" />
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="vtodo">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                    <xsd:element ref="class" />
+                    <xsd:element ref="completed" />
+                    <xsd:element ref="created" />
+                    <xsd:element ref="description" />
+                    <xsd:element ref="dtstamp" />
+                    <xsd:element ref="dtstart" />
+                    <xsd:element ref="geo" />
+                    <xsd:element ref="last-modified" />
+                    <xsd:element ref="location" />
+                    <xsd:element ref="organizer" />
+                    <xsd:element ref="percent" />
+                    <xsd:element ref="priority" />
+                    <xsd:element ref="recurrence-id" />
+                    <xsd:element ref="sequence" />
+                    <xsd:element ref="status" />
+                    <xsd:element ref="summary" />
+                    <xsd:element ref="uid" />
+                    <xsd:element ref="url" />
+                    <xsd:choice>
+                        <xsd:element ref="due" />
+                        <xsd:element ref="duration" />
+                    </xsd:choice>
+                </xsd:choice>
+                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                    <xsd:element ref="attach" />
+                    <xsd:element ref="attendee" />
+                    <xsd:element ref="categories" />
+                    <xsd:element ref="comment" />
+                    <xsd:element ref="contact" />
+                    <xsd:element ref="exdate" />
+                    <xsd:element ref="exrule" />
+                    <xsd:element ref="request-status" />
+                    <xsd:element ref="related-to" />
+                    <xsd:element ref="resources" />
+                    <xsd:element ref="rdate" />
+                    <xsd:element ref="rrule" />
+                </xsd:choice>
+                <xsd:element ref="valarm" minOccurs="0" maxOccurs="unbounded" />
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="vjournal">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                    <xsd:element ref="class" />
+                    <xsd:element ref="created" />
+                    <xsd:element ref="description" />
+                    <xsd:element ref="dtstart" />
+                    <xsd:element ref="dtstamp" />
+                    <xsd:element ref="last-modified" />
+                    <xsd:element ref="organizer" />
+                    <xsd:element ref="recurrence-id" />
+                    <xsd:element ref="sequence" />
+                    <xsd:element ref="status" />
+                    <xsd:element ref="summary" />
+                    <xsd:element ref="uid" />
+                    <xsd:element ref="url" />
+                </xsd:choice>
+                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                    <xsd:element ref="attach" />
+                    <xsd:element ref="attendee" />
+                    <xsd:element ref="categories" />
+                    <xsd:element ref="comment" />
+                    <xsd:element ref="contact" />
+                    <xsd:element ref="exdate" />
+                    <xsd:element ref="exrule" />
+                    <xsd:element ref="related-to" />
+                    <xsd:element ref="rdate" />
+                    <xsd:element ref="rrule" />
+                    <xsd:element ref="request-status" />
+                </xsd:choice>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="vfreebusy">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                    <xsd:element ref="contact" />
+                    <xsd:element ref="dtstamp" />
+                    <xsd:element ref="dtstart" />
+                    <xsd:element ref="dtend" />
+                    <xsd:element ref="duration" />
+                    <xsd:element ref="organizer" />
+                    <xsd:element ref="uid" />
+                    <xsd:element ref="url" />
+                </xsd:choice>
+                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                    <xsd:element ref="attendee" />
+                    <xsd:element ref="comment" />
+                    <xsd:element ref="freebusy" />
+                    <xsd:element ref="request-status" />
+                </xsd:choice>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="vtimezone">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="tzid" />
+                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                    <xsd:element ref="last-modified" />
+                    <xsd:element ref="tzurl" />
+                </xsd:choice>
+                <xsd:sequence minOccurs="0" maxOccurs="unbounded">
+                    <xsd:choice>
+                        <xsd:element ref="standard" />
+                        <xsd:element ref="daylight" />
+                    </xsd:choice>
+                    <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                        <xsd:element ref="standard" />
+                        <xsd:element ref="daylight" />
+                    </xsd:choice>
+                </xsd:sequence>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="standard">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:choice>
+                    <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                        <xsd:element ref="dtstart" />
+                        <xsd:element ref="tzoffsetto" />
+                        <xsd:element ref="tzoffsetfrom" />
+                    </xsd:choice>
+                </xsd:choice>
+                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                    <xsd:element ref="comment" />
+                    <xsd:element ref="rdate" />
+                    <xsd:element ref="rrule" />
+                    <xsd:element ref="tzname" />
+                </xsd:choice>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="daylight">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:choice>
+                    <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                        <xsd:element ref="dtstart" />
+                        <xsd:element ref="tzoffsetto" />
+                        <xsd:element ref="tzoffsetfrom" />
+                    </xsd:choice>
+                </xsd:choice>
+                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                    <xsd:element ref="comment" />
+                    <xsd:element ref="rdate" />
+                    <xsd:element ref="rrule" />
+                    <xsd:element ref="tzname" />
+                </xsd:choice>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="valarm">
+        <xsd:complexType>
+            <xsd:choice>
+                <xsd:sequence>
+                    <xsd:sequence>
+                        <xsd:element ref="action" />
+                        <xsd:element ref="trigger" />
+                    </xsd:sequence>
+                    <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                        <xsd:element ref="duration" />
+                        <xsd:element ref="repeat" />
+                    </xsd:choice>
+                    <xsd:choice>
+                        <xsd:element ref="attach" />
+                    </xsd:choice>
+                </xsd:sequence>
+                <xsd:sequence>
+                    <xsd:sequence>
+                        <xsd:element ref="action" />
+                        <xsd:element ref="description" />
+                        <xsd:element ref="trigger" />
+                    </xsd:sequence>
+                    <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                        <xsd:element ref="duration" />
+                        <xsd:element ref="repeat" />
+                    </xsd:choice>
+                </xsd:sequence>
+                <xsd:sequence>
+                    <xsd:sequence>
+                        <xsd:element ref="action" />
+                        <xsd:element ref="description" />
+                        <xsd:element ref="summary" />
+                        <xsd:element ref="trigger" />
+                    </xsd:sequence>
+                    <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                        <xsd:element ref="duration" />
+                        <xsd:element ref="repeat" />
+                    </xsd:choice>
+                    <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                        <xsd:element ref="attach" />
+                    </xsd:choice>
+                    <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                        <xsd:element ref="attendee" />
+                    </xsd:choice>
+                </xsd:sequence>
+                <xsd:sequence>
+                    <xsd:sequence>
+                        <xsd:element ref="action" />
+                        <xsd:element ref="attach" />
+                        <xsd:element ref="trigger" />
+                    </xsd:sequence>
+                    <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                        <xsd:element ref="duration" />
+                        <xsd:element ref="repeat" />
+                    </xsd:choice>
+                    <xsd:choice minOccurs="0" maxOccurs="1">
+                        <xsd:element ref="description" />
+                    </xsd:choice>
+                </xsd:sequence>
+            </xsd:choice>
+        </xsd:complexType>
+    </xsd:element>
+</xsd:schema>
