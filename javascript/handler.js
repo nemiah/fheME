@@ -56,7 +56,7 @@ function checkResponse(transport, hideError) {
 		if(obj.type)
 			response = obj.type+":'"+obj[obj.type]+"'";
 		else
-			return false;
+			return true;
 	}
 
 	if(response == "SESSION EXPIRED"){

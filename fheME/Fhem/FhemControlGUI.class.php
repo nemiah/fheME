@@ -769,7 +769,7 @@ class FhemControlGUI implements iGUIHTML2 {
 			}
 		}
 
-		echo json_encode($result);
+		echo json_encode($result, defined("JSON_UNESCAPED_UNICODE") ? JSON_UNESCAPED_UNICODE : 0);
 	}
 
 	public function resetServers(){
