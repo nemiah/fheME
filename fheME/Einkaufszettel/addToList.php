@@ -40,8 +40,12 @@ $e->useDefaultMySQLData();
 
 $e->useUser();
 
+$data = explode(";", $_GET["data"]);
+foreach($data AS $k => $v)
+	$data[$k] = LinuxKeycodes::codeToKey($v);
+
 $E = new mEinkaufszettelGUI(-1);
-$E->addEAN($_GET["data"], false);
+$E->addEAN(strtolower(implode("", $data)), false);
 
 $e->cleanUp();
 
