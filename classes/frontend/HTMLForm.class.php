@@ -254,7 +254,7 @@ class HTMLForm {
 				$gui->setFieldDescription($k, $v);*/
 	}
 
-	public function setSaveMultiCMS($saveButtonLabel, $saveButtonBGIcon, $class, $action = "", $onSuccessFuntion = "", $checkIfValid = false){
+	public function setSaveMultiCMS($saveButtonLabel, $saveButtonBGIcon, $class, $action = "", $onSuccessFuntion = "", $checkIfValid = false, $onErrorFunction = ""){
 		$this->saveMode = "multiCMS";
 		$this->saveButtonLabel = $saveButtonLabel;
 		$this->saveButtonBGIcon = $saveButtonBGIcon;
@@ -263,7 +263,7 @@ class HTMLForm {
 			$this->saveAction = $action;
 		else
 			$this->saveAction = $this->id;
-		$this->saveButtonSubmit = ($checkIfValid ? "if($('#$this->id').valid()) " : "")."multiCMS.formHandler('$this->id'".($onSuccessFuntion != "" ? ", $onSuccessFuntion" : "").");";
+		$this->saveButtonSubmit = ($checkIfValid ? "if($('#$this->id').valid()) " : "")."multiCMS.formHandler('$this->id', ".($onSuccessFuntion != "" ? "$onSuccessFuntion" : "function(){}")."".($onErrorFunction != "" ? ", $onErrorFunction" : "").");";
 		$this->onSubmit = "return false;";
 	}
 

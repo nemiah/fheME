@@ -1089,7 +1089,7 @@ class Util {
 		return $us;
 	}
 
-	public static function formatSeconds($seconds){
+	public static function formatSeconds($seconds, $showSeconds = true){
 		$h = ($seconds / 3600);
 		$hours = floor($h);
 		$minutes = floor(($seconds - $hours * 3600) / 60);
@@ -1097,7 +1097,7 @@ class Util {
 		if($sec < 10) $sec = "0".$sec;
 		
 		$minutes  = ($minutes < 10 ? "0" : "").$minutes;
-		return $hours.":".$minutes.":".$sec;
+		return $hours.":".$minutes.($showSeconds ? ":".$sec : "");
 	}
 	
 	public static function formatSecondsSigned($seconds){

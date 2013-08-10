@@ -221,7 +221,7 @@ class HTMLInput {
 				$BSearchClear->onclick("\$j('#$currentId').val('').trigger('blur'); $this->onenter$enter");
 				#$BSearchClear->id("searchMailsClear");
 
-				return $I.$BSearch.$BSearchClear;
+				return $I.$BSearch.$BSearchClear.$this->requestFocus;
 			break;
 		
 			case "HTMLEditor":
@@ -529,6 +529,11 @@ class HTMLInput {
 		
 			case "select":
 			case "select-multiple":
+				if($this->hasFocusEvent){
+					$this->onfocus .= "focusMe(this);";
+					$this->onblur .= "blurMe(this);";
+				}
+				
 				if($this->type == "select-multiple")
 					$values = trim($this->value) != "" ? explode(";:;", $this->value) : array();
 
@@ -539,7 +544,7 @@ class HTMLInput {
 					$this->id($this->name."ID".$this->multiEditOptions[1]);
 				}
 
-				$html = "<select ".($this->size ? "size=\"$this->size\"" : "")." ".($this->isDisabled ? "disabled=\"disabled\"" : "")." ".($this->type == "select-multiple" ? " multiple=\"multiple\"" : "")."".($this->style != null ? " style=\"$this->style\"" : "")." ".($this->onchange != null ? "onchange=\"$this->onchange\"" : "")." name=\"$this->name\" ".($this->id != null ? "id=\"$this->id\"" : "").">";
+				$html = "<select ".($this->onblur != null ? "onblur=\"$this->onblur\"" : "")." ".($this->onfocus != null ? "onfocus=\"$this->onfocus\"" : "")." ".($this->size ? "size=\"$this->size\"" : "")." ".($this->isDisabled ? "disabled=\"disabled\"" : "")." ".($this->type == "select-multiple" ? " multiple=\"multiple\"" : "")."".($this->style != null ? " style=\"$this->style\"" : "")." ".($this->onchange != null ? "onchange=\"$this->onchange\"" : "")." name=\"$this->name\" ".($this->id != null ? "id=\"$this->id\"" : "").">";
 
 				if($this->options != null AND is_array($this->options))
 					foreach($this->options AS $k => $v)

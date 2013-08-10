@@ -213,6 +213,20 @@ class FhemControlGUI implements iGUIHTML2 {
 				break;
 			}
 
+		if($f->A("FhemType") == "dummy"){
+			$onclick = "\$j('.fhemeControl:not(#controls_D".$f->getID().")').hide(); \$j('#controls_D".$f->getID()."').toggle();";
+
+			$values = array("on" => "on", "off" => "off");
+			$onclick = OnEvent::rme($this, "toggleDevice", $f->getID(), "Fhem.requestUpdate();");
+
+			$html = "<div id=\"FhemControlID_".$f->getID()."\" onclick=\"$onclick\" style=\"cursor:pointer;\" class=\"touchButton\">
+					
+					<div id=\"FhemID_".$f->getID()."\">
+
+					</div>
+				</div>";
+		}
+			
 		if($f->A("FhemType") == "IT")
 			switch($f->A("FhemITModel")){
 				case "itdimmer":
@@ -610,6 +624,41 @@ class FhemControlGUI implements iGUIHTML2 {
 				continue;
 			}
 			
+			if(isset($x->dummy_LIST->dummy) AND count($x->dummy_LIST->dummy) > 0)
+				foreach($x->dummy_LIST->dummy AS $k => $v){
+					$F = new mFhemGUI();
+					$F->addAssocV3("FhemServerID","=",$s->getID());
+					$F->addAssocV3("FhemName","=",$v->attributes()->name);
+
+					$F = $F->getNextEntry();
+					if($F == null)
+						continue;
+
+					$state = $v->attributes()->state;
+
+					#if($F->A("FhemModel") == "fs20irf") $state = "off";
+
+					#$state = strtolower(str_replace("dim", "", $state));
+
+					$FS = new Button("", "./fheME/Fhem/off.png", "icon");
+					$FS->style("float:left;margin-right:5px;");
+
+					if($state != "off" && $state != "aus")
+						$FS->image("./fheME/Fhem/on.png");
+
+					if(!is_numeric(str_replace("%", "", $state)))
+						$state = "";
+
+					$return = "$FS<b>".($F->A("FhemAlias") == "" ? $F->A("FhemName") : $F->A("FhemAlias"))."</b> <small style=\"color:grey;\">$state</small><div style=\"clear:both;\"></div>";
+					if($F->A("FhemExtension") != "none" AND $F->A("FhemExtension") != ""){
+						$c = $F->A("FhemExtension");
+						$c = new $c(-1);
+						$return = $c->process($F, $v);
+					}
+					
+					$result[$F->getID()] = array("model" => $F->A("FhemModel"), "state" => $return);
+				}
+				
 			if(isset($x->FS20_LIST->FS20) AND count($x->FS20_LIST->FS20) > 0)
 				foreach($x->FS20_LIST->FS20 AS $k => $v){
 					$F = new mFhemGUI();

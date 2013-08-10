@@ -196,7 +196,13 @@ if($sephy AND isset($sephy[3]) AND $sephy[3])
 			if(typeof contentManager == "undefined")
 				alert("Die JavaScript-Dateien konnten nicht geladen werden.\nDies kann an der Server-Konfiguration liegen.\nBitte versuchen Sie, diese Anwendung in ein Unterverzeichnis zu installieren.");
 		</script>
-		
+		<script>
+			window.define = function(factory) {
+				try{ delete window.define; } catch(e){ window.define = void 0; } // IE
+				window.when = factory();
+			};
+			window.define.amd = {};
+		</script>
 		<link rel="stylesheet" type="text/css" href="./libraries/jquery/jquery-ui-1.10.1.custom.css" />
 		<link rel="stylesheet" type="text/css" href="./libraries/jquery/jquery.qtip.min.css" />
 		<link rel="stylesheet" type="text/css" href="./styles/standard/overlayBox.css" />
@@ -529,42 +535,39 @@ if($sephy AND isset($sephy[3]) AND $sephy[3])
 					<div id="wrapperHandler" class="backgroundColor1 borderColor1"></div>
 					<div id="wrapper">
 						<div id="contentScreen"></div>
-						<table id="wrapperTable">
-							<tr>
-								<td id="wrapperTableTd1">
-									<div id="contentLeft">
-										<p><?php echo T::_("Sie haben JavaScript nicht aktiviert."); ?><br />
-										<?php echo T::_("Bitte aktivieren Sie JavaScript, damit diese Anwendung funktioniert."); ?></p>
-									</div>
-								</td>
-								<td id="wrapperTableTd2">
-									<div id="contentRight"></div>
-								</td>
-							</tr>
-						</table>
+						<div id="wrapperTable" style="display:none;"></div><!-- Remove some time -->
+						<div id="wrapperTableTd2">
+							<div id="contentRight"></div>
+						</div>
+						<div id="wrapperTableTd1">
+							<div id="contentLeft">
+								<p><?php echo T::_("Sie haben JavaScript nicht aktiviert."); ?><br />
+								<?php echo T::_("Bitte aktivieren Sie JavaScript, damit diese Anwendung funktioniert."); ?></p>
+							</div>
+						</div>
+						<div style="clear:both;"></div>
+						
 						<div id="contentBelow" style="display:none;"><div id="contentBelowContent"></div></div>
 					</div>
 				</div>
 			<?php } else { ?>
 				<div id="wrapper">
 					<div id="contentScreen"></div>
-					<table id="wrapperTable">
-						<tr>
-							<td id="wrapperTableTd1">
-								<div id="contentLeft">
-										<p><?php echo T::_("Sie haben JavaScript nicht aktiviert."); ?><br />
-										<?php echo T::_("Bitte aktivieren Sie JavaScript, damit diese Anwendung funktioniert."); ?></p>
-								</div>
-							</td>
-							<td id="wrapperTableTd2">
-								<div id="contentRight"></div>
-							</td>
-						</tr>
-					</table>
+						<div id="wrapperTable" style="display:none;"></div><!-- Remove some time -->
+						<div id="wrapperTableTd2">
+							<div id="contentRight"></div>
+						</div>
+						<div id="wrapperTableTd1">
+							<div id="contentLeft">
+								<p><?php echo T::_("Sie haben JavaScript nicht aktiviert."); ?><br />
+								<?php echo T::_("Bitte aktivieren Sie JavaScript, damit diese Anwendung funktioniert."); ?></p>
+							</div>
+						</div>
+						<div style="clear:both;"></div>
+						
 					<div id="contentBelow" style="display:none;"><div id="contentBelowContent"></div></div>
 				</div>
 			<?php } ?>
-
 			<div id="windowsPersistent"></div>
 			<div id="windows"></div>
 			<div id="footer">

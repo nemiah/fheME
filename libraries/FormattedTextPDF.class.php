@@ -21,11 +21,12 @@
 #if(!class_exists("TemporaryPDFClass", false))
 #	eval("class TemporaryPDFClass extends FPDF {}");
 
+
 class FormattedTextPDF extends FPDI {
-	function __construct($orientation = 'P', $unit = 'mm', $format = 'A4', $copy = false) {
+	function __construct($orientation='P', $unit='mm', $format='A4', $unicode=true, $encoding='UTF-8', $diskcache=false, $pdfa=false){
 		if(file_exists(Util::getRootPath()."ubiquitous/Fonts/")){# AND !defined("FPDF_FONTPATH")) {
 			#define('FPDF_FONTPATH', Util::getRootPath()."ubiquitous/Fonts/");
-
+			
 			$this->AddFont("Ubuntu", "", "5e01bde68449bff64cefe374f81b7847_ubuntu-regular.php");
 			$this->AddFont("Ubuntu", "B", "70fed3593f0725ddea7da8f1c62577c1_ubuntu-bold.php");
 			$this->AddFont("Ubuntu", "I", "cfa4d284ee1dc737cb0fe903fbab1844_ubuntu-italic.php");
@@ -42,7 +43,7 @@ class FormattedTextPDF extends FPDI {
 			$this->AddFont("Raleway", "BI", "ed7ad2408e498cae8fab623a755883f6_raleway-thin-fakeBoldItalic.php");
 		}
 		
-		parent::__construct($orientation, $unit, $format, $copy);
+		parent::__construct($orientation, $unit, $format, $unicode, $encoding, $diskcache, $pdfa);
 
 	}
 
@@ -97,6 +98,7 @@ class FormattedTextPDF extends FPDI {
 				$this->Ln(4);#$this->heightStack[count($this->heightStack) - 1] * 2);
 			
 			array_push($this->heightStack, $this->findMaxStyle("font-size", $xml));
+			$this->heightStack[0] = $this->heightStack[count($this->heightStack) - 1];
 			
 			$this->paragraph++;
 		}
@@ -221,7 +223,10 @@ class FormattedTextPDF extends FPDI {
 
 	public function WriteHTML($html) {
 		if(trim($html) == "") return;
-
+		
+		if($this instanceof TCPDF)
+			return parent::writeHTML($html);
+		
 		$this->sizeStack[] = $this->getFontSize();
 		
 		$html = str_replace("\n", "", $html);

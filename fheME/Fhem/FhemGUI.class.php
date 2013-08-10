@@ -49,9 +49,16 @@ class FhemGUI extends Fhem implements iGUIHTML2 {
 		$gui->label("FhemLocationID","Location");
 		$gui->label("FhemInOverview","In Overview?");
 		$gui->label("FhemFHTDefaultDayTemp","day-temp");
-
+		$gui->label("FhemExtension", "Erweiterung");
+		
+		$extensions = array("none" => "keine");
+		if(Session::isPluginLoaded("mSieHabenPost"))
+			$extensions["SieHabenPost"] = "Briefkasten";
+		
+		$gui->type("FhemExtension", "select", $extensions);
+		
 		$gui->type("FhemInOverview","checkbox");
-		$gui->type("FhemModel", "select", array("" => "none", "fs20du" => "FS20 DU","fs20s4u" => "FS20 S4U","fs20st" => "FS20 ST","fs20di" => "FS20 DI","fs20irf" => "FS20 IRF", "fs20rsu" => "FS20 RSU"));
+		$gui->type("FhemModel", "select", array("" => "none", "fs20du" => "FS20 DU","fs20s4u" => "FS20 S4U","fs20s4" => "FS20 S4","fs20st" => "FS20 ST","fs20di" => "FS20 DI","fs20irf" => "FS20 IRF", "fs20rsu" => "FS20 RSU"));
 
         $gui->type("FhemITModel", "select", array("" => "none", "itdimmer" => "IT-Dimmer", "itswitch" => "IT-Switch"));
     
@@ -77,7 +84,7 @@ class FhemGUI extends Fhem implements iGUIHTML2 {
         
         $gui->type("FhemHMSub", "select", array("" => "none", "AlarmControl" => "AlarmControl", "KFM100" => "KFM100", "THSensor" => "THSensor", "blindActuator" => "blindActuator", "dimmer" => "dimmer", "keyMatic" => "keyMatic", "motionDetector" => "motionDetector", "pushButton" => "pushButton", "remote" => "remote", "sensor" => "sensor", "smokeDetector" => "smokeDetector", "swi" => "swi", "switch" => "switch", "threeStateSensor" => "threeStateSensor", "winMatic" => "winMatic"));
         
-        $gui->type("FhemHMClass", "select", array("" => "none", "receiver" => "Empf&aumlnger", "sender" => "Sender"));
+        $gui->type("FhemHMClass", "select", array("" => "none", "receiver" => "Empf&auml;nger", "sender" => "Sender"));
 
         $gui->type("FhemEMModel", "select", array("" => "none", "EMEM" => "EM 1000-EM"));
 
@@ -98,11 +105,11 @@ class FhemGUI extends Fhem implements iGUIHTML2 {
 
 		$gui->inputStyle("FhemCommand","height:300px;font-size:8px;");
 
-		$gui->attributes(array("FhemServerID", "FhemLocationID", "FhemName", "FhemAlias", "FhemInOverview", "FhemType", "FhemModel", "FhemITModel", "FhemHMModel", "FhemEMModel", "FhemFHTModel", "FhemSpecific", "FhemHMSub", "FhemHMClass", "FhemRoom", "FhemRunOn", "FhemCommand"/*, "FhemFHTDefaultDayTemp"*/));
+		$gui->attributes(array("FhemServerID", "FhemLocationID", "FhemName", "FhemAlias", "FhemInOverview", "FhemType", "FhemExtension", "FhemModel", "FhemITModel", "FhemHMModel", "FhemEMModel", "FhemFHTModel", "FhemSpecific", "FhemHMSub", "FhemHMClass", "FhemRoom", "FhemRunOn", "FhemCommand"/*, "FhemFHTDefaultDayTemp"*/));
 
 		$gui->space("FhemType");
 
-		$gui->toggleFieldsInit("FhemType", array("FhemModel", "FhemITModel", "FhemHMModel", "FhemEMModel","FhemSpecific", "FhemHMSub", "FhemHMClass", "FhemRoom", "FhemRunOn", "FhemCommand", "FhemFHTModel", "FhemFHTDefaultDayTemp"));
+		$gui->toggleFieldsInit("FhemType", array("FhemModel", "FhemITModel", "FhemHMModel", "FhemEMModel","FhemSpecific", "FhemHMSub", "FhemHMClass", "FhemRoom", "FhemRunOn", "FhemCommand", "FhemFHTModel", "FhemFHTDefaultDayTemp", "FhemExtension"));
 		$gui->toggleFields("FhemType", "FHZ", array("FhemSpecific", "FhemRoom"));
 		$gui->toggleFields("FhemType", "FS20", array("FhemModel", "FhemSpecific", "FhemRoom"));
 		$gui->toggleFields("FhemType", "notify", array("FhemRunOn", "FhemCommand", "FhemRoom"));
@@ -110,7 +117,7 @@ class FhemGUI extends Fhem implements iGUIHTML2 {
 		$gui->toggleFields("FhemType", "CUL_HM", array("FhemHMModel", "FhemSpecific", "FhemHMSub", "FhemHMClass", "FhemRoom"));
 		$gui->toggleFields("FhemType", "CUL_EM", array("FhemEMModel", "FhemSpecific", "FhemRoom"));
 		$gui->toggleFields("FhemType", "FHT", array("FhemFHTModel", "FhemSpecific", "FhemRoom"/*, "FhemFHTDefaultDayTemp"*/));
-		$gui->toggleFields("FhemType", "dummy", array("FhemRoom"));
+		$gui->toggleFields("FhemType", "dummy", array("FhemRoom", "FhemExtension"));
 
 		$gui->type("FhemServerID", "select", new mFhemServerGUI(), "FhemServerName");
 

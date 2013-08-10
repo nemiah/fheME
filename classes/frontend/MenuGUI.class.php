@@ -46,7 +46,7 @@ class MenuGUI extends UnpersistentClass implements iGUIHTML2, icontextMenu {
 
 		$appMenuHidden = "";
 		$appMenuDisplayed = "";
-		$appMenuActive = (!$_SESSION["S"]->isUserAdmin() AND (!isset($_COOKIE["phynx_layout"]) OR $_COOKIE["phynx_layout"] == "fixed" OR $_COOKIE["phynx_layout"] == "horizontal"));
+		$appMenuActive = (!$_SESSION["S"]->isUserAdmin() AND (!isset($_COOKIE["phynx_layout"]) OR $_COOKIE["phynx_layout"] == "fixed" OR $_COOKIE["phynx_layout"] == "horizontal" OR $_COOKIE["phynx_layout"] == "desktop"));
 
 		// <editor-fold defaultstate="collapsed" desc="Aspect:jP">
 		$aspectAppMenuActive = Aspect::joinPoint("appMenuActive", $this, __METHOD__);
@@ -60,6 +60,11 @@ class MenuGUI extends UnpersistentClass implements iGUIHTML2, icontextMenu {
 				echo "<img src=\"$appIco\" style=\"margin-left:10px;float:left;\" alt=\"Abmelden\" title=\"Abmelden\" onclick=\"".Environment::getS("onLogout", "userControl.doLogout();")."\" />";
 		}
 		
+
+		$bigWorld = false;
+		if(isset($_COOKIE["phynx_layout"]) AND $_COOKIE["phynx_layout"] == "desktop")
+			$bigWorld = true;
+		
 		if(!$_SESSION["S"]->isUserAdmin()) {
 			$userHiddenPlugins = mUserdata::getHiddenPlugins();
 			
@@ -69,7 +74,7 @@ class MenuGUI extends UnpersistentClass implements iGUIHTML2, icontextMenu {
 
 			$B = new Button(Environment::getS("renameApplication:".$_SESSION["applications"]->getActiveApplication(), $_SESSION["applications"]->getActiveApplication()),"application");
 			$B->type("icon");
-			$B->className("smallTabImg");
+			$B->className($bigWorld ? "tabImg" : "smallTabImg");#".(($t == null OR $t == "big") ? "class=\"tabImg\"" : "class=\"smallTabImg\"")."
 			$B->hasMouseOverEffect(false);
 			$B->id("busyBox");
 
@@ -90,14 +95,13 @@ class MenuGUI extends UnpersistentClass implements iGUIHTML2, icontextMenu {
 
 		echo "
 			<div id=\"navTabsWrapper\">";
-
 		if($appMenuActive) echo "
 			<div
-				class=\"navBackgroundColor navBorderColor smallTab navTab\"
+				class=\"navBackgroundColor navBorderColor ".($bigWorld ? "" : " smallTab")." navTab\"
 				id=\"SpellbookMenuEntry\"
 			>
-				<div onclick=\"contentManager.loadPlugin('contentScreen', 'Spellbook', 'SpellbookGUI;-');\" style=\"padding:3px;padding-right:7px;padding-top:7px;\">
-				$B
+				<div onclick=\"contentManager.loadPlugin('contentScreen', 'Spellbook', 'SpellbookGUI;-');\" style=\"padding:3px;padding-right:7px;padding-top:7px;height:18px;\">
+				$B".($bigWorld ? Environment::getS("renameApplication:".$_SESSION["applications"]->getActiveApplication(), $_SESSION["applications"]->getActiveApplication()) : "")."
 				</div>
 			</div>";
 

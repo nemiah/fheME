@@ -121,6 +121,32 @@ if(isset($_GET["mailto"])){
 
 $mod_security = (isset($_GET["p"]) AND $_GET["p"] == "Adressen" AND isset($_GET["bps"]) AND $_GET["bps"] == "AdressenGUI;selectionMode:singleSelection,Auftrag,1,getAdresseCopy,Auftraege,contentLeft,Auftrag,1");
 
+function checksums(){
+	$xml = file_get_contents(dirname(__FILE__)."/checksums.xml");
+	
+	echo "<div style=\"display:none;\" id=\"checksums\">";
+	$result = true;
+	$xml = new SimpleXMLElement($xml);
+	foreach($xml->checksum AS $check){
+		$sum = $check."";
+		$file = $check->attributes()->file."";
+		
+		if($file == "system/DBData/Installation.pfdb.php")
+			continue;
+		
+		$r = $sum." : ".  str_pad(sha1_file(dirname(__FILE__)."/../$file"), strlen($sum), " ", STR_PAD_LEFT)." : $file\n";
+		
+		if($sum != sha1_file(dirname(__FILE__)."/../$file")){
+			$result = false;
+			echo "<span style=\"color:red;\">$r</span>";
+		} else
+			echo "<span style=\"color:green;\">$r</span>";
+	}
+	echo "</div>";
+	
+	return $result;
+}
+
 $pf = new PhpFileDB();
 $pf->setFolder("../system/DBData/");
 $pf->pfdbQuery("SELECT * FROM Installation");
@@ -133,6 +159,9 @@ $mysql = false;
 
 if(preg_match("/^Access denied for user/", $e1)) $mysql = true;
 if(preg_match("/^Access denied for user/", $e2)) $mysql = true;
+
+if(file_exists(dirname(__FILE__)."/checksums.xml"))
+	echo "Checksummen:				".  generic(checksums(), "bestanden")." (<a href=\"#\" onclick=\"document.getElementById('checksums').style.display = 'block';return false;\">Details anzeigen</a>)\n";
 echo "PHP-Version:				<span style=\"color:".(version_compare(phpversion(), "5", ">=") ? "green" : "red").";\">".phpversion()."</span>\n";
 echo "zend.ze1_compatibility_mode:		".generic(ini_get("zend.ze1_compatibility_mode") == "Off","aus")."\n";
 echo "Apache mod_security:			Test ".generic($mod_security, "bestanden")."\n";
@@ -159,7 +188,7 @@ echo "MySQL-Modul:				".generic(extension_loaded("mysql"),"geladen")."\n";
 echo "Reflection-Modul:			".generic(extension_loaded("reflection"),"geladen")."\n";
 echo "GD-Modul:				".generic(extension_loaded("gd"),"geladen")." (bisher nur für multiCMS)\n";
 echo "Curl-Modul:				".generic(extension_loaded("curl"),"geladen")." (pixelLetter-Plugin)\n";
-echo "Session-Modul:				".generic(extension_loaded("session"),"geladen")."\n";
+#echo "Session-Modul:				".generic(extension_loaded("session"),"geladen")."\n";
 echo "Pear Imagick-Klasse:			".generic(class_exists("Imagick"),"geladen")." (Exifer-Erweiterung für multiCMS)\n\n";
 echo "alle geladenen Module:\n";
 echo wordwrap(implode(", ", get_loaded_extensions()), 100)."\n\n";
@@ -184,7 +213,7 @@ while($t = $pf->pfdbFetchAssoc()){
 	echo "		Mode: ".str_replace(array("STRICT_TRANS_TABLES", "STRICT_ALL_TABLES"), array("<span style=\"color:red;\">STRICT_TRANS_TABLES</span>", "<span style=\"color:red;\">STRICT_ALL_TABLES</span>"), $ts["@@sql_mode"]);
 	echo "\n";
 	
-	if($r){
+	/*if($r){
 		#$qG = mysql_query("SHOW GRANTS");
 		#$tG = mysql_fetch_array($qG);
 		#echo "		".$tG[0]."\n\n";
@@ -199,7 +228,7 @@ while($t = $pf->pfdbFetchAssoc()){
 
 
 		mysql_close($r);
-	}
+	}*/
 	echo "\n";
 }
 echo "Browser:				".$_SERVER["HTTP_USER_AGENT"]."\n";

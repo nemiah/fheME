@@ -34,6 +34,35 @@ class OnEvent {
 		return "windowWithRme('".str_replace("GUI", "", get_class($targetObject))."', ".($targetObject->getID() == "" ? "-1" : $targetObject->getID()).", '$targetMethod', ".(is_array($targetMethodParameters) ? "['".implode("','", $targetMethodParameters)."']" : "'$targetMethodParameters'").($bps != null ? ", '$bps'" : "").($target != null ? ", '$target'" : "")."); ";
 	}
 	
+	public static function tip($targetElement, $title, $text, $options = "{}"){
+		return "\$j('$targetElement').qtip(\$j.extend({}, {
+		position: {
+			my: 'right top',
+			at: 'center left',
+			viewport: true,
+			adjust: {
+				method: 'flip'
+			}
+		},
+		show: {
+			event: false,
+			ready: true,
+			solo: true
+		},
+		hide: false,
+		style: {
+			classes: 'ui-tooltip-text'
+		},
+		content: {
+			text: '$text', 
+			title: {
+				text: '$title',
+				button: true
+			}
+		}
+	}, $options));";
+	}
+	
 	public static function clear($frame){
 		return "contentManager.emptyFrame('content$frame');";
 	}

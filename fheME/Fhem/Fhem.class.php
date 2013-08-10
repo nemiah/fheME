@@ -207,6 +207,9 @@ class Fhem extends PersistentObject implements iCloneable {
 		if($this->A("FhemType") == "notify")
 			$target = $simpleXML->notify_LIST->notify;
 
+		if($this->A("FhemType") == "dummy")
+			$target = $simpleXML->dummy_LIST->dummy;
+
 		if(isset($target))
 			foreach($target AS $fht){
 				if($fht->attributes()->name != $this->A("FhemName"))

@@ -76,13 +76,44 @@ class BackupManagerGUI implements iGUIHTML2 {
 		
 		
 		if(count($list) == 0)
-			return "$ST<p>Es wurden noch keine Sicherungen angelegt.</p>";
+			return "$ST<p class=\"highlight\">Es wurden noch keine Sicherungen angelegt.</p>";
 		
 		return $ST.$TB;
 	}
 
 	public function inPopup(){
-		echo $this->getHTML(-1);
+		if($_SESSION["S"]->isUserAdmin() == "0")
+			throw new AccessDeniedException();
+
+		$TB = new HTMLTable(3);
+		$TB->addColStyle(2, "text-align:right;");
+		$TB->setColWidth(2, "80px");
+		$TB->setColWidth(3, "32px");
+
+		$gesamt = 0;
+
+		$list = $this->getBackupsList();
+		
+		foreach($list AS $name => $size){
+			$RB = new Button("Diese Sicherung wiederherstellen","bestaetigung", "icon");
+			$RB->onclick("if(confirm('Sind Sie sicher, dass dieses Backup wiederhergestellt werden soll? Es werden dabei alle Daten in der Datenbank überschrieben!')) ");
+			$RB->rmePCR("BackupManager", "", "restoreBackup", $name, OnEvent::rme(new mInstallationGUI(), "getActions", "", "function(transport){ contentManager.contentBelow(transport.responseText); }").OnEvent::closePopup("BackupManager")." Popup.displayNamed('BackupManagerGUI','Backup-Manager', transport);");
+			
+			$RD = new Button("Backup anzeigen","./images/i2/search.png", "icon");
+			$RD->windowRme("BackupManager", "", "displayBackup", $name);
+			$RD->style("float:left;margin-right:5px;");
+			
+			$TB->addRow(array($RD.$name,Util::formatByte($size, 2), $RB));
+			$gesamt += $size;
+		}
+
+		#$ST = new HTMLSideTable("right");
+		
+		
+		if(count($list) == 0)
+			return "<p>Es wurden noch keine Sicherungen angelegt.</p>";
+		
+		echo $TB;
 	}
 	
 	public function displayBackup($name){
@@ -303,8 +334,8 @@ require valid-user
 		$PMBP_SYS_VAR["except_tables"] = "";
 
 		$filename = PMBP_dump($CONF, $PMBP_SYS_VAR, $_SESSION["DBData"]["datab"], true, true, false, false, "");
-		
-		chmod(Util::getRootPath()."system/Backup/".$filename, 0666);
+		if(file_exists($filename))
+			chmod(Util::getRootPath()."system/Backup/".$filename, 0666);
 		return $filename;
 	}
 

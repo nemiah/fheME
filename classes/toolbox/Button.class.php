@@ -205,7 +205,7 @@ class Button {
 	}
 
 	function loadFrame($target, $plugin, $withId = -1, $page = 0, $bps = "", $onSuccessFunction = ""){
-		$this->rme = "contentManager.loadFrame('$target', '$plugin', '$withId', '$page', '$bps', '$onSuccessFunction');";
+		$this->rme = "contentManager.loadFrame('$target', '$plugin', '$withId', '$page', '$bps'".($onSuccessFunction != "" ? ", $onSuccessFunction" : "").");";
 	}
 	
 	function loadPlugin($target, $plugin, $bps = "", $withId = null){

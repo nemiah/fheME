@@ -174,5 +174,9 @@ class Telnet {
 		$this->buffer = '';
 	}
 	
+	public function getSocket(){
+		return $this->socket;
+	}
+	
 }
 ?>

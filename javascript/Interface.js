@@ -34,17 +34,26 @@ var Interface = {
 		}
 	},
 	
+	
+	/**
+	 * @deprecated text
+	 */
 	startWrapperDrag: function(){
-		$('wrapperTable').style.display = 'none';
+		alert("Interface.startWrapperDrag is deprecated!")
+		//$('wrapperTable').style.display = 'none';
 	},
 	
+	/**
+	 * @deprecated text
+	 */
 	stopWrapperDrag: function(){
-		$('wrapperTable').style.display = '';
+		alert("Interface.stopWrapperDrag is deprecated!")
+		//$('wrapperTable').style.display = '';
 	},
 	
 	resizeWrapper: function() {
 		size = Overlay.getPageSize(true);
-		$j('#wrapper').css("height", ($j(window).height() - 150)+'px').css("width", (contentManager.maxWidth() - 250 - 50)+'px');
+		$j('#wrapper').css("height", ($j(window).height() - 150)+'px').css("width", (contentManager.maxWidth(true) - 250 - 50)+'px');
 	},
 	
 	translateStatusMessage: function(message, writeToFieldID){

@@ -37,6 +37,7 @@ body {
 	float:left;
 	width:250px;
 	background-image:none;
+	padding-bottom:50px;
 }
 
 #navigation .navTab {
@@ -90,13 +91,14 @@ body {
 }
 
 #footer {
-	/*position:absolute;*/
+	background-color:white;
+	position:fixed;
 	/*z-index:-10;*/
-	/*bottom:0px;*/
+	bottom:0px;
 	height:40px;
 	/*padding-top:40px;*/
-	/*left:0px;*/
-	/*width:100%;*/
+	left:0px;
+	width:100%;
 }
 
 #footer .iconic {

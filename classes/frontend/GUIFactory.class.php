@@ -180,8 +180,7 @@ class GUIFactory {
 	}
 
     public function getEditButton(){
-		$B = $this->getButton("Eintrag bearbeiten", "./images/i2/edit.png");
-		$B->type("icon");
+		$B = $this->getButton("Eintrag bearbeiten", "./images/i2/edit.png", "icon");
 		$B->className("editButton");
 		$B->onclick("if(typeof contentManager.selectRow == 'function') contentManager.selectRow(this); ".str_replace(array("%COLLECTIONNAME","%CLASSNAME", "%CLASSID"), array($this->collectionName,$this->className, $this->classID), $this->functionEdit));
 
@@ -655,7 +654,7 @@ class GUIFactory {
 	public function buildFilteredWarningLine(){
 		$dB = new Button("Filter löschen", "./images/i2/delete.gif", "icon");
 		$dB->style("float:right;");
-		$dB->rmePCR("HTML","","saveContextMenu", array("'deleteFilters'","'$this->collectionName'"), "if(checkResponse(transport)) contentManager.reloadFrame(\'contentRight\');");
+		$dB->rmePCR("HTML","","saveContextMenu", array("'deleteFilters'","'$this->collectionName'"), "if(checkResponse(transport)) contentManager.reloadFrame('contentRight');");
 
 		$BW = new Button("", "./images/i2/note.png", "icon");
 

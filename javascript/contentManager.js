@@ -38,10 +38,16 @@ var contentManager = {
 	updateTitle: true,
 	
 	maxHeight: function(){
+		if($j('#desktopWrapper').length > 0)
+			return $j('#wrapper').height() - $j('#wrapperTable').height();
+		
 		return ($j(window).height() - $j('#navTabsWrapper').height() - $j('#footer').height() - 40);
 	},
 			
-	maxWidth: function(){
+	maxWidth: function(getWindow){
+		if(!getWindow && $j('#desktopWrapper').length > 0)
+			return $j('#wrapper').width();
+		
 		return ($j(window).width() - $j('#phim:visible').outerWidth());
 	},
 	
@@ -483,14 +489,15 @@ var contentManager = {
 		if(target != "contentRight" && target != "contentLeft" && target != "contentScreen")
 			contentManager.lastLoaded[target] = [plugin, withId, page];
 		
-
-		new Ajax.Request('./interface/loadFrame.php?p='+plugin+(typeof withId != "undefined" ? '&id='+withId : "")+((typeof bps != "undefined" && bps != "") ? '&bps='+bps : "")+((typeof page != "undefined" && page != "") ? '&page='+page : "")+"&r="+Math.random()+"&frame="+target, {onSuccess: function(transport){
+		new Ajax.Request('./interface/loadFrame.php?p='+plugin+(typeof withId != "undefined" ? '&id='+withId : "")+((typeof bps != "undefined" && bps != "") ? '&bps='+bps : "")+((typeof page != "undefined" && page != "") ? '&page='+page : "")+"&r="+Math.random()+"&frame="+target, {onSuccess: function(transport, textStatus, request){
 			if(checkResponse(transport, hideError)) {
+				
 				$j("#"+target).html(transport.responseText);
 				
 				if(typeof onSuccessFunction != "undefined" && onSuccessFunction != "") onSuccessFunction(transport);
 				
 				Aspect.joinPoint("loaded", "contentManager.loadFrame", arg, transport.responseText);
+				
 			}
 		}});
 

@@ -115,7 +115,7 @@ class HTMLGUIX {
 		
 		return OnEvent::script("\$j('#{$targetClass}MenuImage').qtip(\$j.extend({}, qTipSharedRed, {
 		content: {
-			text: '".$xml->plugin[0]->description."<br /><div style=\"margin-top:10px;\"><a href=\"#\" style=\"color:grey;\" onclick=\"".addslashes(OnEvent::rme(new mUserdata(-1), "setUserdata", array("'hideTooltip$targetClass'", "'1'", "''", "0", "1")))." return false;\">Diesen Tipp nicht mehr anzeigen</a></div><div style=\"clear:both;margin-top:5px;\"><a href=\"#\" style=\"color:grey;\" onclick=\"".addslashes(OnEvent::rme(new mUserdata(-1), "setUserdata", array("'hideTooltips'", "'1'", "''", "0", "1")))." return false;\">Keine Tipps mehr anzeigen</a></div>', 
+			text: '".$xml->plugin[0]->description."<br /><div style=\"margin-top:10px;\"><a href=\"#\" style=\"color:grey;\" onclick=\"".addslashes(OnEvent::rme(new mUserdata(-1), "setUserdata", array("'hideTooltip$targetClass'", "'1'", "''", "0", "1"), "\$j('.qtip').qtip('hide');"))." return false;\">Diesen Tipp nicht mehr anzeigen</a></div><div style=\"clear:both;margin-top:5px;\"><a href=\"#\" style=\"color:grey;\" onclick=\"".addslashes(OnEvent::rme(new mUserdata(-1), "setUserdata", array("'hideTooltips'", "'1'", "''", "0", "1"), "\$j('.qtip').qtip('hide');"))." return false;\">Keine Tipps mehr anzeigen</a></div>', 
 			title: {
 				text: '".array_search($targetClass, $entries)."',
 				button: true

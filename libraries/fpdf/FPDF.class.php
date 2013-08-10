@@ -73,7 +73,7 @@ class FPDF {
 	protected $replaceWith;
 	protected $fakePage;
 
-	function __construct($orientation='P', $unit='mm', $format='A4', $copy = false) {
+	function __construct($orientation='P', $unit='mm', $format='A4') {
 		//Some checks
 		$this->_dochecks();
 		//Initialization of properties
@@ -540,6 +540,8 @@ class FPDF {
 		if ($style == 'IB')
 			$style = 'BI';
 		if ($size == 0)
+			$size = $this->FontSizePt;
+		if ($size === null)
 			$size = $this->FontSizePt;
 		//Test if font is already selected
 		if ($this->FontFamily == $family && $this->FontStyle == $style && $this->FontSizePt == $size)
