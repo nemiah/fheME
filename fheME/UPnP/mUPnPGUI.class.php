@@ -235,7 +235,7 @@ class mUPnPGUI extends anyC implements iGUIHTMLMP2 {
 			$B = new Button("Radio", "share", "iconicL");
 			#Overlay.showDark();
 			$html .= "
-			<div class=\"touchButton\" onclick=\"".OnEvent::popup("Radio", "mUPnP", "-1", "popupRadio")."\">
+			<div class=\"touchButton\" onclick=\"UPnP.showRadio();\">
 				".$B."
 				<div class=\"label\">Radio</div>
 				<div style=\"clear:both;\"></div>
@@ -243,6 +243,68 @@ class mUPnPGUI extends anyC implements iGUIHTMLMP2 {
 		
 		$html .= "</div>";
 		echo $html;
+	}
+	
+	public function remoteRadio(){
+		$this->addAssocV3("UPnPAVTransport", "=", "1");
+		
+		$LR = new HTMLList();
+		$LR->addListStyle("font-size:30px;font-family:Roboto;margin-left:10px;");
+		$LR->noDots();
+		while($T = $this->getNextEntry()){
+			$LR->addItem("<span class=\"iconic iconicL x\" id=\"radioTarget".$T->getID()."\" style=\"color:#bbb;margin-right:10px;float:left;margin-top:5px;\"></span>".$T->A("UPnPName"));
+			
+			$LR->addItemEvent("onclick", "UPnP.toggleRadioTarget('".$T->getID()."', '".$T->A("UPnPName")."');");
+			$LR->addItemStyle("cursor:pointer;padding:10px;");
+		}
+		
+		$AC = anyC::get("UPnPRadioStation");
+		$AC->addOrderV3("UPnPRadioStationName");
+		$LS = new HTMLList();
+		$LS->addListStyle("font-size:30px;font-family:Roboto;margin-left:10px;");
+		$LS->noDots();
+		while($T = $AC->getNextEntry()){
+			$LS->addItem("<span class=\"iconic iconicL arrow_right radioSource\" id=\"radioSource".$T->getID()."\" style=\"display:none;color:#bbb;margin-right:10px;float:left;margin-top:5px;\"></span>".$T->A("UPnPRadioStationName"));
+			
+			$LS->addItemEvent("onclick", "UPnP.selectRadioSource('".$T->getID()."');");
+			$LS->addItemStyle("cursor:pointer;padding:10px;");
+		}
+		
+		$LA = new HTMLList();
+		$LA->addListStyle("font-size:30px;font-family:Roboto;margin-left:10px;");
+		$LA->noDots();
+		
+		$LA->addItem("<span class=\"iconic iconicL play\" style=\"color:#bbb;margin-right:10px;float:left;margin-top:5px;\"></span>Abspielen");
+		$LA->addItemEvent("onclick", "UPnP.actionRadio('play');");
+		$LA->addItemStyle("cursor:pointer;padding:10px;");
+		
+		$LA->addItem("<span class=\"iconic iconicL stop\" style=\"color:#bbb;margin-right:10px;float:left;margin-top:5px;\"></span>Stoppen");
+		$LA->addItemEvent("onclick", "UPnP.actionRadio('stop');");
+		$LA->addItemStyle("cursor:pointer;padding:10px;");
+		
+		
+		
+		#$L->addItem("Liste aktualisieren...");
+		#$L->addItemEvent("onclick", OnEvent::popup("Abspielgeräte aktualisieren", "mUPnP", "-1", "discover", array("'targets'"), "", "{hPosition: 'center'}"));
+		#$L->addItemStyle("cursor:pointer;padding:10px;");
+		
+		echo "
+		<div style=\"width:100%;margin-bottom:20px;position:fixed;top:0;left:0;background-color:black;\" id=\"UPnPSelection\">
+			<div style=\"float:right;margin-right:20px;\">
+				<div onclick=\"UPnP.hide();\" style=\"cursor:pointer;float:left;font-family:Roboto;font-size:30px;padding:10px;\">
+					<span style=\"margin-left:10px;float:right;margin-top:5px;color:#bbb;\" class=\"iconic iconicL x\"></span> <span>Schließen</span>
+				</div>
+			</div>
+			
+
+			<div style=\"clear:both;height:15px;\">
+			</div>
+			
+			<div style=\"display:inline-block;width:33%;vertical-align:top;\">$LR</div>
+			<div style=\"display:inline-block;width:33%;vertical-align:top;\">$LS</div>
+			<div style=\"display:inline-block;width:33%;vertical-align:top;\">$LA</div>
+			
+		</div>".OnEvent::script("UPnP.updateRadioTargets(); UPnP.updateRadioSource();");
 	}
 	
 	public function popupRadio(){
@@ -272,21 +334,31 @@ class mUPnPGUI extends anyC implements iGUIHTMLMP2 {
 		echo $B;
 	}
 	
-	public function stopRadio($targetUPnPID){
-		$U = new UPnP($targetUPnPID);
-		$U->Stop();
+	public function stopRadio($targetUPnPIDs){
+		$ids = explode(",", $targetUPnPIDs);
+		
+		foreach($ids AS $id){
+			$U = new UPnP($id);
+			$U->Stop();
+		}
 	}
 	
-	public function playRadio($targetUPnPID, $UPnPRadioStationID){
-		echo $targetUPnPID;
-		echo "\n";
+	public function playRadio($targetUPnPIDs, $UPnPRadioStationID){
+		$ids = explode(",", $targetUPnPIDs);
 		
 		$URS = new UPnPRadioStation($UPnPRadioStationID);
-		echo $URS->A("UPnPRadioStationURL");
+		#echo $URS->A("UPnPRadioStationURL");
+		$Us = array();
+		foreach($ids AS $id){
+			$U = new UPnP($id);
+			$U->SetAVTransportURI(0, $URS->A("UPnPRadioStationURL"));
+			$Us[$id] = $U;
+		}
 		
-		$U = new UPnP($targetUPnPID);
-		$U->SetAVTransportURI(0, $URS->A("UPnPRadioStationURL"));
-		$U->Play();
+		foreach($ids AS $id){
+			$Us[$id]->Play();
+		}
+		
 	}
 	
 	public static function getOverviewPlugin(){

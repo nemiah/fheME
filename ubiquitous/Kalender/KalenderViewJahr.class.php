@@ -34,7 +34,7 @@ class KalenderViewJahr extends KalenderViewMonat {
 		$rows = $this->rows;
 		
 		$html = "
-		<div style=\"width:100%;overflow:auto;\">
+		<div style=\"\">
 		<table style=\"margin-left:10px;border-spacing: 0px;\" id=\"KalenderTable\">
 			<colgroup>
 				<col></col>";
@@ -45,6 +45,7 @@ class KalenderViewJahr extends KalenderViewMonat {
 			
 		
 		$html .= "
+			<thead>
 			<tr>
 				<th style=\"border-bottom-width:1px;border-bottom-style:solid;border-bottom-color:#EEE;padding-top:10px;\">Monat</th>";
 
@@ -54,7 +55,9 @@ class KalenderViewJahr extends KalenderViewMonat {
 
 
 		$html .= "
-		</tr>";
+		</tr>
+		</thead>
+		<tbody>";
 		$D = clone $this->date;
 		for($i = 0; $i < $rows; $i++){
 			$html .= "
@@ -111,8 +114,9 @@ class KalenderViewJahr extends KalenderViewMonat {
 			</tr>";
 		}
 		$html .= "
+			</tbody>
 		</table>
-		</div>";
+		</div>";#.OnEvent::script("\$j('#KalenderTable').fixedHeaderTable({ footer: false, cloneHeadToFoot: false, fixedColumn: true });");
 		
 		return $html;
 	}

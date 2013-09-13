@@ -25,6 +25,7 @@ class mRSSParserGUI extends anyC implements iGUIHTMLMP2 {
 
 		$gui = new HTMLGUIX($this);
 		$gui->version("mRSSParser");
+		$gui->screenHeight();
 
 		$gui->name("RSSParser");
 		

@@ -25,7 +25,6 @@ class mopenEANGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 
 	public function startSeach($EAN){
 		$Tidy = new openEANTidy("http://openean.kaufkauf.net/index.php?cmd=ean1&ean=$EAN&sq=1");
-		#print_r($Tidy);
 		$HS = new HTMLSlicer($Tidy);
 
 		$artikel = array();

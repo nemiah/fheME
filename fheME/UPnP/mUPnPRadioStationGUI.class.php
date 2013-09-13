@@ -25,7 +25,8 @@ class mUPnPRadioStationGUI extends anyC implements iGUIHTMLMP2 {
 
 		$gui = new HTMLGUIX($this);
 		$gui->version("mUPnP");
-
+		$gui->screenHeight();
+		
 		$gui->name("RadioStation");
 		
 		$gui->attributes(array("UPnPRadioStationName"));

@@ -277,13 +277,15 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 		<div id=\"KalenderAuswahl\">
 			$TCalendars
 		</div>
-		".($ansicht != "jahr" ? "
-		<div style=\"width:205px;float:right;margin-right:40px;\">
-			<div style=\"height:23px;\"></div>$ST
-		</div>" : "")."
-		<div style=\"".($ansicht != "jahr" ? "margin-right:270px;" : "")."\">
-		
-		".$TC->getTable($this)."
+		<div id=\"KalenderWrapper\" style=\"overflow:auto;\">
+			".($ansicht != "jahr" ? "
+			<div style=\"width:205px;float:right;margin-right:40px;\">
+				<div style=\"height:23px;\"></div>$ST
+			</div>" : "")."
+			<div style=\"".($ansicht != "jahr" ? "margin-right:270px;" : "")."\">
+
+			".$TC->getTable($this)."
+			</div>
 		</div>";
 
 		$nextMonths = new Datum();
@@ -307,9 +309,15 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 			if(!\$j('#KalenderTitle').length)
 				return;
 				
-			var height = ((contentManager.maxHeight() - \$j('#KalenderTable tr:first th').parent().outerHeight() - \$j('#KalenderAuswahl').outerHeight() - \$j('#KalenderTitle').outerHeight()) / (\$j('#KalenderTable tr').length - ".(($ansicht == "monat" OR $ansicht == "jahr") ? "1" : "0")."));
-			\$j('.cellHeight').css('height', height+'px');
-			\$j('.innerCellHeight').css('height', (height - \$j('.innerCellTitle:visible').outerHeight())+'px');
+			var height = (contentManager.maxHeight() - \$j('#KalenderAuswahl').outerHeight() - \$j('#KalenderTitle').outerHeight()) - 20;
+			var width = contentManager.maxWidth();
+			
+			\$j('#KalenderWrapper').css('height', height);
+			\$j('#KalenderWrapper').css('width', width);
+
+			var cellHeight = (height - \$j('#KalenderTable tr:first th').parent().outerHeight()) / (\$j('#KalenderTable tr').length - ".(($ansicht == "monat" OR $ansicht == "jahr") ? "1" : "0").");
+			\$j('.cellHeight').css('height', cellHeight+'px');
+			\$j('.innerCellHeight').css('height', (cellHeight - \$j('.innerCellTitle:visible').outerHeight())+'px');
 			
 			if(\$j('#tagDiv').length) {
 				\$j('#tagDiv').css('width', \$j('#KalenderTable tr').width()+'px');

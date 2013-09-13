@@ -187,7 +187,7 @@ class KalenderEvent extends KalenderEntry {
 					#echo Util::CLDateParser($firstDay)."<br />";
 					#echo $this->repeatInterval;
 					$weekDay = date("w", $pDay);
-					$D = new Datum($startDay);
+					$D = new Datum($firstDay > $startDay ? $firstDay : $startDay);
 					while($D->time() <= $endDay){
 						if(date("w", $D->time()) == $weekDay)
 							break;
@@ -204,8 +204,10 @@ class KalenderEvent extends KalenderEntry {
 							break;
 						
 						$D->addWeek(true);
-						if($newDay == $this->day)
-								continue;
+						if($newDay == $this->day){
+							$counter++;
+							continue;
+						}
 						
 
 						if($counter % ($this->repeatInterval + 1) != 0){

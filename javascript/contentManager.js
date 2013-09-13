@@ -53,63 +53,38 @@ var contentManager = {
 			
 	scrollTable: function(tableID){
 		var header_table = $j( '<table aria-hidden="true" id=\"head'+tableID+'\"><thead><tr><td></td></tr></thead></table>' );
-		//var footer_table = $j( '<table aria-hidden="true" id=\"foot'+tableID+'\" style=\"display:none;\"><tfoot><tr><td></td></tr></tfoot></table>' );
+		
 		var scroll_div = '<div id=\"body'+tableID+'\" style="height: 120px;overflow-y: auto;"></div>';
 
-		//inject table that will hold stationary row header; inject the div that will get scrolled
-		$j('table#'+tableID).before( header_table ).before( scroll_div );/*.before( footer_table);*/
+		$j('table#'+tableID).before( header_table ).before( scroll_div );
 
 		var columnWidths = [];
 		var $targetDataTable = $j('table#'+tableID);
 		var $targetHeaderTable = $j("table#head"+tableID);
-		//var $targetFooterTable = $j("table#foot"+tableID);
-		//var $targetDataTableFooter = $targetDataTable.find('tfoot');
 
-		// Get column widths
 		$j($targetDataTable).find('thead tr th').each(function (index) {
 			columnWidths[index] = $j(this).width();
 		});
 
-		$j('div#body'+tableID).prepend( $targetDataTable ).width( $j($targetDataTable).width() );
+		$j('div#body'+tableID).prepend($targetDataTable);
+		$j('div#body'+tableID).css("width", $j($targetDataTable).width());
+		//.width($j($targetDataTable).width());
+			
 		$j($targetDataTable).css('width', '100%');
 		$j($targetDataTable).children('caption, thead, tfoot').hide();
 
-		// insert header data into static table
 		$j($targetHeaderTable).find('thead').replaceWith( $j( $targetDataTable ).children('caption, thead').clone().show() );
-		//$j($targetFooterTable).find('tfoot').replaceWith( $j( $targetDataTable ).children('tfoot').clone().show() );
 
 		var height = contentManager.maxHeight() - $j($targetHeaderTable).outerHeight() - $j("table#foot"+tableID+":visible").outerHeight();
-
-		//if($j($targetHeaderTable).parent().parent().find('.Tab').length)
-		//	height -= $j($targetHeaderTable).parent().parent().find('.Tab').outerHeight();
 
 		$j($targetHeaderTable).closest('.browserContainer').find('.browserContainerSubHeight').each(function(k, v){
 			height -= $j(v).outerHeight();
 		});
 
-		/*$j($targetHeaderTable).parent().prevAll().each(function(k, v){
-			console.log(v);
-			
-		});*/
-
 		$j('div#body'+tableID).css('height', height);
 		
 		$j($targetHeaderTable).closest('.browserContainer').css("position", "fixed");
 		$j('#contentRight').append("<div style=\"height:"+contentManager.maxHeight()+"px\"></div>");
-		// modify column width for header
-		//$j($targetHeaderTable).find('thead tr th, thead tr td').each(function (index) {
-		//	$j(this).css('width', columnWidths[index]);
-		//});
-
-		// make sure table data still lines up correctly
-		//$j($targetDataTable).find('tbody tr:first td').each(function (index) {
-		//	$j(this).css('width', columnWidths[index]);
-		//});
-
-		//if our target table has a footer, create a visual copy of it after the scrollable div
-		//if ( $targetDataTableFooter.length ){
-		//	 $j('div#scroll'+tableID).eq(index).after('<div class="table_footer">'+ $targetDataTableFooter.text() +'</div>');
-		//}
 	},
 	
 	init: function(){

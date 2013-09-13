@@ -44,35 +44,64 @@ var UPnP = {
 		})
 	},
 	
+	overlay: '<div class="darkOverlay" id="UPnPOverlay" style="display:none;">\n\
+		\n\
+			<div id=\"UPnPLoading\" style=\"font-family:Roboto;font-size:30px;padding:10px;height:128px;width:500px;\">\n\
+				<img src=\"./images/loading128.png\" style=\"float:left;margin-right:20px;margin-top:-25px;\" />Die verfügbaren Geräte<br />werden abgefragt...\n\
+			</div>\n\
+		\n\
+		</div>',
+	
 	show: function(){
 		$j('#UPnPOverlay').remove();//Clean up the hard way!
 		
-		$j('body').append('<div class="darkOverlay" id="UPnPOverlay" style="display:none;"></div>');
+		$j('body').append(UPnP.overlay);
+		
+		
+		$j('#UPnPLoading').css('margin-top', ($j(window).height() / 2) - ($j('#UPnPLoading').outerHeight() / 2));
+		$j('#UPnPLoading').css('margin-left', ($j(window).width() / 2) - ($j('#UPnPLoading').outerWidth() / 2));
+		
 		$j('#UPnPOverlay').css("position", "absolute");
 		/*$j('#UPnPOverlay').on("click", function(){
 			$j('#UPnPOverlay').remove();
 		});*/
 		
-		
-		contentManager.rmePCR("mUPnP", "-1", "remote", "", function(transport){
-			//console.log($j('#UPnPOverlay'));
-			$j('#UPnPOverlay').html(transport.responseText);
-			
-			var source = $j.jStorage.get('phynxUPnPSource', null);
-			var target = $j.jStorage.get('phynxUPnPTarget', null);
-			
-			if(target != null)
-				UPnP.selectTarget(target.ID, target.Name);
-			
-			if(source != null)
-				UPnP.selectSource(source.ID, source.Name);
-			
-			$j('#UPnPOverlay').fadeIn("fast", function(){
-				
-				//UPnP.clock();
+		$j('#UPnPOverlay').fadeIn();
+		contentManager.rmePCR("mUPnP", "-1", "discoverNow", [0], function(){
+			contentManager.rmePCR("mUPnP", "-1", "remote", "", function(transport){
+				//console.log($j('#UPnPOverlay'));
+				$j('#UPnPOverlay').html(transport.responseText);
+
+				var source = $j.jStorage.get('phynxUPnPSource', null);
+				var target = $j.jStorage.get('phynxUPnPTarget', null);
+
+				if(target != null)
+					UPnP.selectTarget(target.ID, target.Name);
+
+				if(source != null)
+					UPnP.selectSource(source.ID, source.Name);
 			});
 		});
 
+	},
+	
+	showRadio: function(){
+		$j('#UPnPOverlay').remove();//Clean up the hard way!
+		
+		$j('body').append(UPnP.overlay);
+		
+		$j('#UPnPLoading').css('margin-top', ($j(window).height() / 2) - ($j('#UPnPLoading').outerHeight() / 2));
+		$j('#UPnPLoading').css('margin-left', ($j(window).width() / 2) - ($j('#UPnPLoading').outerWidth() / 2));
+		
+		$j('#UPnPOverlay').css("position", "absolute");
+		
+		$j('#UPnPOverlay').fadeIn();
+		
+		contentManager.rmePCR("mUPnP", "-1", "discoverNow", [0], function(){
+			contentManager.rmePCR("mUPnP", "-1", "remoteRadio", "", function(transport){
+				$j('#UPnPOverlay').html(transport.responseText);
+			});
+		});
 	},
 	
 	hide: function(){
@@ -118,6 +147,55 @@ var UPnP = {
 				$j('#UPnPSourceName').html(UPnPName);
 			}); 
 		});
+	},
+	
+	currentRadioTargets: [],
+	currentRadioSource: null,
+	toggleRadioTarget: function(UPnPID, UPnPName){
+		if(!UPnP.currentRadioTargets[UPnPID])
+			UPnP.currentRadioTargets[UPnPID] = true;
+		else
+			UPnP.currentRadioTargets[UPnPID] = false;
+		
+		UPnP.updateRadioTargets();
+	},
+			
+	selectRadioSource: function(UPnPRadioStationID){
+		UPnP.currentRadioSource = UPnPRadioStationID;
+		UPnP.updateRadioSource();
+	},
+			
+	updateRadioTargets: function(){
+		for (key in UPnP.currentRadioTargets) {
+			if (UPnP.currentRadioTargets.hasOwnProperty(key) && /^0$|^[1-9]\d*$/.test(key) && key <= 4294967294) {
+				if(UPnP.currentRadioTargets[key])
+					$j('#radioTarget'+key).removeClass("x").addClass("check");
+				else
+					$j('#radioTarget'+key).removeClass("check").addClass("x");
+			}
+		}
+	},
+			
+	updateRadioSource: function(){
+		$j('.radioSource').hide();
+		
+		if(!UPnP.currentRadioSource)
+			return;
+		
+		$j('#radioSource'+UPnP.currentRadioSource).show();
+	},
+			
+	actionRadio: function(action){
+		var players = "";
+		
+		for (key in UPnP.currentRadioTargets) {
+			if (UPnP.currentRadioTargets.hasOwnProperty(key) && /^0$|^[1-9]\d*$/.test(key) && key <= 4294967294) {
+				if(UPnP.currentRadioTargets[key])
+					players += (players != "" ? "," : "")+key;
+			}
+		}
+		
+		contentManager.rmePCR("mUPnP", -1, action+"Radio", [players, UPnP.currentRadioSource]);
 	},
 	
 	selectTarget: function(UPnPID, UPnPName){

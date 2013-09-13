@@ -439,6 +439,7 @@ if(isset($_GET["CC"])){
 		<script type="text/javascript" src="./lib/jquery.validate.min.js"></script>
 		<script type="text/javascript" src="./lib/jstorage.min.js"></script>
 		<script type="text/javascript" src="./lib/jquery.jgrowl.min.js"></script>
+		<script type="text/javascript" src="./lib/jquery.hammer.min.js"></script>
 		
 		<script type="text/javascript">
 		var CustomerPage = {

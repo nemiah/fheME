@@ -59,11 +59,21 @@ class KalenderHolidays extends KalenderEntry {
 		
 		$D = new Datum($start);
 		
+		if($this->callbackOnShow !== null)
+			$ex = explode("::", $this->callbackOnShow);
 		while($D->time() <= $end){
+			
+			
 			$W = new stdClass();
 			$W->day = Kalender::formatDay($D->time());
 			$W->time = "0800";
-			$when[] = $W;
+			
+			$cb = true;
+			if($this->callbackOnShow !== null)
+				$cb = Util::invokeStaticMethod($ex[0], $ex[1], array($this, $D, $W));
+			
+			if($cb)
+				$when[] = $W;
 			
 			$D->addDay();
 		}

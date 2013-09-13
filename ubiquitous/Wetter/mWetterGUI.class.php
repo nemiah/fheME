@@ -25,6 +25,7 @@ class mWetterGUI extends mWetter implements iGUIHTMLMP2 {
 
 		$gui = new HTMLGUIX($this);
 		$gui->version("mWetter");
+		$gui->screenHeight();
 
 		$gui->name("Wetter");
 		

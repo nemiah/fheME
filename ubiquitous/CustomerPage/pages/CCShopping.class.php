@@ -58,6 +58,16 @@ class CCShopping implements iCustomContent {
 					font-size:2em;
 					margin-bottom:10px;
 					cursor:pointer;
+					-webkit-touch-callout: none;
+					-webkit-user-select: none;
+					-khtml-user-select: none;
+					-moz-user-select: none;
+					-ms-user-select: none;
+					user-select: none;
+				}
+				
+				.entryTouch {
+					background-color: #c5d674;
 				}
 			</style>
 			<div id=\"einkaufsliste\">";
@@ -70,7 +80,7 @@ class CCShopping implements iCustomContent {
 		
 		$html .= "</div>";
 		
-		return $html;
+		return $html.OnEvent::script("$('.entry').hammer().on('touch', function(){ $(this).addClass('entryTouch'); }); $('.entry').hammer().on('release', function(){ $(this).removeClass('entryTouch'); });");
 	}
 	
 	public static function setBought($args){

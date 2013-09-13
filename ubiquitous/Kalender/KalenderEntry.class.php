@@ -41,6 +41,7 @@ class KalenderEntry {
 
 	protected $remind = -1;
 	protected $reminded = 0;
+	protected $callbackOnShow;
 	
 	function __construct() {
 		$this->onClick = OnEvent::popup("Event", "mKalender", -1, "getInfo", array("'%%CLASSNAME%%'", "'%%CLASSID%%'", "'%%TIME%%'"), "", "Kalender.popupOptions");
@@ -61,6 +62,10 @@ class KalenderEntry {
 		return $this->UID;
 	}
 
+	function callbackOnShow($callback){
+		$this->callbackOnShow = $callback;
+	}
+	
 	function organizer($organizerName = null, $organizerEMail = null){
 		if($organizerName != null)
 			$this->organizer = $organizerName.($organizerEMail != null ? " <$organizerEMail>" : "");

@@ -162,7 +162,8 @@
 }
 
 #contentLeft:empty, #contentRight:empty, #contentCenter:empty {
-    display:none;
+    /*display:none;*/
+	padding:0px;
 }
 
 #contentScreen table {
