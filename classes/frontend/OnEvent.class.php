@@ -30,8 +30,14 @@ class OnEvent {
 	 * @return string
 	 */
 	public static function window($targetObject, $targetMethod, $targetMethodParameters = "", $bps = null, $target = null){
+		$useID = "-1";
+		if(!($targetObject instanceof Collection))
+			$useID = ($targetObject->getID() == "" ? "-1" : $targetObject->getID());
 		
-		return "windowWithRme('".str_replace("GUI", "", get_class($targetObject))."', ".($targetObject->getID() == "" ? "-1" : $targetObject->getID()).", '$targetMethod', ".(is_array($targetMethodParameters) ? "['".implode("','", $targetMethodParameters)."']" : "'$targetMethodParameters'").($bps != null ? ", '$bps'" : "").($target != null ? ", '$target'" : "")."); ";
+		if(!is_numeric($useID))
+			$useID = "'$useID'";
+		
+		return "windowWithRme('".str_replace("GUI", "", get_class($targetObject))."', $useID, '$targetMethod', ".(is_array($targetMethodParameters) ? "['".implode("','", $targetMethodParameters)."']" : "'$targetMethodParameters'").($bps != null ? ", '$bps'" : "").($target != null ? ", '$target'" : "")."); ";
 	}
 	
 	public static function tip($targetElement, $title, $text, $options = "{}"){
@@ -125,6 +131,9 @@ class OnEvent {
 		$id = -1;
 		if($targetObject instanceof PersistentObject)
 			$id = $targetObject->getID();
+		
+		if(!is_numeric($id))
+			$id = "'$id'";
 		
 		/*if($targetObject instanceof Collection)
 			$id = -1;

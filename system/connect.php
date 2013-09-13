@@ -58,7 +58,7 @@ if(session_name() == get_cfg_var("session.name"))
 
 spl_autoload_register("phynxAutoloader");
 
-if(ini_get("open_basedir") == "" OR strpos(ini_get("open_basedir"), ini_get("session.save_path")) !== false){
+if(ini_get("open_basedir") == "" OR (ini_get("session.save_path") != "" AND strpos(ini_get("open_basedir"), ini_get("session.save_path")) !== false)){
 	if(!is_writable(session_save_path()) AND (!file_exists(dirname(__FILE__)."/session") OR !is_writable(dirname(__FILE__)."/session")))
 		emoFatalError("Sitzungs-Erstellung fehlgeschlagen", "Das Sitzungs-Verzeichnis (".session_save_path().") Ihres Webservers ist leider nicht beschreibbar.<br />Bitte melden Sie dies Ihrem Webhoster.<br /><br />Um das Problem ohne Webhoster zu l&ouml;sen, erstellen Sie das Verzeichnis /system/session<br />im Verzeichnis dieser Anwendung und machen es durch den Webserver beschreibbar (mindestens Modus 755, eventuell ist auch 777 notwendig).<br />Stellen Sie dabei sicher, dass es von Au&szlig;erhalb nicht erreichbar ist (zum Beispiel durch eine .htaccess-Datei).", "Sitzungs-Fehler", true);
 

@@ -36,7 +36,8 @@ class HTMLTable extends UnifiedTable implements iUnifiedTable  {
 	private $tab;
 	private $insertSpaceBefore = array();
 	private $tabs = array();
-
+	private $tablePart = array();
+	
 	private $maxHeight;
 	private $tableClass = "";
 	private $appendJS = "";
@@ -69,7 +70,7 @@ class HTMLTable extends UnifiedTable implements iUnifiedTable  {
 	}
 	
 	/**
-	 * @param type $weight possible values: heavy, light
+	 * @param type $weight possible values: heavy, light, lightColored
 	 */
 	function weight($weight = "heavy"){
 		$this->weight = $weight;
@@ -113,6 +114,10 @@ class HTMLTable extends UnifiedTable implements iUnifiedTable  {
 			$this->data[count($this->content) - 1] = array();
 		
 		$this->data[count($this->content) - 1][$key] = $value;
+	}
+	
+	function setRowPart($tablePart = "tbody"){
+		$this->tablePart[count($this->content) - 1] = $tablePart;
 	}
 	
 	function insertSpaceAbove($label = "", $tab = false, $formName = ""){
@@ -224,11 +229,16 @@ class HTMLTable extends UnifiedTable implements iUnifiedTable  {
 		$this->tableClass .= $class." ";
 	}
 
-	function getHTMLForUpdate($addTR = false){
+	function getHTMLForUpdate($addTR = false, $tablePart = "tbody"){
 		$rows = "";
 
 		foreach($this->content as $K => $V){
-
+			if(isset($this->tablePart[$K]) AND $this->tablePart[$K] != $tablePart)
+				continue;
+			
+			if(!isset($this->tablePart[$K]) AND $tablePart != "tbody")
+				continue;
+			
 			$events = "";
 			if(isset($this->rowEvents[$K]))
 				foreach($this->rowEvents[$K] AS $n => $a)
@@ -339,8 +349,29 @@ class HTMLTable extends UnifiedTable implements iUnifiedTable  {
 		}
 		
 		$this->tab = 1;
-
-		$rows .= $this->getHTMLForUpdate(true);
+		
+		if(count($this->tablePart) > 0){
+			$headRows = $this->getHTMLForUpdate(true, "thead");
+			if($headRows != "")
+				$rows .= "
+				<thead>
+					$headRows
+				</thead>";
+		}
+		
+		$rows .= "
+			<tbody>
+				".$this->getHTMLForUpdate(true, "tbody")."
+			</tbody>";
+		
+		if(count($this->tablePart) > 0){
+			$footRows = $this->getHTMLForUpdate(true, "tfoot");
+			if($footRows != "")
+				$rows .= "
+				<tfoot>
+					$footRows
+				</tfoot>";
+		}
 		$divStyle = "";
 		if(preg_match("/width:([0-9 ]*)px;/", $this->tableStyle, $regs))
 			$divStyle = "style=\"".$regs[0]."\"";
@@ -349,12 +380,12 @@ class HTMLTable extends UnifiedTable implements iUnifiedTable  {
 		if($this->weight == "light")
 			$tabClass = "lightTab borderColor1";
 		
-		$R = "
+		$R = "<div>
 		".($this->caption != null ? "
-			<div>
-			<div class=\"$tabClass\" $divStyle>
+			
+			<div class=\"$tabClass browserContainerSubHeight\" $divStyle>
 				<p>".T::_($this->caption)."</p>
-			</div></div>" : "");
+			</div>" : "");
 		
 		if($this->tab == 1) $R .= "
 		<div ".($this->maxHeight != null ? "style=\"max-height:{$this->maxHeight}px;overflow:auto;\"" : "").">
@@ -368,8 +399,14 @@ class HTMLTable extends UnifiedTable implements iUnifiedTable  {
 		</div>";
 		if($this->tab > 1) $R .= "
 		</form>
-		</div>";
+		</div>
+		";
+		$R .= "</div>";
 		return $R.($this->appendJS != "" ? OnEvent::script($this->appendJS) : "");
+	}
+	
+	public function useScreenHeight(){
+		$this->appendJS .= "contentManager.scrollTable('$this->tableID');";
 	}
 }
 ?>

@@ -41,6 +41,22 @@ class Datum {
 		return $c;
 	}
 	
+	public function Y(){
+		return date("Y", $this->time());
+	}
+	
+	public function m(){
+		return date("m", $this->time());
+	}
+	
+	public function d(){
+		return date("d", $this->time());
+	}
+	
+	public function w(){
+		return date("w", $this->time());
+	}
+	
 	function setToJan1st($jahr){
 		$this->timestamp = $this->parseGerDate("01.01.$jahr");
 	}

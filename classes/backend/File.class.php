@@ -39,33 +39,36 @@ class File extends PersistentObject {
 	}
 	
 	function getRelPath(){
-		$Path = $this->A->FileDir."/".$this->A->FileName;
+		$Path = $this->A("FileDir")."/".$this->A("FileName");
 		$pAF = Util::getRootPath();#str_replace("interface","",dirname($_SERVER["PHP_SELF"]));
 		return str_replace($pAF,"./",substr($Path, strpos($Path,$pAF)));
 	}
 	
 	public function download(){
 		$this->loadMe();
-		if(strpos($this->ID, "specifics") === false) return;
+		if(strpos($this->getID(), realpath(FileStorage::getFilesDir())) === false)
+			return;
+		#if(strpos($this->ID, "specifics") === false) return;
 		
-		if(strpos(strtolower($this->ID), ".pdf") !== false) 
-			header("Content-Type: application/pdf");
+		#if(strpos(strtolower($this->ID), ".pdf") !== false) 
+		#	header("Content-Type: application/pdf");
 		
-		if(strpos(strtolower($this->ID), ".jpg") !== false) 
-			header("Content-Type: image/jpg");
+		#if(strpos(strtolower($this->ID), ".jpg") !== false) 
+		#	header("Content-Type: image/jpg");
 		
-		if(strpos(strtolower($this->ID), ".png") !== false) 
-			header("Content-Type: image/png");
+		#if(strpos(strtolower($this->ID), ".png") !== false) 
+		#	header("Content-Type: image/png");
 		
-		if(strpos(strtolower($this->ID), ".gif") !== false) 
-			header("Content-Type: image/gif");
+		#if(strpos(strtolower($this->ID), ".gif") !== false) 
+		#	header("Content-Type: image/gif");
 		
+		header("Content-Type: ".$this->A("FileMimetype"));
 		header("Content-Disposition: attachment; filename=\"".basename($this->ID)."\"");
-		
+		header('Content-Length: '.filesize($this->ID));
 		readfile($this->ID);
 	}
 
-	protected function moveToDir($toDir){
+	public function moveToDir($toDir){
 		$newName = str_replace(DIRECTORY_SEPARATOR, "/", realpath($toDir))."/".basename($this->getID());
 
 		if(file_exists($newName))
@@ -121,8 +124,8 @@ class File extends PersistentObject {
 		echo "{\"success\":true}";
 	}
 
-	public function newMe($checkUserData = true, $output = false) {
-		parent::newMe($checkUserData, false);
-	}
+	#public function newMe($checkUserData = true, $output = false) {
+	#	parent::newMe($checkUserData, false);
+	#}
 }
 ?>

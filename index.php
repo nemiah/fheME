@@ -539,6 +539,9 @@ if($sephy AND isset($sephy[3]) AND $sephy[3])
 						<div id="wrapperTableTd2">
 							<div id="contentRight"></div>
 						</div>
+						<div id="wrapperTableTd3">
+							<div id="contentCenter"></div>
+						</div>
 						<div id="wrapperTableTd1">
 							<div id="contentLeft">
 								<p><?php echo T::_("Sie haben JavaScript nicht aktiviert."); ?><br />
@@ -556,6 +559,9 @@ if($sephy AND isset($sephy[3]) AND $sephy[3])
 						<div id="wrapperTable" style="display:none;"></div><!-- Remove some time -->
 						<div id="wrapperTableTd2">
 							<div id="contentRight"></div>
+						</div>
+						<div id="wrapperTableTd3">
+							<div id="contentCenter"></div>
 						</div>
 						<div id="wrapperTableTd1">
 							<div id="contentLeft">

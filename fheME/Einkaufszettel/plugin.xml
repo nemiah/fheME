@@ -20,7 +20,7 @@
 <phynx>
 	<plugin>
 		<name>Einkaufszettel</name>
-		<menuName>Einkaufen</menuName>
+		<menuName></menuName>
 		<collection>mEinkaufszettel</collection>
 		
 		<icon>./fheME/Einkaufszettel/Einkaufszettel.png</icon>

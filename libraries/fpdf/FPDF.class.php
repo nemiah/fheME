@@ -185,14 +185,6 @@ class FPDF {
 		$this->_out($s);
 	}
 
-	function Cell8($w, $h=0, $txt='', $border=0, $ln=0, $align='', $fill=0, $link='') {
-		$this->Cell($w, $h, utf8_decode($txt), $border, $ln, $align, $fill, $link);
-	}
-
-	function MultiCell8($w, $h, $txt, $border=0, $align='J', $fill=0) {
-		$this->MultiCell($w, $h, utf8_decode($txt), $border, $align, $fill);
-	}
-
 	function AddCopyPage() {
 		$this->IsCopy += 1;
 	}

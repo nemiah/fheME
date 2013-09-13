@@ -325,7 +325,8 @@ class BackgroundPluginState {
 			exit();
 		}
 		$this->nameAndDataCheck($property);
-		unset($this->state[$this->actual][$property]);
+		if(isset($this->state[$this->actual][$property]))
+			unset($this->state[$this->actual][$property]);
 	}
 	
 	/**

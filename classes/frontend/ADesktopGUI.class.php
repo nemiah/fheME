@@ -61,7 +61,7 @@ class ADesktopGUI extends UnpersistentClass implements iGUIHTML2 {
 			<div style=\"border-bottom:1px solid #DDD;position:relative;\" class=\"desktopButton\" onclick=\"window.open('".Environment::getS("blogURL", "http://blog.office3a.eu/")."', '_blank');\">
 				<h1 style=\"font-size:2.0em;color:#999999;position:absolute;bottom:5px;\">".Environment::getS("blogName", "office<span style=\"color:#A0C100;\">3a</span> blog")."</h1>
 			</div>
-			<div style=\"padding-left:30px;padding-right:30px;\">";
+			<div id=\"blogContainer\" style=\"padding-left:30px;padding-right:30px;overflow:auto;\">";
 		try {
 			$XML = new SimpleXMLElement($data);
 
@@ -79,7 +79,7 @@ class ADesktopGUI extends UnpersistentClass implements iGUIHTML2 {
 					break;
 			}
 
-			$html .= "</div>";
+			$html .= "</div>".OnEvent::script("\$j('#blogContainer').css('height', contentManager.maxHeight() - \$j('.desktopButton').outerHeight() - 20)");
 
 			return $html;
 		} catch (Exception $e){

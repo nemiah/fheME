@@ -450,6 +450,7 @@ if(Modernizr.touch && useTouch == null){
 
 
 var Touch = {
+	trigger: "click",
 	use:false,
 	hook: function(){
 		var currentHTMLMethod = jQuery.fn.html;
@@ -486,6 +487,7 @@ var Touch = {
 if(useTouch){
 	Touch.hook();
 	Touch.use = true;
+	Touch.trigger = "touchend";
 	
 	$j(document).on("touchend", ".contentBrowser td", function(ev){
 		$j(this).parent().removeClass("highlight");
@@ -597,7 +599,7 @@ $j(document).on('mouseover', '.bigButton', function(event) {
 		},
 		content: {
 			text: function() {
-				return $j(this).prop('value');
+				return $j(this).html();
 			}
 		},
 		position: {

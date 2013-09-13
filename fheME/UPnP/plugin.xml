@@ -20,7 +20,7 @@
 <phynx>
 	<plugin>
 		<name>UPnP</name>
-		<menuName>UPnP</menuName>
+		<menuName>Multimedia</menuName>
 		<collection>mUPnP</collection>
 		
 		<icon>./fheME/UPnP/UPnP.png</icon>

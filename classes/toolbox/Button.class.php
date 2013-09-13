@@ -33,7 +33,8 @@ class Button {
 	private $settings;
 	private $js = "";
 	private $before = "";
-
+	private $loading = false;
+	
 	/**
 	 * Use this class to display a button
 	 * You may omitt the whole path to the $image and only give the image name e.g. "new", if the image is in the folder ./images/navi/.
@@ -47,6 +48,10 @@ class Button {
 		$this->type($type);
 	}
 
+	function loading(){
+		$this->loading = true;
+	}
+	
 	function getAction(){
 		$rme = $this->rme;
 		$this->rme = null;
@@ -263,7 +268,7 @@ class Button {
 
 		$onclick = $this->onclick != null ? $this->onclick : "";
 		#if($this->pluginRight != null) $onclick .= ;
-		if($this->rme != null) $onclick .= " ".$this->rme;
+		if($this->rme != null) $onclick .= " { ".($this->loading ? "\$j(this).addClass('loading');" : "")." ".$this->rme." }";
 		if($this->type == "bigButton" OR $this->type == "LPBig") return (strpos($this->style, "float:right;") !== false ? $this->settings : "")."<button".($this->name != null ? " name=\"$this->name\"" : "")." ".($this->disabled ? "disabled=\"disabled\"" : "")." ".($this->id ? "id=\"$this->id\" " : "")."onclick=\"$onclick\" type=\"button\" class=\"$this->class ".($this->type == "bigButton" ? "bigButton" : "LPBigButton")."\" style=\"{$this->style}".($this->image != "" ? "background-image:url(".$this->image.");" : "")."\" ".($this->type == "bigButton" ? "" : "title=\"$this->label\"").">".($this->type == "bigButton" ? nl2br($this->label) : "")."</button>".(strpos($this->style, "float:right;") === false ? $this->settings : "")."$this->js";
 		
 		if($this->type == "icon") return "<img ".($this->id ? "id=\"$this->id\" " : "")." ".($onclick != "" ? "onclick=\"$onclick\"" : "")." class=\"".($this->mouseOverEffect ? "mouseoverFade" : "")." $this->class\" style=\"{$this->style}\" src=\"".$this->image."\" title=\"$this->label\" alt=\"$this->label\" />$this->js";

@@ -26,7 +26,8 @@ class mUPnPGUI extends anyC implements iGUIHTMLMP2 {
 		
 		$gui = new HTMLGUIX($this);
 		$gui->version("mUPnP");
-
+		$gui->screenHeight();
+		
 		$gui->name("UPnP");
 		
 		$gui->attributes(array("UPnPName"));
@@ -36,6 +37,9 @@ class mUPnPGUI extends anyC implements iGUIHTMLMP2 {
 		
 		$B = $gui->addSideButton("Remote\nanzeigen", "./fheME/UPnP/remote.png");
 		$B->onclick("UPnP.show();");
+		
+		$B = $gui->addSideButton("Radio-\nStationen", "./fheME/UPnP/radio.png");
+		$B->loadFrame("contentRight", "mUPnPRadioStation");
 		
 		return $gui->getBrowserHTML($id);
 	}
@@ -227,9 +231,62 @@ class mUPnPGUI extends anyC implements iGUIHTMLMP2 {
 				<div class=\"label\">Mediencenter</div>
 				<div style=\"clear:both;\"></div>
 			</div>";
+			
+			$B = new Button("Radio", "share", "iconicL");
+			#Overlay.showDark();
+			$html .= "
+			<div class=\"touchButton\" onclick=\"".OnEvent::popup("Radio", "mUPnP", "-1", "popupRadio")."\">
+				".$B."
+				<div class=\"label\">Radio</div>
+				<div style=\"clear:both;\"></div>
+			</div>";
 		
 		$html .= "</div>";
 		echo $html;
+	}
+	
+	public function popupRadio(){
+		$AC = anyC::get("UPnP");
+		$AC->addAssocV3("UPnPAVTransport", "=", "1");
+		
+		$I = new HTMLInput("radioSelection", "select", BPS::getProperty("mUPnPGUI", "lastStation", "0"));
+		$I->setOptions($AC, "UPnPName", "Abspielgerät auswählen");
+		
+		echo $I;
+		
+		$AC = anyC::get("UPnPRadioStation");
+		
+		$I = new HTMLInput("radioStation", "select", BPS::getProperty("mUPnPGUI", "lastStation", "0"));
+		$I->setOptions($AC, "UPnPRadioStationName", "Sender auswählen");
+		
+		echo $I;
+		
+		$B = new Button("Play", "play", "touch");
+		$B->rmePCR("mUPnP", "-1", "playRadio", array("\$j('select[name=radioSelection]').val()", "\$j('select[name=radioStation]').val()"));
+		$B->style("display:inline-block;width:30%;");
+		echo $B;
+		
+		$B = new Button("Stop", "stop", "touch");
+		$B->rmePCR("mUPnP", "-1", "stopRadio", array("\$j('select[name=radioSelection]').val()", "\$j('select[name=radioStation]').val()"));
+		$B->style("display:inline-block;width:30%;");
+		echo $B;
+	}
+	
+	public function stopRadio($targetUPnPID){
+		$U = new UPnP($targetUPnPID);
+		$U->Stop();
+	}
+	
+	public function playRadio($targetUPnPID, $UPnPRadioStationID){
+		echo $targetUPnPID;
+		echo "\n";
+		
+		$URS = new UPnPRadioStation($UPnPRadioStationID);
+		echo $URS->A("UPnPRadioStationURL");
+		
+		$U = new UPnP($targetUPnPID);
+		$U->SetAVTransportURI(0, $URS->A("UPnPRadioStationURL"));
+		$U->Play();
 	}
 	
 	public static function getOverviewPlugin(){

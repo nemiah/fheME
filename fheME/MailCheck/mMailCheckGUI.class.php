@@ -25,6 +25,7 @@ class mMailCheckGUI extends anyC implements iGUIHTMLMP2 {
 
 		$gui = new HTMLGUIX($this);
 		$gui->version("mMailCheck");
+		$gui->screenHeight();
 
 		$gui->name("MailCheck");
 		

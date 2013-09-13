@@ -205,7 +205,8 @@ input[type=submit], select, textarea, .AJAXUpload {
 #contentLeft .contentBrowser tr:hover .iconic,
 .Tab:hover .iconic, #contentScreen tr:hover .iconic,
 .popup tr:hover .iconic,
-.popupSidePanel tr:hover .iconic {
+.popupSidePanel tr:hover .iconic,
+.selectionRow:hover .iconic {
 	color:#777;
 	border-color:#777;
 	
@@ -298,4 +299,32 @@ input[type=submit], select, textarea, .AJAXUpload {
 		color-stop(0.01, rgb(220,222,216)),
 		color-stop(0.05, rgb(255,255,255))
 	);
+}
+
+.selectionRow {
+	border-bottom: 1px solid #eee;
+	
+	color:#222;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.selectionRow:hover {
+	background-color:rgb(248, 248, 248);
+}
+
+.selectionRow .selectionRowHeightSetter {
+	padding:5px;
+}
+
+.tableWeightLightColored tr:nth-child(odd) {
+	background-color:#e5e5e5;
+}
+
+.tableWeightLightColored tr:nth-child(even){
+	background-color:#f4f4f4;
 }

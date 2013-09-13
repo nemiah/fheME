@@ -34,6 +34,7 @@ class mFAdresseGUI extends AdressenGUI {
 		$gui = $this->gui = new HTMLGUIX($this);
 		$gui->options(true, true, true, true);
 		$gui->name("Adresse");
+		$gui->screenHeight();
 
 		$gui->attributes(array("vorname", "nachname"));
 		$gui->activateFeature("reloadOnNew", $this);

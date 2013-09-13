@@ -29,6 +29,7 @@ class mWeckerGUI extends anyC implements iGUIHTMLMP2 {
 
 		$gui = new HTMLGUIX($this);
 		$gui->version("mWecker");
+		$gui->screenHeight();
 
 		$gui->name("Wecker");
 		

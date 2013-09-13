@@ -98,6 +98,7 @@ class mInstallation extends anyC {
 		
 			foreach($p as $key => $value){
 				if($key == "CIs") continue;
+				if($key == "mInstallation") continue;
 				
 				$return[$value] = "Keine Collection-Klasse!";
 				

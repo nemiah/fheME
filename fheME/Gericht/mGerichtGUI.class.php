@@ -24,6 +24,7 @@ class mGerichtGUI extends anyC implements iGUIHTMLMP2 {
 		$this->loadMultiPageMode($id, $page, 20);
 		$gui = new HTMLGUIX($this);
 		$gui->name("Gericht");
+		$gui->screenHeight();
 		$gui->attributes(array("GerichtName"));
 		
 		try {

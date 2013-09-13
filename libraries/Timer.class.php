@@ -57,7 +57,7 @@
  * @since      Class available since Release 1.0.0
  */
 class Timer {
-	private static $enabled = true;
+	private static $enabled = false;
 	/**
 	 * @var array
 	 */

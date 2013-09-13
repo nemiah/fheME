@@ -23,6 +23,7 @@ class SelectStatement {
 	public $joinTables = array();
 	public $joinConditions = array();
 	public $joinConditionOperators = array();
+	public $joinTypes = array();
 	public $whereFields = array();
 	public $whereOperators = array();
 	public $whereValues = array();

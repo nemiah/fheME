@@ -68,7 +68,7 @@ class T {
 	}
 	
 	public static function load($pluginPath, $domain = ""){
-		if(!function_exists("bindtextdomain"))
+		if(!function_exists("bindtextdomain") OR strpos($_SERVER["SERVER_SOFTWARE"], "BitWebServer") !== false)
 			return;
 		
 		self::$domainPaths[$domain] = $pluginPath."/locale";

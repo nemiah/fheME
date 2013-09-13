@@ -114,7 +114,7 @@ abstract class Collection {
 	function checkIfMyDBFileExists(){
 		#$p = $this->getClearClass();#
 		$p = str_replace("GUI","",get_class($this));
-		return file_exists("../".$_SESSION["CurrentAppPlugins"]->getAppFolderOfPlugin($p)."/".$_SESSION["CurrentAppPlugins"]->getFolderOfPlugin($p)."/CI.pfdb.php");
+		return file_exists(Util::getRootPath().$_SESSION["CurrentAppPlugins"]->getAppFolderOfPlugin($p)."/".$_SESSION["CurrentAppPlugins"]->getFolderOfPlugin($p)."/CI.pfdb.php");
 	}
 	
 	/**
@@ -125,7 +125,7 @@ abstract class Collection {
 	function getMyDBFileName(){
 		#$p = $this->getClearClass();
 		$p = str_replace("GUI","",get_class($this));
-		return "../".$_SESSION["CurrentAppPlugins"]->getAppFolderOfPlugin($p)."/".$_SESSION["CurrentAppPlugins"]->getFolderOfPlugin($p)."/CI.pfdb.php";
+		return Util::getRootPath().$_SESSION["CurrentAppPlugins"]->getAppFolderOfPlugin($p)."/".$_SESSION["CurrentAppPlugins"]->getFolderOfPlugin($p)."/CI.pfdb.php";
 	}
 	
 	/**
@@ -136,7 +136,7 @@ abstract class Collection {
 	function getMyDBFolder(){
 		#$p = $this->getClearClass();
 		$p = str_replace("GUI","",get_class($this));
-		return "../".$_SESSION["CurrentAppPlugins"]->getAppFolderOfPlugin($p)."/".$_SESSION["CurrentAppPlugins"]->getFolderOfPlugin($p)."/";
+		return Util::getRootPath().$_SESSION["CurrentAppPlugins"]->getAppFolderOfPlugin($p)."/".$_SESSION["CurrentAppPlugins"]->getFolderOfPlugin($p)."/";
 	}
 	
 	/**
@@ -394,14 +394,15 @@ abstract class Collection {
 	 * @param $field2[optional](String) Name of the field in the second table
 	 * @param $ACN[optional](String) The class name for the attributes
 	 */
-	function addJoinV3($table, $field1, $operator = "", $field2 = "", $ACN = ""){
+	function addJoinV3($table, $field1, $operator = "", $field2 = "", $type = "LEFT"){
 		#$this->V3Used = true;
 		if($this->Adapter == null) $this->loadAdapter();
 		$this->Adapter->addSelectStatement("joinTables",$table);
 		$this->Adapter->addSelectStatement("joinConditions",array($field1,$field2));
 		$this->Adapter->addSelectStatement("joinConditionOperators",$operator);
+		$this->Adapter->addSelectStatement("joinTypes",$type);
 		
-		if($ACN != "") $this->setACNV3($ACN);
+		#if($ACN != "") $this->setACNV3($ACN);
 	}
 	
 	/**

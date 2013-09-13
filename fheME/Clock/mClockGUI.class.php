@@ -28,7 +28,7 @@ class mClockGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 		$html = "<div class=\"touchHeader\"><p>Uhr</p></div>
 			<div style=\"padding:10px;\">";
 
-		$html .= "<div id=\"fheOverviewClock\"asd></div>";
+		$html .= "<div id=\"fheOverviewClock\"></div>";
 		
 		$html .= "</div>";
 		echo $html;

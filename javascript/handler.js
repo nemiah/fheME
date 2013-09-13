@@ -39,11 +39,13 @@ Ajax.Responders.register({
 		//console.log(transport);
 		showMessage("<b style=\"color:red\">Server nicht<br />erreichbar</b>");
 		Interface.endLoading();
+		$j('.loading').removeClass("loading");
 		//alert("An error occured: "+transport);
 	},
 	
 	onComplete: function(){
 		Interface.endLoading();
+		$j('.loading').removeClass("loading");
 	}
 });
 

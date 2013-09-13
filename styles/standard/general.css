@@ -289,6 +289,11 @@ button {
 	width:90%;
 }
 
+button.loading {
+	background-image:url('../../images/loading.png') !important;
+	color:grey;
+}
+
 input[type=checkbox]{
 	margin:5px;
 	padding:0;
@@ -330,7 +335,7 @@ input[type=radio] {
 	width:10px;
 }
 
-input[disabled], select[disabled], input[readonly] {
+input[disabled], select[disabled], input[readonly], button[disabled] {
 	color:grey;
 }
 
@@ -442,6 +447,7 @@ label {
 	text-align:right;
 	padding-top:5px;
 	clear:both;
+	background-image: linear-gradient(#AAAAAA 0%, rgba(170, 170, 170, 0) 4px);
 }
 
 #footer p {
@@ -661,7 +667,7 @@ div + .Tab {
 	padding-top:8px;
 }
 
-input[type=button][name=currentSaveButton] {
+input[type=button][name=currentSaveButton], input[type=button][name=submitForm] {
 	width:99%;
 	text-transform:uppercase;
 }
@@ -846,4 +852,8 @@ input[type=button][name=currentSaveButton] {
 
 .ui-widget-content .ui-state-active {
 	background-color:#ffb400;
+}
+
+.tableWeightLightColored {
+	border-spacing: 0 0px;
 }

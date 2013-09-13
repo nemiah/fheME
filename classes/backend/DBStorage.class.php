@@ -72,7 +72,7 @@ class DBStorage {
 	
 	public function renewConnection(){
 		$this->c = new mysqli($this->data["host"],$this->data["user"],$this->data["password"],$this->data["datab"]);
-		if(mysqli_connect_error() AND (mysqli_connect_errno() == 1045 OR mysqli_connect_errno() == 2002 OR mysqli_connect_errno() == 2003 OR mysqli_connect_errno() == 2005)) throw new NoDBUserDataException();
+		if(mysqli_connect_error() AND (mysqli_connect_errno() == 1045 OR mysqli_connect_errno() == 2002 OR mysqli_connect_errno() == 2003 OR mysqli_connect_errno() == 2005)) throw new NoDBUserDataException(mysqli_connect_errno().":".mysqli_connect_error());
 		if(mysqli_connect_error() AND mysqli_connect_errno() == 1049 OR mysqli_connect_errno() == 1044) throw new DatabaseNotFoundException();
 		echo $this->c->error;
 		$this->c->set_charset("utf8");
@@ -348,23 +348,34 @@ class DBStorage {
 		$tables = array();
 		
 		for($i=0;$i<count($statement->joinTables);$i++){
-			if(!isset($tables[$statement->joinTables[$i]])) $tables[$statement->joinTables[$i]] = array();
-			$tables[$statement->joinTables[$i]][] = array($statement->joinConditions[$i][0],$statement->joinConditionOperators[$i],$statement->joinConditions[$i][1]);
+			if(!isset($tables[$statement->joinTables[$i]]))
+				$tables[$statement->joinTables[$i]] = array();
+			
+			$tables[$statement->joinTables[$i]][] = array(
+				$statement->joinConditions[$i][0],
+				$statement->joinConditionOperators[$i],
+				$statement->joinConditions[$i][1],
+				$statement->joinTypes[$i]);
 		}
 		
 		$t = 2;
 		$joinAdd = "";
 		foreach($tables as $table => $conditions){
+			$type = "LEFT";
 			$ons = "";
 			for($i=0;$i<count($conditions);$i++){
-				if($i == 0) $ons .= ((!strpos($conditions[$i][0],".") AND $conditions[$i][0]{0} != " ") ? "t1." : "")."".$conditions[$i][0]." ".$conditions[$i][1]." t$t.".$conditions[$i][2];
+				if($i == 0)
+					$ons .= ((!strpos($conditions[$i][0],".") AND $conditions[$i][0]{0} != " ") ? "t1." : "")."".$conditions[$i][0]." ".$conditions[$i][1]." t$t.".$conditions[$i][2];
 				else {
 					if($conditions[$i][2] != "NOT NULL" AND $conditions[$i][2] != "NULL") $conditions[$i][2] = "'".$conditions[$i][2]."'";
 					$ons .= " AND t$t.".$conditions[$i][0]." ".$conditions[$i][1]." ".$conditions[$i][2]."";
 				}
+				
+				if(isset($conditions[$i][3]) AND $conditions[$i][3] != "")
+					$type = $conditions[$i][3];
 			}
 			
-			$joinAdd .= "\n LEFT JOIN ".$table." t$t ON($ons)";
+			$joinAdd .= "\n $type JOIN ".$table." t$t ON($ons)";
 
 			$t++;
 		}

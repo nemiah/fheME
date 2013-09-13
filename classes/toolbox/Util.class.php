@@ -1100,8 +1100,8 @@ class Util {
 		return $hours.":".$minutes.($showSeconds ? ":".$sec : "");
 	}
 	
-	public static function formatSecondsSigned($seconds){
-		return ($seconds < 0 ? "-" : "").self::formatSeconds(abs($seconds));
+	public static function formatSecondsSigned($seconds, $showSeconds = true){
+		return ($seconds < 0 ? "-" : "").self::formatSeconds(abs($seconds), $showSeconds);
 	}
 
 	/**
@@ -1185,7 +1185,7 @@ class Util {
 		$filename = Util::replaceNonURLChars($string);
 		$filename = str_replace(array("Á","À","Â","Ã","á","à","â","ã"), array("A","A","A","A","a","a","a","a"), $filename);
 		$filename = str_replace(array("Ç","ç","É","È","Ê","é","è","ê", "ë", "Č"), array("C","c","E","E","E","e","e","e", "e", "C"), $filename);
-		$filename = str_replace(array("Í","Ì","í","ì","Õ","Ô","Ó"), array("I","I","i","i","O","O","O"), $filename);
+		$filename = str_replace(array("Í","Ì","í","ì", "ï","Õ","Ô","Ó"), array("I","I","i","i", "i","O","O","O"), $filename);
 		$filename = str_replace(array("õ","ô","ó","Ú","ú"), array("o","o","o","U","u"), $filename);
     	$filename = str_replace(array(":", "–", "\n", "'", "?", "(", ")", ";", "\"", "+", "<", ">", ",", "´", "`"), array("_", "-", "", "", "", "", "", "", "", "", "", "", "", "", ""), $filename);
 		$filename = str_replace(array("__"), array("_"), $filename);

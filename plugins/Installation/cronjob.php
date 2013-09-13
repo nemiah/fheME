@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  *  This file is part of plugins.
 
  *  plugins is free software; you can redistribute it and/or modify
@@ -14,26 +14,36 @@
 
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
-class mDeviceGUI extends anyC implements iGUIHTMLMP2 {
+if(isset($argv[1]))
+	$_GET["cloud"] = $argv[1];
 
-	public function getHTML($id, $page){
-		$this->loadMultiPageMode($id, $page, 0);
+if(isset($argv[2]))
+	$_SERVER["HTTP_HOST"] = $argv[2];
 
-		$gui = new HTMLGUIX($this);
-		#$gui->version("mDevice");
-		$gui->screenHeight();
+session_name("ExtConnInstallation");
 
-		$gui->name("Device");
-		
-		$gui->attributes(array("DeviceName"));
-		
-		return $gui->getBrowserHTML($id);
-	}
+require_once realpath(dirname(__FILE__)."/../../system/connect.php");
 
 
-}
+$absolutePathToPhynx = realpath(dirname(__FILE__)."/../../")."/";
+
+$e = new ExtConn($absolutePathToPhynx);
+
+$e->addClassPath($absolutePathToPhynx."/plugins/Installation");
+
+$e->useDefaultMySQLData();
+
+$e->useAdminUser();
+
+#$I = new mInstallation();
+#echo "<pre>";
+#print_r($I->updateAllTables(1));
+#echo "</pre>";
+
+$e->cleanUp();
+
 ?>

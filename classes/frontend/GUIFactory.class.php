@@ -534,6 +534,7 @@ class GUIFactory {
 			$this->table->addRow("");
 			$this->table->addRowColspan(1, count($this->referenceLine));
 			$this->table->addRowClass("backgroundColor0 browserSeparatorBottom");
+			$this->table->setRowPart("tfoot");
 		}
 		
 		#if($where == "top"){# OR $where == "bottom") {
@@ -543,7 +544,10 @@ class GUIFactory {
 				$this->table->addRow($wholeLine1);
 				$this->table->addRowColspan(2, count($this->referenceLine) -1);
 				$this->table->addRowClass("backgroundColorHeader");
-			}$this->table->addRowClass("backgroundColorHeader");
+				$this->table->setRowPart($where == "top" ? "thead" : "tfoot");
+			}
+			
+			$this->table->addRowClass("backgroundColorHeader");
 			
 			if($this->tableMode == "BrowserLeft" OR $this->tableMode == "screen" OR $this->tableMode == "popup"){
 				$wholeLine1 = array($this->multiPageDetails["total"]." ".($this->multiPageDetails["total"] != 1 ? "Einträge" : "Eintrag").", $wholeLine2");
@@ -557,7 +561,8 @@ class GUIFactory {
 				$this->table->addRowColspan(1, count($this->referenceLine) -1);
 				$this->table->addRowClass("backgroundColorHeader");
 				$this->table->addCellStyle(count($wholeLine1), "text-align:right;");
-
+				$this->table->setRowPart("thead");
+				
 				if($this->showTrash)
 					$this->setColStyle($this->referenceLine[count($this->referenceLine) - 1], "width:20px;");
 			}
@@ -574,6 +579,7 @@ class GUIFactory {
 			$this->table->addRow("");
 			$this->table->addRowColspan(1, count($this->referenceLine));
 			$this->table->addRowClass("backgroundColor0 browserSeparatorTop");
+			$this->table->setRowPart("thead");
 		}
 	}
 	// </editor-fold>
@@ -596,18 +602,20 @@ class GUIFactory {
 			unset($newLine[count($this->referenceLine) - 1]);
 
 		$this->buildLine(-1, $newLine);
-
+		$this->table->setRowPart("thead");
+		
 		if($this->tableMode == "BrowserRight"){
 			$this->table->addRowColspan(2, count($this->referenceLine) - 1);
-			$this->table->addCellStyle(2, "cursor:pointer;text-align:left;");
+			$this->table->addCellStyle(2, "cursor:pointer;text-align:left;padding-top:10px;padding-bottom:10px;");
 			$this->table->addCellEvent(2, "click", str_replace(array("%CLASSNAME", "%CLASSID"), array($this->className, -1), $this->functionNew));
 		}
 
 		if($this->tableMode == "BrowserLeft"){
 			$this->table->addRowColspan(1, count($this->referenceLine) - 1);
-			$this->table->addCellStyle(1, "text-align:right;cursor:pointer;");
+			$this->table->addCellStyle(1, "text-align:right;cursor:pointer;padding-bottom:10px;");
 			$this->table->addCellEvent(1, "click", str_replace(array("%CLASSNAME", "%CLASSID"), array($this->className, -1), $this->functionNew));
 		}
+		$this->table->addRowClass("backgroundColor0");
 		#
 		#
 	}
@@ -620,6 +628,7 @@ class GUIFactory {
 			$this->table->addRow($wholeLine2);
 			$this->table->addRowColspan(2, count($this->referenceLine) - 1);
 			$this->table->addRowClass("backgroundColorHeader");
+			$this->table->setRowPart("thead");
 			
 			$this->setColStyle(1, "width:20px;");
 		}
@@ -631,7 +640,8 @@ class GUIFactory {
 			$this->table->addRow($wholeLine2);
 			$this->table->addRowColspan(1, count($this->referenceLine) - 1);
 			$this->table->addRowClass("backgroundColorHeader");
-
+			$this->table->setRowPart("thead");
+			
 			$this->setColStyle($this->referenceLine[count($this->referenceLine) - 1], "width:20px;");
 		}
 		
@@ -643,7 +653,8 @@ class GUIFactory {
 			$this->table->addRow($wholeLine2);
 			$this->table->addRowColspan(1, count($this->referenceLine) - 1);
 			$this->table->addRowClass("backgroundColorHeader");
-
+			$this->table->setRowPart("thead");
+			
 			$this->setColStyle($this->referenceLine[count($this->referenceLine) - 1], "width:20px;");
 		}
 

@@ -45,13 +45,13 @@ class mfheOverviewGUI extends anyC implements iGUIHTMLMP2 {
 			}
 
 			#fheOverviewClock {
-				font-size:30px;
+				font-size:35px;
 				text-align:right;
 			}
 			
 			#fheOverviewClock span {
 				float:left;
-				font-size:13px;
+				font-size:16px;
 				text-align:left;
 			}
 			

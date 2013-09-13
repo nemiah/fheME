@@ -143,6 +143,21 @@ class FileStorage {
 			if(strpos(basename($file), "MailTemp") === 0)
 				continue;
 
+			if(strpos(basename($file), "pPArbeitskraftID") === 0)
+				continue;
+
+			if(strpos(basename($file), "NewsletterEmbID") === 0)
+				continue;
+
+			if(strpos(basename($file), "ArtikelID") === 0)
+				continue;
+
+			if(strpos(basename($file), "PersonalID") === 0)
+				continue;
+
+			if(strpos(basename($file), "GRLBMPool") === 0)
+				continue;
+
 			if(strpos(basename($file), "Customizer") === 0 AND strpos(basename($file), ".class.php") !== false)
 				continue;
 

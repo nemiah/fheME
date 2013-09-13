@@ -82,12 +82,17 @@ class HTMLGUIX {
 	protected $tip = "";
 	protected $requestFocus;
 	protected $targetFrame;
+	protected $useScreenHeight = false;
 	
 	public function __construct($object = null, $collectionName = null){
 		if($object != null)
 			$this->object($object, $collectionName);
 
 		$this->languageClass = $this->loadLanguageClass("HTML");
+	}
+	
+	public function screenHeight(){
+		$this->useScreenHeight = true;
 	}
 	
 	public function requestFocus($first, $second = null){
@@ -433,6 +438,9 @@ class HTMLGUIX {
 	 */
 	// <editor-fold defaultstate="collapsed" desc="parser">
 	function parser($attributeName, $function) {
+		if(strpos($function, "::") === false)
+			$function = get_class($this->object)."::$function";
+		
 		$this->parsers[$attributeName] = $function;
 		#$this->parserParameters[$attributeName] = $parameters;
 	}
@@ -526,18 +534,23 @@ class HTMLGUIX {
 		$this->showInputs = $showInputs;
 	}
 
-	function getEditHTML(){
-		$this->object->loadMeOrEmpty();
-
-		if($this->object->getID() == -1)
-			$this->addToEvent("onSave", "$('contentLeft').update('');");
-
+	private $form = null;
+	function getForm(){
+		if($this->form != null)
+			return $this->form;
+		
 		$F = new HTMLForm($this->formID == null ? "edit".get_class($this->object) : $this->formID, $this->attributes == null ? $this->object : $this->attributes, strpos($this->displayMode, "popup") === false ? $this->operationsButton().$this->name : null);
 		$F->getTable()->setColWidth(1, 120);
 		$F->getTable()->addTableClass("contentEdit");
 		
+		$ID = $this->object->getID();
+		if(BPS::getProperty("HTMLGUI", "insertAsNew", false)) {
+			$ID = -1;
+			BPS::unsetProperty("HTMLGUI", "insertAsNew");
+		}
+		
 		if($this->showSave)
-			$F->setSaveClass(get_class($this->object), $this->object->getID(), $this->functionEntrySave, $this->name);
+			$F->setSaveClass(get_class($this->object), $ID, $this->functionEntrySave, $this->name);
 
 		$F->isEditable($this->showInputs);
 
@@ -575,6 +588,18 @@ class HTMLGUIX {
 		
 		foreach($this->autocomplete AS $k => $a)
 			$F->setAutoComplete($k, $a[0], $a[1]);
+		
+		$this->form = $F;
+		return $F;
+	}
+	
+	function getEditHTML(){
+		$this->object->loadMeOrEmpty();
+
+		if($this->object->getID() == -1)
+			$this->addToEvent("onSave", "$('contentLeft').update('');");
+
+		$F = $this->getForm();
 		
 		$requestFocus = "";
 		if($this->requestFocus)
@@ -632,6 +657,8 @@ class HTMLGUIX {
 		$Tab = $GUIF->getTable($E == null ? array("") : $this->attributes, $this->colStyle, $this->caption);
 		$Tab->setTableID("Browserm$this->className");
 		$Tab->addTableClass("contentBrowser");
+		if($this->useScreenHeight)
+			$Tab->useScreenHeight();
 		
 		if($this->header != null)
 			$Tab->addHeaderRow($this->header);
@@ -697,7 +724,7 @@ class HTMLGUIX {
 		else
 			return $Tab->getHTMLForUpdate();
 
-		return $this->topButtons($bps).$this->sideButtons($bps).$GUIF->getContainer($Tab, $this->caption).str_replace("%CLASSNAME", $this->className, $this->sortable).$this->tip;
+		return "<div class=\"browserContainer\">".$this->topButtons($bps).$this->sideButtons($bps).$GUIF->getContainer($Tab, $this->caption)."</div>".str_replace("%CLASSNAME", $this->className, $this->sortable).$this->tip;
 	}
 	// </editor-fold>
 
@@ -726,7 +753,8 @@ class HTMLGUIX {
 		$TT = "";
 		if(count($this->topButtons) > 0 AND ($bps == null OR !isset($bps["selectionMode"]))){
 			$TT = new HTMLTable(1);
-
+			$TT->addTableClass("browserContainerSubHeight");
+			
 			foreach($this->topButtons AS $B)
 				$TT->addRow($B."");
 		}

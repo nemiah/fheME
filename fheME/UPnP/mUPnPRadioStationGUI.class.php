@@ -1,35 +1,34 @@
 <?php
 /**
- *  This file is part of plugins.
+ *  This file is part of fheME.
 
- *  plugins is free software; you can redistribute it and/or modify
+ *  fheME is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 3 of the License, or
  *  (at your option) any later version.
 
- *  plugins is distributed in the hope that it will be useful,
+ *  fheME is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
 
  *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with this program.  If not, see <http://www.gnu.org/licenses></http:>.
  * 
  *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
-class mDeviceGUI extends anyC implements iGUIHTMLMP2 {
+class mUPnPRadioStationGUI extends anyC implements iGUIHTMLMP2 {
 
 	public function getHTML($id, $page){
 		$this->loadMultiPageMode($id, $page, 0);
 
 		$gui = new HTMLGUIX($this);
-		#$gui->version("mDevice");
-		$gui->screenHeight();
+		$gui->version("mUPnP");
 
-		$gui->name("Device");
+		$gui->name("RadioStation");
 		
-		$gui->attributes(array("DeviceName"));
+		$gui->attributes(array("UPnPRadioStationName"));
 		
 		return $gui->getBrowserHTML($id);
 	}
