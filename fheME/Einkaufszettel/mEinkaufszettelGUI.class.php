@@ -189,7 +189,7 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 		while($E = $AC->getNextEntry()){
 			$BT = new Button("Löschen", "trash", "icon");
 			$BT->onclick(OnEvent::rme($E, "deleteMe", "", OnEvent::reloadPopup("mEinkaufszettel")));
-			$T->addRow(array($E->A("EinkaufszettelName"), $BT));
+			$T->addRow(array($E->A("EinkaufszettelName").($E->A("EinkaufszettelNameDetails") != "" ? "<br /><small style=\"color:grey;\">".$E->A("EinkaufszettelNameDetails")."</small>" : ""), $BT));
 			$T->addRowStyle("font-size:20px;");
 		}
 		
