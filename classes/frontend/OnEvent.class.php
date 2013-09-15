@@ -151,7 +151,7 @@ class OnEvent {
 		if($onFailureFunction != null AND strpos(trim($onFailureFunction), "function") !== 0)
 				$onFailureFunction = "function(transport){ $onFailureFunction }";
 		
-		return "contentManager.rmePCR('$targetObject', $id, '$targetMethod', Array(".(is_array($targetMethodParameters) ? implode(",",$targetMethodParameters) : "'".$targetMethodParameters."'")."), ".($onSuccessFunction != null ? $onSuccessFunction : "function(){}")."".($bps != null ? ", '$bps'" : ", ''").", 1, ".($onFailureFunction != null ? $onFailureFunction : "function(){}")."); ";
+		return "contentManager.rmePCR('$targetObject', $id, '$targetMethod', [".(is_array($targetMethodParameters) ? implode(",",$targetMethodParameters) : "'".$targetMethodParameters."'")."], ".($onSuccessFunction != null ? $onSuccessFunction : "function(){}")."".($bps != null ? ", '$bps'" : ", ''").", 1, ".($onFailureFunction != null ? $onFailureFunction : "function(){}")."); ";
 	}
 	
 	public static function closePopup($plugin, $id = "edit"){

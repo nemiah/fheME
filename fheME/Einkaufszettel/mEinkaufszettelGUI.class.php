@@ -95,6 +95,30 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 			echo $this->getOverviewList();
 	}
 	
+	public function reAddItem($EinkaufszettelID, $overviewList = false){
+		
+		$E = new Einkaufszettel($EinkaufszettelID);
+		$E->changeA("EinkaufszettelBought", "0");
+		$E->changeA("EinkaufszettelTime", time());
+		$E->newMe();
+		
+		if(!$overviewList)
+			echo $this->getListTable();
+		else
+			echo $this->getOverviewList();
+	}
+	
+	function deleteReAddItem($EinkaufszettelID){
+		$E = new Einkaufszettel($EinkaufszettelID);
+		
+		$AC = anyC::get("Einkaufszettel", "EinkaufszettelName", $E->A("EinkaufszettelName"));
+		$AC->addAssocV3("EinkaufszettelNameDetails", "=", $E->A("EinkaufszettelNameDetails"));
+		while($E = $AC->getNextEntry())
+			$E->deleteMe();
+		
+		echo $this->getListReAddTable();
+	}
+	
 	public function getOverviewList(){
 		$html = "";
 		$AC = anyC::get("Einkaufszettel", "EinkaufszettelBought", "0");
@@ -126,27 +150,22 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 		$I->onEnter(OnEvent::rme($this, "addItem", array("this.value", "1"), "function(transport){ \$j('#EinkaufszettelLastAdded').html(transport.responseText); }")." \$j(this).val('');");
 		
 		
-		$B = new Button("Aktuelle Liste anzeigen", "./fheME/Einkaufszettel/Einkaufszettel.png", "icon");
-		$B->popup("", "Einkaufsliste", "mEinkaufszettel", "-1", "showCurrentList", "", "", "{top:20, hPosition:'right'}");
-		$B->style("float:right;");
+		$B = new Button("Liste anzeigen", "compass", "touch");
+		$B->popup("", "Einkaufsliste", "mEinkaufszettel", "-1", "showCurrentList", "", "", "{top:20, width:800, hPosition:'center', blackout:true}");
 		
 		
-		$html .= "<div class=\"touchButton\" id=\"EinkaufslisteNewEntryContainer\">$B$I</div>
-			<div id=\"EinkaufszettelLastAdded\">";
+		$html .= "<div id=\"EinkaufslisteNewEntryContainer\">$B</div>
+			<!--<div id=\"EinkaufszettelLastAdded\">-->";
 		
-		$html .= $this->getOverviewList();
+		#$html .= $this->getOverviewList();
 		
-		$html .= "</div></div>".OnEvent::script("\$j('[name=EinkaufslisteNewEntryOV]').css('width', (\$j('#EinkaufslisteNewEntryContainer').innerWidth() - 70)+'px');");
+		$html .= "<!--</div>--></div>".OnEvent::script("\$j('[name=EinkaufslisteNewEntryOV]').css('width', (\$j('#EinkaufslisteNewEntryContainer').innerWidth() - 70)+'px');");
 		echo $html;
 	}
 	
 	public function showCurrentList(){
 		
-		$B = new Button("Liste schließen", "stop", "icon");
-		$B->onclick(OnEvent::closePopup("mEinkaufszettel"));
-		$B->style("float:right;margin:10px;");
-		
-		$BM = new Button("Handy-Version anzeigen", "./fheME/Einkaufszettel/mobile.png", "icon");
+		$BM = new Button("Handy-Version\nanzeigen", "./fheME/Einkaufszettel/mobile.png");
 		$BM->style("float:right;margin:10px;");
 		$BM->onclick("window.open('".str_replace("/interface/rme.php", "/ubiquitous/CustomerPage/?CC=Shopping&key=".substr(Util::eK(), 0, 5), $_SERVER["SCRIPT_NAME"])."');");
 		
@@ -156,15 +175,96 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 		#$BH->onclick("if(\$j('input[name=EinkaufslisteNewEntry]').val() != 'Neuer Eintrag') ".OnEvent::rme($this, "addItem", array("\$j('input[name=EinkaufslisteNewEntry]').val()"), OnEvent::reloadPopup("mEinkaufszettel")));
 		
 		
-		$I = new HTMLInput("EinkaufslisteNewEntry", "textarea", "Neuer Eintrag");
-		$I->style("width:250px;padding:5px;margin-left:5px;font-size:20px;color:grey;float:left;font-family:monospace;max-width:250px;height:35px;max-height:35px;margin-top:-45px;");
-		$I->onfocus("if(this.value == 'Neuer Eintrag') { \$j(this).val('').css('color', 'black'); }");
-		$I->onblur("if(this.value == '') { \$j(this).val('Neuer Eintrag').css('color', 'grey'); }");
+		$I = new HTMLInput("EinkaufslisteNewEntry", "textarea", "");
+		$I->placeholder("Neuer Eintrag");
+		$I->style("width:390px;padding:5px;margin-left:5px;font-size:20px;float:left;font-family:monospace;max-width:390px;resize:none;height:35px;max-height:35px;margin-top:-45px;");
+		#$I->onfocus("if(this.value == 'Neuer Eintrag') { \$j(this).val('').css('color', 'black'); }");
+		#$I->onblur("if(this.value == '') { \$j(this).val('Neuer Eintrag').css('color', 'grey'); }");
 		$I->onkeyup("var currentContent = \$j(this).val(); ".OnEvent::rme($this, "getACData", array("this.value"), "function(transport){ var json = jQuery.parseJSON(transport.responseText); if(json.length >= 1) \$j('#EinkaufslisteNewEntryAC').html(json[0].EinkaufszettelName.replace(currentContent, '<span style=\'color:white;\'>'+currentContent+'</span>')); else \$j('#EinkaufslisteNewEntryAC').html(''); }"));
 		$I->onEnter(OnEvent::rme($this, "addItem", array("this.value"), "function(transport){ \$j('#currentList').html(transport.responseText); }")." \$j(this).val('');");
 		
 		
-		echo $B.$BM."<div id=\"EinkaufslisteNewEntryAC\" style=\"width:250px;height:35px;padding:5px;font-size:20px;margin-left:6px;margin-top:3px;font-family:monospace;color:grey;float:left;\"></div>".$I."<div style=\"clear:both;\"></div><div id=\"currentList\">".$this->getListTable()."</div>".OnEvent::script("setTimeout(function(){ \$j('input[name=EinkaufslisteNewEntry]').focus(); }, 200);");
+		
+		$B = new Button("Liste schließen", "stop");
+		$B->onclick(OnEvent::closePopup("mEinkaufszettel"));
+		$B->style("float:right;margin:10px;");
+		
+		
+		echo "
+		<div style=\"width:400px;float:right;\">
+			$B$BM
+			<div id=\"EinkaufslisteNewEntryAC\" style=\"width:390px;height:35px;padding:5px;font-size:20px;margin-left:6px;margin-top:3px;font-family:monospace;color:grey;float:left;\"></div>
+			".$I."
+			<div style=\"clear:both;\"></div>
+			<div id=\"currentList\">".$this->getListTable()."</div>
+		</div>
+		<div style=\"width:400px;\" id=\"reAddList\">
+			".$this->getListReAddTable()."
+		</div>
+		<div style=\"clear:both;\"></div>
+			".OnEvent::script("setTimeout(function(){ \$j('input[name=EinkaufslisteNewEntry]').focus(); }, 200);");
+	}
+	
+	private function getListReAddTable(){
+		#$TB = new HTMLTable(2);
+		#$TB->weight("lightColored");
+		#$TB->maxHeight(400);
+		#$TB->useForSelection();
+		
+		$AC = anyC::get("Einkaufszettel", "EinkaufszettelBought", "1");
+		$AC->setFieldsV3(array("EinkaufszettelName", "EinkaufszettelNameDetails", "MAX(EinkaufszettelID) AS maxID"));
+		$AC->addAssocV3("EinkaufszettelBoughtTime", ">", time() - 3600 * 24 * 60);
+		$AC->addGroupV3("EinkaufszettelName");
+		$AC->addOrderV3("EinkaufszettelName");
+		#$AC->addGroupV3("EinkaufszettelNameDetails");
+		
+		$L = new HTMLList();
+		$L->noDots();
+		$L->addListStyle("padding-top:10px;width:400px;");
+		
+		while($B = $AC->getNextEntry()){
+			$BT = new Button("Eintrag löschen", "trash_stroke", "iconicL");
+			$BT->rmePCR("mEinkaufszettel", "-1", "deleteReAddItem", $B->A("maxID"), "function(transport){ \$j('#reAddList').html(transport.responseText); }");
+			$BT->style("float:left;margin-right:10px;margin-top:-4px;");
+			
+			$L->addItem($BT.$B->A("EinkaufszettelName").($B->A("EinkaufszettelNameDetails") != "" ? "<br /><small style=\"color:grey;\">".$B->A("EinkaufszettelNameDetails")."</small>" : ""));
+			$L->addItemStyle("font-size:20px;padding-top:10px;padding-bottom:10px;margin-top:0px;");
+			$L->addItemClass("swipe");
+			$L->addItemData("maxid", $B->A("maxID"));
+			#$TB->addRow(array($BT, ));
+			#$TB->addRowStyle("font-size:20px;");
+			#$TB->addCellClass(2, "swipe");
+			
+			#$TB->addCellEvent(2, "click", OnEvent::rme($this, "reAddItem", $B->A("maxID"), "function(transport){ \$j('#currentList').html(transport.responseText); }"));
+		}
+		
+		return $L.OnEvent::script("
+			\$j('#reAddList ul').parent().css('height', contentManager.maxHeight()).css('overflow', 'auto');
+			\$j('.swipe').hammer().on('touch release dragright', function(event){
+				if(event.type == 'touch'){
+					\$j(this).addClass('highlight');
+					return;
+				}
+				
+				if(event.type == 'release'){
+					if(event.gesture.deltaX > 150)
+						".OnEvent::rme($this, "reAddItem", array("\$j(this).data('maxid')"), "function(transport){ \$j('#currentList').html(transport.responseText); }")."
+					
+					\$j(this).removeClass('highlight');
+					\$j(this).animate({'margin-left': 15});
+					return;
+				}
+				
+				if(event.type == 'dragright'){
+					var margin = event.gesture.deltaX;
+					if(margin > 250)
+						margin = 250;
+						
+					\$j(this).css('margin-left', margin);
+				}
+			});
+					
+				");
 	}
 	
 	public function getACData($query){
@@ -182,15 +282,20 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 		$T = new HTMLTable(2, "Einkaufsliste");
 		$T->maxHeight(400);
 		$T->setColWidth(2, 30);
+		$T->weight("light");
+		$T->useForSelection(false);
 		
 		$AC = anyC::get("Einkaufszettel", "EinkaufszettelBought", "0");
 		$AC->addOrderV3("EinkaufszettelTime", "DESC");
 		
 		while($E = $AC->getNextEntry()){
-			$BT = new Button("Löschen", "trash", "icon");
+			$BT = new Button("Löschen", "trash_stroke", "iconicL");
 			$BT->onclick(OnEvent::rme($E, "deleteMe", "", OnEvent::reloadPopup("mEinkaufszettel")));
+			
 			$T->addRow(array($E->A("EinkaufszettelName").($E->A("EinkaufszettelNameDetails") != "" ? "<br /><small style=\"color:grey;\">".$E->A("EinkaufszettelNameDetails")."</small>" : ""), $BT));
 			$T->addRowStyle("font-size:20px;");
+			$T->addCellEvent(1, "click", OnEvent::rme($this, "boughtItem", $E->getID(), "function(transport){ \$j('#currentList').html(transport.responseText); }"));
+			
 		}
 		
 		if($AC->numLoaded() == 0){
@@ -201,9 +306,16 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 		return $T;
 	}
 	
+	public function boughtItem($EinkaufszettelID){
+		$E = new Einkaufszettel($EinkaufszettelID);
+		$E->setBought();
+		
+		echo $this->getListTable();
+	}
+	
 	public static function getOverviewPlugin(){
-		$P = new overviewPlugin("mEinkaufszettelGUI", "Einkaufen", 145);
-		$P->updateInterval(300);
+		$P = new overviewPlugin("mEinkaufszettelGUI", "Einkaufen", 0);
+		#$P->updateInterval(300);
 		
 		return $P;
 	}
