@@ -133,6 +133,8 @@ class mUPnPGUI extends anyC implements iGUIHTMLMP2 {
 		$C = new phpUPnP();
 		#
 		$result = $C->mSearch();
+		
+		#print_r($result);
 		echo "<p>Gefundene Geräte:</p>";
 		#$locations = array();
 		$L = new HTMLList();
@@ -160,13 +162,15 @@ class mUPnPGUI extends anyC implements iGUIHTMLMP2 {
 			
 			
 			$F = new Factory("UPnP");
-			$F->sA("UPnPLocation", $r["location"]);
+			$F->sA("UPnPUDN", $xml->device->UDN);
 			$L->addItem($xml->device->friendlyName);
 			
 			$U = $F->exists(true);
 			if($U !== false){
-				$U->changeA("UPnPName", $xml->device->friendlyName);
+				$U->changeA("UPnPLocation", $r["location"]);
+				#$U->changeA("UPnPName", $xml->device->friendlyName);
 				$U->changeA("UPnPModelName", $xml->device->modelName);
+				$U->changeA("UPnPUDN", $xml->device->UDN);
 				
 				foreach(self::$desiredServices AS $S => $nil)
 					$U->changeA("UPnP$S", 0);
@@ -176,8 +180,11 @@ class mUPnPGUI extends anyC implements iGUIHTMLMP2 {
 					$U->changeA("UPnP".$S."SCPDURL", $service->SCPDURL[0]."");
 					$U->changeA("UPnP".$S."controlURL", $service->controlURL[0]."");
 				}
+				
+				#echo "save";
 				$U->saveMe();
 			} else {
+				$F->sA("UPnPLocation", $r["location"]);
 				$F->sA("UPnPName", $xml->device->friendlyName);
 				$F->sA("UPnPModelName", $xml->device->modelName);
 				
@@ -189,7 +196,7 @@ class mUPnPGUI extends anyC implements iGUIHTMLMP2 {
 					$F->sA("UPnP".$S."SCPDURL", $service->SCPDURL[0]."");
 					$F->sA("UPnP".$S."controlURL", $service->controlURL[0]."");
 				}
-				
+				#echo "store";
 				$F->store();
 			}
 			

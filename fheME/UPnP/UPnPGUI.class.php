@@ -49,6 +49,8 @@ class UPnPGUI extends UPnP implements iGUIHTML2 {
 			"UPnPName",
 			"UPnPLocation",
 			"UPnPModelName",
+			"UPnPUDN",
+			"UPnPHide",
 			"UPnPContentDirectory",
 			"UPnPContentDirectorySCPDURL",
 			"UPnPContentDirectorycontrolURL",
@@ -63,10 +65,18 @@ class UPnPGUI extends UPnP implements iGUIHTML2 {
 			"UPnPRenderingControlcontrolURL"
 		));
 		
+		#$gui->optionsEdit(false, false);
+		
 		$gui->label("UPnPConnectionManager", "Verfügbar?");
 		$gui->label("UPnPAVTransport", "Verfügbar?");
 		$gui->label("UPnPContentDirectory", "Verfügbar?");
 		$gui->label("UPnPRenderingControl", "Verfügbar?");
+		
+		$gui->type("UPnPConnectionManager", "checkbox");
+		$gui->type("UPnPAVTransport", "checkbox");
+		$gui->type("UPnPContentDirectory", "checkbox");
+		$gui->type("UPnPRenderingControl", "checkbox");
+		$gui->type("UPnPHide", "checkbox");
 		
 		$gui->label("UPnPContentDirectorySCPDURL", "SCPDURL");
 		$gui->label("UPnPAVTransportSCPDURL", "SCPDURL");
