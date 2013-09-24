@@ -368,7 +368,7 @@ class PHPMailer {
 	 * Constructor
 	 * @param boolean $exceptions Should we throw external exceptions?
 	 */
-	public function __construct($exceptions = false, $senderDomain = "") {
+	public function __construct($exceptions = false, $senderDomain = "", $skipOwnServer = false) {
 		$this->exceptions = ($exceptions == true);
 		$this->PluginDir = dirname(__FILE__)."/";
 		
@@ -412,7 +412,7 @@ class PHPMailer {
 		}
 		
 		$CH = Util::getCloudHost();
-		if(!$MailServerSet AND $CH != null AND isset($CH->forceOwnSMTPServer) AND $CH->forceOwnSMTPServer === true)
+		if(!$MailServerSet AND $CH != null AND isset($CH->forceOwnSMTPServer) AND $CH->forceOwnSMTPServer === true AND !$skipOwnServer)
 			throw new Exception("Bitte tragen Sie einen eigenen Mailserver ein, um den zuverlässigen Mailversand in Ihrem Namen zu gewährleisten. Melden Sie sich dazu als Admin-Benutzer am System an und tragen Sie den Mailserver im Cloud-Reiter ein.");
 		
 	}

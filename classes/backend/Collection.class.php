@@ -173,7 +173,7 @@ abstract class Collection {
 				$CIA = $CI->getA();
 				$CIA->MySQL = str_replace("%%&ESCSLASH%%&","\'",$CIA->MySQL);
 				$CIA->MSSQL = str_replace("%%&ESCSLASH%%&","\'",$CIA->MSSQL);
-				$message .= htmlentities($CIA->MySQL);
+				$message .= SqlFormatter::format(htmlentities($CIA->MySQL), false);
 
 				$connection = $this->Adapter->createMyTable($CIA);
 				if($connection == null and PHYNX_MAIN_STORAGE == "MySQLo"){

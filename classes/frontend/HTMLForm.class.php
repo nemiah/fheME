@@ -140,6 +140,11 @@ class HTMLForm {
 			$this->table->addColStyle(2, "width:$widths[2]px;");
 			$this->table->addColStyle(3, "width:$widths[1]px;");
 			$this->table->addColStyle(4, "width:$widths[2]px;");
+			
+			$this->table->setColClass(1, "backgroundColor3");
+			$this->table->setColClass(2, "backgroundColor2");
+			$this->table->setColClass(3, "backgroundColor3");
+			$this->table->setColClass(4, "backgroundColor2");
 		}
 	}
 
@@ -195,6 +200,8 @@ class HTMLForm {
 		$this->spaces = array();
 		$this->spaceLines = array();
 		$this->table = new HTMLTable(2, $title);
+		$this->table->setColClass(1, "backgroundColor3");
+		$this->table->setColClass(2, "backgroundColor2");
 		$this->title = $title;
 		$this->saveMode = null;
 		$this->onSubmit = null;

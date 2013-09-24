@@ -447,7 +447,7 @@ label {
 	text-align:right;
 	padding-top:5px;
 	clear:both;
-	background-image: linear-gradient(#AAAAAA 0%, rgba(170, 170, 170, 0) 4px);
+	/*background-image: linear-gradient(#AAAAAA 0%, rgba(170, 170, 170, 0) 4px);*/
 }
 
 #footer p {
@@ -560,11 +560,11 @@ div + .Tab {
 
 .lightTab {
 	color:grey;
-	margin-top:10px;
 	border-bottom-width:1px;
 	border-bottom-style:dashed;
 	margin-bottom:5px;
 	padding:3px;
+	padding-top:13px;
 	padding-bottom:0px;
 	padding-left:5px;
 }
@@ -712,7 +712,7 @@ input[type=button][name=currentSaveButton], input[type=button][name=submitForm] 
 	border-top-right-radius:5px;*/
 	border-color: #777;
 	border-style:solid;
-	border-width:1px;
+	border-width:0px;
 }
 
 .popup > div:first-child {

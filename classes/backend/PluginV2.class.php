@@ -61,5 +61,9 @@ class PluginV2 {
 	function registerVersion(){
 		return "0";
 	}
+	
+	function registerBlockNonAdmin(){
+		return true;
+	}
 }
 ?>

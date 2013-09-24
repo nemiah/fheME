@@ -196,7 +196,7 @@ class HTMLGUI2 extends HTMLGUI {
 			$this->newColsLeft["select"] = $EB;
 		}
 		$cols = count($this->showAttributes) + count($this->newColsLeft) + count($this->newColsRight);
-		$valuesTab = new HTMLTable($cols,($lineWithId == -1 ? $this->displaySide == "left" ? $this->name : "&nbsp;"/*(!$this->onlyDisplayMode ? ($singularLanguageClass == null ? "Bitte ".$this->name." auswählen:" : $singularLanguageClass->getBrowserCaption().":") : ($singularLanguageClass == null ? $this->name : $singularLanguageClass->getPlural() ).":")*/ : null));
+		$valuesTab = new HTMLTable($cols,($lineWithId == -1 ? $this->displaySide == "left" ? $this->name : ""/*(!$this->onlyDisplayMode ? ($singularLanguageClass == null ? "Bitte ".$this->name." auswählen:" : $singularLanguageClass->getBrowserCaption().":") : ($singularLanguageClass == null ? $this->name : $singularLanguageClass->getPlural() ).":")*/ : null));
 		$valuesTab->addTableClass("contentBrowser");
 		/*if(isset($this->newColsRight["delete"]) AND ($this->displaySide == "default" OR $this->displaySide == "right"))
 			$valuesTab->setColClass($cols, "backgroundColor0");

@@ -946,8 +946,8 @@ class HTMLGUI implements icontextMenu {
 				<div>
 				<table>
 					<colgroup>
-					   <col class=\"backgroundColor2\" style=\"width:120px;\" />
-					   <col class=\"backgroundColor3\" />
+					   <col class=\"backgroundColor3\" style=\"width:120px;\" />
+					   <col class=\"backgroundColor2\" />
 					</colgroup>";
 
 		$tab = 0;
@@ -1368,9 +1368,9 @@ class HTMLGUI implements icontextMenu {
 		}
 		#".(!$this->onlyDisplayMode ? ($singularLanguageClass == null ? /*Bitte ".$this->name." auswählen:*/"&nbsp;" : $singularLanguageClass->getBrowserCaption().":") : ($singularLanguageClass == null ? $this->name : $singularLanguageClass->getPlural() ).":")."
 		if($lineWithId == -1) $top .= "$this->tip
-				<div class=\"backgroundColor1 Tab\">
+				<!--<div class=\"backgroundColor1 Tab\">
 					<p>&nbsp;</p>
-				</div>
+				</div>-->
 				<table class=\"contentBrowser\">
 					<colgroup>
 						$cols

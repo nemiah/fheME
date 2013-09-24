@@ -576,6 +576,7 @@ if($sephy AND isset($sephy[3]) AND $sephy[3])
 			<?php } ?>
 			<div id="windowsPersistent"></div>
 			<div id="windows"></div>
+			<div id="stash"></div>
 			<div id="footer">
 				<p>
 					<span

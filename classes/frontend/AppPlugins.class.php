@@ -31,6 +31,8 @@ class AppPlugins {
 	private $isGeneric = array();
 	private $genericPlugins = array();
 	private $versions = array();
+	private $blockNonAdmin = array();
+	
 	public $blacklist = array();
 	
 	private static $sessionVariable = "CurrentAppPlugins";
@@ -59,6 +61,22 @@ class AppPlugins {
 		if(isset($_SESSION[self::$sessionVariable]))
 			$_SESSION[self::$sessionVariable]->blacklist = array();
 	}
+	
+	public function blockNonAdmin($pluginName){
+		print_r($this->blockNonAdmin);
+		
+		$pluginName = str_replace("GUI", "", $pluginName);
+		
+		if(isset($this->blockNonAdmin[$pluginName]))
+			return isset($this->blockNonAdmin[$pluginName]);
+
+		$parent = $this->isCollectionOf($pluginName);
+
+		if(!isset($this->blockNonAdmin[$parent]))
+			return true;
+		else
+			return $this->blockNonAdmin[$parent];
+	}
 
 	public function scanPlugins($appFolder = null){
 		#file_put_contents(Util::getRootPath()."debug.txt", print_r(debug_backtrace(), true));
@@ -80,22 +98,9 @@ class AppPlugins {
 			if($_SESSION["applications"]->getActiveApplication() != "nil") $folder = $_SESSION["applications"]->getActiveApplication();
 		} else $folder = $appFolder;
 
-		#$allowedPlugins = "noSaaS";
 		$allowedPlugins = Environment::getS("allowedPlugins", array());
 		$extraPlugins = Environment::getS("pluginsExtra", array());
 		$allowedPlugins = array_merge($allowedPlugins, $extraPlugins);
-		#print_r($allowedPlugins);
-		/*if($folder != "plugins" AND $_SERVER["HTTP_HOST"] != "dev.furtmeier.lan"){
-			try {
-				$saas = new SaaS(-1);
-				
-				$sa = $saas->getCurrent();
-				if($sa != null){
-					$allowedPlugins = array_map("trim",explode("\n",$sa->getA()->SaaSPlugins));
-				} else $allowedPlugins = array();
-			} catch(ClassNotFoundException $e){ }
-			
-		}*/
 
 
 		#$p = ".".(is_dir("./$folder/") ? "" : ".");
@@ -156,6 +161,8 @@ class AppPlugins {
 					foreach($pFolder as $k => $v) $this->folders[] = $v;
 				
 				$this->pluginToFolder[$c->registerClassName()] = $c->registerFolder();
+				
+				$this->blockNonAdmin[$c->registerClassName()] = $c->registerBlockNonAdmin();
 				
 				if($c->registerMenuEntry() != "")
 					$this->menuEntries[$c->registerMenuEntry()] = $c->registerClassName();
@@ -239,7 +246,6 @@ class AppPlugins {
 				unset($c);
 			}
 		} else $_SESSION["messages"]->endMessage("not found");
-
 	}
 	
 	public function getFolders(){

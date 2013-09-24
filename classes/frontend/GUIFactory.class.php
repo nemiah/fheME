@@ -166,7 +166,7 @@ class GUIFactory {
 		$B = new Button("Auswahl\nbeenden","stop");
 		$B->onclick(str_replace(array("%CLASSNAME"),array($this->className), $this->functionAbort));
 		$B->style("margin-left:10px;margin-bottom:10px;");
-		$B->className("selectionAbortButton");
+		$B->className("selectionAbortButton browserContainerSubHeight");
 		return $B;
 	}
 

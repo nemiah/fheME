@@ -651,7 +651,7 @@ class HTMLGUIX {
 		#	$this->attributes = array("");
 		
 		if($this->caption == null AND $this->caption !== false)
-			$this->caption(($this->displayMode == "BrowserLeft") ? ($this->name == null ? $this->className : $this->name) : "&nbsp;");#"Bitte ".($this->name == null ? $this->className : $this->name)." auswählen:");
+			$this->caption(($this->displayMode == "BrowserLeft") ? ($this->name == null ? $this->className : $this->name) : "");#"Bitte ".($this->name == null ? $this->className : $this->name)." auswählen:");
 
 
 		$Tab = $GUIF->getTable($E == null ? array("") : $this->attributes, $this->colStyle, $this->caption);

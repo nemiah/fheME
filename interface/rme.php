@@ -49,8 +49,23 @@ $par = str_replace(";-;;frage;;-;","?",$par);
 if($met == "getHTML") exit;
 	
 require "../system/connect.php";
+#var_dump($cla);
+#var_dump(AppPlugins::blockUser($cla));
 if($cla != "Users" AND $met != "doLogin" AND $_SESSION["S"]->checkIfUserLoggedIn() == true) die("-1");
-if($cla != "Users" AND $cla != "Util" AND $cla != "mUserdata" AND $cla != "mWebsocket" AND $cla != "HTML" AND $cla != "Support" AND $cla != "nicEdit" AND $met != "doLogin" AND $met != "createMyTable" AND $met != "checkMyTables" AND !$_SESSION["S"]->checkIfUserIsAllowed($cla)) die("You are not allowed to see this Page!");
+if(
+	$cla != "Users"
+	AND $cla != "Util"
+	AND $cla != "mUserdata"
+	AND $cla != "mWebsocket"
+	AND $cla != "HTML"
+	AND $cla != "Support"
+	AND $cla != "nicEdit"
+	AND $met != "doLogin"
+	AND $met != "createMyTable"
+	AND $met != "checkMyTables"
+	AND !$_SESSION["S"]->checkIfUserIsAllowed($cla)
+	AND AppPlugins::i()->blockNonAdmin($cla))
+	die("You are not allowed to see this Page!");
 
 $build = Phynx::build();
 if($build)

@@ -36,6 +36,7 @@ var contentManager = {
 	lastLoaded: [],
 	isAltUser: false,
 	updateTitle: true,
+	currentPlugin: null,
 	
 	maxHeight: function(){
 		if($j('#desktopWrapper').length > 0)
@@ -215,15 +216,27 @@ var contentManager = {
 		}});*/
 	},
 	
-	loadPlugin: function(targetFrame, targetPlugin, bps, withId){
-		contentManager.emptyFrame('contentLeft');
-		if(targetFrame != "contentRight")
-			contentManager.emptyFrame('contentRight');
-		contentManager.emptyFrame('contentScreen');
-		contentManager.emptyFrame('contentBelow');
+	loadPlugin: function(targetFrame, targetPlugin, bps, withId, options){
 		
-		contentManager.loadFrame(targetFrame, targetPlugin, -1, 0, bps, function(){if(typeof withId != "undefined") contentManager.loadFrame("contentLeft", targetPlugin.substr(1), withId);});
-		//$('windows').update('');
+		contentManager.loadFrame(targetFrame, targetPlugin, -1, 0, bps, function(){
+			if(typeof withId != "undefined" && withId != null) contentManager.loadFrame("contentLeft", targetPlugin.substr(1), withId);
+		},
+		false,
+		{
+			doBefore: function(){
+				if(typeof options == "object"){
+					if(typeof options.doBefore == "function")
+						options.doBefore();
+				}
+				
+				contentManager.emptyFrame('contentLeft');
+				if(targetFrame != "contentRight")
+					contentManager.emptyFrame('contentRight');
+				contentManager.emptyFrame('contentScreen');
+				contentManager.emptyFrame('contentBelow');
+			}
+		});
+		
 		Popup.closeNonPersistent();
 		
 		if($(targetPlugin+'MenuEntry'))
@@ -498,8 +511,9 @@ var contentManager = {
 		}});
 	},
 
-	loadFrame: function(target, plugin, withId, page, bps, onSuccessFunction, hideError){
+	loadFrame: function(target, plugin, withId, page, bps, onSuccessFunction, hideError, options){
 		if(typeof hideError == "undefined") hideError = false;
+
 
 		if(typeof page == "undefined") page = 0;
 		var arg = arguments;
@@ -508,17 +522,20 @@ var contentManager = {
 			lastLoadedRightPlugin = plugin;
 			lastLoadedRightPage = page;
 			lastLoadedRight = withId;
+			contentManager.currentPlugin = plugin;
 		}
 
 		if(target == "contentLeft"){
 			lastLoadedLeftPlugin = plugin;
 			lastLoadedLeftPage = page;
 			lastLoadedLeft = withId;
+			contentManager.currentPlugin = plugin;
 		}
 
 		if(target == "contentScreen"){
 			lastLoadedScreenPlugin = plugin;
 			lastLoadedScreenPage = page;
+			contentManager.currentPlugin = plugin;
 			lastLoadedScreen = withId;
 		}
 		
@@ -527,6 +544,11 @@ var contentManager = {
 		
 		new Ajax.Request('./interface/loadFrame.php?p='+plugin+(typeof withId != "undefined" ? '&id='+withId : "")+((typeof bps != "undefined" && bps != "") ? '&bps='+bps : "")+((typeof page != "undefined" && page != "") ? '&page='+page : "")+"&r="+Math.random()+"&frame="+target, {onSuccess: function(transport, textStatus, request){
 			if(checkResponse(transport, hideError)) {
+
+				if(typeof options == "object"){
+					if(typeof options.doBefore == "function")
+						options.doBefore();
+				}
 				
 				$j("#"+target).html(transport.responseText);
 				

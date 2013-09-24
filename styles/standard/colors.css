@@ -17,14 +17,14 @@
 }
 
 .backgroundColor1 {
-	background-color:#B8B8F0;
+	background-color:#c9c9f0;/*#B8B8F0;*/
 }
 .backgroundColor2 {
-	background-color:#ddddff;/*#D1D1FF;*/
+	background-color:#e7e7ff;/*#ddddff;/*#D1D1FF;*/
 }
 
 .backgroundColor3 {
-	background-color:#E6E6FF;
+	background-color:#f0f0ff;/*#E6E6FF;*/
 }
 
 .backgroundColorHeader td:not(.ACCell) {
@@ -202,7 +202,7 @@ input[type=submit], select, textarea, .AJAXUpload {
 }
 
 #contentRight .contentBrowser tr:hover .iconic,
-#contentLeft .contentBrowser tr:hover .iconic,
+#contentLeft tr:hover .iconic,
 .Tab:hover .iconic, #contentScreen tr:hover .iconic,
 .popup tr:hover .iconic,
 .popupSidePanel tr:hover .iconic,
@@ -250,7 +250,7 @@ input[type=submit], select, textarea, .AJAXUpload {
   **/
 
 .navBackgroundColor {
-	background-color:rgba(0,0,0,0.2);
+	background-color:rgba(0,0,0,0.1);
 	/*background-color:#7f7fdf;*/
 }
 
@@ -283,6 +283,9 @@ input[type=submit], select, textarea, .AJAXUpload {
 	background-color:rgba(255, 255, 255, 0.5);
 }
 
+.tableWeightLight .lastSelected {
+	background-color:rgb(237, 237, 237);
+}
 
 .topBG {
 	background-image: linear-gradient(bottom, rgb(183,185,180) 0%, rgb(220,222,216) 1%, rgb(255,255,255) 5%);

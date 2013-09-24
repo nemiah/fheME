@@ -29,7 +29,7 @@ class XMLPlugin extends PluginV2 {
 	private $genericCollection;
 	private $genericSingle;
 	private $menuEntryTarget;
-	
+	private $blockNonAdmin = true;
 	private $doSomethingElse;
 	
 	private $collectionGUI = array();
@@ -74,6 +74,9 @@ class XMLPlugin extends PluginV2 {
 			
 			$this->javascript = $JS;#$vals[$index["javascript"][0]]["value"];
 		}
+		
+		if(isset($index["blockNonAdmin"]) AND isset($vals[$index["blockNonAdmin"][0]]))
+			$this->blockNonAdmin = $vals[$index["blockNonAdmin"][0]]["value"] == "true";
 		
 		if(isset($index["adminOnly"]) AND isset($vals[$index["adminOnly"][0]])) 
 			$this->adminOnly = $vals[$index["adminOnly"][0]]["value"];
@@ -186,6 +189,10 @@ class XMLPlugin extends PluginV2 {
 	function registerMenuEntryTarget(){
 		if($this->menuEntryTarget != null) return $this->menuEntryTarget;
 		else return parent::registerMenuEntryTarget();
+	}
+	
+	public function registerBlockNonAdmin(){
+		return $this->blockNonAdmin;
 	}
 	
 	function registerPluginIsAdminOnly(){

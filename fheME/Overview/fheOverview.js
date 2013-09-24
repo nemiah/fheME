@@ -28,6 +28,19 @@ var fheOverview = {
 	days: new Array("Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"),
 	noresize: false,
 	noreload: [],
+	isInit:false,
+	
+	init: function(){
+		if(fheOverview.isInit)
+			return;
+		
+		$j('body').hammer().on("swipeleft", function(){
+			//contentManager.loadPlugin('contentScreen', 'mfheOverview', 'mfheOverviewGUI;-');
+			Interface.frameRestore();
+		});
+		
+		fheOverview.isInit = true;
+	},
 	
 	initUpdate: function(classes, delays, replaceUpdateMethods){
 		//console.log(classes);
@@ -101,6 +114,6 @@ contentManager.rmePCR("mfheOverview", "-1", "checkAdmin", "", function(transport
 		contentManager.loadPlugin("contentScreen", "mfheOverview");
 });
 
-/*$j(window).ready(function(){
-	$j('#footer').hide();
-});*/
+$j(window).ready(function(){
+	fheOverview.init();
+});

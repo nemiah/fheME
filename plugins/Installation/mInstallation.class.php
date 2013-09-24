@@ -118,13 +118,13 @@ class mInstallation extends anyC {
 
 				if(!$c->checkIfMyDBFileExists())
 					$return[$value] = "Keine DB-Datei!";
-				
-				if($c->checkIfMyTableExists() AND $c->checkIfMyDBFileExists())
-					$return[$value] = $c->checkMyTables(true);
-				
-				if(!$c->checkIfMyTableExists() AND $c->checkIfMyDBFileExists())
-					$return[$value] = $c->createMyTable(true);
-				
+				else {
+					if($c->checkIfMyTableExists())
+						$return[$value] = $c->checkMyTables(true);
+					else
+					#if(!$c->checkIfMyTableExists())
+						$return[$value] = $c->createMyTable(true);
+				}
 			}
 		}
 		

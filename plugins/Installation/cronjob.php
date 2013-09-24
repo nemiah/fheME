@@ -39,10 +39,38 @@ $e->useDefaultMySQLData();
 
 $e->useAdminUser();
 
-#$I = new mInstallation();
-#echo "<pre>";
-#print_r($I->updateAllTables(1));
-#echo "</pre>";
+$CH = Util::getCloudHost();
+
+
+$I = new mInstallation();
+$data = $I->updateAllTables();
+
+$T = new HTMLTable(2);
+$T->setTableStyle("font-size:10px;font-family:sans-serif;");
+
+$T->addColStyle(1, "vertical-align:top;");
+
+foreach($data AS $k => $v)
+	$T->addRow(array($k, "<pre>".trim($v)."</pre>"));
+
+
+$mimeMail2 = new PHPMailer(true, "", true);
+$mimeMail2->CharSet = "UTF-8";
+$mimeMail2->Subject = "Installation Plugin";
+
+$mimeMail2->From = $CH->emailAdmin;
+$mimeMail2->Sender = $CH->emailAdmin;
+$mimeMail2->FromName = "Cloud Server Cronjob";
+
+$mimeMail2->Body = "<html><body>".$T."</body></html>";
+$mimeMail2->IsHTML();
+
+$mimeMail2->AltBody = "Diese Nachricht wird nur als HTML übertragen";
+
+$mimeMail2->AddAddress($CH->emailAdmin);
+
+if(!$mimeMail2->Send())
+	throw new Exception ("E-Mail could not be sent!");
 
 $e->cleanUp();
 

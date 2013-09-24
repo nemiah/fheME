@@ -10,12 +10,12 @@
 	font-weight:bold;
 	font-size:1.0em;
 	cursor:pointer;
-	border-width:1px;
+	border-width:0px;
 	border-style: solid;
 	background-repeat:no-repeat;
-	margin-top:27px;
+	margin-top:28px;
 	margin-right:30px;
-	margin-bottom:-1px;
+	/*margin-bottom:-3px;*/
 	height:28px;
 	-moz-user-select:none;
 	/*-moz-border-radius-topleft:3px;
@@ -116,7 +116,7 @@
 
 #navigation div.theOne {
 	border-style:solid;
-	border-width:1px;
+	border-width:0px;
 	
 	/*-moz-box-shadow: 1px -1px 2px #AAA;
 	-webkit-box-shadow: 1px -1px 2px #AAA;

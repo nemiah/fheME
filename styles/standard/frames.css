@@ -61,15 +61,15 @@
 }
 
 #wrapper {
-	border-top-width:1px;
+	border-top-width:0px;
 	border-top-style: solid;
-	border-bottom-width:1px;
+	border-bottom-width:0px;
 	border-bottom-style: solid;
 	clear:both;
 
-	-moz-box-shadow: -4px -2px 4px #AAA;
+	/*-moz-box-shadow: -4px -2px 4px #AAA;
 	-webkit-box-shadow: -4px -2px 4px #AAA;
-	box-shadow: -4px -2px 4px #AAA;
+	box-shadow: -4px -2px 4px #AAA;*/
 }
 /*
 #wrapperTable {
@@ -124,7 +124,7 @@
 #contentLeft table {
 	width:410px;
 	margin:auto;
-	border-left-width:1px;
+	border-left-width:0px;
 	border-left-style: solid;
 }
 
@@ -151,7 +151,7 @@
 }
 
 #contentRight table, #contentCenter table {
-	border-right-width:1px;
+	border-right-width:0px;
 	border-right-style: solid;
 	margin-right:10px;
 	width:390px;

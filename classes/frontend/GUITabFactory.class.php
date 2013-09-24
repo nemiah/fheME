@@ -75,7 +75,7 @@ class GUITabFactory {
 			$bar .= "
 				<div
 					id=\"tab_$id\"
-					style=\"float:left;width:110px;padding:3px;cursor:pointer;-moz-user-select:none;margin-bottom:5px;\"
+					style=\"float:left;width:110px;padding:3px;cursor:pointer;-moz-user-select:none;margin-bottom:5px;overflow:hidden;white-space:nowrap;\"
 					onmouseover=\"if(this.className != 'navBackgroundColor') this.className = 'backgroundColor2';\"
 					onmouseout=\"if(this.className != 'navBackgroundColor') this.className = '';\"
 					onclick=\"$onClick\">

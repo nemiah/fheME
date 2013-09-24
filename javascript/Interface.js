@@ -23,7 +23,7 @@ var Interface = {
 	TabBarLast: null,
 	TabBarLastTab: null,
 	isLoading: false,
-
+	
 	init: function(){
 		if($('wrapperHandler')){
 			Interface.isDesktop = true;
@@ -156,6 +156,32 @@ var Interface = {
 				N.close();
 			}, 5000);
 
+	},
+			
+	frameStash: function(frame){
+		$j("#"+frame).after("<div id=\""+frame+"New\"></div>");
+		$j('#'+frame).data("frame", frame).data("plugin", contentManager.currentPlugin);
+		$j('#stash').append($j('#'+frame).hide().attr("id", ""));
+		$j("#"+frame+"New").attr("id", frame);
+	},
+			
+	frameRestore: function(){
+		if(!$j('#stash').children().length)
+			return;
+
+		contentManager.emptyFrame('contentLeft');
+		contentManager.emptyFrame('contentRight');
+		contentManager.emptyFrame('contentScreen');
+		contentManager.emptyFrame('contentBelow');
+				
+		var frame = $j('#stash').children().last().data("frame");
+		var plugin = $j('#stash').children().last().data("plugin");
+		$j('#'+frame).replaceWith($j('#stash').children().last().attr("id", frame).show());
+		
+		contentManager.currentPlugin = plugin;
+		
+		if($(plugin+'MenuEntry'))
+			setHighLight($(plugin+'MenuEntry'));
 	}
 
 }

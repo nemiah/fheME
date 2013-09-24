@@ -79,13 +79,15 @@ class mfheOverviewGUI extends anyC implements iGUIHTMLMP2 {
 				\$j('.OverviewCol').css('height', (contentManager.maxHeight() - 10)+'px');
 			}
 
+			\$j('.overviewContentPlaceholder').css('height', contentManager.maxHeight());
+
 			\$j(window).resize(function() {
 				if(fheOverview.noresize)
 					return;
 				fitOverview();
 			});
 			
-			".OnEvent::rme($this, "getOverviewContent", array("\$j.jStorage.get('phynxDeviceID','none')"), "function(transport){ \$j('.overviewContentPlaceholder').replaceWith(transport.responseText); fitOverview(); }")."
+			".OnEvent::rme($this, "getOverviewContent", array("\$j.jStorage.get('phynxDeviceID','none')"), "function(transport){ \$j('.overviewContentPlaceholder').replaceWith(transport.responseText); \$j('#fheOverviewWrapper').fadeIn(); fitOverview(); }")."
 		</script>
 		
 		<div class=\"overviewContentPlaceholder\"></div>";
@@ -192,7 +194,7 @@ class mfheOverviewGUI extends anyC implements iGUIHTMLMP2 {
 				</div>";
 		}
 		
-		$html = "<div id=\"onfheOverviewPage\"></div>".$html.OnEvent::script("fheOverview.initUpdate(['".  implode("', '", $this->Plugins)."'], [".  implode(", ", $this->ReloadTimes)."], [".  implode(", ", $this->onReload)."]);");
+		$html = "<div id=\"onfheOverviewPage\"></div><div id=\"fheOverviewWrapper\" style=\"display:none;\">".$html."</div>".OnEvent::script("fheOverview.initUpdate(['".  implode("', '", $this->Plugins)."'], [".  implode(", ", $this->ReloadTimes)."], [".  implode(", ", $this->onReload)."]);");
 		
 		echo $html;
 	}
