@@ -624,6 +624,7 @@ class KalenderEvent extends KalenderEntry {
 
 		$T = new HTMLTable(2, "Eventdetails");
 		$T->setColWidth(1, 120);
+		$T->addColStyle(1, "vertical-align:top;");
 		
 		$T->addLV("Betreff", $this->title);
 
@@ -634,7 +635,7 @@ class KalenderEvent extends KalenderEntry {
 		else
 			$T->addLV("Uhrzeit","Ganzer Tag");
 		
-		$T->addLV("Details", $this->summary);
+		$T->addLV("Details", "<div style=\"max-height:300px;overflow:auto;\">".$this->summary."</div>");
 		
 		if($this->organizer)
 			$T->addLV("Organisator", $this->organizer);

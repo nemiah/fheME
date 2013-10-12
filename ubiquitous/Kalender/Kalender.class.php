@@ -58,11 +58,9 @@ class Kalender {
 		$return = 0;
 		$counted = array();
 		$stack = array();
-		
 		foreach($this->events AS $D)
 			foreach($D AS $T)
 				foreach($T AS $E){
-					
 					if(($E->getDay() != $E->getEndDay() OR $E->allDay())){# AND !isset($counted[$E->ownerClass().$E->ownerClassID()])){
 						
 						$stackCalcFirst = Kalender::parseDay($E->currentWhen()->day);#$E->getDay()
@@ -98,7 +96,7 @@ class Kalender {
 						}
 					}
 				}
-				
+
 		$max = 0;
 		foreach($stack AS $ev)
 			if(count($ev) > $max)

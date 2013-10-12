@@ -32,8 +32,6 @@ var phim = {
 		
 		contentManager.rmePCR("mphim", "-1", "getInit", "", function(transport){
 			$j("#phim").html(transport.responseText);
-			if(typeof pWebsocket == "undefined")
-				return;
 			
 			pWebsocket.onDisconnect(phim.disconnected);
 			pWebsocket.subscribe("phim", phim.handleWS);

@@ -4,10 +4,35 @@ define("PHYNX_NO_SESSION_RELOCATION", true);
 
 require "../../system/connect.php";
 $content = "";
+
 $pageTitle = "Customer Page";
 if(isset($_GET["CC"])){
 	$C = "CC".$_GET["CC"];
 	registerClassPath($C, Util::getRootPath()."ubiquitous/CustomerPage/pages/$C.class.php");
+
+	$I = new $C();
+	
+	if(isset($_GET["M"])){
+		$M = $_GET["M"];
+		
+		unset($_GET["M"]);
+		unset($_GET["CC"]);
+		
+		die($I->$M($_GET));
+	}
+	
+	if(method_exists($I, "getTitle"))
+		$pageTitle = $I->getTitle();
+	
+	$content = $I->getCMSHTML();
+}
+
+if(isset($_GET["D"])){
+	$ex = explode("/", $_GET["D"]);
+	
+	$C = "CC".$ex[1];
+	
+	registerClassPath($C, Util::getRootPath()."$_GET[D]/$C.class.php");
 
 	$I = new $C();
 	
@@ -96,7 +121,7 @@ if(isset($_GET["CC"])){
 			table { border-collapse: collapse; border-spacing: 0; }
 			td { /*vertical-align: top; */padding:3px; }
 			
-			h1 { padding-bottom:20px; }
+			h1 { font-family:Roboto; padding-top:30px;padding-bottom:15px; }
 			
 			label { text-align:right; width:120px; display:block; font-weight:bold; }
 			.submitFormButton { float:right; padding:4px; width:auto; padding-left:10px; padding-right:10px; }
@@ -179,6 +204,12 @@ if(isset($_GET["CC"])){
 				padding-left: 37px;
 			}*/
 			
+			@font-face {
+			  font-family: 'Roboto';
+			  font-style: normal;
+			  font-weight: 300;
+			  src: local('Roboto Light'), local('Roboto-Light'), url('../../../libraries/roboto/Roboto-Light.woff') format('woff'), url('../../../libraries/roboto/Roboto-Light.ttf') format('truetype');
+			}
 			
 			@font-face { 
 				font-family: 'IconicStroke'; 
@@ -550,7 +581,7 @@ if(isset($_GET["CC"])){
 	</head>
 		<body>
 <?php
-if(isset($_GET["CC"]))
+if(isset($_GET["CC"]) OR isset($_GET["D"]))
 	echo $content;
 
 ?>

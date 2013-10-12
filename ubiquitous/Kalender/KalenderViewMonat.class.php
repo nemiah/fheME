@@ -174,7 +174,7 @@ class KalenderViewMonat {
 		$D = clone $this->date;
 		for($i = 0; $i < $rows; $i++){
 			$html .= "
-			<tr class=\"cellHeight\">";
+			<tr class=\"cellHeight noHover\">";
 			for($j = 0; $j < $cols; $j++){
 				
 				$entry = "";

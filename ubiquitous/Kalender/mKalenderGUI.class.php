@@ -308,14 +308,15 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 		function fitKalender(){
 			if(!\$j('#KalenderTitle').length)
 				return;
-				
-			var height = (contentManager.maxHeight() - \$j('#KalenderAuswahl').outerHeight() - \$j('#KalenderTitle').outerHeight()) - 20;
+			console.log(\$j('#KalenderTitle').outerHeight());
+			console.log(\$j('#KalenderAuswahl').outerHeight());
+			var height = (contentManager.maxHeight() - \$j('#KalenderAuswahl').outerHeight() - \$j('#KalenderTitle').outerHeight()) + 4;
 			var width = contentManager.maxWidth();
 			
 			\$j('#KalenderWrapper').css('height', height);
 			\$j('#KalenderWrapper').css('width', width);
 
-			var cellHeight = (height - \$j('#KalenderTable tr:first th').parent().outerHeight()) / (\$j('#KalenderTable tr').length - ".(($ansicht == "monat" OR $ansicht == "jahr") ? "1" : "0").");
+			var cellHeight = (height - \$j('#KalenderTable tr:first th').parent().outerHeight()) / (\$j('#KalenderTable tr').length - ".(($ansicht == "monat" OR $ansicht == "jahr") ? "1" : "0").") - 1;
 			\$j('.cellHeight').css('height', cellHeight+'px');
 			\$j('.innerCellHeight').css('height', (cellHeight - \$j('.innerCellTitle:visible').outerHeight())+'px');
 			
