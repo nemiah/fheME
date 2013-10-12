@@ -116,6 +116,10 @@ class FileBrowser {
 		return $labeled;
 	}
 	
+	public function getAsLabeledArrayF($interface, $extension, $sorted = false){
+		return array_flip($this->getAsLabeledArray($interface, $extension, $sorted));
+	}
+	
 	public function getAsOptionsArray($interface, $extension){
 		return array_flip($this->getAsLabeledArray($interface, $extension, true));
 	}

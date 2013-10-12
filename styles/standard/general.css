@@ -65,12 +65,12 @@ html {
 	cursor:pointer;
 }
 
-.iconic:hover {	
+.phynxNoTouch .iconic:hover {	
 	opacity:0.5;
 }
 
 
-.iconicG:hover {
+.phynxNoTouch .iconicG:hover {
 	color:#555;
 	opacity:1;
 }
@@ -349,7 +349,7 @@ input[disabled], select[disabled], input[readonly], button[disabled] {
 	/*border-radius:3px;*/
 }
 
-.bigButton:hover  {
+.phynxNoTouch .bigButton:hover  {
 	box-shadow: inset 0px 0px 0px 1px rgba(0, 0, 0, 0.2);
 }
 
@@ -423,6 +423,16 @@ li {
 	margin-top:10px;
 	margin-left:15px;
 }
+
+li:first-child {
+	margin-top:0px;
+}
+
+ul {
+	padding-top:10px;
+	padding-bottom:10px;
+}
+
 img {
 	border:0px;
 }
@@ -530,7 +540,7 @@ input.multiEditInput2 {
 	width:50px;
 	text-align:right;
 }
-.multiEditInput2:hover, .multiEditInput2:focus {
+.phynxNoTouch .multiEditInput2:hover, .multiEditInput2:focus {
 	background-color:white;
 	border-bottom:1px solid #9E9EF0;
 
@@ -584,7 +594,7 @@ div + .Tab {
 	-o-transition: background-color .5s; /* Opera */
 }
 
-.desktopButton:hover {
+.phynxNoTouch .desktopButton:hover {
 	background-color:#E0E0E0;
 	
 	transition: background-color .5s;

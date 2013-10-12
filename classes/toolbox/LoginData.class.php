@@ -65,6 +65,23 @@ class LoginData extends Userdata {
 		return $B;
 	}
 
+	public static function getButtonGlobal($preset, $label, $icon){
+		$ID = -1;
+		$LD = self::getU($preset, -1);
+		if($LD != null)
+			$ID = $LD->getID();
+		
+		#if($name == "GoogleAccountUserPass")
+		#	$preset = "googleData";
+		#else
+		#	$preset = $name;
+		
+		$B = new Button($label, $icon);
+		$B->popup("edit", "Benutzerdaten", "LoginData", $ID, "getPopup", "", "LoginDataGUI;preset:$preset");
+
+		return $B;
+	}
+
 	/**
 	 * Get global login data
 	 *

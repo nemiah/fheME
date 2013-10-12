@@ -187,8 +187,12 @@ var Popup = {
 			right = null;
 			left = pos.left;
 			top = pos.top;
+
 			if(top > $j(window).height() - 40)
 				top = 20;
+			
+			if(top < 0)
+				top = 0;
 		}
 		
 		/*var element = Builder.node(

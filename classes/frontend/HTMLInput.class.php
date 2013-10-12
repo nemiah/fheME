@@ -394,6 +394,7 @@ class HTMLInput {
 				if($this->isDisplayMode) {
 					if($this->type == "checkbox") return Util::catchParser($this->value);
 					if($this->type == "hidden") return "";
+					if($this->type == "password") return str_repeat("*", mb_strlen($this->value));
 					return $this->value."";
 				}
 

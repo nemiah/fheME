@@ -1,7 +1,9 @@
 <?php
 
 /* ***********************************************************
- * This file was automatically generated on 2012-10-01.      *
+ * This file was automatically generated on 2013-09-11.      *
+ *                                                           *
+ * Bindings Version 2.0.10                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -72,18 +74,48 @@ class BrickletLCD16x2 extends Device
     const FUNCTION_IS_BUTTON_PRESSED = 8;
 
     /**
+     * @internal
+     */
+    const FUNCTION_SET_CUSTOM_CHARACTER = 11;
+
+    /**
+     * @internal
+     */
+    const FUNCTION_GET_CUSTOM_CHARACTER = 12;
+
+    /**
+     * @internal
+     */
+    const FUNCTION_GET_IDENTITY = 255;
+
+
+    const DEVICE_IDENTIFIER = 211;
+
+    /**
      * Creates an object with the unique device ID $uid. This object can
      * then be added to the IP connection.
      *
      * @param string $uid
      */
-    public function __construct($uid)
+    public function __construct($uid, $ipcon)
     {
-        parent::__construct($uid);
+        parent::__construct($uid, $ipcon);
 
-        $this->expectedName = 'LCD 16x2 Bricklet';
+        $this->apiVersion = array(2, 0, 0);
 
-        $this->bindingVersion = array(1, 0, 0);
+        $this->responseExpected[self::FUNCTION_WRITE_LINE] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_CLEAR_DISPLAY] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_BACKLIGHT_ON] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_BACKLIGHT_OFF] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_IS_BACKLIGHT_ON] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_SET_CONFIG] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_GET_CONFIG] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_IS_BUTTON_PRESSED] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::CALLBACK_BUTTON_PRESSED] = self::RESPONSE_EXPECTED_ALWAYS_FALSE;
+        $this->responseExpected[self::CALLBACK_BUTTON_RELEASED] = self::RESPONSE_EXPECTED_ALWAYS_FALSE;
+        $this->responseExpected[self::FUNCTION_SET_CUSTOM_CHARACTER] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_GET_CUSTOM_CHARACTER] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_GET_IDENTITY] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
 
         $this->callbackWrappers[self::CALLBACK_BUTTON_PRESSED] = 'callbackWrapperButtonPressed';
         $this->callbackWrappers[self::CALLBACK_BUTTON_RELEASED] = 'callbackWrapperButtonReleased';
@@ -130,7 +162,7 @@ class BrickletLCD16x2 extends Device
             $payload .= pack('c', 0);
         }
 
-        $this->sendRequestNoResponse(self::FUNCTION_WRITE_LINE, $payload);
+        $this->sendRequest(self::FUNCTION_WRITE_LINE, $payload);
     }
 
     /**
@@ -143,7 +175,7 @@ class BrickletLCD16x2 extends Device
     {
         $payload = '';
 
-        $this->sendRequestNoResponse(self::FUNCTION_CLEAR_DISPLAY, $payload);
+        $this->sendRequest(self::FUNCTION_CLEAR_DISPLAY, $payload);
     }
 
     /**
@@ -156,7 +188,7 @@ class BrickletLCD16x2 extends Device
     {
         $payload = '';
 
-        $this->sendRequestNoResponse(self::FUNCTION_BACKLIGHT_ON, $payload);
+        $this->sendRequest(self::FUNCTION_BACKLIGHT_ON, $payload);
     }
 
     /**
@@ -169,7 +201,7 @@ class BrickletLCD16x2 extends Device
     {
         $payload = '';
 
-        $this->sendRequestNoResponse(self::FUNCTION_BACKLIGHT_OFF, $payload);
+        $this->sendRequest(self::FUNCTION_BACKLIGHT_OFF, $payload);
     }
 
     /**
@@ -182,7 +214,7 @@ class BrickletLCD16x2 extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_IS_BACKLIGHT_ON, $payload, 1);
+        $data = $this->sendRequest(self::FUNCTION_IS_BACKLIGHT_ON, $payload);
 
         $payload = unpack('C1backlight', $data);
 
@@ -208,7 +240,7 @@ class BrickletLCD16x2 extends Device
         $payload .= pack('C', intval((bool)$cursor));
         $payload .= pack('C', intval((bool)$blinking));
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_CONFIG, $payload);
+        $this->sendRequest(self::FUNCTION_SET_CONFIG, $payload);
     }
 
     /**
@@ -223,7 +255,7 @@ class BrickletLCD16x2 extends Device
 
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_CONFIG, $payload, 2);
+        $data = $this->sendRequest(self::FUNCTION_GET_CONFIG, $payload);
 
         $payload = unpack('C1cursor/C1blinking', $data);
 
@@ -247,7 +279,7 @@ class BrickletLCD16x2 extends Device
         $payload = '';
         $payload .= pack('C', $button);
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_IS_BUTTON_PRESSED, $payload, 1);
+        $data = $this->sendRequest(self::FUNCTION_IS_BUTTON_PRESSED, $payload);
 
         $payload = unpack('C1pressed', $data);
 
@@ -255,16 +287,116 @@ class BrickletLCD16x2 extends Device
     }
 
     /**
+     * The LCD 16x2 Bricklet can store up to 8 custom characters. The characters
+     * consist of 5x8 pixels and can be addressed with the index 0-7. To describe
+     * the pixels, the first 5 bits of 8 bytes are used. For example, to make
+     * a custom character "H", you should transfer the following:
+     * 
+     * * ``character[0] = 0b00010001`` (decimal value 17)
+     * * ``character[1] = 0b00010001`` (decimal value 17)
+     * * ``character[2] = 0b00010001`` (decimal value 17)
+     * * ``character[3] = 0b00011111`` (decimal value 31)
+     * * ``character[4] = 0b00010001`` (decimal value 17)
+     * * ``character[5] = 0b00010001`` (decimal value 17)
+     * * ``character[6] = 0b00010001`` (decimal value 17)
+     * * ``character[7] = 0b00000000`` (decimal value 0)
+     * 
+     * The characters can later be written with BrickletLCD16x2::writeLine() by using the
+     * characters with the byte representation 8 to 15.
+     * 
+     * You can play around with the custom characters in Brick Viewer since
+     * version 2.0.1.
+     * 
+     * Custom characters are stored by the LCD in RAM, so they have to be set
+     * after each startup.
+     * 
+     * .. versionadded:: 2.0.1~(Plugin)
+     * 
+     * @param int $index
+     * @param int[] $character
+     * 
+     * @return void
+     */
+    public function setCustomCharacter($index, $character)
+    {
+        $payload = '';
+        $payload .= pack('C', $index);
+        for ($i = 0; $i < 8; $i++) {
+            $payload .= pack('C', $character[$i]);
+        }
+
+        $this->sendRequest(self::FUNCTION_SET_CUSTOM_CHARACTER, $payload);
+    }
+
+    /**
+     * Returns the custom character for a given index, as set with
+     * BrickletLCD16x2::setCustomCharacter().
+     * 
+     * .. versionadded:: 2.0.1~(Plugin)
+     * 
+     * @param int $index
+     * 
+     * @return array
+     */
+    public function getCustomCharacter($index)
+    {
+        $payload = '';
+        $payload .= pack('C', $index);
+
+        $data = $this->sendRequest(self::FUNCTION_GET_CUSTOM_CHARACTER, $payload);
+
+        $payload = unpack('C8character', $data);
+
+        return IPConnection::collectUnpackedArray($payload, 'character', 8);
+    }
+
+    /**
+     * Returns the UID, the UID where the Bricklet is connected to, 
+     * the position, the hardware and firmware version as well as the
+     * device identifier.
+     * 
+     * The position can be 'a', 'b', 'c' or 'd'.
+     * 
+     * The device identifiers can be found :ref:`here <device_identifier>`.
+     * 
+     * .. versionadded:: 2.0.0~(Plugin)
+     * 
+     * 
+     * @return array
+     */
+    public function getIdentity()
+    {
+        $result = array();
+
+        $payload = '';
+
+        $data = $this->sendRequest(self::FUNCTION_GET_IDENTITY, $payload);
+
+        $payload = unpack('c8uid/c8connected_uid/c1position/C3hardware_version/C3firmware_version/v1device_identifier', $data);
+
+        $result['uid'] = IPConnection::implodeUnpackedString($payload, 'uid', 8);
+        $result['connected_uid'] = IPConnection::implodeUnpackedString($payload, 'connected_uid', 8);
+        $result['position'] = chr($payload['position']);
+        $result['hardware_version'] = IPConnection::collectUnpackedArray($payload, 'hardware_version', 3);
+        $result['firmware_version'] = IPConnection::collectUnpackedArray($payload, 'firmware_version', 3);
+        $result['device_identifier'] = $payload['device_identifier'];
+
+        return $result;
+    }
+
+    /**
      * Registers a callback with ID $id to the callable $callback.
      *
      * @param int $id
      * @param callable $callback
+     * @param mixed $userData
      *
      * @return void
      */
-    public function registerCallback($id, $callback)
+    public function registerCallback($id, $callback, $userData = NULL)
     {
         $this->registeredCallbacks[$id] = $callback;
+        $this->registeredCallbackUserData[$id] = $userData;
     }
 
     /**

@@ -106,6 +106,22 @@ var fheOverview = {
 
 			$('lastUpdate'+target).update(jetzt.getHours()+":"+(jetzt.getMinutes() < 10 ? "0" : "")+jetzt.getMinutes());
 		}
+	},
+			
+	draggableStart: function(DeviceID){
+		$j('.desktopDraggable').addClass('desktopMove').draggable({
+			grid: [ 20,20 ],
+			handle: '.handleMove',
+			containment: '#OverviewDesktop',
+			scroll: false,
+			stop: function() {
+				contentManager.rmePCR("mfheOverview", "-1", "pluginSave", [DeviceID, $j(this).data('plugin'), $j(this).css('top').replace('px', ''), $j(this).css('left').replace('px', '')]);
+			}
+		});
+	},
+			
+	draggableStop: function(){
+		$j('.desktopDraggable').removeClass('desktopMove').draggable("destroy");
 	}
 }
 

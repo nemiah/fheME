@@ -81,10 +81,10 @@ body {
 	box-shadow: none;
 }
 
-#navigation div.theOne:hover {
+.phynxNoTouch #navigation div.theOne:hover {
 	background-color:transparent;
 }
-#navTabsWrapper .navTab:hover {
+.phynxNoTouch #navTabsWrapper .navTab:hover {
 	background-color:transparent;
 	opacity:0.5;
 	filter:alpha(opacity=50);

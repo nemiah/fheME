@@ -1,10 +1,10 @@
 .contextMenu {
 	position:absolute;
 	box-shadow: 0px 0px 0px 5px rgba(200, 200, 200, .5);
-	border-width: 1px;
+	/*border-width: 1px;*/
 	margin-top:-1px;
-	border-style: solid;
-	border-color: #777;
+	/*border-style: solid;
+	border-color: #777;*/
 	width:200px;
 	top:0px;
 	left:0px;

@@ -1,7 +1,9 @@
 <?php
 
 /* ***********************************************************
- * This file was automatically generated on 2012-10-01.      *
+ * This file was automatically generated on 2013-09-11.      *
+ *                                                           *
+ * Bindings Version 2.0.10                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -76,18 +78,56 @@ class BrickletIndustrialDigitalIn4 extends Device
     const FUNCTION_GET_INTERRUPT = 8;
 
     /**
+     * @internal
+     */
+    const FUNCTION_GET_EDGE_COUNT = 10;
+
+    /**
+     * @internal
+     */
+    const FUNCTION_SET_EDGE_COUNT_CONFIG = 11;
+
+    /**
+     * @internal
+     */
+    const FUNCTION_GET_EDGE_COUNT_CONFIG = 12;
+
+    /**
+     * @internal
+     */
+    const FUNCTION_GET_IDENTITY = 255;
+
+    const EDGE_TYPE_RISING = 0;
+    const EDGE_TYPE_FALLING = 1;
+    const EDGE_TYPE_BOTH = 2;
+
+    const DEVICE_IDENTIFIER = 223;
+
+    /**
      * Creates an object with the unique device ID $uid. This object can
      * then be added to the IP connection.
      *
      * @param string $uid
      */
-    public function __construct($uid)
+    public function __construct($uid, $ipcon)
     {
-        parent::__construct($uid);
+        parent::__construct($uid, $ipcon);
 
-        $this->expectedName = 'Industrial Digital In 4 Bricklet';
+        $this->apiVersion = array(2, 0, 1);
 
-        $this->bindingVersion = array(1, 0, 0);
+        $this->responseExpected[self::FUNCTION_GET_VALUE] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_SET_GROUP] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_GET_GROUP] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_GET_AVAILABLE_FOR_GROUP] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_SET_DEBOUNCE_PERIOD] = self::RESPONSE_EXPECTED_TRUE;
+        $this->responseExpected[self::FUNCTION_GET_DEBOUNCE_PERIOD] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_SET_INTERRUPT] = self::RESPONSE_EXPECTED_TRUE;
+        $this->responseExpected[self::FUNCTION_GET_INTERRUPT] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::CALLBACK_INTERRUPT] = self::RESPONSE_EXPECTED_ALWAYS_FALSE;
+        $this->responseExpected[self::FUNCTION_GET_EDGE_COUNT] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_SET_EDGE_COUNT_CONFIG] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_GET_EDGE_COUNT_CONFIG] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_GET_IDENTITY] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
 
         $this->callbackWrappers[self::CALLBACK_INTERRUPT] = 'callbackWrapperInterrupt';
     }
@@ -124,7 +164,7 @@ class BrickletIndustrialDigitalIn4 extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_VALUE, $payload, 2);
+        $data = $this->sendRequest(self::FUNCTION_GET_VALUE, $payload);
 
         $payload = unpack('v1value_mask', $data);
 
@@ -148,6 +188,9 @@ class BrickletIndustrialDigitalIn4 extends Device
      * pins on the Digital In 4 on port B are assigned to 4-7. It is now possible
      * to call BrickletIndustrialDigitalIn4::getValue() and read out two Bricklets at the same time.
      * 
+     * Changing the group configuration resets the alle edge counter configurations
+     * and values.
+     * 
      * @param string[] $group
      * 
      * @return void
@@ -162,7 +205,7 @@ class BrickletIndustrialDigitalIn4 extends Device
             $payload .= pack('c', 0);
         }
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_GROUP, $payload);
+        $this->sendRequest(self::FUNCTION_SET_GROUP, $payload);
     }
 
     /**
@@ -175,7 +218,7 @@ class BrickletIndustrialDigitalIn4 extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_GROUP, $payload, 4);
+        $data = $this->sendRequest(self::FUNCTION_GET_GROUP, $payload);
 
         $payload = unpack('c4group', $data);
 
@@ -194,7 +237,7 @@ class BrickletIndustrialDigitalIn4 extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_AVAILABLE_FOR_GROUP, $payload, 1);
+        $data = $this->sendRequest(self::FUNCTION_GET_AVAILABLE_FOR_GROUP, $payload);
 
         $payload = unpack('C1available', $data);
 
@@ -219,7 +262,7 @@ class BrickletIndustrialDigitalIn4 extends Device
         $payload = '';
         $payload .= pack('V', $debounce);
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_DEBOUNCE_PERIOD, $payload);
+        $this->sendRequest(self::FUNCTION_SET_DEBOUNCE_PERIOD, $payload);
     }
 
     /**
@@ -232,7 +275,7 @@ class BrickletIndustrialDigitalIn4 extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_DEBOUNCE_PERIOD, $payload, 4);
+        $data = $this->sendRequest(self::FUNCTION_GET_DEBOUNCE_PERIOD, $payload);
 
         $payload = unpack('V1debounce', $data);
 
@@ -260,7 +303,7 @@ class BrickletIndustrialDigitalIn4 extends Device
         $payload = '';
         $payload .= pack('v', $interrupt_mask);
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_INTERRUPT, $payload);
+        $this->sendRequest(self::FUNCTION_SET_INTERRUPT, $payload);
     }
 
     /**
@@ -273,7 +316,7 @@ class BrickletIndustrialDigitalIn4 extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_INTERRUPT, $payload, 2);
+        $data = $this->sendRequest(self::FUNCTION_GET_INTERRUPT, $payload);
 
         $payload = unpack('v1interrupt_mask', $data);
 
@@ -281,16 +324,141 @@ class BrickletIndustrialDigitalIn4 extends Device
     }
 
     /**
+     * Returns the current value of the edge counter for the selected pin. You can
+     * configure the edges that are counted with BrickletIndustrialDigitalIn4::setEdgeCountConfig().
+     * 
+     * If you set the reset counter to *true*, the count is set back to 0
+     * directly after it is read.
+     * 
+     * .. versionadded:: 2.0.1~(Plugin)
+     * 
+     * @param int $pin
+     * @param bool $reset_counter
+     * 
+     * @return int
+     */
+    public function getEdgeCount($pin, $reset_counter)
+    {
+        $payload = '';
+        $payload .= pack('C', $pin);
+        $payload .= pack('C', intval((bool)$reset_counter));
+
+        $data = $this->sendRequest(self::FUNCTION_GET_EDGE_COUNT, $payload);
+
+        $payload = unpack('V1count', $data);
+
+        return IPConnection::fixUnpackedUInt32($payload['count']);
+    }
+
+    /**
+     * Configures the edge counter for the selected pins.
+     * 
+     * The edge type parameter configures if rising edges, falling edges or
+     * both are counted if the pin is configured for input. Possible edge types are:
+     * 
+     * * 0 = rising (default)
+     * * 1 = falling
+     * * 2 = both
+     * 
+     * The debounce time is given in ms.
+     * 
+     * If you don't know what any of this means, just leave it at default. The
+     * default configuration is very likely OK for you.
+     * 
+     * Default values: 0 (edge type) and 100ms (debounce time)
+     * 
+     * .. versionadded:: 2.0.1~(Plugin)
+     * 
+     * @param int $selection_mask
+     * @param int $edge_type
+     * @param int $debounce
+     * 
+     * @return void
+     */
+    public function setEdgeCountConfig($selection_mask, $edge_type, $debounce)
+    {
+        $payload = '';
+        $payload .= pack('v', $selection_mask);
+        $payload .= pack('C', $edge_type);
+        $payload .= pack('C', $debounce);
+
+        $this->sendRequest(self::FUNCTION_SET_EDGE_COUNT_CONFIG, $payload);
+    }
+
+    /**
+     * Returns the edge type and debounce time for the selected pin as set by
+     * BrickletIndustrialDigitalIn4::setEdgeCountConfig().
+     * 
+     * .. versionadded:: 2.0.1~(Plugin)
+     * 
+     * @param int $pin
+     * 
+     * @return array
+     */
+    public function getEdgeCountConfig($pin)
+    {
+        $result = array();
+
+        $payload = '';
+        $payload .= pack('C', $pin);
+
+        $data = $this->sendRequest(self::FUNCTION_GET_EDGE_COUNT_CONFIG, $payload);
+
+        $payload = unpack('C1edge_type/C1debounce', $data);
+
+        $result['edge_type'] = $payload['edge_type'];
+        $result['debounce'] = $payload['debounce'];
+
+        return $result;
+    }
+
+    /**
+     * Returns the UID, the UID where the Bricklet is connected to, 
+     * the position, the hardware and firmware version as well as the
+     * device identifier.
+     * 
+     * The position can be 'a', 'b', 'c' or 'd'.
+     * 
+     * The device identifiers can be found :ref:`here <device_identifier>`.
+     * 
+     * .. versionadded:: 2.0.0~(Plugin)
+     * 
+     * 
+     * @return array
+     */
+    public function getIdentity()
+    {
+        $result = array();
+
+        $payload = '';
+
+        $data = $this->sendRequest(self::FUNCTION_GET_IDENTITY, $payload);
+
+        $payload = unpack('c8uid/c8connected_uid/c1position/C3hardware_version/C3firmware_version/v1device_identifier', $data);
+
+        $result['uid'] = IPConnection::implodeUnpackedString($payload, 'uid', 8);
+        $result['connected_uid'] = IPConnection::implodeUnpackedString($payload, 'connected_uid', 8);
+        $result['position'] = chr($payload['position']);
+        $result['hardware_version'] = IPConnection::collectUnpackedArray($payload, 'hardware_version', 3);
+        $result['firmware_version'] = IPConnection::collectUnpackedArray($payload, 'firmware_version', 3);
+        $result['device_identifier'] = $payload['device_identifier'];
+
+        return $result;
+    }
+
+    /**
      * Registers a callback with ID $id to the callable $callback.
      *
      * @param int $id
      * @param callable $callback
+     * @param mixed $userData
      *
      * @return void
      */
-    public function registerCallback($id, $callback)
+    public function registerCallback($id, $callback, $userData = NULL)
     {
         $this->registeredCallbacks[$id] = $callback;
+        $this->registeredCallbackUserData[$id] = $userData;
     }
 
     /**

@@ -1,7 +1,9 @@
 <?php
 
 /* ***********************************************************
- * This file was automatically generated on 2012-10-01.      *
+ * This file was automatically generated on 2013-09-11.      *
+ *                                                           *
+ * Bindings Version 2.0.10                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -39,7 +41,7 @@ class BrickletIO16 extends Device
      * parameters contain the port, the involved pins and the current value of
      * the pins (the value after the monoflop).
      * 
-     * .. versionadded:: 1.1.2
+     * .. versionadded:: 1.1.2~(Plugin)
      */
     const CALLBACK_MONOFLOP_DONE = 12;
 
@@ -95,18 +97,67 @@ class BrickletIO16 extends Device
     const FUNCTION_GET_PORT_MONOFLOP = 11;
 
     /**
+     * @internal
+     */
+    const FUNCTION_SET_SELECTED_VALUES = 13;
+
+    /**
+     * @internal
+     */
+    const FUNCTION_GET_EDGE_COUNT = 14;
+
+    /**
+     * @internal
+     */
+    const FUNCTION_SET_EDGE_COUNT_CONFIG = 15;
+
+    /**
+     * @internal
+     */
+    const FUNCTION_GET_EDGE_COUNT_CONFIG = 16;
+
+    /**
+     * @internal
+     */
+    const FUNCTION_GET_IDENTITY = 255;
+
+    const DIRECTION_IN = 'i';
+    const DIRECTION_OUT = 'o';
+    const EDGE_TYPE_RISING = 0;
+    const EDGE_TYPE_FALLING = 1;
+    const EDGE_TYPE_BOTH = 2;
+
+    const DEVICE_IDENTIFIER = 28;
+
+    /**
      * Creates an object with the unique device ID $uid. This object can
      * then be added to the IP connection.
      *
      * @param string $uid
      */
-    public function __construct($uid)
+    public function __construct($uid, $ipcon)
     {
-        parent::__construct($uid);
+        parent::__construct($uid, $ipcon);
 
-        $this->expectedName = 'IO-16 Bricklet';
+        $this->apiVersion = array(2, 0, 1);
 
-        $this->bindingVersion = array(1, 0, 1);
+        $this->responseExpected[self::FUNCTION_SET_PORT] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_GET_PORT] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_SET_PORT_CONFIGURATION] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_GET_PORT_CONFIGURATION] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_SET_DEBOUNCE_PERIOD] = self::RESPONSE_EXPECTED_TRUE;
+        $this->responseExpected[self::FUNCTION_GET_DEBOUNCE_PERIOD] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_SET_PORT_INTERRUPT] = self::RESPONSE_EXPECTED_TRUE;
+        $this->responseExpected[self::FUNCTION_GET_PORT_INTERRUPT] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::CALLBACK_INTERRUPT] = self::RESPONSE_EXPECTED_ALWAYS_FALSE;
+        $this->responseExpected[self::FUNCTION_SET_PORT_MONOFLOP] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_GET_PORT_MONOFLOP] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::CALLBACK_MONOFLOP_DONE] = self::RESPONSE_EXPECTED_ALWAYS_FALSE;
+        $this->responseExpected[self::FUNCTION_SET_SELECTED_VALUES] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_GET_EDGE_COUNT] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_SET_EDGE_COUNT_CONFIG] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_GET_EDGE_COUNT_CONFIG] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_GET_IDENTITY] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
 
         $this->callbackWrappers[self::CALLBACK_INTERRUPT] = 'callbackWrapperInterrupt';
         $this->callbackWrappers[self::CALLBACK_MONOFLOP_DONE] = 'callbackWrapperMonoflopDone';
@@ -145,7 +196,7 @@ class BrickletIO16 extends Device
         $payload .= pack('c', ord($port));
         $payload .= pack('C', $value_mask);
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_PORT, $payload);
+        $this->sendRequest(self::FUNCTION_SET_PORT, $payload);
     }
 
     /**
@@ -162,7 +213,7 @@ class BrickletIO16 extends Device
         $payload = '';
         $payload .= pack('c', ord($port));
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_PORT, $payload, 1);
+        $data = $this->sendRequest(self::FUNCTION_GET_PORT, $payload);
 
         $payload = unpack('C1value_mask', $data);
 
@@ -181,27 +232,27 @@ class BrickletIO16 extends Device
      * 
      * For example:
      * 
-     * * ("a", 0xFF, 'i', true) will set all pins of port a as input pull-up.
+     * * ("a", 255, 'i', true) will set all pins of port a as input pull-up.
      * * ("a", 128, 'i', false) will set pin 7 of port a as input default (floating if nothing is connected).
      * * ("b", 3, 'o', false) will set pins 0 and 1 of port b as output low.
      * * ("b", 4, 'o', true) will set pin 2 of port b as output high.
      * 
      * @param string $port
-     * @param int $pin_mask
+     * @param int $selection_mask
      * @param string $direction
      * @param bool $value
      * 
      * @return void
      */
-    public function setPortConfiguration($port, $pin_mask, $direction, $value)
+    public function setPortConfiguration($port, $selection_mask, $direction, $value)
     {
         $payload = '';
         $payload .= pack('c', ord($port));
-        $payload .= pack('C', $pin_mask);
+        $payload .= pack('C', $selection_mask);
         $payload .= pack('c', ord($direction));
         $payload .= pack('C', intval((bool)$value));
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_PORT_CONFIGURATION, $payload);
+        $this->sendRequest(self::FUNCTION_SET_PORT_CONFIGURATION, $payload);
     }
 
     /**
@@ -226,7 +277,7 @@ class BrickletIO16 extends Device
         $payload = '';
         $payload .= pack('c', ord($port));
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_PORT_CONFIGURATION, $payload, 2);
+        $data = $this->sendRequest(self::FUNCTION_GET_PORT_CONFIGURATION, $payload);
 
         $payload = unpack('C1direction_mask/C1value_mask', $data);
 
@@ -254,7 +305,7 @@ class BrickletIO16 extends Device
         $payload = '';
         $payload .= pack('V', $debounce);
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_DEBOUNCE_PERIOD, $payload);
+        $this->sendRequest(self::FUNCTION_SET_DEBOUNCE_PERIOD, $payload);
     }
 
     /**
@@ -267,7 +318,7 @@ class BrickletIO16 extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_DEBOUNCE_PERIOD, $payload, 4);
+        $data = $this->sendRequest(self::FUNCTION_GET_DEBOUNCE_PERIOD, $payload);
 
         $payload = unpack('V1debounce', $data);
 
@@ -295,7 +346,7 @@ class BrickletIO16 extends Device
         $payload .= pack('c', ord($port));
         $payload .= pack('C', $interrupt_mask);
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_PORT_INTERRUPT, $payload);
+        $this->sendRequest(self::FUNCTION_SET_PORT_INTERRUPT, $payload);
     }
 
     /**
@@ -311,7 +362,7 @@ class BrickletIO16 extends Device
         $payload = '';
         $payload .= pack('c', ord($port));
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_PORT_INTERRUPT, $payload, 1);
+        $data = $this->sendRequest(self::FUNCTION_GET_PORT_INTERRUPT, $payload);
 
         $payload = unpack('C1interrupt_mask', $data);
 
@@ -339,24 +390,24 @@ class BrickletIO16 extends Device
      * of two seconds and pin 0 set to high. Pin 0 will be high all the time. If now
      * the RS485 connection is lost, then pin 0 will get low in at most two seconds.
      * 
-     * .. versionadded:: 1.1.2
+     * .. versionadded:: 1.1.2~(Plugin)
      * 
      * @param string $port
-     * @param int $pin_mask
+     * @param int $selection_mask
      * @param int $value_mask
      * @param int $time
      * 
      * @return void
      */
-    public function setPortMonoflop($port, $pin_mask, $value_mask, $time)
+    public function setPortMonoflop($port, $selection_mask, $value_mask, $time)
     {
         $payload = '';
         $payload .= pack('c', ord($port));
-        $payload .= pack('C', $pin_mask);
+        $payload .= pack('C', $selection_mask);
         $payload .= pack('C', $value_mask);
         $payload .= pack('V', $time);
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_PORT_MONOFLOP, $payload);
+        $this->sendRequest(self::FUNCTION_SET_PORT_MONOFLOP, $payload);
     }
 
     /**
@@ -366,7 +417,7 @@ class BrickletIO16 extends Device
      * If the timer is not running currently, the remaining time will be returned
      * as 0.
      * 
-     * .. versionadded:: 1.1.2
+     * .. versionadded:: 1.1.2~(Plugin)
      * 
      * @param string $port
      * @param int $pin
@@ -381,7 +432,7 @@ class BrickletIO16 extends Device
         $payload .= pack('c', ord($port));
         $payload .= pack('C', $pin);
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_PORT_MONOFLOP, $payload, 9);
+        $data = $this->sendRequest(self::FUNCTION_GET_PORT_MONOFLOP, $payload);
 
         $payload = unpack('C1value/V1time/V1time_remaining', $data);
 
@@ -393,16 +444,173 @@ class BrickletIO16 extends Device
     }
 
     /**
+     * Sets the output value (high or low) for a port ("a" or "b" with a bitmask, 
+     * according to the selection mask. The bitmask is 8 bit long, *true* refers 
+     * to high and *false* refers to low.
+     * 
+     * For example: The values 0b11000000, 0b10000000 will turn pin 7 high and
+     * pin 6 low, pins 0-6 will remain untouched.
+     * 
+     * <note>
+     *  This function does nothing for pins that are configured as input.
+     *  Pull-up resistors can be switched on with :func:`SetConfiguration`.
+     * </note>
+     * 
+     * .. versionadded:: 2.0.0~(Plugin)
+     * 
+     * @param string $port
+     * @param int $selection_mask
+     * @param int $value_mask
+     * 
+     * @return void
+     */
+    public function setSelectedValues($port, $selection_mask, $value_mask)
+    {
+        $payload = '';
+        $payload .= pack('c', ord($port));
+        $payload .= pack('C', $selection_mask);
+        $payload .= pack('C', $value_mask);
+
+        $this->sendRequest(self::FUNCTION_SET_SELECTED_VALUES, $payload);
+    }
+
+    /**
+     * Returns the current value of the edge counter for the selected pin on port A.
+     * You can configure the edges that are counted with BrickletIO16::setEdgeCountConfig().
+     * 
+     * If you set the reset counter to *true*, the count is set back to 0
+     * directly after it is read.
+     * 
+     * .. versionadded:: 2.0.3~(Plugin)
+     * 
+     * @param int $pin
+     * @param bool $reset_counter
+     * 
+     * @return int
+     */
+    public function getEdgeCount($pin, $reset_counter)
+    {
+        $payload = '';
+        $payload .= pack('C', $pin);
+        $payload .= pack('C', intval((bool)$reset_counter));
+
+        $data = $this->sendRequest(self::FUNCTION_GET_EDGE_COUNT, $payload);
+
+        $payload = unpack('V1count', $data);
+
+        return IPConnection::fixUnpackedUInt32($payload['count']);
+    }
+
+    /**
+     * Configures the edge counter for the selected pin of port A. Pins 0 and 1
+     * are available for edge counting.
+     * 
+     * The edge type parameter configures if rising edges, falling edges or
+     * both are counted if the pin is configured for input. Possible edge types are:
+     * 
+     * * 0 = rising (default)
+     * * 1 = falling
+     * * 2 = both
+     * 
+     * The debounce time is given in ms.
+     * 
+     * If you don't know what any of this means, just leave it at default. The
+     * default configuration is very likely OK for you.
+     * 
+     * Default values: 0 (edge type) and 100ms (debounce time)
+     * 
+     * .. versionadded:: 2.0.3~(Plugin)
+     * 
+     * @param int $pin
+     * @param int $edge_type
+     * @param int $debounce
+     * 
+     * @return void
+     */
+    public function setEdgeCountConfig($pin, $edge_type, $debounce)
+    {
+        $payload = '';
+        $payload .= pack('C', $pin);
+        $payload .= pack('C', $edge_type);
+        $payload .= pack('C', $debounce);
+
+        $this->sendRequest(self::FUNCTION_SET_EDGE_COUNT_CONFIG, $payload);
+    }
+
+    /**
+     * Returns the edge type and debounce time for the selected pin of port A as set by
+     * BrickletIO16::setEdgeCountConfig().
+     * 
+     * .. versionadded:: 2.0.3~(Plugin)
+     * 
+     * @param int $pin
+     * 
+     * @return array
+     */
+    public function getEdgeCountConfig($pin)
+    {
+        $result = array();
+
+        $payload = '';
+        $payload .= pack('C', $pin);
+
+        $data = $this->sendRequest(self::FUNCTION_GET_EDGE_COUNT_CONFIG, $payload);
+
+        $payload = unpack('C1edge_type/C1debounce', $data);
+
+        $result['edge_type'] = $payload['edge_type'];
+        $result['debounce'] = $payload['debounce'];
+
+        return $result;
+    }
+
+    /**
+     * Returns the UID, the UID where the Bricklet is connected to, 
+     * the position, the hardware and firmware version as well as the
+     * device identifier.
+     * 
+     * The position can be 'a', 'b', 'c' or 'd'.
+     * 
+     * The device identifiers can be found :ref:`here <device_identifier>`.
+     * 
+     * .. versionadded:: 2.0.0~(Plugin)
+     * 
+     * 
+     * @return array
+     */
+    public function getIdentity()
+    {
+        $result = array();
+
+        $payload = '';
+
+        $data = $this->sendRequest(self::FUNCTION_GET_IDENTITY, $payload);
+
+        $payload = unpack('c8uid/c8connected_uid/c1position/C3hardware_version/C3firmware_version/v1device_identifier', $data);
+
+        $result['uid'] = IPConnection::implodeUnpackedString($payload, 'uid', 8);
+        $result['connected_uid'] = IPConnection::implodeUnpackedString($payload, 'connected_uid', 8);
+        $result['position'] = chr($payload['position']);
+        $result['hardware_version'] = IPConnection::collectUnpackedArray($payload, 'hardware_version', 3);
+        $result['firmware_version'] = IPConnection::collectUnpackedArray($payload, 'firmware_version', 3);
+        $result['device_identifier'] = $payload['device_identifier'];
+
+        return $result;
+    }
+
+    /**
      * Registers a callback with ID $id to the callable $callback.
      *
      * @param int $id
      * @param callable $callback
+     * @param mixed $userData
      *
      * @return void
      */
-    public function registerCallback($id, $callback)
+    public function registerCallback($id, $callback, $userData = NULL)
     {
         $this->registeredCallbacks[$id] = $callback;
+        $this->registeredCallbackUserData[$id] = $userData;
     }
 
     /**
@@ -428,10 +636,10 @@ class BrickletIO16 extends Device
     public function callbackWrapperMonoflopDone($data)
     {
         $result = array();
-        $payload = unpack('c1port/C1pin_mask/C1value_mask', $data);
+        $payload = unpack('c1port/C1selection_mask/C1value_mask', $data);
 
         array_push($result, chr($payload['port']));
-        array_push($result, $payload['pin_mask']);
+        array_push($result, $payload['selection_mask']);
         array_push($result, $payload['value_mask']);
 
         call_user_func_array($this->registeredCallbacks[self::CALLBACK_MONOFLOP_DONE], $result);

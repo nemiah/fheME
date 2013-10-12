@@ -86,6 +86,7 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 			$F = new Factory("Einkaufszettel");
 			$F->sA("EinkaufszettelName", $name);
 			$F->sA("EinkaufszettelTime", time());
+			$F->sA("EinkaufszettelMenge", "1");
 			$F->store();
 		}
 		
@@ -96,16 +97,26 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 	}
 	
 	public function reAddItem($EinkaufszettelID, $overviewList = false){
-		
 		$E = new Einkaufszettel($EinkaufszettelID);
-		$E->changeA("EinkaufszettelBought", "0");
-		$E->changeA("EinkaufszettelTime", time());
-		$E->newMe();
 		
-		if(!$overviewList)
+		$F = new Factory("Einkaufszettel");
+		$F->sA("EinkaufszettelBought", "0");
+		$F->sA("EinkaufszettelName", $E->A("EinkaufszettelName"));
+		$exists  = $F->exists(true);
+		if($exists !== false){
+			$exists->changeA("EinkaufszettelMenge", $exists->A("EinkaufszettelMenge") + 1);
+			$exists->saveMe();
+		} else {
+			$E->changeA("EinkaufszettelBought", "0");
+			$E->changeA("EinkaufszettelTime", time());
+			$E->changeA("EinkaufszettelMenge", "1");
+			$E->newMe();
+		}
+		
+		#if(!$overviewList)
 			echo $this->getListTable();
-		else
-			echo $this->getOverviewList();
+		#else
+		#	echo $this->getOverviewList();
 	}
 	
 	function deleteReAddItem($EinkaufszettelID){
@@ -220,7 +231,7 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 		
 		$L = new HTMLList();
 		$L->noDots();
-		$L->addListStyle("padding-top:10px;width:400px;");
+		$L->addListStyle("padding-top:10px;width:380px;");
 		
 		while($B = $AC->getNextEntry()){
 			$BT = new Button("Eintrag löschen", "trash_stroke", "iconicL");
@@ -292,7 +303,7 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 			$BT = new Button("Löschen", "trash_stroke", "iconicL");
 			$BT->onclick(OnEvent::rme($E, "deleteMe", "", OnEvent::reloadPopup("mEinkaufszettel")));
 			
-			$T->addRow(array($E->A("EinkaufszettelName").($E->A("EinkaufszettelNameDetails") != "" ? "<br /><small style=\"color:grey;\">".$E->A("EinkaufszettelNameDetails")."</small>" : ""), $BT));
+			$T->addRow(array(($E->A("EinkaufszettelMenge") > 1 ? $E->A("EinkaufszettelMenge")." x " : "").$E->A("EinkaufszettelName").($E->A("EinkaufszettelNameDetails") != "" ? "<br /><small style=\"color:grey;\">".$E->A("EinkaufszettelNameDetails")."</small>" : ""), $BT));
 			$T->addRowStyle("font-size:20px;");
 			$T->addCellEvent(1, "click", OnEvent::rme($this, "boughtItem", $E->getID(), "function(transport){ \$j('#currentList').html(transport.responseText); }"));
 			

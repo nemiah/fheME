@@ -1,7 +1,9 @@
 <?php
 
 /* ***********************************************************
- * This file was automatically generated on 2012-10-01.      *
+ * This file was automatically generated on 2013-09-11.      *
+ *                                                           *
+ * Bindings Version 2.0.10                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -62,18 +64,40 @@ class BrickletIndustrialQuadRelay extends Device
     const FUNCTION_GET_AVAILABLE_FOR_GROUP = 7;
 
     /**
+     * @internal
+     */
+    const FUNCTION_SET_SELECTED_VALUES = 9;
+
+    /**
+     * @internal
+     */
+    const FUNCTION_GET_IDENTITY = 255;
+
+
+    const DEVICE_IDENTIFIER = 225;
+
+    /**
      * Creates an object with the unique device ID $uid. This object can
      * then be added to the IP connection.
      *
      * @param string $uid
      */
-    public function __construct($uid)
+    public function __construct($uid, $ipcon)
     {
-        parent::__construct($uid);
+        parent::__construct($uid, $ipcon);
 
-        $this->expectedName = 'Industrial Quad Relay Bricklet';
+        $this->apiVersion = array(2, 0, 0);
 
-        $this->bindingVersion = array(1, 0, 0);
+        $this->responseExpected[self::FUNCTION_SET_VALUE] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_GET_VALUE] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_SET_MONOFLOP] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_GET_MONOFLOP] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_SET_GROUP] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_GET_GROUP] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_GET_AVAILABLE_FOR_GROUP] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::CALLBACK_MONOFLOP_DONE] = self::RESPONSE_EXPECTED_ALWAYS_FALSE;
+        $this->responseExpected[self::FUNCTION_SET_SELECTED_VALUES] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_GET_IDENTITY] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
 
         $this->callbackWrappers[self::CALLBACK_MONOFLOP_DONE] = 'callbackWrapperMonoflopDone';
     }
@@ -112,7 +136,7 @@ class BrickletIndustrialQuadRelay extends Device
         $payload = '';
         $payload .= pack('v', $value_mask);
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_VALUE, $payload);
+        $this->sendRequest(self::FUNCTION_SET_VALUE, $payload);
     }
 
     /**
@@ -125,7 +149,7 @@ class BrickletIndustrialQuadRelay extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_VALUE, $payload, 2);
+        $data = $this->sendRequest(self::FUNCTION_GET_VALUE, $payload);
 
         $payload = unpack('v1value_mask', $data);
 
@@ -153,20 +177,20 @@ class BrickletIndustrialQuadRelay extends Device
      * of two seconds and pin 0 closed. Pin 0 will be closed all the time. If now
      * the RS485 connection is lost, then pin 0 will be opened in at most two seconds.
      * 
-     * @param int $pin_mask
+     * @param int $selection_mask
      * @param int $value_mask
      * @param int $time
      * 
      * @return void
      */
-    public function setMonoflop($pin_mask, $value_mask, $time)
+    public function setMonoflop($selection_mask, $value_mask, $time)
     {
         $payload = '';
-        $payload .= pack('v', $pin_mask);
+        $payload .= pack('v', $selection_mask);
         $payload .= pack('v', $value_mask);
         $payload .= pack('V', $time);
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_MONOFLOP, $payload);
+        $this->sendRequest(self::FUNCTION_SET_MONOFLOP, $payload);
     }
 
     /**
@@ -187,7 +211,7 @@ class BrickletIndustrialQuadRelay extends Device
         $payload = '';
         $payload .= pack('C', $pin);
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_MONOFLOP, $payload, 10);
+        $data = $this->sendRequest(self::FUNCTION_GET_MONOFLOP, $payload);
 
         $payload = unpack('v1value/V1time/V1time_remaining', $data);
 
@@ -229,7 +253,7 @@ class BrickletIndustrialQuadRelay extends Device
             $payload .= pack('c', 0);
         }
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_GROUP, $payload);
+        $this->sendRequest(self::FUNCTION_SET_GROUP, $payload);
     }
 
     /**
@@ -242,7 +266,7 @@ class BrickletIndustrialQuadRelay extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_GROUP, $payload, 4);
+        $data = $this->sendRequest(self::FUNCTION_GET_GROUP, $payload);
 
         $payload = unpack('c4group', $data);
 
@@ -261,7 +285,7 @@ class BrickletIndustrialQuadRelay extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_AVAILABLE_FOR_GROUP, $payload, 1);
+        $data = $this->sendRequest(self::FUNCTION_GET_AVAILABLE_FOR_GROUP, $payload);
 
         $payload = unpack('C1available', $data);
 
@@ -269,16 +293,83 @@ class BrickletIndustrialQuadRelay extends Device
     }
 
     /**
+     * Sets the output value with a bitmask, according to the selection mask. 
+     * The bitmask is 16 bit long, *true* refers to a closed relay and 
+     * *false* refers to an open relay.
+     * 
+     * For example: The values 00b0000000000000011, b0000000000000001 will close 
+     * the relay of pin 0, open the relay of pin 1 and leave the others untouched.
+     * 
+     * If no groups are used (see BrickletIndustrialQuadRelay::setGroup()), the pins correspond to the
+     * markings on the Quad Relay Bricklet.
+     * 
+     * If groups are used, the pins correspond to the element in the group.
+     * Element 1 in the group will get pins 0-3, element 2 pins 4-7, element 3
+     * pins 8-11 and element 4 pins 12-15.
+     * 
+     * .. versionadded:: 2.0.0~(Plugin)
+     * 
+     * @param int $selection_mask
+     * @param int $value_mask
+     * 
+     * @return void
+     */
+    public function setSelectedValues($selection_mask, $value_mask)
+    {
+        $payload = '';
+        $payload .= pack('v', $selection_mask);
+        $payload .= pack('v', $value_mask);
+
+        $this->sendRequest(self::FUNCTION_SET_SELECTED_VALUES, $payload);
+    }
+
+    /**
+     * Returns the UID, the UID where the Bricklet is connected to, 
+     * the position, the hardware and firmware version as well as the
+     * device identifier.
+     * 
+     * The position can be 'a', 'b', 'c' or 'd'.
+     * 
+     * The device identifiers can be found :ref:`here <device_identifier>`.
+     * 
+     * .. versionadded:: 2.0.0~(Plugin)
+     * 
+     * 
+     * @return array
+     */
+    public function getIdentity()
+    {
+        $result = array();
+
+        $payload = '';
+
+        $data = $this->sendRequest(self::FUNCTION_GET_IDENTITY, $payload);
+
+        $payload = unpack('c8uid/c8connected_uid/c1position/C3hardware_version/C3firmware_version/v1device_identifier', $data);
+
+        $result['uid'] = IPConnection::implodeUnpackedString($payload, 'uid', 8);
+        $result['connected_uid'] = IPConnection::implodeUnpackedString($payload, 'connected_uid', 8);
+        $result['position'] = chr($payload['position']);
+        $result['hardware_version'] = IPConnection::collectUnpackedArray($payload, 'hardware_version', 3);
+        $result['firmware_version'] = IPConnection::collectUnpackedArray($payload, 'firmware_version', 3);
+        $result['device_identifier'] = $payload['device_identifier'];
+
+        return $result;
+    }
+
+    /**
      * Registers a callback with ID $id to the callable $callback.
      *
      * @param int $id
      * @param callable $callback
+     * @param mixed $userData
      *
      * @return void
      */
-    public function registerCallback($id, $callback)
+    public function registerCallback($id, $callback, $userData = NULL)
     {
         $this->registeredCallbacks[$id] = $callback;
+        $this->registeredCallbackUserData[$id] = $userData;
     }
 
     /**
@@ -288,9 +379,9 @@ class BrickletIndustrialQuadRelay extends Device
     public function callbackWrapperMonoflopDone($data)
     {
         $result = array();
-        $payload = unpack('v1pin_mask/v1value_mask', $data);
+        $payload = unpack('v1selection_mask/v1value_mask', $data);
 
-        array_push($result, $payload['pin_mask']);
+        array_push($result, $payload['selection_mask']);
         array_push($result, $payload['value_mask']);
 
         call_user_func_array($this->registeredCallbacks[self::CALLBACK_MONOFLOP_DONE], $result);

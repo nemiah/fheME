@@ -529,7 +529,6 @@ class GUIFactory {
 		#$I->hasFocusEvent(true);
 
 		$wholeLine2 = $this->getPageBrowser();
-		
 		if($where == "bottom"){
 			$this->table->addRow("");
 			$this->table->addRowColspan(1, count($this->referenceLine));
@@ -561,7 +560,7 @@ class GUIFactory {
 				$this->table->addRowColspan(1, count($this->referenceLine) -1);
 				$this->table->addRowClass("backgroundColorHeader");
 				$this->table->addCellStyle(count($wholeLine1), "text-align:right;");
-				$this->table->setRowPart("thead");
+				$this->table->setRowPart($where == "top" ? "thead" : "tfoot");
 				
 				if($this->showTrash)
 					$this->setColStyle($this->referenceLine[count($this->referenceLine) - 1], "width:20px;");

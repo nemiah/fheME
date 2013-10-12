@@ -39,7 +39,7 @@ class mUserdataGUI extends mUserdata implements iGUIHTML2, icontextMenu {
 		$html = "
 		<table>
 			<tr>
-				<td class=\"backgroundColor3\"><input type=\"button\" style=\"background-image:url(./images/navi/seiten.png);\" class=\"bigButton backgroundColor2\" value=\"".(isset($text["copy"]) ? $text["copy"] : "von Benutzer\nkopieren")."\" onclick=\"phynxContextMenu.start(this, 'mUserdata','copyFromUser','".(isset($text["kopieren"]) ? $text["kopieren"] : "kopieren").":');\" /></td>
+				<td class=\"backgroundColor3\"><input type=\"button\" style=\"background-image:url(./images/navi/seiten.png);\" class=\"bigButton backgroundColor2\" value=\"".(isset($text["copy"]) ? $text["copy"] : "von Benutzer\nkopieren")."\" onclick=\"phynxContextMenu.start(this, 'mUserdata','copyFromUser','kopieren:', 'right', 'up');\" /></td>
 			</tr>
 		</table>";
 		$gui->addRowAfter("1","addRestriction");

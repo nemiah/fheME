@@ -1,7 +1,9 @@
 <?php
 
 /* ***********************************************************
- * This file was automatically generated on 2012-10-01.      *
+ * This file was automatically generated on 2013-09-11.      *
+ *                                                           *
+ * Bindings Version 2.0.10                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -135,18 +137,62 @@ class BrickletBarometer extends Device
     const FUNCTION_GET_REFERENCE_AIR_PRESSURE = 19;
 
     /**
+     * @internal
+     */
+    const FUNCTION_SET_AVERAGING = 20;
+
+    /**
+     * @internal
+     */
+    const FUNCTION_GET_AVERAGING = 21;
+
+    /**
+     * @internal
+     */
+    const FUNCTION_GET_IDENTITY = 255;
+
+    const THRESHOLD_OPTION_OFF = 'x';
+    const THRESHOLD_OPTION_OUTSIDE = 'o';
+    const THRESHOLD_OPTION_INSIDE = 'i';
+    const THRESHOLD_OPTION_SMALLER = '<';
+    const THRESHOLD_OPTION_GREATER = '>';
+
+    const DEVICE_IDENTIFIER = 221;
+
+    /**
      * Creates an object with the unique device ID $uid. This object can
      * then be added to the IP connection.
      *
      * @param string $uid
      */
-    public function __construct($uid)
+    public function __construct($uid, $ipcon)
     {
-        parent::__construct($uid);
+        parent::__construct($uid, $ipcon);
 
-        $this->expectedName = 'Barometer Bricklet';
+        $this->apiVersion = array(2, 0, 1);
 
-        $this->bindingVersion = array(1, 1, 0);
+        $this->responseExpected[self::FUNCTION_GET_AIR_PRESSURE] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_GET_ALTITUDE] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_SET_AIR_PRESSURE_CALLBACK_PERIOD] = self::RESPONSE_EXPECTED_TRUE;
+        $this->responseExpected[self::FUNCTION_GET_AIR_PRESSURE_CALLBACK_PERIOD] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_SET_ALTITUDE_CALLBACK_PERIOD] = self::RESPONSE_EXPECTED_TRUE;
+        $this->responseExpected[self::FUNCTION_GET_ALTITUDE_CALLBACK_PERIOD] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_SET_AIR_PRESSURE_CALLBACK_THRESHOLD] = self::RESPONSE_EXPECTED_TRUE;
+        $this->responseExpected[self::FUNCTION_GET_AIR_PRESSURE_CALLBACK_THRESHOLD] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_SET_ALTITUDE_CALLBACK_THRESHOLD] = self::RESPONSE_EXPECTED_TRUE;
+        $this->responseExpected[self::FUNCTION_GET_ALTITUDE_CALLBACK_THRESHOLD] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_SET_DEBOUNCE_PERIOD] = self::RESPONSE_EXPECTED_TRUE;
+        $this->responseExpected[self::FUNCTION_GET_DEBOUNCE_PERIOD] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_SET_REFERENCE_AIR_PRESSURE] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_GET_CHIP_TEMPERATURE] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::CALLBACK_AIR_PRESSURE] = self::RESPONSE_EXPECTED_ALWAYS_FALSE;
+        $this->responseExpected[self::CALLBACK_ALTITUDE] = self::RESPONSE_EXPECTED_ALWAYS_FALSE;
+        $this->responseExpected[self::CALLBACK_AIR_PRESSURE_REACHED] = self::RESPONSE_EXPECTED_ALWAYS_FALSE;
+        $this->responseExpected[self::CALLBACK_ALTITUDE_REACHED] = self::RESPONSE_EXPECTED_ALWAYS_FALSE;
+        $this->responseExpected[self::FUNCTION_GET_REFERENCE_AIR_PRESSURE] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_SET_AVERAGING] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_GET_AVERAGING] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_GET_IDENTITY] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
 
         $this->callbackWrappers[self::CALLBACK_AIR_PRESSURE] = 'callbackWrapperAirPressure';
         $this->callbackWrappers[self::CALLBACK_ALTITUDE] = 'callbackWrapperAltitude';
@@ -180,7 +226,7 @@ class BrickletBarometer extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_AIR_PRESSURE, $payload, 4);
+        $data = $this->sendRequest(self::FUNCTION_GET_AIR_PRESSURE, $payload);
 
         $payload = unpack('V1air_pressure', $data);
 
@@ -189,7 +235,7 @@ class BrickletBarometer extends Device
 
     /**
      * Returns the relative altitude of the air pressure sensor. The value is given in
-     * cm and is caluclated based on the difference between the current air pressure
+     * cm and is calculated based on the difference between the current air pressure
      * and the reference air pressure that can be set with BrickletBarometer::setReferenceAirPressure().
      * 
      * If you want to get the altitude periodically, it is recommended to use the
@@ -203,7 +249,7 @@ class BrickletBarometer extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_ALTITUDE, $payload, 4);
+        $data = $this->sendRequest(self::FUNCTION_GET_ALTITUDE, $payload);
 
         $payload = unpack('V1altitude', $data);
 
@@ -228,7 +274,7 @@ class BrickletBarometer extends Device
         $payload = '';
         $payload .= pack('V', $period);
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_AIR_PRESSURE_CALLBACK_PERIOD, $payload);
+        $this->sendRequest(self::FUNCTION_SET_AIR_PRESSURE_CALLBACK_PERIOD, $payload);
     }
 
     /**
@@ -241,7 +287,7 @@ class BrickletBarometer extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_AIR_PRESSURE_CALLBACK_PERIOD, $payload, 4);
+        $data = $this->sendRequest(self::FUNCTION_GET_AIR_PRESSURE_CALLBACK_PERIOD, $payload);
 
         $payload = unpack('V1period', $data);
 
@@ -266,7 +312,7 @@ class BrickletBarometer extends Device
         $payload = '';
         $payload .= pack('V', $period);
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_ALTITUDE_CALLBACK_PERIOD, $payload);
+        $this->sendRequest(self::FUNCTION_SET_ALTITUDE_CALLBACK_PERIOD, $payload);
     }
 
     /**
@@ -279,7 +325,7 @@ class BrickletBarometer extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_ALTITUDE_CALLBACK_PERIOD, $payload, 4);
+        $data = $this->sendRequest(self::FUNCTION_GET_ALTITUDE_CALLBACK_PERIOD, $payload);
 
         $payload = unpack('V1period', $data);
 
@@ -316,7 +362,7 @@ class BrickletBarometer extends Device
         $payload .= pack('V', $min);
         $payload .= pack('V', $max);
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_AIR_PRESSURE_CALLBACK_THRESHOLD, $payload);
+        $this->sendRequest(self::FUNCTION_SET_AIR_PRESSURE_CALLBACK_THRESHOLD, $payload);
     }
 
     /**
@@ -331,7 +377,7 @@ class BrickletBarometer extends Device
 
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_AIR_PRESSURE_CALLBACK_THRESHOLD, $payload, 9);
+        $data = $this->sendRequest(self::FUNCTION_GET_AIR_PRESSURE_CALLBACK_THRESHOLD, $payload);
 
         $payload = unpack('c1option/V1min/V1max', $data);
 
@@ -372,7 +418,7 @@ class BrickletBarometer extends Device
         $payload .= pack('V', $min);
         $payload .= pack('V', $max);
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_ALTITUDE_CALLBACK_THRESHOLD, $payload);
+        $this->sendRequest(self::FUNCTION_SET_ALTITUDE_CALLBACK_THRESHOLD, $payload);
     }
 
     /**
@@ -387,7 +433,7 @@ class BrickletBarometer extends Device
 
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_ALTITUDE_CALLBACK_THRESHOLD, $payload, 9);
+        $data = $this->sendRequest(self::FUNCTION_GET_ALTITUDE_CALLBACK_THRESHOLD, $payload);
 
         $payload = unpack('c1option/V1min/V1max', $data);
 
@@ -401,11 +447,13 @@ class BrickletBarometer extends Device
     /**
      * Sets the period in ms with which the threshold callbacks
      * 
-     *  BrickletBarometer::CALLBACK_AIR_PRESSURE_REACHED, BrickletBarometer::CALLBACK_ALTITUDE_REACHED
+     * * BrickletBarometer::CALLBACK_AIR_PRESSURE_REACHED,
+     * * BrickletBarometer::CALLBACK_ALTITUDE_REACHED
      * 
      * are triggered, if the thresholds
      * 
-     *  BrickletBarometer::setAirPressureCallbackThreshold(), BrickletBarometer::setAltitudeCallbackThreshold()
+     * * BrickletBarometer::setAirPressureCallbackThreshold(),
+     * * BrickletBarometer::setAltitudeCallbackThreshold()
      * 
      * keep being reached.
      * 
@@ -420,7 +468,7 @@ class BrickletBarometer extends Device
         $payload = '';
         $payload .= pack('V', $debounce);
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_DEBOUNCE_PERIOD, $payload);
+        $this->sendRequest(self::FUNCTION_SET_DEBOUNCE_PERIOD, $payload);
     }
 
     /**
@@ -433,7 +481,7 @@ class BrickletBarometer extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_DEBOUNCE_PERIOD, $payload, 4);
+        $data = $this->sendRequest(self::FUNCTION_GET_DEBOUNCE_PERIOD, $payload);
 
         $payload = unpack('V1debounce', $data);
 
@@ -453,7 +501,7 @@ class BrickletBarometer extends Device
      * 
      * The default value is 1013.25mbar.
      * 
-     * .. versionadded:: 1.1.0
+     * .. versionadded:: 1.1.0~(Plugin)
      * 
      * @param int $air_pressure
      * 
@@ -464,7 +512,7 @@ class BrickletBarometer extends Device
         $payload = '';
         $payload .= pack('V', $air_pressure);
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_REFERENCE_AIR_PRESSURE, $payload);
+        $this->sendRequest(self::FUNCTION_SET_REFERENCE_AIR_PRESSURE, $payload);
     }
 
     /**
@@ -483,7 +531,7 @@ class BrickletBarometer extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_CHIP_TEMPERATURE, $payload, 2);
+        $data = $this->sendRequest(self::FUNCTION_GET_CHIP_TEMPERATURE, $payload);
 
         $payload = unpack('v1temperature', $data);
 
@@ -493,7 +541,7 @@ class BrickletBarometer extends Device
     /**
      * Returns the reference air pressure as set by BrickletBarometer::setReferenceAirPressure().
      * 
-     * .. versionadded:: 1.1.0
+     * .. versionadded:: 1.1.0~(Plugin)
      * 
      * 
      * @return int
@@ -502,7 +550,7 @@ class BrickletBarometer extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_REFERENCE_AIR_PRESSURE, $payload, 4);
+        $data = $this->sendRequest(self::FUNCTION_GET_REFERENCE_AIR_PRESSURE, $payload);
 
         $payload = unpack('V1air_pressure', $data);
 
@@ -510,16 +558,115 @@ class BrickletBarometer extends Device
     }
 
     /**
+     * Sets the different averaging parameters. It is possible to set
+     * the length of a normal averaging for the temperature and pressure,
+     * as well as an additional length of a 
+     * `moving average <http://en.wikipedia.org/wiki/Moving_average>`__ 
+     * for the pressure. The moving average is calculated from the normal 
+     * averages.  There is no moving average for the temperature.
+     * 
+     * The maximum length for the pressure average is 10, for the
+     * temperature average is 255 and for the moving average is 25.
+     * 
+     * Setting the all three parameters to 0 will turn the averaging
+     * completely off. If the averaging is off, there is lots of noise
+     * on the data, but the data is without delay. Thus we recommend
+     * to turn the averaging off if the Barometer Bricklet data is
+     * to be used for sensor fusion with other sensors.
+     * 
+     * The default values are 10 for the normal averages and 25 for the
+     * moving average.
+     * 
+     * .. versionadded:: 2.0.1~(Plugin)
+     * 
+     * @param int $moving_average_pressure
+     * @param int $average_pressure
+     * @param int $average_temperature
+     * 
+     * @return void
+     */
+    public function setAveraging($moving_average_pressure, $average_pressure, $average_temperature)
+    {
+        $payload = '';
+        $payload .= pack('C', $moving_average_pressure);
+        $payload .= pack('C', $average_pressure);
+        $payload .= pack('C', $average_temperature);
+
+        $this->sendRequest(self::FUNCTION_SET_AVERAGING, $payload);
+    }
+
+    /**
+     * Returns the averaging configuration as set by BrickletBarometer::setAveraging().
+     * 
+     * .. versionadded:: 2.0.1~(Plugin)
+     * 
+     * 
+     * @return array
+     */
+    public function getAveraging()
+    {
+        $result = array();
+
+        $payload = '';
+
+        $data = $this->sendRequest(self::FUNCTION_GET_AVERAGING, $payload);
+
+        $payload = unpack('C1moving_average_pressure/C1average_pressure/C1average_temperature', $data);
+
+        $result['moving_average_pressure'] = $payload['moving_average_pressure'];
+        $result['average_pressure'] = $payload['average_pressure'];
+        $result['average_temperature'] = $payload['average_temperature'];
+
+        return $result;
+    }
+
+    /**
+     * Returns the UID, the UID where the Bricklet is connected to, 
+     * the position, the hardware and firmware version as well as the
+     * device identifier.
+     * 
+     * The position can be 'a', 'b', 'c' or 'd'.
+     * 
+     * The device identifiers can be found :ref:`here <device_identifier>`.
+     * 
+     * .. versionadded:: 2.0.0~(Plugin)
+     * 
+     * 
+     * @return array
+     */
+    public function getIdentity()
+    {
+        $result = array();
+
+        $payload = '';
+
+        $data = $this->sendRequest(self::FUNCTION_GET_IDENTITY, $payload);
+
+        $payload = unpack('c8uid/c8connected_uid/c1position/C3hardware_version/C3firmware_version/v1device_identifier', $data);
+
+        $result['uid'] = IPConnection::implodeUnpackedString($payload, 'uid', 8);
+        $result['connected_uid'] = IPConnection::implodeUnpackedString($payload, 'connected_uid', 8);
+        $result['position'] = chr($payload['position']);
+        $result['hardware_version'] = IPConnection::collectUnpackedArray($payload, 'hardware_version', 3);
+        $result['firmware_version'] = IPConnection::collectUnpackedArray($payload, 'firmware_version', 3);
+        $result['device_identifier'] = $payload['device_identifier'];
+
+        return $result;
+    }
+
+    /**
      * Registers a callback with ID $id to the callable $callback.
      *
      * @param int $id
      * @param callable $callback
+     * @param mixed $userData
      *
      * @return void
      */
-    public function registerCallback($id, $callback)
+    public function registerCallback($id, $callback, $userData = NULL)
     {
         $this->registeredCallbacks[$id] = $callback;
+        $this->registeredCallbackUserData[$id] = $userData;
     }
 
     /**

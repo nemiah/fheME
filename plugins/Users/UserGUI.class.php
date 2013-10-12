@@ -41,33 +41,50 @@ class UserGUI extends User implements iGUIHTML2 {
 		</table>";
 		$this->A->password = ";;;-1;;;";
 		
-		$gui = new HTMLGUI();
-		$gui->setObject($this);
-		$gui->setName("Benutzer");
-		$gui->setLabel("username","Benutzername");
-		$gui->setLabel("password","Passwort");
-		$gui->setLabel("SHApassword","Passwort");
-		$gui->setLabel("language","Sprache");
-		$gui->setType("language","select");
-		$gui->setOptions("language",array("de_DE", "de_CH", "en_GB"),array("Deutsch (Deutschland)", "Deutsch (Schweiz)", "English (United Kingdom)"));
-		$gui->setFieldDescription("SHApassword","Zum Ändern eingeben.");
-		$gui->setType("password","hidden");
-		$gui->setType("SHApassword","password");
-		$gui->setLabel("isAdmin","Admin-Rechte?");
-		$gui->setType("isAdmin","radio");
-		$gui->setFieldDescription("isAdmin","<span style=\"color:red;\">Achtung: als Admin sehen Sie nur diese Admin-Oberfläche und NICHT das Programm selbst!</span>");
+		$gui = new HTMLGUIX($this);
+		#$gui->setObject();
+		$gui->name("Benutzer");
 		
-		$gui->setLabel("UserEmail","E-Mail");
-		$gui->setLabel("UserICQ","ICQ");
-		$gui->setLabel("UserJabber","Jabber");
-		$gui->setLabel("UserSkype","Skype");
-		$gui->setLabel("UserTel","Telefon");
+		$gui->attributes(array(
+			"name",
+			"username",
+			"password",
+			"SHApassword",
+			"language",
+			"UserPosition",
+			"isAdmin",
+			"UserEmail",
+			"UserICQ",
+			"UserJabber",
+			"UserSkype",
+			"UserTel"));
 		
-		$gui->translate($this->loadTranslation());
-		$gui->insertSpaceAbove("UserEmail",isset($this->texts["Kontaktdaten"]) ? $this->texts["Kontaktdaten"] : "Kontaktdaten");
-		$gui->setType("isAdmin","checkbox");
+		$gui->label("name","Name");
+		$gui->label("username","Benutzername");
+		$gui->label("password","Passwort");
+		$gui->label("SHApassword","Passwort");
+		$gui->label("language","Sprache");
+		$gui->label("isAdmin","Admin-Rechte?");
+		$gui->label("UserEmail","E-Mail");
+		$gui->label("UserICQ","ICQ");
+		$gui->label("UserJabber","Jabber");
+		$gui->label("UserSkype","Skype");
+		$gui->label("UserTel","Telefon");
+		
+		$gui->type("language","select", array("de_DE" => "Deutsch (Deutschland)", "de_CH" => "Deutsch (Schweiz)", "en_GB" => "English (United Kingdom)"));
+		#$gui->setOptions("language",);
+		$gui->descriptionField("SHApassword","Zum Ändern eingeben.");
+		$gui->type("password","hidden");
+		$gui->type("SHApassword","password");
+		$gui->type("isAdmin","radio");
+		$gui->descriptionField("isAdmin","<span style=\"color:red;\">Achtung: als Admin sehen Sie nur diese Admin-Oberfläche und NICHT das Programm selbst!</span>");
+		
+		
+		#$gui->translate($this->loadTranslation());
+		$gui->space("UserEmail",isset($this->texts["Kontaktdaten"]) ? $this->texts["Kontaktdaten"] : "Kontaktdaten");
+		$gui->type("isAdmin","checkbox");
 		#$gui->setOptions("isAdmin",array("1","0"),array("ja ","nein"));
-		$gui->setStandardSaveButton($this);
+		#$gui->setStandardSaveButton($this);
 		
 		$gui->customize($this->customizer);
 					

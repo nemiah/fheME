@@ -5,7 +5,7 @@ require_once(__DIR__.'/lib/BrickletAnalogOut.php');
 require_once(__DIR__.'/lib/BrickletIO4.php');
 
 declare(ticks = 1);
-pcntl_signal(SIGINT, "signal_handler");
+/*pcntl_signal(SIGINT, "signal_handler");
 pcntl_signal(SIGTERM, 'signal_handler');
 
 function signal_handler($signal) {
@@ -29,32 +29,32 @@ function signal_handler($signal) {
 			
 			exit();
 	}
-}
+}*/
 
 function cb_temp($temperature) {
-	global $BLight;
+	#global $BLight;
 
-	$shmid = shmop_open(1, "a", 0644, "1");
-	$onOff = shmop_read($shmid, 0, 1);
-	shmop_close($shmid);
+	#$shmid = shmop_open(1, "a", 0644, "1");
+	#$onOff = shmop_read($shmid, 0, 1);
+	#shmop_close($shmid);
 	
 	echo floor($temperature / 10.0)." °C\n";
-	if(floor($temperature) / 10 > 80)
-		$volt = 0;
-	else
-		$volt = 5000;
+	#if(floor($temperature) / 10 > 80)
+	#	$volt = 0;
+	#else
+	#	$volt = 5000;
 	
 	
-	$shmid = shmop_open(0xff3, "w", 0644, 4);
-	shmop_write($shmid, $volt, 0);
-	shmop_close($shmid);
+	#$shmid = shmop_open(0xff3, "w", 0644, 4);
+	#shmop_write($shmid, $volt, 0);
+	#shmop_close($shmid);
 	
-	if($onOff == "0")
-		$volt = 0;
+	#if($onOff == "0")
+	#	$volt = 0;
 	
-	$BLight->setVoltage($volt);
+	#$BLight->setVoltage($volt);
 }
-
+/*
 function cb_trigger($interruptMask, $valueMask) {
 	if(decbin($interruptMask) != 1)
 		return;
@@ -74,13 +74,35 @@ function cb_trigger($interruptMask, $valueMask) {
 	$shmid = shmop_open(1, "w", 0644, 1);
 	shmop_write($shmid, substr(decbin($valueMask), -1, 1), 0);
 	shmop_close($shmid);
-}
+}*/
 
 use Tinkerforge\IPConnection;
 use Tinkerforge\BrickletTemperatureIR;
-use Tinkerforge\BrickletAnalogOut;
-use Tinkerforge\BrickletIO4;
+#use Tinkerforge\BrickletAnalogOut;
+#use Tinkerforge\BrickletIO4;
 
+$host = '192.168.7.228';
+$port = 4223;
+$uid = '9nA';
+
+$ipcon = new IPConnection();
+$BTemp = new BrickletTemperatureIR($uid, $ipcon);
+
+$ipcon->connect($host, $port);
+
+#$BTemp->setDebouncePeriod(60000);
+
+$BTemp->setObjectTemperatureCallbackPeriod(60000);
+#$tir->setAmbientTemperatureCallbackPeriod(1000);
+
+$BTemp->registerCallback(BrickletTemperatureIR::CALLBACK_OBJECT_TEMPERATURE, 'cb_temp');
+#$BTemp->setObjectTemperatureCallbackThreshold('>', 30*10, 0);
+
+$ipcon->dispatchCallbacks(-1);
+
+$ipcon->disconnect();
+
+/*
 $pid = pcntl_fork();
 
 $shmid = shmop_open(0xff3, "c", 0644, 4);
@@ -137,5 +159,5 @@ switch($pid) {
 		$BTemp->setObjectTemperatureCallbackThreshold('>', 50*10, 0);
 
 		$CTemp->dispatchCallbacks(-1);
-}
+}*/
 ?>

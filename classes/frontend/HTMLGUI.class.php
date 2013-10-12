@@ -1827,7 +1827,7 @@ class HTMLGUI implements icontextMenu {
 				$s = explode(":", $key);
 				$z = Util::parseFloat("de_DE", $s[1]);
 				if($z == null) Red::alertD("Bitte geben Sie eine Zahl ein");
-				if($z > 50) $z = 50;
+				if($z > 100) $z = 100;
 				$mU = new mUserdata();
 				$mU->setUserdata("entriesPerPage$s[0]",floor($z));
 			break;

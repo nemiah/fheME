@@ -1,7 +1,9 @@
 <?php
 
 /* ***********************************************************
- * This file was automatically generated on 2012-10-01.      *
+ * This file was automatically generated on 2013-09-11.      *
+ *                                                           *
+ * Bindings Version 2.0.10                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -217,7 +219,22 @@ class BrickIMU extends Device
     /**
      * @internal
      */
-    const FUNCTION_RESET = 243;
+    const FUNCTION_ORIENTATION_CALCULATION_ON = 37;
+
+    /**
+     * @internal
+     */
+    const FUNCTION_ORIENTATION_CALCULATION_OFF = 38;
+
+    /**
+     * @internal
+     */
+    const FUNCTION_IS_ORIENTATION_CALCULATION_ON = 39;
+
+    /**
+     * @internal
+     */
+    const FUNCTION_GET_PROTOCOL1_BRICKLET_NAME = 241;
 
     /**
      * @internal
@@ -225,18 +242,79 @@ class BrickIMU extends Device
     const FUNCTION_GET_CHIP_TEMPERATURE = 242;
 
     /**
+     * @internal
+     */
+    const FUNCTION_RESET = 243;
+
+    /**
+     * @internal
+     */
+    const FUNCTION_GET_IDENTITY = 255;
+
+    const CALIBRATION_TYPE_ACCELEROMETER_GAIN = 0;
+    const CALIBRATION_TYPE_ACCELEROMETER_BIAS = 1;
+    const CALIBRATION_TYPE_MAGNETOMETER_GAIN = 2;
+    const CALIBRATION_TYPE_MAGNETOMETER_BIAS = 3;
+    const CALIBRATION_TYPE_GYROSCOPE_GAIN = 4;
+    const CALIBRATION_TYPE_GYROSCOPE_BIAS = 5;
+
+    const DEVICE_IDENTIFIER = 16;
+
+    /**
      * Creates an object with the unique device ID $uid. This object can
      * then be added to the IP connection.
      *
      * @param string $uid
      */
-    public function __construct($uid)
+    public function __construct($uid, $ipcon)
     {
-        parent::__construct($uid);
+        parent::__construct($uid, $ipcon);
 
-        $this->expectedName = 'IMU Brick';
+        $this->apiVersion = array(2, 0, 1);
 
-        $this->bindingVersion = array(1, 0, 1);
+        $this->responseExpected[self::FUNCTION_GET_ACCELERATION] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_GET_MAGNETIC_FIELD] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_GET_ANGULAR_VELOCITY] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_GET_ALL_DATA] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_GET_ORIENTATION] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_GET_QUATERNION] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_GET_IMU_TEMPERATURE] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_LEDS_ON] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_LEDS_OFF] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_ARE_LEDS_ON] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_SET_ACCELERATION_RANGE] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_GET_ACCELERATION_RANGE] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_SET_MAGNETOMETER_RANGE] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_GET_MAGNETOMETER_RANGE] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_SET_CONVERGENCE_SPEED] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_GET_CONVERGENCE_SPEED] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_SET_CALIBRATION] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_GET_CALIBRATION] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_SET_ACCELERATION_PERIOD] = self::RESPONSE_EXPECTED_TRUE;
+        $this->responseExpected[self::FUNCTION_GET_ACCELERATION_PERIOD] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_SET_MAGNETIC_FIELD_PERIOD] = self::RESPONSE_EXPECTED_TRUE;
+        $this->responseExpected[self::FUNCTION_GET_MAGNETIC_FIELD_PERIOD] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_SET_ANGULAR_VELOCITY_PERIOD] = self::RESPONSE_EXPECTED_TRUE;
+        $this->responseExpected[self::FUNCTION_GET_ANGULAR_VELOCITY_PERIOD] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_SET_ALL_DATA_PERIOD] = self::RESPONSE_EXPECTED_TRUE;
+        $this->responseExpected[self::FUNCTION_GET_ALL_DATA_PERIOD] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_SET_ORIENTATION_PERIOD] = self::RESPONSE_EXPECTED_TRUE;
+        $this->responseExpected[self::FUNCTION_GET_ORIENTATION_PERIOD] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_SET_QUATERNION_PERIOD] = self::RESPONSE_EXPECTED_TRUE;
+        $this->responseExpected[self::FUNCTION_GET_QUATERNION_PERIOD] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::CALLBACK_ACCELERATION] = self::RESPONSE_EXPECTED_ALWAYS_FALSE;
+        $this->responseExpected[self::CALLBACK_MAGNETIC_FIELD] = self::RESPONSE_EXPECTED_ALWAYS_FALSE;
+        $this->responseExpected[self::CALLBACK_ANGULAR_VELOCITY] = self::RESPONSE_EXPECTED_ALWAYS_FALSE;
+        $this->responseExpected[self::CALLBACK_ALL_DATA] = self::RESPONSE_EXPECTED_ALWAYS_FALSE;
+        $this->responseExpected[self::CALLBACK_ORIENTATION] = self::RESPONSE_EXPECTED_ALWAYS_FALSE;
+        $this->responseExpected[self::CALLBACK_QUATERNION] = self::RESPONSE_EXPECTED_ALWAYS_FALSE;
+        $this->responseExpected[self::FUNCTION_ORIENTATION_CALCULATION_ON] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_ORIENTATION_CALCULATION_OFF] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_IS_ORIENTATION_CALCULATION_ON] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_GET_PROTOCOL1_BRICKLET_NAME] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_GET_CHIP_TEMPERATURE] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_RESET] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_GET_IDENTITY] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
 
         $this->callbackWrappers[self::CALLBACK_ACCELERATION] = 'callbackWrapperAcceleration';
         $this->callbackWrappers[self::CALLBACK_MAGNETIC_FIELD] = 'callbackWrapperMagneticField';
@@ -273,7 +351,7 @@ class BrickIMU extends Device
 
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_ACCELERATION, $payload, 6);
+        $data = $this->sendRequest(self::FUNCTION_GET_ACCELERATION, $payload);
 
         $payload = unpack('v1x/v1y/v1z', $data);
 
@@ -301,7 +379,7 @@ class BrickIMU extends Device
 
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_MAGNETIC_FIELD, $payload, 6);
+        $data = $this->sendRequest(self::FUNCTION_GET_MAGNETIC_FIELD, $payload);
 
         $payload = unpack('v1x/v1y/v1z', $data);
 
@@ -330,7 +408,7 @@ class BrickIMU extends Device
 
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_ANGULAR_VELOCITY, $payload, 6);
+        $data = $this->sendRequest(self::FUNCTION_GET_ANGULAR_VELOCITY, $payload);
 
         $payload = unpack('v1x/v1y/v1z', $data);
 
@@ -360,7 +438,7 @@ class BrickIMU extends Device
 
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_ALL_DATA, $payload, 20);
+        $data = $this->sendRequest(self::FUNCTION_GET_ALL_DATA, $payload);
 
         $payload = unpack('v1acc_x/v1acc_y/v1acc_z/v1mag_x/v1mag_y/v1mag_z/v1ang_x/v1ang_y/v1ang_z/v1temperature', $data);
 
@@ -401,7 +479,7 @@ class BrickIMU extends Device
 
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_ORIENTATION, $payload, 6);
+        $data = $this->sendRequest(self::FUNCTION_GET_ORIENTATION, $payload);
 
         $payload = unpack('v1roll/v1pitch/v1yaw', $data);
 
@@ -446,7 +524,7 @@ class BrickIMU extends Device
 
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_QUATERNION, $payload, 16);
+        $data = $this->sendRequest(self::FUNCTION_GET_QUATERNION, $payload);
 
         $payload = unpack('f1x/f1y/f1z/f1w', $data);
 
@@ -469,7 +547,7 @@ class BrickIMU extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_IMU_TEMPERATURE, $payload, 2);
+        $data = $this->sendRequest(self::FUNCTION_GET_IMU_TEMPERATURE, $payload);
 
         $payload = unpack('v1temperature', $data);
 
@@ -486,7 +564,7 @@ class BrickIMU extends Device
     {
         $payload = '';
 
-        $this->sendRequestNoResponse(self::FUNCTION_LEDS_ON, $payload);
+        $this->sendRequest(self::FUNCTION_LEDS_ON, $payload);
     }
 
     /**
@@ -499,7 +577,7 @@ class BrickIMU extends Device
     {
         $payload = '';
 
-        $this->sendRequestNoResponse(self::FUNCTION_LEDS_OFF, $payload);
+        $this->sendRequest(self::FUNCTION_LEDS_OFF, $payload);
     }
 
     /**
@@ -513,7 +591,7 @@ class BrickIMU extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_ARE_LEDS_ON, $payload, 1);
+        $data = $this->sendRequest(self::FUNCTION_ARE_LEDS_ON, $payload);
 
         $payload = unpack('C1leds', $data);
 
@@ -532,7 +610,7 @@ class BrickIMU extends Device
         $payload = '';
         $payload .= pack('C', $range);
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_ACCELERATION_RANGE, $payload);
+        $this->sendRequest(self::FUNCTION_SET_ACCELERATION_RANGE, $payload);
     }
 
     /**
@@ -545,7 +623,7 @@ class BrickIMU extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_ACCELERATION_RANGE, $payload, 1);
+        $data = $this->sendRequest(self::FUNCTION_GET_ACCELERATION_RANGE, $payload);
 
         $payload = unpack('C1range', $data);
 
@@ -564,7 +642,7 @@ class BrickIMU extends Device
         $payload = '';
         $payload .= pack('C', $range);
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_MAGNETOMETER_RANGE, $payload);
+        $this->sendRequest(self::FUNCTION_SET_MAGNETOMETER_RANGE, $payload);
     }
 
     /**
@@ -577,7 +655,7 @@ class BrickIMU extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_MAGNETOMETER_RANGE, $payload, 1);
+        $data = $this->sendRequest(self::FUNCTION_GET_MAGNETOMETER_RANGE, $payload);
 
         $payload = unpack('C1range', $data);
 
@@ -622,7 +700,7 @@ class BrickIMU extends Device
         $payload = '';
         $payload .= pack('v', $speed);
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_CONVERGENCE_SPEED, $payload);
+        $this->sendRequest(self::FUNCTION_SET_CONVERGENCE_SPEED, $payload);
     }
 
     /**
@@ -635,7 +713,7 @@ class BrickIMU extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_CONVERGENCE_SPEED, $payload, 2);
+        $data = $this->sendRequest(self::FUNCTION_GET_CONVERGENCE_SPEED, $payload);
 
         $payload = unpack('v1speed', $data);
 
@@ -646,14 +724,14 @@ class BrickIMU extends Device
      * There are several different types that can be calibrated:
      * 
      * <code>
-     *  "Type", "Description",        "Values"
+     *  "Type", "Description", "Values"
      * 
-     *  "0",    "Accelerometer Gain", "[mul x, mul y, mul z, div x, div y, div z, 0, 0, 0, 0]"
-     *  "1",    "Accelerometer Bias", "[bias x, bias y, bias z, 0, 0, 0, 0, 0, 0, 0]"
-     *  "2",    "Magnetometer Gain",  "[mul x, mul y, mul z, div x, div y, div z, 0, 0, 0, 0]"
-     *  "3",    "Magnetometer Bias",  "[bias x, bias y, bias z, 0, 0, 0, 0, 0, 0, 0]"
-     *  "4",    "Gyroscope Gain",     "[mul x, mul y, mul z, div x, div y, div z, 0, 0, 0, 0]"
-     *  "5",    "Gyroscope Bias",     "[bias xl, bias yl, bias zl, temp l, bias xh, bias yh, bias zh, temp h, 0, 0]"
+     *  "0",    "Accelerometer Gain", "``[mul x, mul y, mul z, div x, div y, div z, 0, 0, 0, 0]``"
+     *  "1",    "Accelerometer Bias", "``[bias x, bias y, bias z, 0, 0, 0, 0, 0, 0, 0]``"
+     *  "2",    "Magnetometer Gain",  "``[mul x, mul y, mul z, div x, div y, div z, 0, 0, 0, 0]``"
+     *  "3",    "Magnetometer Bias",  "``[bias x, bias y, bias z, 0, 0, 0, 0, 0, 0, 0]``"
+     *  "4",    "Gyroscope Gain",     "``[mul x, mul y, mul z, div x, div y, div z, 0, 0, 0, 0]``"
+     *  "5",    "Gyroscope Bias",     "``[bias xl, bias yl, bias zl, temp l, bias xh, bias yh, bias zh, temp h, 0, 0]``"
      * </code>
      * 
      * The calibration via gain and bias is done with the following formula::
@@ -666,12 +744,13 @@ class BrickIMU extends Device
      * to obtain a usable result in the end.
      * 
      * The gyroscope bias is highly dependent on the temperature, so you have to
-     * calibrate the bias two times with different temperatures. The values xl, yl, zl 
-     * and temp l are the bias for x, y, z and the corresponding temperature for a 
-     * low temperature. The values xh, yh, zh and temp h are the same for a high 
-     * temperatures. The temperature difference should be at least 5°C. If you have 
-     * a temperature where the IMU Brick is mostly used, you should use this 
-     * temperature for one of the sampling points.
+     * calibrate the bias two times with different temperatures. The values ``xl``,
+     * ``yl``, ``zl `` and ``temp l`` are the bias for ``x``, ``y``, ``z`` and the
+     * corresponding temperature for a low temperature. The values ``xh``, ``yh``,
+     * ``zh`` and ``temp h`` are the same for a high temperatures. The temperature
+     * difference should be at least 5°C. If you have a temperature where the
+     * IMU Brick is mostly used, you should use this temperature for one of the
+     * sampling points.
      * 
      * <note>
      *  We highly recommend that you use the Brick Viewer to calibrate your
@@ -691,7 +770,7 @@ class BrickIMU extends Device
             $payload .= pack('v', $data[$i]);
         }
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_CALIBRATION, $payload);
+        $this->sendRequest(self::FUNCTION_SET_CALIBRATION, $payload);
     }
 
     /**
@@ -706,7 +785,7 @@ class BrickIMU extends Device
         $payload = '';
         $payload .= pack('C', $typ);
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_CALIBRATION, $payload, 20);
+        $data = $this->sendRequest(self::FUNCTION_GET_CALIBRATION, $payload);
 
         $payload = unpack('v10data', $data);
 
@@ -728,7 +807,7 @@ class BrickIMU extends Device
         $payload = '';
         $payload .= pack('V', $period);
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_ACCELERATION_PERIOD, $payload);
+        $this->sendRequest(self::FUNCTION_SET_ACCELERATION_PERIOD, $payload);
     }
 
     /**
@@ -741,7 +820,7 @@ class BrickIMU extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_ACCELERATION_PERIOD, $payload, 4);
+        $data = $this->sendRequest(self::FUNCTION_GET_ACCELERATION_PERIOD, $payload);
 
         $payload = unpack('V1period', $data);
 
@@ -761,7 +840,7 @@ class BrickIMU extends Device
         $payload = '';
         $payload .= pack('V', $period);
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_MAGNETIC_FIELD_PERIOD, $payload);
+        $this->sendRequest(self::FUNCTION_SET_MAGNETIC_FIELD_PERIOD, $payload);
     }
 
     /**
@@ -774,7 +853,7 @@ class BrickIMU extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_MAGNETIC_FIELD_PERIOD, $payload, 4);
+        $data = $this->sendRequest(self::FUNCTION_GET_MAGNETIC_FIELD_PERIOD, $payload);
 
         $payload = unpack('V1period', $data);
 
@@ -794,7 +873,7 @@ class BrickIMU extends Device
         $payload = '';
         $payload .= pack('V', $period);
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_ANGULAR_VELOCITY_PERIOD, $payload);
+        $this->sendRequest(self::FUNCTION_SET_ANGULAR_VELOCITY_PERIOD, $payload);
     }
 
     /**
@@ -807,7 +886,7 @@ class BrickIMU extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_ANGULAR_VELOCITY_PERIOD, $payload, 4);
+        $data = $this->sendRequest(self::FUNCTION_GET_ANGULAR_VELOCITY_PERIOD, $payload);
 
         $payload = unpack('V1period', $data);
 
@@ -827,7 +906,7 @@ class BrickIMU extends Device
         $payload = '';
         $payload .= pack('V', $period);
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_ALL_DATA_PERIOD, $payload);
+        $this->sendRequest(self::FUNCTION_SET_ALL_DATA_PERIOD, $payload);
     }
 
     /**
@@ -840,7 +919,7 @@ class BrickIMU extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_ALL_DATA_PERIOD, $payload, 4);
+        $data = $this->sendRequest(self::FUNCTION_GET_ALL_DATA_PERIOD, $payload);
 
         $payload = unpack('V1period', $data);
 
@@ -860,7 +939,7 @@ class BrickIMU extends Device
         $payload = '';
         $payload .= pack('V', $period);
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_ORIENTATION_PERIOD, $payload);
+        $this->sendRequest(self::FUNCTION_SET_ORIENTATION_PERIOD, $payload);
     }
 
     /**
@@ -873,7 +952,7 @@ class BrickIMU extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_ORIENTATION_PERIOD, $payload, 4);
+        $data = $this->sendRequest(self::FUNCTION_GET_ORIENTATION_PERIOD, $payload);
 
         $payload = unpack('V1period', $data);
 
@@ -893,7 +972,7 @@ class BrickIMU extends Device
         $payload = '';
         $payload .= pack('V', $period);
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_QUATERNION_PERIOD, $payload);
+        $this->sendRequest(self::FUNCTION_SET_QUATERNION_PERIOD, $payload);
     }
 
     /**
@@ -906,7 +985,7 @@ class BrickIMU extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_QUATERNION_PERIOD, $payload, 4);
+        $data = $this->sendRequest(self::FUNCTION_GET_QUATERNION_PERIOD, $payload);
 
         $payload = unpack('V1period', $data);
 
@@ -914,21 +993,96 @@ class BrickIMU extends Device
     }
 
     /**
-     * Calling this function will reset the Brick. Calling this function
-     * on a Brick inside of a stack will reset the whole stack.
+     * Turns the orientation calculation of the IMU Brick on.
      * 
-     * After a reset you have to create new device objects,
-     * calling functions on the existing ones will result in
-     * undefined behavior!
+     * As default the calculation is on.
+     * 
+     * .. versionadded:: 2.0.2~(Firmware)
      * 
      * 
      * @return void
      */
-    public function reset()
+    public function orientationCalculationOn()
     {
         $payload = '';
 
-        $this->sendRequestNoResponse(self::FUNCTION_RESET, $payload);
+        $this->sendRequest(self::FUNCTION_ORIENTATION_CALCULATION_ON, $payload);
+    }
+
+    /**
+     * Turns the orientation calculation of the IMU Brick off.
+     * 
+     * If the calculation is off, BrickIMU::getOrientation() will return
+     * the last calculated value until the calculation is turned on again.
+     * 
+     * The trigonometric functions that are needed to calculate the orientation 
+     * are very expensive. We recommend to turn the orientation calculation
+     * off if the orientation is not needed, to free calculation time for the
+     * sensor fusion algorithm.
+     * 
+     * As default the calculation is on.
+     * 
+     * .. versionadded:: 2.0.2~(Firmware)
+     * 
+     * 
+     * @return void
+     */
+    public function orientationCalculationOff()
+    {
+        $payload = '';
+
+        $this->sendRequest(self::FUNCTION_ORIENTATION_CALCULATION_OFF, $payload);
+    }
+
+    /**
+     * Returns *true* if the orientation calculation of the IMU Brick
+     * is on, *false* otherwise.
+     * 
+     * .. versionadded:: 2.0.2~(Firmware)
+     * 
+     * 
+     * @return bool
+     */
+    public function isOrientationCalculationOn()
+    {
+        $payload = '';
+
+        $data = $this->sendRequest(self::FUNCTION_IS_ORIENTATION_CALCULATION_ON, $payload);
+
+        $payload = unpack('C1orientation_calculation_on', $data);
+
+        return (bool)$payload['orientation_calculation_on'];
+    }
+
+    /**
+     * Returns the firmware and protocol version and the name of the Bricklet for a
+     * given port.
+     * 
+     * This functions sole purpose is to allow automatic flashing of v1.x.y Bricklet
+     * plugins.
+     * 
+     * .. versionadded:: 2.0.0~(Firmware)
+     * 
+     * @param string $port
+     * 
+     * @return array
+     */
+    public function getProtocol1BrickletName($port)
+    {
+        $result = array();
+
+        $payload = '';
+        $payload .= pack('c', ord($port));
+
+        $data = $this->sendRequest(self::FUNCTION_GET_PROTOCOL1_BRICKLET_NAME, $payload);
+
+        $payload = unpack('C1protocol_version/C3firmware_version/c40name', $data);
+
+        $result['protocol_version'] = $payload['protocol_version'];
+        $result['firmware_version'] = IPConnection::collectUnpackedArray($payload, 'firmware_version', 3);
+        $result['name'] = IPConnection::implodeUnpackedString($payload, 'name', 40);
+
+        return $result;
     }
 
     /**
@@ -939,6 +1093,8 @@ class BrickIMU extends Device
      * accuracy of +-15%. Practically it is only useful as an indicator for
      * temperature changes.
      * 
+     * .. versionadded:: 1.0.7~(Firmware)
+     * 
      * 
      * @return int
      */
@@ -946,7 +1102,7 @@ class BrickIMU extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_CHIP_TEMPERATURE, $payload, 2);
+        $data = $this->sendRequest(self::FUNCTION_GET_CHIP_TEMPERATURE, $payload);
 
         $payload = unpack('v1temperature', $data);
 
@@ -954,16 +1110,72 @@ class BrickIMU extends Device
     }
 
     /**
+     * Calling this function will reset the Brick. Calling this function
+     * on a Brick inside of a stack will reset the whole stack.
+     * 
+     * After a reset you have to create new device objects,
+     * calling functions on the existing ones will result in
+     * undefined behavior!
+     * 
+     * .. versionadded:: 1.0.7~(Firmware)
+     * 
+     * 
+     * @return void
+     */
+    public function reset()
+    {
+        $payload = '';
+
+        $this->sendRequest(self::FUNCTION_RESET, $payload);
+    }
+
+    /**
+     * Returns the UID, the UID where the Brick is connected to, 
+     * the position, the hardware and firmware version as well as the
+     * device identifier.
+     * 
+     * The position can be '0'-'8' (stack position).
+     * 
+     * The device identifiers can be found :ref:`here <device_identifier>`.
+     * 
+     * .. versionadded:: 2.0.0~(Firmware)
+     * 
+     * 
+     * @return array
+     */
+    public function getIdentity()
+    {
+        $result = array();
+
+        $payload = '';
+
+        $data = $this->sendRequest(self::FUNCTION_GET_IDENTITY, $payload);
+
+        $payload = unpack('c8uid/c8connected_uid/c1position/C3hardware_version/C3firmware_version/v1device_identifier', $data);
+
+        $result['uid'] = IPConnection::implodeUnpackedString($payload, 'uid', 8);
+        $result['connected_uid'] = IPConnection::implodeUnpackedString($payload, 'connected_uid', 8);
+        $result['position'] = chr($payload['position']);
+        $result['hardware_version'] = IPConnection::collectUnpackedArray($payload, 'hardware_version', 3);
+        $result['firmware_version'] = IPConnection::collectUnpackedArray($payload, 'firmware_version', 3);
+        $result['device_identifier'] = $payload['device_identifier'];
+
+        return $result;
+    }
+
+    /**
      * Registers a callback with ID $id to the callable $callback.
      *
      * @param int $id
      * @param callable $callback
+     * @param mixed $userData
      *
      * @return void
      */
-    public function registerCallback($id, $callback)
+    public function registerCallback($id, $callback, $userData = NULL)
     {
         $this->registeredCallbacks[$id] = $callback;
+        $this->registeredCallbackUserData[$id] = $userData;
     }
 
     /**

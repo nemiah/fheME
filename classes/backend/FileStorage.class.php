@@ -87,6 +87,10 @@ class FileStorage {
 	}
 	
 	public static function getFilesDir(){
+		$path = realpath(Util::getRootPath()."specifics")."/";
+		
+		if(!file_exists($path.".htaccess") AND is_writable($path))
+			file_put_contents($path.".htaccess", "deny from all");
 		
 		$CH = Util::getCloudHost();
 		if($CH != null){
@@ -102,7 +106,7 @@ class FileStorage {
 			return $dir;
 		}
 		
-		return realpath(Util::getRootPath()."specifics")."/";
+		return $path;
 	}
 	
 	function loadMultipleV4(SelectStatement $statement){
@@ -159,6 +163,9 @@ class FileStorage {
 				continue;
 
 			if(strpos(basename($file), "Customizer") === 0 AND strpos(basename($file), ".class.php") !== false)
+				continue;
+
+			if(strpos(basename($file), ".lock") !== false)
 				continue;
 
 			if(is_dir($dir.$file)) $dirs[] = $dir.$file;
@@ -231,7 +238,7 @@ class FileStorage {
 		if($A->FileIsDir == "1")
 			mkdir($file);
 		else {
-			if(file_exists($file)) return;
+			#if(file_exists($file)) return;
 			
 			$h = fopen($file, "w+");
 			fwrite($h, stripslashes($A->FileContent));

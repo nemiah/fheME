@@ -37,7 +37,7 @@ class mGerichtGUI extends anyC implements iGUIHTMLMP2 {
 			<div style=\"padding:10px;height:100px;overflow:auto;\">";
 
 		
-		$BU = new Button("", "./fheME/Gericht/update.png", "icon");
+		/*$BU = new Button("", "./fheME/Gericht/update.png", "icon");
 		$BU->style("float:right;");
 		$BU->onclick("fheOverview.loadContent('mGerichtGUI::getOverviewContent');");
 		
@@ -59,14 +59,128 @@ class mGerichtGUI extends anyC implements iGUIHTMLMP2 {
 				$html .= "<br /><small style=\"color:grey;\">Buch: ".$G->A("GerichtRezeptBuch")."<br />";
 				$html .= "Seite: ".$G->A("GerichtRezeptBuchSeite")."</small>";
 			}
-		}
+		}*/
 		
-		$html .= "</div>";
+		$B = new Button("Liste anzeigen", "compass", "touch");
+		$B->popup("", "Essen", "mGericht", "-1", "showCurrentList", "", "", "{top:20, width:800, hPosition:'center', blackout:true}");
+		
+		$html .= "$B</div>";
 		echo $html;
 	}
 	
+	public function reAddItem($GerichtID){
+		$E = new Gericht($GerichtID);
+		
+		$E->changeA("GerichtAdded", time());
+		$E->saveMe();
+		
+		#echo $this->getListTable();
+	}
+	
+	public function reMoveItem($GerichtID){
+		$E = new Gericht($GerichtID);
+		
+		$E->changeA("GerichtAdded", "0");
+		$E->saveMe();
+		
+		#echo $this->getListTable();
+	}
+	
+	public function showCurrentList(){
+		
+		$B = new Button("Fenster\nschließen", "stop");
+		$B->onclick(OnEvent::closePopup("mGericht"));
+		$B->style("float:right;margin:10px;");
+		
+		
+		echo "
+		<div style=\"width:400px;float:right;\">
+			$B
+			<div style=\"clear:both;\"></div>
+			<div id=\"currentList\">".$this->getListTable()."</div>
+		</div>
+		<div style=\"width:400px;\" id=\"reAddList\">
+			".$this->getListReAddTable()."
+		</div>
+		<div style=\"clear:both;\"></div>
+			";
+	}
+	
+	private function getListReAddTable(){
+		$AC = anyC::get("Gericht");
+		$AC->addAssocV3("GerichtAdded", "=", "0");
+		$AC->addOrderV3("GerichtName");
+		
+		$L = new HTMLList();
+		$L->noDots();
+		$L->addListStyle("padding-top:10px;width:380px;");
+		
+		while($B = $AC->getNextEntry()){
+			$L->addItem($B->A("GerichtName"));
+			$L->addItemStyle("font-size:20px;padding-top:10px;padding-bottom:10px;margin-top:0px;");
+			$L->addItemClass("swipe");
+			$L->addItemData("itemid", $B->getID());
+		}
+		
+		return $L.OnEvent::script("
+			\$j('#reAddList ul').parent().css('height', contentManager.maxHeight()).css('overflow', 'auto');
+			\$j('.swipe').hammer().on('touch release dragright', function(event){
+				if(event.type == 'touch'){
+					\$j(this).addClass('highlight');
+					return;
+				}
+				
+				if(event.type == 'release'){
+					if(event.gesture.deltaX > 150)
+						".OnEvent::rme($this, "reAddItem", array("\$j(this).data('itemid')"))."
+					
+					\$j(this).removeClass('highlight');
+					\$j(this).animate({'margin-left': 15});
+					return;
+				}
+				
+				if(event.type == 'dragright'){
+					var margin = event.gesture.deltaX;
+					if(margin > 250)
+						margin = 250;
+						
+					\$j(this).css('margin-left', margin);
+				}
+			});
+					
+				");
+	}
+	
+	public function getListTable(){
+		$T = new HTMLTable(2, "Gerichte");
+		$T->maxHeight(480);
+		$T->setColWidth(2, 30);
+		$T->weight("light");
+		$T->useForSelection(false);
+		
+		$AC = anyC::get("Gericht");
+		$AC->addAssocV3("GerichtAdded", ">", "0");
+		
+		while($E = $AC->getNextEntry()){
+			$BT = new Button("Löschen", "trash_stroke", "iconicL");
+			$BT->onclick(OnEvent::rme($this, "reMoveItem", $E->getID(), OnEvent::reloadPopup("mGericht")));
+			
+			$T->addRow(array($E->A("GerichtName"), $BT));
+			$T->addRowStyle("font-size:20px;");
+			#$T->addCellEvent(1, "click", OnEvent::rme($this, "boughtItem", $E->getID(), "function(transport){ \$j('#currentList').html(transport.responseText); }"));
+			
+		}
+		
+		if($AC->numLoaded() == 0){
+			$T->addRow (array("Die Liste enthält keine Einträge."));
+			$T->addRowColspan(1, 2);
+		}
+		
+		return $T;
+	}
+	
 	public static function getOverviewPlugin(){
-		return new overviewPlugin("mGerichtGUI", "Essen", 100);
+		return new overviewPlugin("mGerichtGUI", "Essen", 0);
 	}
 }
 ?>

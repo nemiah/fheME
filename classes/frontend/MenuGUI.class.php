@@ -53,6 +53,8 @@ class MenuGUI extends UnpersistentClass implements iGUIHTML2, icontextMenu {
 		if($aspectAppMenuActive !== null) $appMenuActive = $aspectAppMenuActive;
 		// </editor-fold>
 
+		$appIco = Environment::getS("ApplicationIcon:".Applications::activeApplication(), $appIco);
+		
 		if($appIco != "") {
 			if(count($_SESSION["applications"]->getApplicationsList()) > 1 AND !$_SESSION["S"]->isAltUser())
 				echo "<img src=\"$appIco\" style=\"margin-left:10px;float:left;\" alt=\"Abmelden/Anwendung wechseln\" title=\"Abmelden/Anwendung wechseln\" onclick=\"".Environment::getS("onLogout", "phynxContextMenu.start(this, 'Menu','1','Anwendung wechseln:','right');")."\" />";

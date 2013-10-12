@@ -87,6 +87,7 @@ class LoginDataGUI extends LoginData implements iGUIHTML2 {
 		#$gui->setStandardSaveButton($this,"mLoginData");
 
 		$gui->displayMode("popup");
+		$gui->label("server", "Server");
 
 		$html = "";
 		$html2 = "";
@@ -190,6 +191,22 @@ class LoginDataGUI extends LoginData implements iGUIHTML2 {
 			$gui->type("optionen", "hidden");
 			$gui->type("server", "hidden");
 		}
+
+		if($bps != -1 AND isset($bps["preset"]) AND $bps["preset"] == "AnySMSUserPass"){
+
+			$html = "";
+			
+			$gui->type("UserID", "hidden");
+			$this->changeA("UserID", "-1");
+
+			$gui->type("name", "hidden");
+			$this->changeA("name", "AnySMSUserPass");
+			#$gui->type("optionen", "hidden");
+			#$gui->type("server", "hidden");
+			$gui->label("server", "Gateway");
+			$gui->label("optionen", "Absender");
+			$gui->descriptionField("optionen", "Dies ist vom gewählten Gateway abhängig.");
+		}
 		
 		if($bps != -1 AND isset($bps["preset"]) AND $bps["preset"] == "klickTelAPIKey"){
 
@@ -207,7 +224,6 @@ class LoginDataGUI extends LoginData implements iGUIHTML2 {
 
 		#$gui->label("benutzername", "Benutzername");
 		$gui->label("passwort", "Passwort");
-		$gui->label("server", "Server");
 		
 		$gui->addToEvent("onSave", $onSave);
 		

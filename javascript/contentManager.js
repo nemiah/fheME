@@ -85,7 +85,12 @@ var contentManager = {
 		$j('div#body'+tableID).css('height', height);
 		
 		$j($targetHeaderTable).closest('.browserContainer').css("position", "fixed");
-		$j('#contentRight').append("<div style=\"height:"+contentManager.maxHeight()+"px\"></div>");
+		
+		if($j('#contentRight').find("#"+tableID).length)
+			$j('#contentRight').append("<div style=\"height:"+contentManager.maxHeight()+"px\"></div>");
+		
+		if($j('#contentLeft').find("#"+tableID).length)
+			$j('#contentLeft').append("<div style=\"height:"+contentManager.maxHeight()+"px\"></div>");
 	},
 	
 	init: function(){
@@ -232,7 +237,9 @@ var contentManager = {
 				contentManager.emptyFrame('contentLeft');
 				if(targetFrame != "contentRight")
 					contentManager.emptyFrame('contentRight');
-				contentManager.emptyFrame('contentScreen');
+				
+				if(targetFrame != "contentScreen")
+					contentManager.emptyFrame('contentScreen');
 				contentManager.emptyFrame('contentBelow');
 			}
 		});
@@ -673,13 +680,21 @@ var contentManager = {
 			formID = "#"+formID+" ";
 
 		if(mode == "hide")
-			for (var f = 0; f < fields.length; f++) 
-				$j(formID+'select[name='+fields[f]+'],'+formID+'input[name='+fields[f]+'],'+formID+'textarea[name='+fields[f]+']').parent().parent().css("display", "none");
+			for (var f = 0; f < fields.length; f++) {
+				var fieldS = $j(formID+'select[name='+fields[f]+'],'+formID+'input[name='+fields[f]+'],'+formID+'textarea[name='+fields[f]+']').parent().parent();
+				fieldS.css("display", "none");
+				if(fieldS.prev().hasClass("FormSeparatorWithLabel"))
+					fieldS.prev().css("display", "none");
+			}
 
 		if(mode == "show")
-			for (var f = 0; f < fields.length; f++) 
-				$j(formID+'select[name='+fields[f]+'],'+formID+'input[name='+fields[f]+'],'+formID+'textarea[name='+fields[f]+']').parent().parent().css("display", "");
-
+			for (var f = 0; f < fields.length; f++) {
+				var fieldS = $j(formID+'select[name='+fields[f]+'],'+formID+'input[name='+fields[f]+'],'+formID+'textarea[name='+fields[f]+']').parent().parent();
+				fieldS.css("display", "");
+				
+				if(fieldS.prev().hasClass("FormSeparatorWithLabel"))
+					fieldS.prev().css("display", "");
+			}
 	},
 	
 	toggleFormFieldsTest: function(test, showOnTrue, showOnFalse, formID, showOnly){

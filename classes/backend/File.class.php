@@ -120,7 +120,7 @@ class File extends PersistentObject {
 			$A->FileDir = preg_replace("/^([A-Z])%/", "\\1:", $_GET["path"]);
 			$A->FileSize = $_FILES['qqfile']['size'];
 		}
-
+		
 		echo "{\"success\":true}";
 	}
 

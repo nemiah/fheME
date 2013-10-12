@@ -1,7 +1,9 @@
 <?php
 
 /* ***********************************************************
- * This file was automatically generated on 2012-10-01.      *
+ * This file was automatically generated on 2013-09-11.      *
+ *                                                           *
+ * Bindings Version 2.0.10                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -29,6 +31,8 @@ class BrickServo extends Device
      * This callback is triggered when a position set by BrickServo::setPosition()
      * is reached. The parameters are the servo and the position that is reached.
      * 
+     * You can enable this callback with BrickServo::enablePositionReachedCallback().
+     * 
      * <note>
      *  Since we can't get any feedback from the servo, this only works if the
      *  velocity (see BrickServo::setVelocity()) is set smaller or equal to the
@@ -41,6 +45,8 @@ class BrickServo extends Device
     /**
      * This callback is triggered when a velocity set by BrickServo::setVelocity()
      * is reached. The parameters are the servo and the velocity that is reached.
+     * 
+     * You can enable this callback with BrickServo::enableVelocityReachedCallback().
      * 
      * <note>
      *  Since we can't get any feedback from the servo, this only works if the
@@ -180,7 +186,37 @@ class BrickServo extends Device
     /**
      * @internal
      */
-    const FUNCTION_RESET = 243;
+    const FUNCTION_ENABLE_POSITION_REACHED_CALLBACK = 29;
+
+    /**
+     * @internal
+     */
+    const FUNCTION_DISABLE_POSITION_REACHED_CALLBACK = 30;
+
+    /**
+     * @internal
+     */
+    const FUNCTION_IS_POSITION_REACHED_CALLBACK_ENABLED = 31;
+
+    /**
+     * @internal
+     */
+    const FUNCTION_ENABLE_VELOCITY_REACHED_CALLBACK = 32;
+
+    /**
+     * @internal
+     */
+    const FUNCTION_DISABLE_VELOCITY_REACHED_CALLBACK = 33;
+
+    /**
+     * @internal
+     */
+    const FUNCTION_IS_VELOCITY_REACHED_CALLBACK_ENABLED = 34;
+
+    /**
+     * @internal
+     */
+    const FUNCTION_GET_PROTOCOL1_BRICKLET_NAME = 241;
 
     /**
      * @internal
@@ -188,18 +224,68 @@ class BrickServo extends Device
     const FUNCTION_GET_CHIP_TEMPERATURE = 242;
 
     /**
+     * @internal
+     */
+    const FUNCTION_RESET = 243;
+
+    /**
+     * @internal
+     */
+    const FUNCTION_GET_IDENTITY = 255;
+
+
+    const DEVICE_IDENTIFIER = 14;
+
+    /**
      * Creates an object with the unique device ID $uid. This object can
      * then be added to the IP connection.
      *
      * @param string $uid
      */
-    public function __construct($uid)
+    public function __construct($uid, $ipcon)
     {
-        parent::__construct($uid);
+        parent::__construct($uid, $ipcon);
 
-        $this->expectedName = 'Servo Brick';
+        $this->apiVersion = array(2, 0, 0);
 
-        $this->bindingVersion = array(1, 0, 1);
+        $this->responseExpected[self::FUNCTION_ENABLE] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_DISABLE] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_IS_ENABLED] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_SET_POSITION] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_GET_POSITION] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_GET_CURRENT_POSITION] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_SET_VELOCITY] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_GET_VELOCITY] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_GET_CURRENT_VELOCITY] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_SET_ACCELERATION] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_GET_ACCELERATION] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_SET_OUTPUT_VOLTAGE] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_GET_OUTPUT_VOLTAGE] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_SET_PULSE_WIDTH] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_GET_PULSE_WIDTH] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_SET_DEGREE] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_GET_DEGREE] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_SET_PERIOD] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_GET_PERIOD] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_GET_SERVO_CURRENT] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_GET_OVERALL_CURRENT] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_GET_STACK_INPUT_VOLTAGE] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_GET_EXTERNAL_INPUT_VOLTAGE] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_SET_MINIMUM_VOLTAGE] = self::RESPONSE_EXPECTED_TRUE;
+        $this->responseExpected[self::FUNCTION_GET_MINIMUM_VOLTAGE] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::CALLBACK_UNDER_VOLTAGE] = self::RESPONSE_EXPECTED_ALWAYS_FALSE;
+        $this->responseExpected[self::CALLBACK_POSITION_REACHED] = self::RESPONSE_EXPECTED_ALWAYS_FALSE;
+        $this->responseExpected[self::CALLBACK_VELOCITY_REACHED] = self::RESPONSE_EXPECTED_ALWAYS_FALSE;
+        $this->responseExpected[self::FUNCTION_ENABLE_POSITION_REACHED_CALLBACK] = self::RESPONSE_EXPECTED_TRUE;
+        $this->responseExpected[self::FUNCTION_DISABLE_POSITION_REACHED_CALLBACK] = self::RESPONSE_EXPECTED_TRUE;
+        $this->responseExpected[self::FUNCTION_IS_POSITION_REACHED_CALLBACK_ENABLED] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_ENABLE_VELOCITY_REACHED_CALLBACK] = self::RESPONSE_EXPECTED_TRUE;
+        $this->responseExpected[self::FUNCTION_DISABLE_VELOCITY_REACHED_CALLBACK] = self::RESPONSE_EXPECTED_TRUE;
+        $this->responseExpected[self::FUNCTION_IS_VELOCITY_REACHED_CALLBACK_ENABLED] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_GET_PROTOCOL1_BRICKLET_NAME] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_GET_CHIP_TEMPERATURE] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_RESET] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_GET_IDENTITY] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
 
         $this->callbackWrappers[self::CALLBACK_UNDER_VOLTAGE] = 'callbackWrapperUnderVoltage';
         $this->callbackWrappers[self::CALLBACK_POSITION_REACHED] = 'callbackWrapperPositionReached';
@@ -229,7 +315,7 @@ class BrickServo extends Device
         $payload = '';
         $payload .= pack('C', $servo_num);
 
-        $this->sendRequestNoResponse(self::FUNCTION_ENABLE, $payload);
+        $this->sendRequest(self::FUNCTION_ENABLE, $payload);
     }
 
     /**
@@ -245,7 +331,7 @@ class BrickServo extends Device
         $payload = '';
         $payload .= pack('C', $servo_num);
 
-        $this->sendRequestNoResponse(self::FUNCTION_DISABLE, $payload);
+        $this->sendRequest(self::FUNCTION_DISABLE, $payload);
     }
 
     /**
@@ -260,7 +346,7 @@ class BrickServo extends Device
         $payload = '';
         $payload .= pack('C', $servo_num);
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_IS_ENABLED, $payload, 1);
+        $data = $this->sendRequest(self::FUNCTION_IS_ENABLED, $payload);
 
         $payload = unpack('C1enabled', $data);
 
@@ -288,7 +374,7 @@ class BrickServo extends Device
         $payload .= pack('C', $servo_num);
         $payload .= pack('v', $position);
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_POSITION, $payload);
+        $this->sendRequest(self::FUNCTION_SET_POSITION, $payload);
     }
 
     /**
@@ -303,7 +389,7 @@ class BrickServo extends Device
         $payload = '';
         $payload .= pack('C', $servo_num);
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_POSITION, $payload, 2);
+        $data = $this->sendRequest(self::FUNCTION_GET_POSITION, $payload);
 
         $payload = unpack('v1position', $data);
 
@@ -324,7 +410,7 @@ class BrickServo extends Device
         $payload = '';
         $payload .= pack('C', $servo_num);
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_CURRENT_POSITION, $payload, 2);
+        $data = $this->sendRequest(self::FUNCTION_GET_CURRENT_POSITION, $payload);
 
         $payload = unpack('v1position', $data);
 
@@ -351,7 +437,7 @@ class BrickServo extends Device
         $payload .= pack('C', $servo_num);
         $payload .= pack('v', $velocity);
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_VELOCITY, $payload);
+        $this->sendRequest(self::FUNCTION_SET_VELOCITY, $payload);
     }
 
     /**
@@ -366,7 +452,7 @@ class BrickServo extends Device
         $payload = '';
         $payload .= pack('C', $servo_num);
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_VELOCITY, $payload, 2);
+        $data = $this->sendRequest(self::FUNCTION_GET_VELOCITY, $payload);
 
         $payload = unpack('v1velocity', $data);
 
@@ -387,7 +473,7 @@ class BrickServo extends Device
         $payload = '';
         $payload .= pack('C', $servo_num);
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_CURRENT_VELOCITY, $payload, 2);
+        $data = $this->sendRequest(self::FUNCTION_GET_CURRENT_VELOCITY, $payload);
 
         $payload = unpack('v1velocity', $data);
 
@@ -413,7 +499,7 @@ class BrickServo extends Device
         $payload .= pack('C', $servo_num);
         $payload .= pack('v', $acceleration);
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_ACCELERATION, $payload);
+        $this->sendRequest(self::FUNCTION_SET_ACCELERATION, $payload);
     }
 
     /**
@@ -429,7 +515,7 @@ class BrickServo extends Device
         $payload = '';
         $payload .= pack('C', $servo_num);
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_ACCELERATION, $payload, 2);
+        $data = $this->sendRequest(self::FUNCTION_GET_ACCELERATION, $payload);
 
         $payload = unpack('v1acceleration', $data);
 
@@ -458,7 +544,7 @@ class BrickServo extends Device
         $payload = '';
         $payload .= pack('v', $voltage);
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_OUTPUT_VOLTAGE, $payload);
+        $this->sendRequest(self::FUNCTION_SET_OUTPUT_VOLTAGE, $payload);
     }
 
     /**
@@ -471,7 +557,7 @@ class BrickServo extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_OUTPUT_VOLTAGE, $payload, 2);
+        $data = $this->sendRequest(self::FUNCTION_GET_OUTPUT_VOLTAGE, $payload);
 
         $payload = unpack('v1voltage', $data);
 
@@ -510,7 +596,7 @@ class BrickServo extends Device
         $payload .= pack('v', $min);
         $payload .= pack('v', $max);
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_PULSE_WIDTH, $payload);
+        $this->sendRequest(self::FUNCTION_SET_PULSE_WIDTH, $payload);
     }
 
     /**
@@ -528,7 +614,7 @@ class BrickServo extends Device
         $payload = '';
         $payload .= pack('C', $servo_num);
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_PULSE_WIDTH, $payload, 4);
+        $data = $this->sendRequest(self::FUNCTION_GET_PULSE_WIDTH, $payload);
 
         $payload = unpack('v1min/v1max', $data);
 
@@ -583,7 +669,7 @@ class BrickServo extends Device
         $payload .= pack('v', $min);
         $payload .= pack('v', $max);
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_DEGREE, $payload);
+        $this->sendRequest(self::FUNCTION_SET_DEGREE, $payload);
     }
 
     /**
@@ -601,7 +687,7 @@ class BrickServo extends Device
         $payload = '';
         $payload .= pack('C', $servo_num);
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_DEGREE, $payload, 4);
+        $data = $this->sendRequest(self::FUNCTION_GET_DEGREE, $payload);
 
         $payload = unpack('v1min/v1max', $data);
 
@@ -639,7 +725,7 @@ class BrickServo extends Device
         $payload .= pack('C', $servo_num);
         $payload .= pack('v', $period);
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_PERIOD, $payload);
+        $this->sendRequest(self::FUNCTION_SET_PERIOD, $payload);
     }
 
     /**
@@ -654,7 +740,7 @@ class BrickServo extends Device
         $payload = '';
         $payload .= pack('C', $servo_num);
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_PERIOD, $payload, 2);
+        $data = $this->sendRequest(self::FUNCTION_GET_PERIOD, $payload);
 
         $payload = unpack('v1period', $data);
 
@@ -673,7 +759,7 @@ class BrickServo extends Device
         $payload = '';
         $payload .= pack('C', $servo_num);
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_SERVO_CURRENT, $payload, 2);
+        $data = $this->sendRequest(self::FUNCTION_GET_SERVO_CURRENT, $payload);
 
         $payload = unpack('v1current', $data);
 
@@ -690,7 +776,7 @@ class BrickServo extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_OVERALL_CURRENT, $payload, 2);
+        $data = $this->sendRequest(self::FUNCTION_GET_OVERALL_CURRENT, $payload);
 
         $payload = unpack('v1current', $data);
 
@@ -709,7 +795,7 @@ class BrickServo extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_STACK_INPUT_VOLTAGE, $payload, 2);
+        $data = $this->sendRequest(self::FUNCTION_GET_STACK_INPUT_VOLTAGE, $payload);
 
         $payload = unpack('v1voltage', $data);
 
@@ -738,7 +824,7 @@ class BrickServo extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_EXTERNAL_INPUT_VOLTAGE, $payload, 2);
+        $data = $this->sendRequest(self::FUNCTION_GET_EXTERNAL_INPUT_VOLTAGE, $payload);
 
         $payload = unpack('v1voltage', $data);
 
@@ -763,7 +849,7 @@ class BrickServo extends Device
         $payload = '';
         $payload .= pack('v', $voltage);
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_MINIMUM_VOLTAGE, $payload);
+        $this->sendRequest(self::FUNCTION_SET_MINIMUM_VOLTAGE, $payload);
     }
 
     /**
@@ -776,7 +862,7 @@ class BrickServo extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_MINIMUM_VOLTAGE, $payload, 2);
+        $data = $this->sendRequest(self::FUNCTION_GET_MINIMUM_VOLTAGE, $payload);
 
         $payload = unpack('v1voltage', $data);
 
@@ -784,21 +870,140 @@ class BrickServo extends Device
     }
 
     /**
-     * Calling this function will reset the Brick. Calling this function
-     * on a Brick inside of a stack will reset the whole stack.
+     * Enables the BrickServo::CALLBACK_POSITION_REACHED callback.
      * 
-     * After a reset you have to create new device objects,
-     * calling functions on the existing ones will result in
-     * undefined behavior!
+     * Default is disabled.
+     * 
+     * .. versionadded:: 2.0.1~(Firmware)
      * 
      * 
      * @return void
      */
-    public function reset()
+    public function enablePositionReachedCallback()
     {
         $payload = '';
 
-        $this->sendRequestNoResponse(self::FUNCTION_RESET, $payload);
+        $this->sendRequest(self::FUNCTION_ENABLE_POSITION_REACHED_CALLBACK, $payload);
+    }
+
+    /**
+     * Disables the BrickServo::CALLBACK_POSITION_REACHED callback.
+     * 
+     * Default is disabled.
+     * 
+     * .. versionadded:: 2.0.1~(Firmware)
+     * 
+     * 
+     * @return void
+     */
+    public function disablePositionReachedCallback()
+    {
+        $payload = '';
+
+        $this->sendRequest(self::FUNCTION_DISABLE_POSITION_REACHED_CALLBACK, $payload);
+    }
+
+    /**
+     * Returns *true* if BrickServo::CALLBACK_POSITION_REACHED callback is enabled, *false* otherwise.
+     * 
+     * .. versionadded:: 2.0.1~(Firmware)
+     * 
+     * 
+     * @return int
+     */
+    public function isPositionReachedCallbackEnabled()
+    {
+        $payload = '';
+
+        $data = $this->sendRequest(self::FUNCTION_IS_POSITION_REACHED_CALLBACK_ENABLED, $payload);
+
+        $payload = unpack('C1enabled', $data);
+
+        return $payload['enabled'];
+    }
+
+    /**
+     * Enables the BrickServo::CALLBACK_VELOCITY_REACHED callback.
+     * 
+     * Default is disabled.
+     * 
+     * .. versionadded:: 2.0.1~(Firmware)
+     * 
+     * 
+     * @return void
+     */
+    public function enableVelocityReachedCallback()
+    {
+        $payload = '';
+
+        $this->sendRequest(self::FUNCTION_ENABLE_VELOCITY_REACHED_CALLBACK, $payload);
+    }
+
+    /**
+     * Disables the BrickServo::CALLBACK_VELOCITY_REACHED callback.
+     * 
+     * Default is disabled.
+     * 
+     * .. versionadded:: 2.0.1~(Firmware)
+     * 
+     * 
+     * @return void
+     */
+    public function disableVelocityReachedCallback()
+    {
+        $payload = '';
+
+        $this->sendRequest(self::FUNCTION_DISABLE_VELOCITY_REACHED_CALLBACK, $payload);
+    }
+
+    /**
+     * Returns *true* if BrickServo::CALLBACK_VELOCITY_REACHED callback is enabled, *false* otherwise.
+     * 
+     * .. versionadded:: 2.0.1~(Firmware)
+     * 
+     * 
+     * @return int
+     */
+    public function isVelocityReachedCallbackEnabled()
+    {
+        $payload = '';
+
+        $data = $this->sendRequest(self::FUNCTION_IS_VELOCITY_REACHED_CALLBACK_ENABLED, $payload);
+
+        $payload = unpack('C1enabled', $data);
+
+        return $payload['enabled'];
+    }
+
+    /**
+     * Returns the firmware and protocol version and the name of the Bricklet for a
+     * given port.
+     * 
+     * This functions sole purpose is to allow automatic flashing of v1.x.y Bricklet
+     * plugins.
+     * 
+     * .. versionadded:: 2.0.0~(Firmware)
+     * 
+     * @param string $port
+     * 
+     * @return array
+     */
+    public function getProtocol1BrickletName($port)
+    {
+        $result = array();
+
+        $payload = '';
+        $payload .= pack('c', ord($port));
+
+        $data = $this->sendRequest(self::FUNCTION_GET_PROTOCOL1_BRICKLET_NAME, $payload);
+
+        $payload = unpack('C1protocol_version/C3firmware_version/c40name', $data);
+
+        $result['protocol_version'] = $payload['protocol_version'];
+        $result['firmware_version'] = IPConnection::collectUnpackedArray($payload, 'firmware_version', 3);
+        $result['name'] = IPConnection::implodeUnpackedString($payload, 'name', 40);
+
+        return $result;
     }
 
     /**
@@ -809,6 +1014,8 @@ class BrickServo extends Device
      * accuracy of +-15%. Practically it is only useful as an indicator for
      * temperature changes.
      * 
+     * .. versionadded:: 1.1.3~(Firmware)
+     * 
      * 
      * @return int
      */
@@ -816,7 +1023,7 @@ class BrickServo extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_CHIP_TEMPERATURE, $payload, 2);
+        $data = $this->sendRequest(self::FUNCTION_GET_CHIP_TEMPERATURE, $payload);
 
         $payload = unpack('v1temperature', $data);
 
@@ -824,16 +1031,72 @@ class BrickServo extends Device
     }
 
     /**
+     * Calling this function will reset the Brick. Calling this function
+     * on a Brick inside of a stack will reset the whole stack.
+     * 
+     * After a reset you have to create new device objects,
+     * calling functions on the existing ones will result in
+     * undefined behavior!
+     * 
+     * .. versionadded:: 1.1.3~(Firmware)
+     * 
+     * 
+     * @return void
+     */
+    public function reset()
+    {
+        $payload = '';
+
+        $this->sendRequest(self::FUNCTION_RESET, $payload);
+    }
+
+    /**
+     * Returns the UID, the UID where the Brick is connected to, 
+     * the position, the hardware and firmware version as well as the
+     * device identifier.
+     * 
+     * The position can be '0'-'8' (stack position).
+     * 
+     * The device identifiers can be found :ref:`here <device_identifier>`.
+     * 
+     * .. versionadded:: 2.0.0~(Firmware)
+     * 
+     * 
+     * @return array
+     */
+    public function getIdentity()
+    {
+        $result = array();
+
+        $payload = '';
+
+        $data = $this->sendRequest(self::FUNCTION_GET_IDENTITY, $payload);
+
+        $payload = unpack('c8uid/c8connected_uid/c1position/C3hardware_version/C3firmware_version/v1device_identifier', $data);
+
+        $result['uid'] = IPConnection::implodeUnpackedString($payload, 'uid', 8);
+        $result['connected_uid'] = IPConnection::implodeUnpackedString($payload, 'connected_uid', 8);
+        $result['position'] = chr($payload['position']);
+        $result['hardware_version'] = IPConnection::collectUnpackedArray($payload, 'hardware_version', 3);
+        $result['firmware_version'] = IPConnection::collectUnpackedArray($payload, 'firmware_version', 3);
+        $result['device_identifier'] = $payload['device_identifier'];
+
+        return $result;
+    }
+
+    /**
      * Registers a callback with ID $id to the callable $callback.
      *
      * @param int $id
      * @param callable $callback
+     * @param mixed $userData
      *
      * @return void
      */
-    public function registerCallback($id, $callback)
+    public function registerCallback($id, $callback, $userData = NULL)
     {
         $this->registeredCallbacks[$id] = $callback;
+        $this->registeredCallbackUserData[$id] = $userData;
     }
 
     /**

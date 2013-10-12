@@ -1,7 +1,9 @@
 <?php
 
 /* ***********************************************************
- * This file was automatically generated on 2012-10-01.      *
+ * This file was automatically generated on 2013-09-11.      *
+ *                                                           *
+ * Bindings Version 2.0.10                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -44,7 +46,7 @@ class BrickStepper extends Device
      * the current position, the remaining steps, the stack voltage, the external
      * voltage and the current consumption of the stepper motor.
      * 
-     * .. versionadded:: 1.1.6
+     * .. versionadded:: 1.1.6~(Firmware)
      */
     const CALLBACK_ALL_DATA = 40;
 
@@ -54,14 +56,14 @@ class BrickStepper extends Device
      * 
      * Possible states are:
      * 
-     * * Stop = 1
-     * * Acceleration = 2
-     * * Run = 3
-     * * Deacceleration = 4
-     * * Direction change to forward = 5
-     * * Direction change to backward = 6
+     * * 1 = Stop
+     * * 2 = Acceleration
+     * * 3 = Run
+     * * 4 = Deacceleration
+     * * 5 = Direction change to forward
+     * * 6 = Direction change to backward
      * 
-     * .. versionadded:: 1.1.6
+     * .. versionadded:: 1.1.6~(Firmware)
      */
     const CALLBACK_NEW_STATE = 41;
 
@@ -254,7 +256,7 @@ class BrickStepper extends Device
     /**
      * @internal
      */
-    const FUNCTION_RESET = 243;
+    const FUNCTION_GET_PROTOCOL1_BRICKLET_NAME = 241;
 
     /**
      * @internal
@@ -262,18 +264,85 @@ class BrickStepper extends Device
     const FUNCTION_GET_CHIP_TEMPERATURE = 242;
 
     /**
+     * @internal
+     */
+    const FUNCTION_RESET = 243;
+
+    /**
+     * @internal
+     */
+    const FUNCTION_GET_IDENTITY = 255;
+
+    const STEP_MODE_FULL_STEP = 1;
+    const STEP_MODE_HALF_STEP = 2;
+    const STEP_MODE_QUARTER_STEP = 4;
+    const STEP_MODE_EIGHTH_STEP = 8;
+    const STATE_STOP = 1;
+    const STATE_ACCELERATION = 2;
+    const STATE_RUN = 3;
+    const STATE_DEACCELERATION = 4;
+    const STATE_DIRECTION_CHANGE_TO_FORWARD = 5;
+    const STATE_DIRECTION_CHANGE_TO_BACKWARD = 6;
+
+    const DEVICE_IDENTIFIER = 15;
+
+    /**
      * Creates an object with the unique device ID $uid. This object can
      * then be added to the IP connection.
      *
      * @param string $uid
      */
-    public function __construct($uid)
+    public function __construct($uid, $ipcon)
     {
-        parent::__construct($uid);
+        parent::__construct($uid, $ipcon);
 
-        $this->expectedName = 'Stepper Brick';
+        $this->apiVersion = array(2, 0, 0);
 
-        $this->bindingVersion = array(1, 0, 2);
+        $this->responseExpected[self::FUNCTION_SET_MAX_VELOCITY] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_GET_MAX_VELOCITY] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_GET_CURRENT_VELOCITY] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_SET_SPEED_RAMPING] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_GET_SPEED_RAMPING] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_FULL_BRAKE] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_SET_CURRENT_POSITION] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_GET_CURRENT_POSITION] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_SET_TARGET_POSITION] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_GET_TARGET_POSITION] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_SET_STEPS] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_GET_STEPS] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_GET_REMAINING_STEPS] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_SET_STEP_MODE] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_GET_STEP_MODE] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_DRIVE_FORWARD] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_DRIVE_BACKWARD] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_STOP] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_GET_STACK_INPUT_VOLTAGE] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_GET_EXTERNAL_INPUT_VOLTAGE] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_GET_CURRENT_CONSUMPTION] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_SET_MOTOR_CURRENT] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_GET_MOTOR_CURRENT] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_ENABLE] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_DISABLE] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_IS_ENABLED] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_SET_DECAY] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_GET_DECAY] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_SET_MINIMUM_VOLTAGE] = self::RESPONSE_EXPECTED_TRUE;
+        $this->responseExpected[self::FUNCTION_GET_MINIMUM_VOLTAGE] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::CALLBACK_UNDER_VOLTAGE] = self::RESPONSE_EXPECTED_ALWAYS_FALSE;
+        $this->responseExpected[self::CALLBACK_POSITION_REACHED] = self::RESPONSE_EXPECTED_ALWAYS_FALSE;
+        $this->responseExpected[self::FUNCTION_SET_SYNC_RECT] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_IS_SYNC_RECT] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_SET_TIME_BASE] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_GET_TIME_BASE] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_GET_ALL_DATA] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_SET_ALL_DATA_PERIOD] = self::RESPONSE_EXPECTED_TRUE;
+        $this->responseExpected[self::FUNCTION_GET_ALL_DATA_PERIOD] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::CALLBACK_ALL_DATA] = self::RESPONSE_EXPECTED_ALWAYS_FALSE;
+        $this->responseExpected[self::CALLBACK_NEW_STATE] = self::RESPONSE_EXPECTED_ALWAYS_FALSE;
+        $this->responseExpected[self::FUNCTION_GET_PROTOCOL1_BRICKLET_NAME] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_GET_CHIP_TEMPERATURE] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_RESET] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_GET_IDENTITY] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
 
         $this->callbackWrappers[self::CALLBACK_UNDER_VOLTAGE] = 'callbackWrapperUnderVoltage';
         $this->callbackWrappers[self::CALLBACK_POSITION_REACHED] = 'callbackWrapperPositionReached';
@@ -307,7 +376,7 @@ class BrickStepper extends Device
         $payload = '';
         $payload .= pack('v', $velocity);
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_MAX_VELOCITY, $payload);
+        $this->sendRequest(self::FUNCTION_SET_MAX_VELOCITY, $payload);
     }
 
     /**
@@ -320,7 +389,7 @@ class BrickStepper extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_MAX_VELOCITY, $payload, 2);
+        $data = $this->sendRequest(self::FUNCTION_GET_MAX_VELOCITY, $payload);
 
         $payload = unpack('v1velocity', $data);
 
@@ -337,7 +406,7 @@ class BrickStepper extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_CURRENT_VELOCITY, $payload, 2);
+        $data = $this->sendRequest(self::FUNCTION_GET_CURRENT_VELOCITY, $payload);
 
         $payload = unpack('v1velocity', $data);
 
@@ -369,7 +438,7 @@ class BrickStepper extends Device
         $payload .= pack('v', $acceleration);
         $payload .= pack('v', $deacceleration);
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_SPEED_RAMPING, $payload);
+        $this->sendRequest(self::FUNCTION_SET_SPEED_RAMPING, $payload);
     }
 
     /**
@@ -385,7 +454,7 @@ class BrickStepper extends Device
 
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_SPEED_RAMPING, $payload, 4);
+        $data = $this->sendRequest(self::FUNCTION_GET_SPEED_RAMPING, $payload);
 
         $payload = unpack('v1acceleration/v1deacceleration', $data);
 
@@ -413,7 +482,7 @@ class BrickStepper extends Device
     {
         $payload = '';
 
-        $this->sendRequestNoResponse(self::FUNCTION_FULL_BRAKE, $payload);
+        $this->sendRequest(self::FUNCTION_FULL_BRAKE, $payload);
     }
 
     /**
@@ -430,7 +499,7 @@ class BrickStepper extends Device
         $payload = '';
         $payload .= pack('V', $position);
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_CURRENT_POSITION, $payload);
+        $this->sendRequest(self::FUNCTION_SET_CURRENT_POSITION, $payload);
     }
 
     /**
@@ -447,7 +516,7 @@ class BrickStepper extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_CURRENT_POSITION, $payload, 4);
+        $data = $this->sendRequest(self::FUNCTION_GET_CURRENT_POSITION, $payload);
 
         $payload = unpack('V1position', $data);
 
@@ -474,7 +543,7 @@ class BrickStepper extends Device
         $payload = '';
         $payload .= pack('V', $position);
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_TARGET_POSITION, $payload);
+        $this->sendRequest(self::FUNCTION_SET_TARGET_POSITION, $payload);
     }
 
     /**
@@ -487,7 +556,7 @@ class BrickStepper extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_TARGET_POSITION, $payload, 4);
+        $data = $this->sendRequest(self::FUNCTION_GET_TARGET_POSITION, $payload);
 
         $payload = unpack('V1position', $data);
 
@@ -509,7 +578,7 @@ class BrickStepper extends Device
         $payload = '';
         $payload .= pack('V', $steps);
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_STEPS, $payload);
+        $this->sendRequest(self::FUNCTION_SET_STEPS, $payload);
     }
 
     /**
@@ -522,7 +591,7 @@ class BrickStepper extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_STEPS, $payload, 4);
+        $data = $this->sendRequest(self::FUNCTION_GET_STEPS, $payload);
 
         $payload = unpack('V1steps', $data);
 
@@ -542,7 +611,7 @@ class BrickStepper extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_REMAINING_STEPS, $payload, 4);
+        $data = $this->sendRequest(self::FUNCTION_GET_REMAINING_STEPS, $payload);
 
         $payload = unpack('V1steps', $data);
 
@@ -571,7 +640,7 @@ class BrickStepper extends Device
         $payload = '';
         $payload .= pack('C', $mode);
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_STEP_MODE, $payload);
+        $this->sendRequest(self::FUNCTION_SET_STEP_MODE, $payload);
     }
 
     /**
@@ -584,7 +653,7 @@ class BrickStepper extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_STEP_MODE, $payload, 1);
+        $data = $this->sendRequest(self::FUNCTION_GET_STEP_MODE, $payload);
 
         $payload = unpack('C1mode', $data);
 
@@ -603,7 +672,7 @@ class BrickStepper extends Device
     {
         $payload = '';
 
-        $this->sendRequestNoResponse(self::FUNCTION_DRIVE_FORWARD, $payload);
+        $this->sendRequest(self::FUNCTION_DRIVE_FORWARD, $payload);
     }
 
     /**
@@ -618,7 +687,7 @@ class BrickStepper extends Device
     {
         $payload = '';
 
-        $this->sendRequestNoResponse(self::FUNCTION_DRIVE_BACKWARD, $payload);
+        $this->sendRequest(self::FUNCTION_DRIVE_BACKWARD, $payload);
     }
 
     /**
@@ -632,7 +701,7 @@ class BrickStepper extends Device
     {
         $payload = '';
 
-        $this->sendRequestNoResponse(self::FUNCTION_STOP, $payload);
+        $this->sendRequest(self::FUNCTION_STOP, $payload);
     }
 
     /**
@@ -647,7 +716,7 @@ class BrickStepper extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_STACK_INPUT_VOLTAGE, $payload, 2);
+        $data = $this->sendRequest(self::FUNCTION_GET_STACK_INPUT_VOLTAGE, $payload);
 
         $payload = unpack('v1voltage', $data);
 
@@ -676,7 +745,7 @@ class BrickStepper extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_EXTERNAL_INPUT_VOLTAGE, $payload, 2);
+        $data = $this->sendRequest(self::FUNCTION_GET_EXTERNAL_INPUT_VOLTAGE, $payload);
 
         $payload = unpack('v1voltage', $data);
 
@@ -693,7 +762,7 @@ class BrickStepper extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_CURRENT_CONSUMPTION, $payload, 2);
+        $data = $this->sendRequest(self::FUNCTION_GET_CURRENT_CONSUMPTION, $payload);
 
         $payload = unpack('v1current', $data);
 
@@ -719,7 +788,7 @@ class BrickStepper extends Device
         $payload = '';
         $payload .= pack('v', $current);
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_MOTOR_CURRENT, $payload);
+        $this->sendRequest(self::FUNCTION_SET_MOTOR_CURRENT, $payload);
     }
 
     /**
@@ -732,7 +801,7 @@ class BrickStepper extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_MOTOR_CURRENT, $payload, 2);
+        $data = $this->sendRequest(self::FUNCTION_GET_MOTOR_CURRENT, $payload);
 
         $payload = unpack('v1current', $data);
 
@@ -750,7 +819,7 @@ class BrickStepper extends Device
     {
         $payload = '';
 
-        $this->sendRequestNoResponse(self::FUNCTION_ENABLE, $payload);
+        $this->sendRequest(self::FUNCTION_ENABLE, $payload);
     }
 
     /**
@@ -764,7 +833,7 @@ class BrickStepper extends Device
     {
         $payload = '';
 
-        $this->sendRequestNoResponse(self::FUNCTION_DISABLE, $payload);
+        $this->sendRequest(self::FUNCTION_DISABLE, $payload);
     }
 
     /**
@@ -777,7 +846,7 @@ class BrickStepper extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_IS_ENABLED, $payload, 1);
+        $data = $this->sendRequest(self::FUNCTION_IS_ENABLED, $payload);
 
         $payload = unpack('C1enabled', $data);
 
@@ -823,7 +892,7 @@ class BrickStepper extends Device
         $payload = '';
         $payload .= pack('v', $decay);
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_DECAY, $payload);
+        $this->sendRequest(self::FUNCTION_SET_DECAY, $payload);
     }
 
     /**
@@ -836,7 +905,7 @@ class BrickStepper extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_DECAY, $payload, 2);
+        $data = $this->sendRequest(self::FUNCTION_GET_DECAY, $payload);
 
         $payload = unpack('v1decay', $data);
 
@@ -861,7 +930,7 @@ class BrickStepper extends Device
         $payload = '';
         $payload .= pack('v', $voltage);
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_MINIMUM_VOLTAGE, $payload);
+        $this->sendRequest(self::FUNCTION_SET_MINIMUM_VOLTAGE, $payload);
     }
 
     /**
@@ -874,7 +943,7 @@ class BrickStepper extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_MINIMUM_VOLTAGE, $payload, 2);
+        $data = $this->sendRequest(self::FUNCTION_GET_MINIMUM_VOLTAGE, $payload);
 
         $payload = unpack('v1voltage', $data);
 
@@ -882,7 +951,7 @@ class BrickStepper extends Device
     }
 
     /**
-     * Turns synchronous rectification on or off (true/false).
+     * Turns synchronous rectification on or off (*true* or *false*).
      * 
      * With synchronous rectification on, the decay can be changed
      * (see BrickStepper::setDecay()). Without synchronous rectification fast
@@ -900,6 +969,8 @@ class BrickStepper extends Device
      * 
      * The default value is *false*.
      * 
+     * .. versionadded:: 1.1.4~(Firmware)
+     * 
      * @param bool $sync_rect
      * 
      * @return void
@@ -909,11 +980,13 @@ class BrickStepper extends Device
         $payload = '';
         $payload .= pack('C', intval((bool)$sync_rect));
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_SYNC_RECT, $payload);
+        $this->sendRequest(self::FUNCTION_SET_SYNC_RECT, $payload);
     }
 
     /**
      * Returns *true* if synchronous rectification is enabled, *false* otherwise.
+     * 
+     * .. versionadded:: 1.1.4~(Firmware)
      * 
      * 
      * @return bool
@@ -922,7 +995,7 @@ class BrickStepper extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_IS_SYNC_RECT, $payload, 1);
+        $data = $this->sendRequest(self::FUNCTION_IS_SYNC_RECT, $payload);
 
         $payload = unpack('C1sync_rect', $data);
 
@@ -939,7 +1012,7 @@ class BrickStepper extends Device
      * 
      * The default value is 1.
      * 
-     * .. versionadded:: 1.1.6
+     * .. versionadded:: 1.1.6~(Firmware)
      * 
      * @param int $time_base
      * 
@@ -950,13 +1023,13 @@ class BrickStepper extends Device
         $payload = '';
         $payload .= pack('V', $time_base);
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_TIME_BASE, $payload);
+        $this->sendRequest(self::FUNCTION_SET_TIME_BASE, $payload);
     }
 
     /**
      * Returns the time base as set by BrickStepper::setTimeBase().
      * 
-     * .. versionadded:: 1.1.6
+     * .. versionadded:: 1.1.6~(Firmware)
      * 
      * 
      * @return int
@@ -965,7 +1038,7 @@ class BrickStepper extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_TIME_BASE, $payload, 4);
+        $data = $this->sendRequest(self::FUNCTION_GET_TIME_BASE, $payload);
 
         $payload = unpack('V1time_base', $data);
 
@@ -979,7 +1052,7 @@ class BrickStepper extends Device
      * 
      * There is also a callback for this function, see BrickStepper::CALLBACK_ALL_DATA.
      * 
-     * .. versionadded:: 1.1.6
+     * .. versionadded:: 1.1.6~(Firmware)
      * 
      * 
      * @return array
@@ -990,7 +1063,7 @@ class BrickStepper extends Device
 
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_ALL_DATA, $payload, 16);
+        $data = $this->sendRequest(self::FUNCTION_GET_ALL_DATA, $payload);
 
         $payload = unpack('v1current_velocity/V1current_position/V1remaining_steps/v1stack_voltage/v1external_voltage/v1current_consumption', $data);
 
@@ -1008,7 +1081,7 @@ class BrickStepper extends Device
      * Sets the period in ms with which the BrickStepper::CALLBACK_ALL_DATA callback is triggered
      * periodically. A value of 0 turns the callback off.
      * 
-     * .. versionadded:: 1.1.6
+     * .. versionadded:: 1.1.6~(Firmware)
      * 
      * @param int $period
      * 
@@ -1019,13 +1092,13 @@ class BrickStepper extends Device
         $payload = '';
         $payload .= pack('V', $period);
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_ALL_DATA_PERIOD, $payload);
+        $this->sendRequest(self::FUNCTION_SET_ALL_DATA_PERIOD, $payload);
     }
 
     /**
      * Returns the period as set by BrickStepper::setAllDataPeriod().
      * 
-     * .. versionadded:: 1.1.6
+     * .. versionadded:: 1.1.6~(Firmware)
      * 
      * 
      * @return int
@@ -1034,7 +1107,7 @@ class BrickStepper extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_ALL_DATA_PERIOD, $payload, 4);
+        $data = $this->sendRequest(self::FUNCTION_GET_ALL_DATA_PERIOD, $payload);
 
         $payload = unpack('V1period', $data);
 
@@ -1042,21 +1115,34 @@ class BrickStepper extends Device
     }
 
     /**
-     * Calling this function will reset the Brick. Calling this function
-     * on a Brick inside of a stack will reset the whole stack.
+     * Returns the firmware and protocol version and the name of the Bricklet for a
+     * given port.
      * 
-     * After a reset you have to create new device objects,
-     * calling functions on the existing ones will result in
-     * undefined behavior!
+     * This functions sole purpose is to allow automatic flashing of v1.x.y Bricklet
+     * plugins.
      * 
+     * .. versionadded:: 2.0.0~(Firmware)
      * 
-     * @return void
+     * @param string $port
+     * 
+     * @return array
      */
-    public function reset()
+    public function getProtocol1BrickletName($port)
     {
-        $payload = '';
+        $result = array();
 
-        $this->sendRequestNoResponse(self::FUNCTION_RESET, $payload);
+        $payload = '';
+        $payload .= pack('c', ord($port));
+
+        $data = $this->sendRequest(self::FUNCTION_GET_PROTOCOL1_BRICKLET_NAME, $payload);
+
+        $payload = unpack('C1protocol_version/C3firmware_version/c40name', $data);
+
+        $result['protocol_version'] = $payload['protocol_version'];
+        $result['firmware_version'] = IPConnection::collectUnpackedArray($payload, 'firmware_version', 3);
+        $result['name'] = IPConnection::implodeUnpackedString($payload, 'name', 40);
+
+        return $result;
     }
 
     /**
@@ -1067,6 +1153,8 @@ class BrickStepper extends Device
      * accuracy of +-15%. Practically it is only useful as an indicator for
      * temperature changes.
      * 
+     * .. versionadded:: 1.1.4~(Firmware)
+     * 
      * 
      * @return int
      */
@@ -1074,7 +1162,7 @@ class BrickStepper extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_CHIP_TEMPERATURE, $payload, 2);
+        $data = $this->sendRequest(self::FUNCTION_GET_CHIP_TEMPERATURE, $payload);
 
         $payload = unpack('v1temperature', $data);
 
@@ -1082,16 +1170,72 @@ class BrickStepper extends Device
     }
 
     /**
+     * Calling this function will reset the Brick. Calling this function
+     * on a Brick inside of a stack will reset the whole stack.
+     * 
+     * After a reset you have to create new device objects,
+     * calling functions on the existing ones will result in
+     * undefined behavior!
+     * 
+     * .. versionadded:: 1.1.4~(Firmware)
+     * 
+     * 
+     * @return void
+     */
+    public function reset()
+    {
+        $payload = '';
+
+        $this->sendRequest(self::FUNCTION_RESET, $payload);
+    }
+
+    /**
+     * Returns the UID, the UID where the Brick is connected to, 
+     * the position, the hardware and firmware version as well as the
+     * device identifier.
+     * 
+     * The position can be '0'-'8' (stack position).
+     * 
+     * The device identifiers can be found :ref:`here <device_identifier>`.
+     * 
+     * .. versionadded:: 2.0.0~(Firmware)
+     * 
+     * 
+     * @return array
+     */
+    public function getIdentity()
+    {
+        $result = array();
+
+        $payload = '';
+
+        $data = $this->sendRequest(self::FUNCTION_GET_IDENTITY, $payload);
+
+        $payload = unpack('c8uid/c8connected_uid/c1position/C3hardware_version/C3firmware_version/v1device_identifier', $data);
+
+        $result['uid'] = IPConnection::implodeUnpackedString($payload, 'uid', 8);
+        $result['connected_uid'] = IPConnection::implodeUnpackedString($payload, 'connected_uid', 8);
+        $result['position'] = chr($payload['position']);
+        $result['hardware_version'] = IPConnection::collectUnpackedArray($payload, 'hardware_version', 3);
+        $result['firmware_version'] = IPConnection::collectUnpackedArray($payload, 'firmware_version', 3);
+        $result['device_identifier'] = $payload['device_identifier'];
+
+        return $result;
+    }
+
+    /**
      * Registers a callback with ID $id to the callable $callback.
      *
      * @param int $id
      * @param callable $callback
+     * @param mixed $userData
      *
      * @return void
      */
-    public function registerCallback($id, $callback)
+    public function registerCallback($id, $callback, $userData = NULL)
     {
         $this->registeredCallbacks[$id] = $callback;
+        $this->registeredCallbackUserData[$id] = $userData;
     }
 
     /**

@@ -1,7 +1,9 @@
 <?php
 
 /* ***********************************************************
- * This file was automatically generated on 2012-10-01.      *
+ * This file was automatically generated on 2013-09-11.      *
+ *                                                           *
+ * Bindings Version 2.0.10                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -41,18 +43,30 @@ class BrickletPiezoBuzzer extends Device
     const FUNCTION_MORSE_CODE = 2;
 
     /**
+     * @internal
+     */
+    const FUNCTION_GET_IDENTITY = 255;
+
+
+    const DEVICE_IDENTIFIER = 214;
+
+    /**
      * Creates an object with the unique device ID $uid. This object can
      * then be added to the IP connection.
      *
      * @param string $uid
      */
-    public function __construct($uid)
+    public function __construct($uid, $ipcon)
     {
-        parent::__construct($uid);
+        parent::__construct($uid, $ipcon);
 
-        $this->expectedName = 'Piezo Buzzer Bricklet';
+        $this->apiVersion = array(2, 0, 0);
 
-        $this->bindingVersion = array(1, 0, 0);
+        $this->responseExpected[self::FUNCTION_BEEP] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_MORSE_CODE] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::CALLBACK_BEEP_FINISHED] = self::RESPONSE_EXPECTED_ALWAYS_FALSE;
+        $this->responseExpected[self::CALLBACK_MORSE_CODE_FINISHED] = self::RESPONSE_EXPECTED_ALWAYS_FALSE;
+        $this->responseExpected[self::FUNCTION_GET_IDENTITY] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
 
         $this->callbackWrappers[self::CALLBACK_BEEP_FINISHED] = 'callbackWrapperBeepFinished';
         $this->callbackWrappers[self::CALLBACK_MORSE_CODE_FINISHED] = 'callbackWrapperMorseCodeFinished';
@@ -81,7 +95,7 @@ class BrickletPiezoBuzzer extends Device
         $payload = '';
         $payload .= pack('V', $duration);
 
-        $this->sendRequestNoResponse(self::FUNCTION_BEEP, $payload);
+        $this->sendRequest(self::FUNCTION_BEEP, $payload);
     }
 
     /**
@@ -109,7 +123,41 @@ class BrickletPiezoBuzzer extends Device
             $payload .= pack('c', 0);
         }
 
-        $this->sendRequestNoResponse(self::FUNCTION_MORSE_CODE, $payload);
+        $this->sendRequest(self::FUNCTION_MORSE_CODE, $payload);
+    }
+
+    /**
+     * Returns the UID, the UID where the Bricklet is connected to, 
+     * the position, the hardware and firmware version as well as the
+     * device identifier.
+     * 
+     * The position can be 'a', 'b', 'c' or 'd'.
+     * 
+     * The device identifiers can be found :ref:`here <device_identifier>`.
+     * 
+     * .. versionadded:: 2.0.0~(Plugin)
+     * 
+     * 
+     * @return array
+     */
+    public function getIdentity()
+    {
+        $result = array();
+
+        $payload = '';
+
+        $data = $this->sendRequest(self::FUNCTION_GET_IDENTITY, $payload);
+
+        $payload = unpack('c8uid/c8connected_uid/c1position/C3hardware_version/C3firmware_version/v1device_identifier', $data);
+
+        $result['uid'] = IPConnection::implodeUnpackedString($payload, 'uid', 8);
+        $result['connected_uid'] = IPConnection::implodeUnpackedString($payload, 'connected_uid', 8);
+        $result['position'] = chr($payload['position']);
+        $result['hardware_version'] = IPConnection::collectUnpackedArray($payload, 'hardware_version', 3);
+        $result['firmware_version'] = IPConnection::collectUnpackedArray($payload, 'firmware_version', 3);
+        $result['device_identifier'] = $payload['device_identifier'];
+
+        return $result;
     }
 
     /**
@@ -117,12 +165,14 @@ class BrickletPiezoBuzzer extends Device
      *
      * @param int $id
      * @param callable $callback
+     * @param mixed $userData
      *
      * @return void
      */
-    public function registerCallback($id, $callback)
+    public function registerCallback($id, $callback, $userData = NULL)
     {
         $this->registeredCallbacks[$id] = $callback;
+        $this->registeredCallbackUserData[$id] = $userData;
     }
 
     /**

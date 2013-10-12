@@ -67,7 +67,7 @@ T::load(Util::getRootPath()."libraries");
 /*
 $E = new Environment();
 */
-$cssColorsDir = (isset($_COOKIE["phynx_color"]) ? $_COOKIE["phynx_color"] : "standard");
+$cssColorsDir = Environment::getS("cssColorsDir", (isset($_COOKIE["phynx_color"]) ? $_COOKIE["phynx_color"] : "standard"));
 /*
 if(file_exists(Util::getRootPath()."plugins/Cloud/Cloud.class.php")){
 	require_once Util::getRootPath()."plugins/Cloud/Cloud.class.php";
@@ -217,7 +217,7 @@ if($sephy AND isset($sephy[3]) AND $sephy[3])
 		<?php
 		
 		if($cssColorsDir != "standard") 
-			echo '<link rel="stylesheet" type="text/css" href="./styles/'.Environment::getS("cssColorsDir", $cssColorsDir).'/colors.css" />';
+			echo '<link rel="stylesheet" type="text/css" href="./styles/'.$cssColorsDir.'/colors.css" />';
 		
 		if((isset($_COOKIE["phynx_layout"]) AND $_COOKIE["phynx_layout"] == "vertical"))
 			echo '<link rel="stylesheet" type="text/css" href="./styles/standard/vertical.css" />';

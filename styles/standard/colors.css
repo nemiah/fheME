@@ -9,7 +9,7 @@
 }
 
 .borderColor1 {
-	border-color:#6868C9;
+	border-color:#acaced;/*#6868C9;*/
 }
 
 .backgroundColor0 {
@@ -25,6 +25,10 @@
 
 .backgroundColor3 {
 	background-color:#f0f0ff;/*#E6E6FF;*/
+}
+
+.backgroundColor4 {
+	background-color:#efefef;
 }
 
 .backgroundColorHeader td:not(.ACCell) {
@@ -63,7 +67,7 @@
 	margin-right:5px;
 }
 
-.seamlessButton:hover {
+.phynxNoTouch .seamlessButton:hover {
 	background-color:rgba(0,0,0,0.1);
 	
 	-moz-transition: background-color .3s;
@@ -72,7 +76,8 @@
 	transition: background-color .3s;
 }
 
-.seamlessButton:hover .iconic, .lastSelected .iconic {
+.phynxNoTouch .seamlessButton:hover .iconic,
+.phynxNoTouch .lastSelected .iconic {
 	color:#555;
 	opacity:1;
 }
@@ -190,9 +195,9 @@ input[type=submit], select, textarea, .AJAXUpload {
 	transition: background-color .3s;
 }
 
-#contentRight .contentBrowser tr:hover,
-#contentLeft .contentBrowser tr:hover,
-#contentScreen tr:hover {
+.phynxNoTouch #contentRight .contentBrowser tr:not(.noHover):hover,
+.phynxNoTouch #contentLeft .contentBrowser tr:not(.noHover):hover,
+.phynxNoTouch #contentScreen tr:not(.noHover):hover {
 	background-color:white;
 	
 	-moz-transition: background-color .3s;
@@ -201,12 +206,13 @@ input[type=submit], select, textarea, .AJAXUpload {
 	transition: background-color .3s;
 }
 
-#contentRight .contentBrowser tr:hover .iconic,
-#contentLeft tr:hover .iconic,
-.Tab:hover .iconic, #contentScreen tr:hover .iconic,
-.popup tr:hover .iconic,
-.popupSidePanel tr:hover .iconic,
-.selectionRow:hover .iconic {
+.phynxNoTouch #contentRight .contentBrowser tr:hover .iconic,
+.phynxNoTouch #contentLeft tr:hover .iconic,
+.phynxNoTouch .Tab:hover .iconic,
+.phynxNoTouch #contentScreen tr:hover .iconic,
+.phynxNoTouch .popup tr:hover .iconic,
+.phynxNoTouch .popupSidePanel tr:hover .iconic,
+.phynxNoTouch .selectionRow:hover .iconic {
 	color:#777;
 	border-color:#777;
 	
@@ -216,11 +222,11 @@ input[type=submit], select, textarea, .AJAXUpload {
 	transition: color .7s, border-color .7s;
 }
 
-#contentRight .contentBrowser tr:hover .iconic.inactive,
-.popup .contentBrowser tr:hover .iconic.inactive,
-#contentLeft .contentBrowser tr:hover .iconic.inactive,
-.Tab:hover .iconic.inactive,
-#contentScreen tr:hover .iconic.inactive {
+.phynxNoTouch #contentRight .contentBrowser tr:hover .iconic.inactive,
+.phynxNoTouch .popup .contentBrowser tr:hover .iconic.inactive,
+.phynxNoTouch #contentLeft .contentBrowser tr:hover .iconic.inactive,
+.phynxNoTouch .Tab:hover .iconic.inactive,
+.phynxNoTouch #contentScreen tr:hover .iconic.inactive {
 	color:#ffb587;
 	border-color:#ffb587;
 	
@@ -259,7 +265,7 @@ input[type=submit], select, textarea, .AJAXUpload {
 	border-bottom-color:#888888;/*#444444;*/
 }
 
-#navTabsWrapper .navTab:hover {
+.phynxNoTouch #navTabsWrapper .navTab:hover {
 	background-color:#9E9EF0;
 }
 
@@ -269,7 +275,8 @@ input[type=submit], select, textarea, .AJAXUpload {
 	border-bottom-color:white;
 }
 
-.selectionBox:hover, .tableForSelection tr:hover {
+.phynxNoTouch .selectionBox:hover,
+.phynxNoTouch .tableForSelection tr:hover {
 	background-color:white;
 	
 	-moz-transition: background-color .3s;
@@ -288,7 +295,8 @@ input[type=submit], select, textarea, .AJAXUpload {
 }
 
 .topBG {
-	background-image: linear-gradient(bottom, rgb(183,185,180) 0%, rgb(220,222,216) 1%, rgb(255,255,255) 5%);
+	background-color:#fefefe;
+	/*background-image: linear-gradient(bottom, rgb(183,185,180) 0%, rgb(220,222,216) 1%, rgb(255,255,255) 5%);
 	background-image: -o-linear-gradient(bottom, rgb(183,185,180) 0%, rgb(220,222,216) 1%, rgb(255,255,255) 5%);
 	background-image: -moz-linear-gradient(bottom, rgb(183,185,180) 0%, rgb(220,222,216) 1%, rgb(255,255,255) 5%);
 	background-image: -webkit-linear-gradient(bottom, rgb(183,185,180) 0%, rgb(220,222,216) 1%, rgb(255,255,255) 5%);
@@ -301,7 +309,7 @@ input[type=submit], select, textarea, .AJAXUpload {
 		color-stop(0, rgb(183,185,180)),
 		color-stop(0.01, rgb(220,222,216)),
 		color-stop(0.05, rgb(255,255,255))
-	);
+	);*/
 }
 
 .selectionRow {
@@ -316,7 +324,7 @@ input[type=submit], select, textarea, .AJAXUpload {
 	user-select: none;
 }
 
-.selectionRow:hover {
+.phynxNoTouch .selectionRow:hover {
 	background-color:rgb(248, 248, 248);
 }
 

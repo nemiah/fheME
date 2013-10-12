@@ -133,7 +133,7 @@
 	border-left:0px;
 }
 
-#contentLeft .Tab {
+#contentLeft .Tab, #contentLeft .lightTab {
 	margin-right:10px;
 }
 /*

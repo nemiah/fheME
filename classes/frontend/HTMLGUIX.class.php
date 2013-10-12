@@ -83,6 +83,7 @@ class HTMLGUIX {
 	protected $requestFocus;
 	protected $targetFrame;
 	protected $useScreenHeight = false;
+	protected $hiddenJS = "";
 	
 	public function __construct($object = null, $collectionName = null){
 		if($object != null)
@@ -281,6 +282,8 @@ class HTMLGUIX {
 			$this->hideLine($showOnTrue);
 		
 		$this->addFieldEvent($fieldName, "onChange", "contentManager.toggleFormFieldsTest((".  str_replace("OR", "||", $test)."), [".(count($showOnTrue) > 0 ? "'".implode("','", $showOnTrue)."'" : "")."], [".($showOnFalse != null ? "'".implode("','", $showOnFalse)."'" : "")."], 'edit".get_class($this->object)."', ".($this->hiddenUseInit ? "true" : "false").");");
+		
+		$this->hiddenJS .= "\$j('[name=$fieldName]').trigger('change');";
 	}
 
 	public function showLine($fieldNames){
@@ -539,6 +542,9 @@ class HTMLGUIX {
 		if($this->form != null)
 			return $this->form;
 		
+		if($this->formID == null)
+			$this->formID = "edit".get_class($this->object);
+		
 		$F = new HTMLForm($this->formID == null ? "edit".get_class($this->object) : $this->formID, $this->attributes == null ? $this->object : $this->attributes, strpos($this->displayMode, "popup") === false ? $this->operationsButton().$this->name : null);
 		$F->getTable()->setColWidth(1, 120);
 		$F->getTable()->addTableClass("contentEdit");
@@ -605,7 +611,9 @@ class HTMLGUIX {
 		if($this->requestFocus)
 			$requestFocus = OnEvent::script("setTimeout(function(){ var target1 = \$j('input[name=".$this->requestFocus[0]."]:visible, textarea[name=".$this->requestFocus[0]."]:visible'); if(target1.length > 0) target1.focus(); ".($this->requestFocus[1] != null ? "else \$j('input[name=".$this->requestFocus[1]."]:visible, textarea[name=".$this->requestFocus[1]."]:visible').focus();" : "")."}, 100);");
 		
-		return $this->topButtons().$this->sideButtons().$F.$requestFocus.GUIFactory::editFormOnchangeTest($this->formID == null ? "edit".get_class($this->object) : $this->formID);
+		
+		
+		return $this->topButtons().$this->sideButtons().$F.$requestFocus.GUIFactory::editFormOnchangeTest($this->formID == null ? "edit".get_class($this->object) : $this->formID).($this->hiddenJS != "" ? OnEvent::script($this->hiddenJS." \$j('#$this->formID .recentlyChanged').removeClass('recentlyChanged');") : "");
 	}
 
 	/**
@@ -724,7 +732,11 @@ class HTMLGUIX {
 		else
 			return $Tab->getHTMLForUpdate();
 
-		return "<div class=\"browserContainer\">".$this->topButtons($bps).$this->sideButtons($bps).$GUIF->getContainer($Tab, $this->caption)."</div>".str_replace("%CLASSNAME", $this->className, $this->sortable).$this->tip;
+		$prepend = "";
+		foreach ($this->prepended AS $PE)
+			$prepend .= $PE;
+		
+		return "<div class=\"browserContainer\">".$prepend.$this->topButtons($bps).$this->sideButtons($bps).$GUIF->getContainer($Tab, $this->caption)."</div>".str_replace("%CLASSNAME", $this->className, $this->sortable).$this->tip;
 	}
 	// </editor-fold>
 

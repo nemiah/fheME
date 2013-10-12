@@ -452,6 +452,13 @@ if(Modernizr.touch && useTouch == null){
 var Touch = {
 	trigger: "click",
 	use:false,
+	propagateCSS: function(){
+		if(!Touch.use)
+			$j("html").addClass("phynxNoTouch");
+		else
+			$j("html").addClass("phynxIsTouch");
+	},
+			
 	hook: function(){
 		var currentHTMLMethod = jQuery.fn.html;
 		jQuery.fn.html = function(){
@@ -514,6 +521,7 @@ if(useTouch){
 		$j(this).parent().addClass("highlight");
 	});
 }
+Touch.propagateCSS();
 
 $j(function(){
 	if(Modernizr.touch || useTouch != null){

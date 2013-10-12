@@ -1,7 +1,9 @@
 <?php
 
 /* ***********************************************************
- * This file was automatically generated on 2012-10-01.      *
+ * This file was automatically generated on 2013-09-11.      *
+ *                                                           *
+ * Bindings Version 2.0.10                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -23,7 +25,7 @@ class BrickletDualRelay extends Device
      * parameter contain the relay (1 or 2) and the current state of the relay 
      * (the state after the monoflop).
      * 
-     * .. versionadded:: 1.1.1
+     * .. versionadded:: 1.1.1~(Plugin)
      */
     const CALLBACK_MONOFLOP_DONE = 5;
 
@@ -49,18 +51,37 @@ class BrickletDualRelay extends Device
     const FUNCTION_GET_MONOFLOP = 4;
 
     /**
+     * @internal
+     */
+    const FUNCTION_SET_SELECTED_STATE = 6;
+
+    /**
+     * @internal
+     */
+    const FUNCTION_GET_IDENTITY = 255;
+
+
+    const DEVICE_IDENTIFIER = 26;
+
+    /**
      * Creates an object with the unique device ID $uid. This object can
      * then be added to the IP connection.
      *
      * @param string $uid
      */
-    public function __construct($uid)
+    public function __construct($uid, $ipcon)
     {
-        parent::__construct($uid);
+        parent::__construct($uid, $ipcon);
 
-        $this->expectedName = 'Dual Relay Bricklet';
+        $this->apiVersion = array(2, 0, 0);
 
-        $this->bindingVersion = array(1, 0, 1);
+        $this->responseExpected[self::FUNCTION_SET_STATE] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_GET_STATE] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_SET_MONOFLOP] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_GET_MONOFLOP] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::CALLBACK_MONOFLOP_DONE] = self::RESPONSE_EXPECTED_ALWAYS_FALSE;
+        $this->responseExpected[self::FUNCTION_SET_SELECTED_STATE] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_GET_IDENTITY] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
 
         $this->callbackWrappers[self::CALLBACK_MONOFLOP_DONE] = 'callbackWrapperMonoflopDone';
     }
@@ -80,11 +101,12 @@ class BrickletDualRelay extends Device
      * For example: (true, false) turns relay 1 on and relay 2 off.
      * 
      * If you just want to set one of the relays and don't know the current state
-     * of the other relay, you can get the state with BrickletDualRelay::getState().
+     * of the other relay, you can get the state with BrickletDualRelay::getState() or you
+     * can use BrickletDualRelay::setSelectedState().
      * 
      * Running monoflop timers will be overwritten if this function is called.
      * 
-     * The default value is (false, false).
+     * The default value is (*false*, *false*).
      * 
      * @param bool $relay1
      * @param bool $relay2
@@ -97,7 +119,7 @@ class BrickletDualRelay extends Device
         $payload .= pack('C', intval((bool)$relay1));
         $payload .= pack('C', intval((bool)$relay2));
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_STATE, $payload);
+        $this->sendRequest(self::FUNCTION_SET_STATE, $payload);
     }
 
     /**
@@ -112,7 +134,7 @@ class BrickletDualRelay extends Device
 
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_STATE, $payload, 2);
+        $data = $this->sendRequest(self::FUNCTION_GET_STATE, $payload);
 
         $payload = unpack('C1relay1/C1relay2', $data);
 
@@ -137,7 +159,7 @@ class BrickletDualRelay extends Device
      * of two seconds. The relay will be on all the time. If now the RS485 
      * connection is lost, the relay will turn off in at most two seconds.
      * 
-     * .. versionadded:: 1.1.1
+     * .. versionadded:: 1.1.1~(Plugin)
      * 
      * @param int $relay
      * @param bool $state
@@ -152,7 +174,7 @@ class BrickletDualRelay extends Device
         $payload .= pack('C', intval((bool)$state));
         $payload .= pack('V', $time);
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_MONOFLOP, $payload);
+        $this->sendRequest(self::FUNCTION_SET_MONOFLOP, $payload);
     }
 
     /**
@@ -162,7 +184,7 @@ class BrickletDualRelay extends Device
      * If the timer is not running currently, the remaining time will be returned
      * as 0.
      * 
-     * .. versionadded:: 1.1.1
+     * .. versionadded:: 1.1.1~(Plugin)
      * 
      * @param int $relay
      * 
@@ -175,7 +197,7 @@ class BrickletDualRelay extends Device
         $payload = '';
         $payload .= pack('C', $relay);
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_MONOFLOP, $payload, 9);
+        $data = $this->sendRequest(self::FUNCTION_GET_MONOFLOP, $payload);
 
         $payload = unpack('C1state/V1time/V1time_remaining', $data);
 
@@ -187,16 +209,73 @@ class BrickletDualRelay extends Device
     }
 
     /**
+     * Sets the state of the selected relay (1 or 2), *true* means on and *false* means off. 
+     * 
+     * The other relay remains untouched.
+     * 
+     * .. versionadded:: 2.0.0~(Plugin)
+     * 
+     * @param int $relay
+     * @param bool $state
+     * 
+     * @return void
+     */
+    public function setSelectedState($relay, $state)
+    {
+        $payload = '';
+        $payload .= pack('C', $relay);
+        $payload .= pack('C', intval((bool)$state));
+
+        $this->sendRequest(self::FUNCTION_SET_SELECTED_STATE, $payload);
+    }
+
+    /**
+     * Returns the UID, the UID where the Bricklet is connected to, 
+     * the position, the hardware and firmware version as well as the
+     * device identifier.
+     * 
+     * The position can be 'a', 'b', 'c' or 'd'.
+     * 
+     * The device identifiers can be found :ref:`here <device_identifier>`.
+     * 
+     * .. versionadded:: 2.0.0~(Plugin)
+     * 
+     * 
+     * @return array
+     */
+    public function getIdentity()
+    {
+        $result = array();
+
+        $payload = '';
+
+        $data = $this->sendRequest(self::FUNCTION_GET_IDENTITY, $payload);
+
+        $payload = unpack('c8uid/c8connected_uid/c1position/C3hardware_version/C3firmware_version/v1device_identifier', $data);
+
+        $result['uid'] = IPConnection::implodeUnpackedString($payload, 'uid', 8);
+        $result['connected_uid'] = IPConnection::implodeUnpackedString($payload, 'connected_uid', 8);
+        $result['position'] = chr($payload['position']);
+        $result['hardware_version'] = IPConnection::collectUnpackedArray($payload, 'hardware_version', 3);
+        $result['firmware_version'] = IPConnection::collectUnpackedArray($payload, 'firmware_version', 3);
+        $result['device_identifier'] = $payload['device_identifier'];
+
+        return $result;
+    }
+
+    /**
      * Registers a callback with ID $id to the callable $callback.
      *
      * @param int $id
      * @param callable $callback
+     * @param mixed $userData
      *
      * @return void
      */
-    public function registerCallback($id, $callback)
+    public function registerCallback($id, $callback, $userData = NULL)
     {
         $this->registeredCallbacks[$id] = $callback;
+        $this->registeredCallbackUserData[$id] = $userData;
     }
 
     /**

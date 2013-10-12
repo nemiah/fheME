@@ -306,7 +306,8 @@ class BackupManagerGUI implements iGUIHTML2 {
 		$F->loadMe();
 
 		if($F->getA() == null){
-			file_put_contents($F->getID(), "AuthUserFile ".Util::getRootPath()."system/Backup/.htpasswd
+			file_put_contents($F->getID(), "deny from all");
+			/*file_put_contents($F->getID(), "AuthUserFile ".Util::getRootPath()."system/Backup/.htpasswd
 AuthGroupFile /dev/null
 AuthName \"Restricted\"
 AuthType Basic
@@ -314,7 +315,7 @@ AuthType Basic
 require valid-user
 </Limit>");
 
-			file_put_contents(Util::getRootPath()."system/Backup/.htpasswd", "Restricted:kV.RuW/ox2sc2".mt_rand(0, 20000000));
+			file_put_contents(Util::getRootPath()."system/Backup/.htpasswd", "Restricted:kV.RuW/ox2sc2".mt_rand(0, 20000000));*/
 		}
 
 		require Util::getRootPath()."libraries/PMBP.inc.php";

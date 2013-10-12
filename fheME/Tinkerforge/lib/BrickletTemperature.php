@@ -1,7 +1,9 @@
 <?php
 
 /* ***********************************************************
- * This file was automatically generated on 2012-10-01.      *
+ * This file was automatically generated on 2013-09-11.      *
+ *                                                           *
+ * Bindings Version 2.0.10                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -75,18 +77,54 @@ class BrickletTemperature extends Device
     const FUNCTION_GET_DEBOUNCE_PERIOD = 7;
 
     /**
+     * @internal
+     */
+    const FUNCTION_SET_I2C_MODE = 10;
+
+    /**
+     * @internal
+     */
+    const FUNCTION_GET_I2C_MODE = 11;
+
+    /**
+     * @internal
+     */
+    const FUNCTION_GET_IDENTITY = 255;
+
+    const THRESHOLD_OPTION_OFF = 'x';
+    const THRESHOLD_OPTION_OUTSIDE = 'o';
+    const THRESHOLD_OPTION_INSIDE = 'i';
+    const THRESHOLD_OPTION_SMALLER = '<';
+    const THRESHOLD_OPTION_GREATER = '>';
+    const I2C_MODE_FAST = 0;
+    const I2C_MODE_SLOW = 1;
+
+    const DEVICE_IDENTIFIER = 216;
+
+    /**
      * Creates an object with the unique device ID $uid. This object can
      * then be added to the IP connection.
      *
      * @param string $uid
      */
-    public function __construct($uid)
+    public function __construct($uid, $ipcon)
     {
-        parent::__construct($uid);
+        parent::__construct($uid, $ipcon);
 
-        $this->expectedName = 'Temperature Bricklet';
+        $this->apiVersion = array(2, 0, 0);
 
-        $this->bindingVersion = array(1, 0, 0);
+        $this->responseExpected[self::FUNCTION_GET_TEMPERATURE] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_SET_TEMPERATURE_CALLBACK_PERIOD] = self::RESPONSE_EXPECTED_TRUE;
+        $this->responseExpected[self::FUNCTION_GET_TEMPERATURE_CALLBACK_PERIOD] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_SET_TEMPERATURE_CALLBACK_THRESHOLD] = self::RESPONSE_EXPECTED_TRUE;
+        $this->responseExpected[self::FUNCTION_GET_TEMPERATURE_CALLBACK_THRESHOLD] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_SET_DEBOUNCE_PERIOD] = self::RESPONSE_EXPECTED_TRUE;
+        $this->responseExpected[self::FUNCTION_GET_DEBOUNCE_PERIOD] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::CALLBACK_TEMPERATURE] = self::RESPONSE_EXPECTED_ALWAYS_FALSE;
+        $this->responseExpected[self::CALLBACK_TEMPERATURE_REACHED] = self::RESPONSE_EXPECTED_ALWAYS_FALSE;
+        $this->responseExpected[self::FUNCTION_SET_I2C_MODE] = self::RESPONSE_EXPECTED_FALSE;
+        $this->responseExpected[self::FUNCTION_GET_I2C_MODE] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
+        $this->responseExpected[self::FUNCTION_GET_IDENTITY] = self::RESPONSE_EXPECTED_ALWAYS_TRUE;
 
         $this->callbackWrappers[self::CALLBACK_TEMPERATURE] = 'callbackWrapperTemperature';
         $this->callbackWrappers[self::CALLBACK_TEMPERATURE_REACHED] = 'callbackWrapperTemperatureReached';
@@ -118,7 +156,7 @@ class BrickletTemperature extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_TEMPERATURE, $payload, 2);
+        $data = $this->sendRequest(self::FUNCTION_GET_TEMPERATURE, $payload);
 
         $payload = unpack('v1temperature', $data);
 
@@ -143,7 +181,7 @@ class BrickletTemperature extends Device
         $payload = '';
         $payload .= pack('V', $period);
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_TEMPERATURE_CALLBACK_PERIOD, $payload);
+        $this->sendRequest(self::FUNCTION_SET_TEMPERATURE_CALLBACK_PERIOD, $payload);
     }
 
     /**
@@ -156,7 +194,7 @@ class BrickletTemperature extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_TEMPERATURE_CALLBACK_PERIOD, $payload, 4);
+        $data = $this->sendRequest(self::FUNCTION_GET_TEMPERATURE_CALLBACK_PERIOD, $payload);
 
         $payload = unpack('V1period', $data);
 
@@ -193,7 +231,7 @@ class BrickletTemperature extends Device
         $payload .= pack('v', $min);
         $payload .= pack('v', $max);
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_TEMPERATURE_CALLBACK_THRESHOLD, $payload);
+        $this->sendRequest(self::FUNCTION_SET_TEMPERATURE_CALLBACK_THRESHOLD, $payload);
     }
 
     /**
@@ -208,7 +246,7 @@ class BrickletTemperature extends Device
 
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_TEMPERATURE_CALLBACK_THRESHOLD, $payload, 5);
+        $data = $this->sendRequest(self::FUNCTION_GET_TEMPERATURE_CALLBACK_THRESHOLD, $payload);
 
         $payload = unpack('c1option/v1min/v1max', $data);
 
@@ -222,11 +260,11 @@ class BrickletTemperature extends Device
     /**
      * Sets the period in ms with which the threshold callback
      * 
-     *  BrickletTemperature::CALLBACK_TEMPERATURE_REACHED
+     * * BrickletTemperature::CALLBACK_TEMPERATURE_REACHED
      * 
      * is triggered, if the threshold
      * 
-     *  BrickletTemperature::setTemperatureCallbackThreshold()
+     * * BrickletTemperature::setTemperatureCallbackThreshold()
      * 
      * keeps being reached.
      * 
@@ -241,7 +279,7 @@ class BrickletTemperature extends Device
         $payload = '';
         $payload .= pack('V', $debounce);
 
-        $this->sendRequestNoResponse(self::FUNCTION_SET_DEBOUNCE_PERIOD, $payload);
+        $this->sendRequest(self::FUNCTION_SET_DEBOUNCE_PERIOD, $payload);
     }
 
     /**
@@ -254,7 +292,7 @@ class BrickletTemperature extends Device
     {
         $payload = '';
 
-        $data = $this->sendRequestExpectResponse(self::FUNCTION_GET_DEBOUNCE_PERIOD, $payload, 4);
+        $data = $this->sendRequest(self::FUNCTION_GET_DEBOUNCE_PERIOD, $payload);
 
         $payload = unpack('V1debounce', $data);
 
@@ -262,16 +300,98 @@ class BrickletTemperature extends Device
     }
 
     /**
+     * Sets the I2C mode. Possible modes are:
+     * 
+     * * 0: Fast (400kHz, default)
+     * * 1: Slow (100kHz)
+     * 
+     * If you have problems with obvious outliers in the
+     * Temperature Bricklet measurements, they may be caused by EMI issues.
+     * In this case it may be helpful to lower the I2C speed.
+     * 
+     * It is however not recommended to lower the I2C speed in applications where
+     * a high throughput needs to be achieved.
+     * 
+     * .. versionadded:: 2.0.1~(Plugin)
+     * 
+     * @param int $mode
+     * 
+     * @return void
+     */
+    public function setI2CMode($mode)
+    {
+        $payload = '';
+        $payload .= pack('C', $mode);
+
+        $this->sendRequest(self::FUNCTION_SET_I2C_MODE, $payload);
+    }
+
+    /**
+     * Returns the I2C mode as set by BrickletTemperature::setI2CMode().
+     * 
+     * .. versionadded:: 2.0.1~(Plugin)
+     * 
+     * 
+     * @return int
+     */
+    public function getI2CMode()
+    {
+        $payload = '';
+
+        $data = $this->sendRequest(self::FUNCTION_GET_I2C_MODE, $payload);
+
+        $payload = unpack('C1mode', $data);
+
+        return $payload['mode'];
+    }
+
+    /**
+     * Returns the UID, the UID where the Bricklet is connected to, 
+     * the position, the hardware and firmware version as well as the
+     * device identifier.
+     * 
+     * The position can be 'a', 'b', 'c' or 'd'.
+     * 
+     * The device identifiers can be found :ref:`here <device_identifier>`.
+     * 
+     * .. versionadded:: 2.0.0~(Plugin)
+     * 
+     * 
+     * @return array
+     */
+    public function getIdentity()
+    {
+        $result = array();
+
+        $payload = '';
+
+        $data = $this->sendRequest(self::FUNCTION_GET_IDENTITY, $payload);
+
+        $payload = unpack('c8uid/c8connected_uid/c1position/C3hardware_version/C3firmware_version/v1device_identifier', $data);
+
+        $result['uid'] = IPConnection::implodeUnpackedString($payload, 'uid', 8);
+        $result['connected_uid'] = IPConnection::implodeUnpackedString($payload, 'connected_uid', 8);
+        $result['position'] = chr($payload['position']);
+        $result['hardware_version'] = IPConnection::collectUnpackedArray($payload, 'hardware_version', 3);
+        $result['firmware_version'] = IPConnection::collectUnpackedArray($payload, 'firmware_version', 3);
+        $result['device_identifier'] = $payload['device_identifier'];
+
+        return $result;
+    }
+
+    /**
      * Registers a callback with ID $id to the callable $callback.
      *
      * @param int $id
      * @param callable $callback
+     * @param mixed $userData
      *
      * @return void
      */
-    public function registerCallback($id, $callback)
+    public function registerCallback($id, $callback, $userData = NULL)
     {
         $this->registeredCallbacks[$id] = $callback;
+        $this->registeredCallbackUserData[$id] = $userData;
     }
 
     /**
