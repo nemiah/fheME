@@ -200,6 +200,8 @@ class mfheOverviewGUI extends anyC implements iGUIHTMLMP2 {
 		if(isset($d->background))
 			echo OnEvent::script ("\$j('#wrapper').css('background-image', 'url(./specifics/$d->background)');");
 		
+		echo OnEvent::script("\$j('html').css('overflow-y', 'auto');");
+		
 		$this->pluginUpdate();
 	}
 	

@@ -19,14 +19,23 @@
  */
 class DeviceGUI extends Device implements iGUIHTML2 {
 	function getHTML($id){
+		$this->makeNewIfNew();
+		
 		$gui = new HTMLGUIX($this);
 		$gui->name("Device");
-	
+		$gui->type("DeviceType", "select", array("Unbekannt", "Smartphone", "Tablet 7 Zoll", "Tablet 10 Zoll", "Desktop"));
+		
+		$gui->addFieldEvent("DeviceType", "onchange", "if(this.value == 4) \$j('#editOverview').hide(); else \$j('#editOverview').show();");
+		
 		$B = $gui->addSideButton("Browser\nregistrieren", "./plugins/Devices/registerDevice.png");
 		$B->onclick("\$j.jStorage.set('phynxDeviceID','".$this->getID()."');".OnEvent::reload("Left"));
 			
 		$B = $gui->addSideButton("Übersicht\neinrichten", "./fheME/Overview/fheOverview.png");
 		$B->popup("", "Übersicht einrichten", "mfheOverview", "-1", "manage", $this->getID(), "", "{width:800, top:40}");
+		$B->id("editOverview");
+		
+		if($this->A("DeviceType") == "4")
+			$B->style ("display:none;");
 		
 		return $gui->getEditHTML();
 	}
