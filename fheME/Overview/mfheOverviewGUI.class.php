@@ -110,55 +110,6 @@ class mfheOverviewGUI extends anyC implements iGUIHTMLMP2 {
 		<div class=\"overviewContentPlaceholder\"></div>";
 		
 		return $html;
-		
-		/*$this->addPlugin(1, "mKalenderGUI", 900);
-		#$this->addPlugin(2, "mFhemGUI", 120, "function(){".OnEvent::rme(new FhemControlGUI(-1), "updateGUI", "", "function(transport){ fheOverview.updateTime('mFhemGUI'); Fhem.updateControls(transport); }")."}");		
-		$this->addPlugin(3, "mfheOverviewGUI::getOverviewContentCol2", 0);
-		$this->addPlugin(3, "mfheOverviewGUI::getOverviewContentCol3", 0);
-		$this->addPlugin(4, "mfheOverviewGUI::getOverviewContentCol4", 0);
-		#$this->addPlugin(4, "mWetterGUI", null, 1800);
-		
-		
-		#$D = array("mKalenderGUI", "mFhemGUI", "mfheOverviewGUI", "mWetterGUI");
-		#$L = array(900, 120, 0, 1800);
-		#$R = array("null", "function(){".OnEvent::rme(new FhemControlGUI(-1), "updateGUI", "", "function(transport){ fheOverview.updateTime('mFhemGUI'); Fhem.updateControls(transport); }")."}", "null", "null");
-		
-		foreach($this->Plugins AS $k => $E){
-			$method = explode("::", $E);
-			$C = $method[0];
-			$E = str_replace("::", "_", $E);
-			
-			$C = new $C(-1);
-			
-			$html .= "<div style=\"width:".floor(100 / count($this->Plugins))."%;float:left;\">";
-			
-			if($k == 0){
-				$html .= "<div class=\"OverviewCol borderColor1\">
-				<div class=\"touchHeader\"><p>Uhr</p></div>
-					<div style=\"padding:10px;\" id=\"fheOverviewClock\"></div>
-				<div id=\"fheOverviewContent$E\">";
-			}
-			else
-				$html .= "
-			<div class=\"OverviewCol borderColor1\" id=\"fheOverviewContent$E\">";
-			
-			if($k == 0)
-				$html .= "</div>";
-			
-			$html .= "</div>
-				</div>";
-		}
-		
-		$this->addPlugin(0, "mFhemGUI", 120, "function(){".OnEvent::rme(new FhemControlGUI(-1), "updateGUI", "", "function(transport){ fheOverview.updateTime('mFhemGUI'); Fhem.updateControls(transport); }")."}");		
-		$this->addPlugin(0, "mRSSParserGUI", 3600);
-		$this->addPlugin(0, "mWetterGUI", 1800);
-		$this->addPlugin(0, "mEinkaufszettelGUI", 300);
-		
-		#$D[] = "mRSSParserGUI";
-		#$L[] = 3600;
-		#$R[] = "null";
-		#echo "fheOverview.initUpdate(['".  implode("', '", $this->Plugins)."'], [".  implode(", ", $this->ReloadTimes)."], [".  implode(", ", $this->onReload)."]);";
-		return "<div id=\"onfheOverviewPage\"></div>".$html.OnEvent::script("fheOverview.initUpdate(['".  implode("', '", $this->Plugins)."'], [".  implode(", ", $this->ReloadTimes)."], [".  implode(", ", $this->onReload)."]);");*/
 	}
 
 	public function getOverviewDesktop($DeviceID){
@@ -208,9 +159,9 @@ class mfheOverviewGUI extends anyC implements iGUIHTMLMP2 {
 	public function getOverviewContent($DeviceID){
 		if($DeviceID == "none")
 			die("<p style=\"padding:5px;\">Bitte registrieren Sie diesen Browser im <a href=\"#\" onclick=\"contentManager.loadPlugin('contentRight', 'mDevice', 'mDeviceGUI;-'); return false;\">Geräte-Reiter</a>.</p>");
-		
+
 		$D = new Device($DeviceID);
-		if($D->A("DeviceType" != 4))
+		if($D->A("DeviceType") != 4)
 			$this->getOverviewCols($DeviceID);
 		else
 			$this->getOverviewDesktop($DeviceID);
@@ -239,9 +190,9 @@ class mfheOverviewGUI extends anyC implements iGUIHTMLMP2 {
 			$html .= "<div style=\"width:$width%;display:inline-block;vertical-align:top;\">
 				<div class=\"OverviewCol\">";
 			
-			foreach($plugins AS $k => $P){
-				$html .= $this->pluginShow(new Device($DeviceID), $P, $k == count($plugins) - 1, false);
-			}
+			foreach($plugins AS $k => $P)
+				$html .= $this->pluginShow(new Device($DeviceID), substr($P, 1), $k == count($plugins) - 1, false);
+			
 			
 			$html .= "</div>
 				</div>";

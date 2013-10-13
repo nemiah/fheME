@@ -25,66 +25,78 @@ class TinkerforgeGUI extends Tinkerforge implements iGUIHTML2 {
 		$gui = new HTMLGUIX($this);
 		$gui->name("Tinkerforge");
 	
-		$B = $gui->addSideButton("Master", "new");
-		$B->popup("", "Master", "Tinkerforge", $this->getID(), "readMaster", "", "", "{width:820}");
+		#$B = $gui->addSideButton("Master", "new");
+		#$B->popup("", "Master", "Tinkerforge", $this->getID(), "readMaster", "", "", "{width:820}");
+		
+		$B = $gui->addSideButton("Bricklets", "new");
+		$B->popup("", "Bricklets", "Tinkerforge", $this->getID(), "bricklets");
+		
+		
 		
 		return $gui->getEditHTML();
 	}
 	
-	public function readMaster(){
-		
-		$i = rand(1, 9999999);
-		
-		echo "<div id=\"placeholder\" style=\"width:800px;height:300px;\"></div>".OnEvent::script("
-\$j(function () {
-    var d1 = [];
-    var d2 = [];
-    
-    var plot = \$j.plot(\$j('#placeholder'), [], {
-		xaxis: { 
-			mode: 'time',
-			timezone: 'browser',
-			timeformat: '%H:%M',
-			tickLength: 0
-		},
-		grid: {
-			borderWidth: 1,
-			borderColor: '#AAAAAA'
-		}
-		});//:%S
-	
-	function updateTemp() {
-		".OnEvent::rme($this, "readTemperature", "", "function(transport){
-			if(\$j('#placeholder').length == 0){
-				clearInterval(interval$i);
-				return;
-			}
-			
-			if(d1.length > 180)
-				d1.shift();
-				
-			if(d2.length > 180)
-				d2.shift();
-			
+	public function bricklets(){
+		$BA = new Button("Bricklet\nhinzufügen", "new");
+		$BA->doBefore("\$j('#editAP').fadeOut(400, function(){ \$j('#editDetailsTinkerforge').animate({'width':'400px'}, 200, 'swing', function(){ %AFTER }); });");
+		$BA->rmePCR("Tinkerforge", $this->getID(), "createNew","", OnEvent::reloadPopup("Tinkerforge"));
+		$BA->style("margin:10px;");
 
-			d1.push(\$j.parseJSON(transport.responseText)[0]);
-			d2.push(\$j.parseJSON(transport.responseText)[1]);
-			plot.setData([{data: d1, color: 'rgb(100, 100, 100)'}, { data: d2, color: 'rgb(149, 0, 0)', threshold: { below: 80, color: 'rgb(0, 0, 149)'} }]);
-			plot.setupGrid();
-			plot.draw();
+		$TE = new HTMLTable(4, "Bricklets");
+		$TE->setColWidth(1, 20);
+		$TE->setColWidth(2, 35);
+		$TE->setColWidth(4, 20);
+		$TE->useForSelection(false);
+		$TE->maxHeight(400);
+		$TE->weight("light");
+		
+		$BE = new Button("Eintrag bearbeiten", "arrow_right", "iconic");
+		
+		$autoLoad = false;
+		$AC = anyC::get("TinkerforgeBricklet", "TinkerforgeBrickletTinkerforgeID", $this->getID());
+		while($A = $AC->getNextEntry()){
 			
-		}")."
-	}
-	
-	updateTemp();
-	var interval$i = setInterval(updateTemp, 60000);
-});");
-		/*
-		threshold: { 
-			below: 120,
-			color: 'rgb(200, 20, 30)'
+			$B = new Button("Master", "bars", "iconicL");
+			$B->popup("", "Plot", "TinkerforgeBricklet", $A->getID(), "showPlot", "", "", "{width:820}");
+			$B->style("float:right;");
+			
+			$BD = new Button("Eintrag löschen", "trash_stroke", "iconic");
+			$BD->doBefore("\$j('#editAP').fadeOut(400, function(){ \$j('#editDetailsTinkerforge').animate({'width':'400px'}, 200, 'swing', function(){ %AFTER }); });");
+			$BD->onclick("deleteClass('TinkerforgeBricklet','".$A->getID()."', function() { Popup.refresh('Tinkerforge'); },'Eintrag wirklich löschen?');");
+
+			if($A->A("TinkerforgeBrickletUID") == "")
+				$autoLoad = $A->getID();
+			
+			
+			$div = "<span id=\"TinkerforgeBrickletUID".$A->getID()."\">".($A->A("TinkerforgeBrickletUID") != "" ? $A->A("TinkerforgeBrickletUID") : "Neues Bricklet")."</span>&nbsp;<br />
+					<small style=\"color:grey;\" id=\"TinkerforgeBrickletType".$A->getID()."\">".($A->A("TinkerforgeBrickletType") != "" ? TinkerforgeBricklet::$types[$A->A("TinkerforgeBrickletType")] : "")."</small>";
+			
+			$TE->addRow(array($BD, $B, $div, $BE));
+			$TE->addCellEvent(3, "click", "contentManager.selectRow(this); \$j('#editDetailsTinkerforge').animate({'width':'800px'}, 200, 'swing', function(){ ".OnEvent::frame("editAP", "TinkerforgeBricklet", $A->getID(), "0", "function(){ \$j('#editAP').fadeIn(); }")." });");
+
 		}
-		 */
+		
+		if($AC->numLoaded() == 0){
+			$TE->addRow("Keine Bricklets eingetragen");
+			$TE->addRowColspan(1, 3);
+		}
+		
+		echo "$BA
+			<div style=\"float:right;width:400px;height:500px;display:none;\" id=\"editAP\"></div>
+			<div id=\"listAP\" style=\"width:400px;height:440px;overflow:auto;\">$TE</div>
+			<div style=\"clear:both;\"></div>
+			".($autoLoad ? OnEvent::script("\$j('#TinkerforgeBrickletUID".$autoLoad."').parent().trigger(Touch.trigger);") : "");
+		
+	}
+
+	public function createNew(){
+		$F = new Factory("TinkerforgeBricklet");
+
+		$F->sA("TinkerforgeBrickletTinkerforgeID", $this->getID());
+
+		$F->store();
+
+		echo $this->bricklets();
 	}
 	
 	public function readTemperature(){

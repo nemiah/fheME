@@ -586,7 +586,8 @@ class BrickletTemperatureIR extends Device
         $payload = unpack('v1temperature', $data);
 
         array_push($result, IPConnection::fixUnpackedInt16($payload['temperature']));
-
+		$result[] = $this->registeredCallbackUserData[self::CALLBACK_OBJECT_TEMPERATURE];
+		
         call_user_func_array($this->registeredCallbacks[self::CALLBACK_AMBIENT_TEMPERATURE], $result);
     }
 
@@ -600,7 +601,8 @@ class BrickletTemperatureIR extends Device
         $payload = unpack('v1temperature', $data);
 
         array_push($result, IPConnection::fixUnpackedInt16($payload['temperature']));
-
+		$result[] = $this->registeredCallbackUserData[self::CALLBACK_OBJECT_TEMPERATURE];
+		
         call_user_func_array($this->registeredCallbacks[self::CALLBACK_OBJECT_TEMPERATURE], $result);
     }
 
@@ -614,6 +616,7 @@ class BrickletTemperatureIR extends Device
         $payload = unpack('v1temperature', $data);
 
         array_push($result, IPConnection::fixUnpackedInt16($payload['temperature']));
+		$result[] = $this->registeredCallbackUserData[self::CALLBACK_OBJECT_TEMPERATURE];
 
         call_user_func_array($this->registeredCallbacks[self::CALLBACK_AMBIENT_TEMPERATURE_REACHED], $result);
     }
@@ -628,6 +631,7 @@ class BrickletTemperatureIR extends Device
         $payload = unpack('v1temperature', $data);
 
         array_push($result, IPConnection::fixUnpackedInt16($payload['temperature']));
+		$result[] = $this->registeredCallbackUserData[self::CALLBACK_OBJECT_TEMPERATURE];
 
         call_user_func_array($this->registeredCallbacks[self::CALLBACK_OBJECT_TEMPERATURE_REACHED], $result);
     }

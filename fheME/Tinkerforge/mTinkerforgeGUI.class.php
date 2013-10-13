@@ -33,6 +33,30 @@ class mTinkerforgeGUI extends anyC implements iGUIHTMLMP2 {
 		return $gui->getBrowserHTML($id);
 	}
 
+	
+	public static function getOverviewPlugin(){
+		return new overviewPlugin("mTinkerforgeGUI", "Tinkerforge", 100);
+	}
+	
+	public function getOverviewContent(){
+		$html = "<div class=\"touchHeader\"><span class=\"lastUpdate\" id=\"lastUpdatemTinkerforgeGUI\"></span><p>Tinkerforge</p></div>
+			<div style=\"padding:10px;\">";
+
+		$AC = anyC::get("Tinkerforge");
+		
+		while($T = $AC->getNextEntry()){
+			$ACB = anyC::get("TinkerforgeBricklet", "TinkerforgeBrickletTinkerforgeID", $T->getID());
+			
+			while($B = $ACB->getNextEntry()){
+				$html .= $B->getControl();
+			}
+			
+		}
+		
+		
+		$html .= "</div>";
+		echo $html;
+	}
 
 }
 ?>
