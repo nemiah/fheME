@@ -31,12 +31,14 @@ class TinkerforgeBricklet extends PersistentObject {
 			timeformat: '%H:%M',
 			tickLength: 0,
 			color:'#BBBBBB',
-			tickColor:'#BBBBBB'
+			tickColor:'#BBBBBB',
+			tickLength: 0
 		},
 		
 		yaxis: {
 			color:'#BBBBBB',
-			tickColor:'#BBBBBB'
+			tickColor:'#BBBBBB',
+			tickLength: 0
 		},
 		
 		grid: {
