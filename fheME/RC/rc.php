@@ -24,7 +24,7 @@ if(isset($argv[1]))
 if(isset($argv[2]))
 	$_SERVER["HTTP_HOST"] = $argv[2];
 
-session_name("ExtConnMail");
+session_name("ExtConnRC");
 
 require_once realpath(dirname(__FILE__)."/../../system/connect.php");
 
@@ -41,16 +41,12 @@ $absolutePathToPhynx = realpath(dirname(__FILE__)."/../../")."/";
 
 $e = new ExtConn($absolutePathToPhynx);
 
-$e->addClassPath($absolutePathToPhynx."/lightCRM/Mail");
+$e->loadPlugin("fheME", "RC");
 
 $e->useDefaultMySQLData();
-
 $e->useUser();
 
-$M = new mMail();
 
-$M->check(true);
-$M->archiveMails(time() - 14 * 3600 * 24);
 
 $e->cleanUp();
 

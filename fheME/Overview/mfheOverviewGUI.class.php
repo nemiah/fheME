@@ -219,7 +219,7 @@ class mfheOverviewGUI extends anyC implements iGUIHTMLMP2 {
 			$styles = "position:absolute;top:{$options->top}px;left:{$options->left}px;";
 		
 		
-		$html =  "<div id=\"fheOverviewContent".substr($plugin, 1)."_getOverviewContent\" data-plugin=\"$plugin\" class=\"desktopDraggable\" style=\"".(($isLast OR $E->minHeight() === 0) ? "" : ($Device->A("DeviceType") == 4 ? "min-" : "")."height:".$E->minHeight()."px;overflow:hidden;").($Device->A("DeviceType") == 4 ? "width:300px;" : "")."$styles\">";
+		$html =  "<div id=\"fheOverviewContent".$plugin."_getOverviewContent\" data-plugin=\"$plugin\" class=\"desktopDraggable\" style=\"".(($isLast OR $E->minHeight() === 0) ? "" : ($Device->A("DeviceType") == 4 ? "min-" : "")."height:".$E->minHeight()."px;overflow:hidden;").($Device->A("DeviceType") == 4 ? "width:300px;" : "")."$styles\">";
 		
 		$BM = new Button("Plugin verschieben", "move", "iconicL");
 		$BM->style("cursor:move;");

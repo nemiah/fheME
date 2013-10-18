@@ -92,9 +92,10 @@ var fheOverview = {
 		var method = target.split("::");
 		target = target.replace("::", "_");
 		contentManager.rmePCR(method[0].replace("GUI", ""), -1, method[1], "1", function(transport){
-			if(!$('fheOverviewContent'+target))
+			console.log('fheOverviewContent'+target);
+			if($j('#fheOverviewContent'+target).length == 0)
 				return;//console.log('fheOverviewContent'+target+" is NULL!");
-			$('fheOverviewContent'+target).update(transport.responseText);
+			$j('#fheOverviewContent'+target).html(transport.responseText);
 			//console.log(fheOverview.counter+":"+target);
 			fheOverview.updateTime(method[0]);
 		});
