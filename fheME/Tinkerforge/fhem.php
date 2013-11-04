@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  *  This file is part of fheME.
 
  *  fheME is free software; you can redistribute it and/or modify
@@ -13,18 +13,16 @@
  *  GNU General Public License for more details.
 
  *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  along with this program.  If not, see <http://www.gnu.org/licenses></http:>.
+ * 
+ *  2007 - 2012, Rainer Furtmeier - Rainer@Furtmeier.de
  */
 
-if(isset($argv[1]))
-	$_GET["cloud"] = $argv[1];
+$_GET["cloud"] = "Any";
 
-if(isset($argv[2]))
-	$_SERVER["HTTP_HOST"] = $argv[2];
+$_SERVER["HTTP_HOST"] = "*";
 
-session_name("ExtConnRC");
+session_name("ExtConnTF");
 
 require_once realpath(dirname(__FILE__)."/../../system/connect.php");
 
@@ -37,11 +35,9 @@ function cronShutdownHandler() {
 	print_r(SysMessages::i()->getMessages());
 }
 
-$absolutePathToPhynx = realpath(dirname(__FILE__)."/../../")."/";
+$e = new ExtConn(realpath(dirname(__FILE__)."/../../")."/");
 
-$e = new ExtConn($absolutePathToPhynx);
-
-$e->loadPlugin("fheME", "RC");
+$e->loadPlugin("fheME", "Tinkerforge");
 
 $e->useDefaultMySQLData();
 $e->useUser();

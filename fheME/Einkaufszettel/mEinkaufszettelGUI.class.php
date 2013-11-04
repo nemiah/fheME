@@ -45,15 +45,15 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 	}
 	
 	public function checkEAN($EAN){
-		$OEAN = new mopenEANGUI();
+		$OEAN = new barcoo();
 		$artikel = $OEAN->startSeach($EAN);
 		
 		print_r($artikel);
 	}
 	
 	public function addEAN($EAN, $echo = true){
-		$OEAN = new mopenEANGUI();
-		$artikel = $OEAN->startSeach($EAN);
+		$OEAN = new barcoo();
+		$artikel = $OEAN->startSeach(trim($EAN));
 		
 		$fullname = "";
 		$name = "";
@@ -67,12 +67,17 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 			$F = new Factory("Einkaufszettel");
 			$F->sA("EinkaufszettelName", $name);
 			$F->sA("EinkaufszettelBought", "0");
-			if(!$F->exists()){
+			$F->sA("EinkaufszettelMenge", "1");
+			$O = $F->exists(true);
+			if(!$O){
 				$F->sA("EinkaufszettelEAN", $EAN);
 				$F->sA("EinkaufszettelTime", time());
 				if($fullname != $name)
 					$F->sA("EinkaufszettelNameDetails", $fullname);
 				$F->store();
+			} else {
+				$O->changeA("EinkaufszettelMenge", $O->A("EinkaufszettelMenge") + 1);
+				$O->saveMe();
 			}
 		}
 		
@@ -81,8 +86,9 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 	}
 	
 	public function addItem($name, $overviewList = false){
-		
-		if(trim($name) != ""){
+		if(preg_match("/[0-9]+/", $name)){
+			$this->addEAN($name, false);
+		} elseif(trim($name) != ""){
 			$F = new Factory("Einkaufszettel");
 			$F->sA("EinkaufszettelName", $name);
 			$F->sA("EinkaufszettelTime", time());
@@ -191,7 +197,7 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 		$I->style("width:390px;padding:5px;margin-left:5px;font-size:20px;float:left;font-family:monospace;max-width:390px;resize:none;height:35px;max-height:35px;margin-top:-45px;");
 		#$I->onfocus("if(this.value == 'Neuer Eintrag') { \$j(this).val('').css('color', 'black'); }");
 		#$I->onblur("if(this.value == '') { \$j(this).val('Neuer Eintrag').css('color', 'grey'); }");
-		$I->onkeyup("var currentContent = \$j(this).val(); ".OnEvent::rme($this, "getACData", array("this.value"), "function(transport){ var json = jQuery.parseJSON(transport.responseText); if(json.length >= 1) \$j('#EinkaufslisteNewEntryAC').html(json[0].EinkaufszettelName.replace(currentContent, '<span style=\'color:white;\'>'+currentContent+'</span>')); else \$j('#EinkaufslisteNewEntryAC').html(''); }"));
+		#$I->onkeyup("var currentContent = \$j(this).val(); ".OnEvent::rme($this, "getACData", array("this.value"), "function(transport){ var json = jQuery.parseJSON(transport.responseText); if(json.length >= 1) \$j('#EinkaufslisteNewEntryAC').html(json[0].EinkaufszettelName.replace(currentContent, '<span style=\'color:white;\'>'+currentContent+'</span>')); else \$j('#EinkaufslisteNewEntryAC').html(''); }"));
 		$I->onEnter(OnEvent::rme($this, "addItem", array("this.value"), "function(transport){ \$j('#currentList').html(transport.responseText); }")." \$j(this).val('');");
 		
 		
@@ -225,6 +231,7 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 		$AC = anyC::get("Einkaufszettel", "EinkaufszettelBought", "1");
 		$AC->setFieldsV3(array("EinkaufszettelName", "EinkaufszettelNameDetails", "MAX(EinkaufszettelID) AS maxID"));
 		$AC->addAssocV3("EinkaufszettelBoughtTime", ">", time() - 3600 * 24 * 60);
+		$AC->addAssocV3("EinkaufszettelEAN", "=", "");
 		$AC->addGroupV3("EinkaufszettelName");
 		$AC->addOrderV3("EinkaufszettelName");
 		#$AC->addGroupV3("EinkaufszettelNameDetails");

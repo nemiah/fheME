@@ -57,7 +57,7 @@ class TinkerforgeGUI extends Tinkerforge implements iGUIHTML2 {
 		while($A = $AC->getNextEntry()){
 			
 			$B = new Button("Master", "bars", "iconicL");
-			$B->popup("", "Plot", "TinkerforgeBricklet", $A->getID(), "showPlot", "", "", "{width:820}");
+			$B->popup("", "Plot", "TinkerforgeBricklet", $A->getID(), "getControls", "", "", "{width:820}");
 			$B->style("float:right;");
 			
 			$BD = new Button("Eintrag löschen", "trash_stroke", "iconic");

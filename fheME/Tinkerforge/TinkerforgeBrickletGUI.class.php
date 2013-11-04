@@ -35,23 +35,30 @@ class TinkerforgeBrickletGUI extends TinkerforgeBricklet implements iGUIHTML2 {
 		return $BC."<div style=\"clear:both;\"></div>".$gui->getEditHTML();
 	}
 	
-	public function showPlot(){
+	public function getControls(){
+		switch($this->A("TinkerforgeBrickletType")){
+			case "BrickletTemperatureIR":
+				echo "<div id=\"brickletPlot".$this->A("TinkerforgeBrickletUID")."\" style=\"width:800px;height:300px;\"></div>".OnEvent::script("
+					\$j(function () {
+						Tinkerforge.plot.BID".$this->A("TinkerforgeBrickletUID")." = \$j.plot(\$j('#brickletPlot".$this->A("TinkerforgeBrickletUID")."'), [], {
+							xaxis: { 
+								mode: 'time',
+								timezone: 'browser',
+								timeformat: '%H:%M',
+								tickLength: 0
+							},
+							grid: {
+								borderWidth: 1,
+								borderColor: '#AAAAAA'
+							}
+							});
+					});");
+			break;
 		
-		echo "<div id=\"brickletPlot".$this->A("TinkerforgeBrickletUID")."\" style=\"width:800px;height:300px;\"></div>".OnEvent::script("
-\$j(function () {
-    Tinkerforge.plot.BID".$this->A("TinkerforgeBrickletUID")." = \$j.plot(\$j('#brickletPlot".$this->A("TinkerforgeBrickletUID")."'), [], {
-		xaxis: { 
-			mode: 'time',
-			timezone: 'browser',
-			timeformat: '%H:%M',
-			tickLength: 0
-		},
-		grid: {
-			borderWidth: 1,
-			borderColor: '#AAAAAA'
+			case "BrickletDualRelay":
+				
+			break;
 		}
-		});
-});");
 		/*
 		threshold: { 
 			below: 120,

@@ -18,7 +18,7 @@
  *  2007 - 2012, Rainer Furtmeier - Rainer@Furtmeier.de
  */
 class TinkerforgeBricklet extends PersistentObject {
-	public static $types = array("BrickletTemperatureIR" => "Temperature IR");
+	public static $types = array("BrickletTemperatureIR" => "Temperature IR", "BrickletDualRelay" => "Dual Relay");
 	
 	public function getControl(){
 		
