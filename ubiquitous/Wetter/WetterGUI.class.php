@@ -25,7 +25,7 @@ class WetterGUI extends Wetter implements iGUIHTML2 {
 		$B = $gui->addSideButton("Daten\nanzeigen", "empty");
 		$B->popup("", "Wetter-Daten", "Wetter", $this->getID(), "getData");
 		
-		#$gui->descriptionField("WetterWOEID", "Siehe <a href=\"http://isithackday.com/geoplanet-explorer/\" target=\"_blank\">http://isithackday.com/geoplanet-explorer/</a>");
+		$gui->descriptionField("WetterWOEID", "Siehe <a href=\"http://edg3.co.uk/snippets/weather-location-codes/germany/\" target=\"_blank\">http://edg3.co.uk/snippets/weather-location-codes/germany/</a>");
 		
 		return $gui->getEditHTML();
 	}

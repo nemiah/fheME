@@ -52,7 +52,7 @@ declare(ticks = 1);
 
 function callback($value, $data) {
 	$value = floor($value / 10.0);
-	
+
 	$bricklet = $data[0];
 	$type = $data[1];
 	
@@ -89,6 +89,9 @@ while($T = $AC->getNextEntry()){
 			switch($B->A("TinkerforgeBrickletType")){
 				case "BrickletTemperatureIR":
 					$Bricklet = new $Type($B->A("TinkerforgeBrickletUID"), $connections[$T->getID()]);
+					
+					callback($Bricklet->getObjectTemperature(), array($B->A("TinkerforgeBrickletUID"), $B->A("TinkerforgeBrickletType")));
+					
 					$Bricklet->setObjectTemperatureCallbackPeriod(60000);
 					$Bricklet->registerCallback($Type::CALLBACK_OBJECT_TEMPERATURE, 'callback', array($B->A("TinkerforgeBrickletUID"), $B->A("TinkerforgeBrickletType")));
 				break;
