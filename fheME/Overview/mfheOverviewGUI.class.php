@@ -233,7 +233,7 @@ class mfheOverviewGUI extends anyC implements iGUIHTMLMP2 {
 		$html .= "<div class=\"desktopAlterIcons\">$BM$BC</div>";
 		
 		ob_start();
-		$C->getOverviewContent();
+		$C->getOverviewContent($Device->getID());
 		$html .= ob_get_contents();
 		ob_end_clean();
 		$html .=  "</div>";

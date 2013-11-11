@@ -91,8 +91,8 @@ var fheOverview = {
 	loadContent: function(target){
 		var method = target.split("::");
 		target = target.replace("::", "_");
-		contentManager.rmePCR(method[0].replace("GUI", ""), -1, method[1], "1", function(transport){
-			console.log('fheOverviewContent'+target);
+		contentManager.rmePCR(method[0].replace("GUI", ""), -1, method[1], [$j.jStorage.get('phynxDeviceID', -1)], function(transport){
+			//console.log('fheOverviewContent'+target);
 			if($j('#fheOverviewContent'+target).length == 0)
 				return;//console.log('fheOverviewContent'+target+" is NULL!");
 			$j('#fheOverviewContent'+target).html(transport.responseText);

@@ -20,7 +20,7 @@
 
 var Tinkerforge = {
 	init: function(){
-		pWebsocket.onDisconnect(phim.disconnected);
+		//pWebsocket.onDisconnect(phim.disconnected);
 		pWebsocket.subscribe("tinkerforge", Tinkerforge.handleWS);
 	},
 	
