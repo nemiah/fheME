@@ -19,6 +19,7 @@
  */
 class RSSPDeutscherWarndienstDe implements iFileBrowser, iRSSParser {
 	private $title = null;
+	private $ok = false;
 	
 	public function getLabel() {
 		return "deutscher-warndienst.de RSS-Feed";
@@ -26,11 +27,17 @@ class RSSPDeutscherWarndienstDe implements iFileBrowser, iRSSParser {
 	
 	public function parseTitle($title){
 		$this->title = $title;
+		if($this->title == "Keine Warnungen vorhanden."){
+			$this->ok = true;
+			
+			return "<span style=\"color:grey;\">Keine Warnungen vorhanden.</span>";
+		}
+		
 		return $title;
 	}
 	
 	public function parseDescription($description){
-		if($this->title == "Keine Warnungen vorhanden.")
+		if($this->ok)
 			return "";
 		
 		$description = trim(str_replace(array($this->title, "DWD / RZ München ", "ausgegeben vom Deutschen Wetterdienst "), "", $description));
@@ -43,10 +50,13 @@ class RSSPDeutscherWarndienstDe implements iFileBrowser, iRSSParser {
 	}
 	
 	public function getIcon(){
-		if($this->title == "Keine Warnungen vorhanden.")
-			return "bestaetigung";
+		if($this->ok)
+			return new Button("OK", "check", "iconicL");
 		
-		else return "./ubiquitous/RSSParser/weather-severe-alert.png";
+		$B = new Button("Warnung", "bolt", "iconicL");
+		$B->style("color:rgb(220, 0, 0);");
+		
+		return $B;
 	}
 }
 

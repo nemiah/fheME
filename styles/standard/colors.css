@@ -90,6 +90,10 @@
 	background-color:rgba(255,204,0,0.3);
 }
 
+.confirm {
+	background-color:#d1e769;
+}
+
 label {
 	color:#444;
 }

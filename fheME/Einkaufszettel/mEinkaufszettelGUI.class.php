@@ -167,7 +167,7 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 		$I->onEnter(OnEvent::rme($this, "addItem", array("this.value", "1"), "function(transport){ \$j('#EinkaufszettelLastAdded').html(transport.responseText); }")." \$j(this).val('');");
 		
 		
-		$B = new Button("Liste anzeigen", "compass", "touch");
+		$B = new Button("Liste anzeigen", "list", "touch");
 		$B->popup("", "Einkaufsliste", "mEinkaufszettel", "-1", "showCurrentList", "", "", "{top:20, width:800, hPosition:'center', blackout:true}");
 		
 		
@@ -246,7 +246,7 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 			$BT->style("float:left;margin-right:10px;margin-top:-4px;");
 			
 			$L->addItem($BT.$B->A("EinkaufszettelName").($B->A("EinkaufszettelNameDetails") != "" ? "<br /><small style=\"color:grey;\">".$B->A("EinkaufszettelNameDetails")."</small>" : ""));
-			$L->addItemStyle("font-size:20px;padding-top:10px;padding-bottom:10px;margin-top:0px;");
+			$L->addItemStyle("height:24px;white-space:nowrap;font-size:20px;padding-top:10px;padding-bottom:10px;margin-top:0px;cursor:move;-webkit-touch-callout: none;-webkit-user-select: none;-khtml-user-select: none;-moz-user-select: none;-ms-user-select: none;user-select: none;");
 			$L->addItemClass("swipe");
 			$L->addItemData("maxid", $B->A("maxID"));
 			#$TB->addRow(array($BT, ));
@@ -268,6 +268,7 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 					if(event.gesture.deltaX > 150)
 						".OnEvent::rme($this, "reAddItem", array("\$j(this).data('maxid')"), "function(transport){ \$j('#currentList').html(transport.responseText); }")."
 					
+					\$j(this).removeClass('confirm');
 					\$j(this).removeClass('highlight');
 					\$j(this).animate({'margin-left': 15});
 					return;
@@ -275,6 +276,13 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 				
 				if(event.type == 'dragright'){
 					var margin = event.gesture.deltaX;
+
+					if(margin >= 150)
+						\$j(this).addClass('confirm');
+						
+					if(margin < 150)
+						\$j(this).removeClass('confirm');
+
 					if(margin > 250)
 						margin = 250;
 						

@@ -63,13 +63,14 @@ class mRSSParserGUI extends anyC implements iGUIHTMLMP2 {
 			$E = $RSS->parseFeed();
 			
 			foreach($E AS $item){
-				$B = new Button("", "empty", "icon");
-				$B->style("float:left;margin-right:10px;margin-top:-5px;margin-bottom:10px;");
+				#$B = new Button("", "empty", "icon");
+				#
 				
-				if($item->icon != null)
-					$B->image($item->icon);
-				else
-					$B = "";
+				$B = "";
+				if($item->icon != null){
+					$B = $item->icon;
+					$B->style($B->getStyle()."float:left;margin-right:10px;margin-top:-5px;margin-bottom:10px;");
+				}
 				
 				$list->addItem($B."<div id=\"RSSParserItem$i\" style=\"margin-top:33px;position:absolute;width:400px;display:none;border-width:1px;border-style:solid;padding:5px;border-radius:5px;\" onclick=\"\$j(this).toggle();\" class=\"backgroundColor0 borderColor1 RSSParserItem\"><small>".$item->description."</small></div>".($item->description != "" ? "<a href=\"#\" onclick=\"\$j('.RSSParserItem').hide(); \$j('#RSSParserItem$i').toggle();\" >" : "").$item->title.($item->description != "" ? "</a>" : ""));
 				$list->addItemStyle("clear:both;display:block;margin-left:0px;");
