@@ -23,7 +23,7 @@ class Nuntius extends PersistentObject {
 			$BS->style("float:left;");
 
 			$read = false;
-			$message = $this->A("NuntiusMessage");
+			$message = $this->messageParser();#$this->A("NuntiusMessage");
 			if($this->A("NuntiusRead") > "0"){
 				$read = true;
 				$BS = new Button("Nachricht", "check", "iconicL");
@@ -45,6 +45,10 @@ class Nuntius extends PersistentObject {
 				$from = $D->A("DeviceName");
 			}
 			
+			if($ex[0] == "FritzBox")
+				$from = $this->A("NuntiusSender");
+			
+			
 			return "
 			<div id=\"Nuntius".$this->getID()."\" style=\"cursor:pointer;".($read ? "" : "background-color:#efefef;")."min-height:40px;margin-bottom:10px;margin-top:10px;\" onclick=\"".OnEvent::rme($this, "read", "", "function(t){ \$j('#Nuntius".$this->getID()."').replaceWith(t.responseText); fheOverview.loadContent('mNuntiusGUI::getOverviewContent'); }")."\">
 				$BS
@@ -59,6 +63,21 @@ class Nuntius extends PersistentObject {
 		$this->saveMe();
 		
 		echo $this->message();
+	}
+	
+	function messageParser(){
+		switch($this->A("NuntiusSender")){
+			case "FritzBox":
+				#call,01759315683,090979696114,SIP0
+				$ex = explode(",", $this->A("NuntiusMessage"));
+				
+				return "<p>Anruf von</p><p class=\"prettyTitle highlight\" style=\"text-align:center;\">$ex[1]</p><p>An $ex[2]</p>";
+				
+			break;
+		
+			default:
+				return $this->A("NuntiusMessage");
+		}
 	}
 }
 ?>

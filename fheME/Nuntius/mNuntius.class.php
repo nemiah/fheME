@@ -1,5 +1,5 @@
+<?php
 /**
- *
  *  This file is part of fheME.
 
  *  fheME is free software; you can redistribute it and/or modify
@@ -13,18 +13,28 @@
  *  GNU General Public License for more details.
 
  *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ *  along with this program.  If not, see <http://www.gnu.org/licenses></http:>.
+ * 
  *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
-var Nuntius = {
-	handleWS: function(topic, data){
-		//if(data.type === "BrickletTemperatureIR")
-		//	Tinkerforge.updatePlot(data);
-		Popup.load("Nachricht", "Nuntius", data.NuntiusID, "showMessageTimeout", [data.timeout], "", "edit", "{remember:true}");
+class mNuntius extends anyC {
+
+	public function sendMessage($target, $message, $from, $urgency = 50){
+		if(trim($message) == "")
+			return;
+		
+		$F = new Factory("Nuntius");
+		
+		$F->sA("NuntiusDeviceID", $target);
+		$F->sA("NuntiusSender", $from);
+		$F->sA("NuntiusTime", time());
+		$F->sA("NuntiusUrgency", $urgency);
+		$F->sA("NuntiusMessage", $message);
+		$F->sA("NuntiusRead", $urgency < 10 ? "1" : "0");
+		
+		return $F->store();
 	}
 
-};
-
-Registry.callback("pWebsocket", function(){pWebsocket.subscribe("nuntius", Nuntius.handleWS);});
+}
+?>

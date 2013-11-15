@@ -1,0 +1,3 @@
+#!/bin/sh
+cat /var/flash/phonebook > /var/media/ftp/phonebook.xml;
+/usr/bin/wget -q -O /dev/null http://192.168.7.11/fheME/fheME/Nuntius/messenger.php?message=call,$1,$2,$3,$4,$5&from=FritzBox&urgency=0

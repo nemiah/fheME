@@ -19,11 +19,6 @@
  */
 
 var Tinkerforge = {
-	init: function(){
-		//pWebsocket.onDisconnect(phim.disconnected);
-		pWebsocket.subscribe("tinkerforge", Tinkerforge.handleWS);
-	},
-	
 	handleWS: function(topic, data){
 		if(data.type === "BrickletTemperatureIR")
 			Tinkerforge.updatePlot(data);
@@ -58,6 +53,4 @@ var Tinkerforge = {
 	
 };
 
-$j(function(){
-	Tinkerforge.init();
-});
+Registry.callback("pWebsocket", function(){pWebsocket.subscribe("tinkerforge", Tinkerforge.handleWS);});

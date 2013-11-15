@@ -167,6 +167,7 @@ if($sephy AND isset($sephy[3]) AND $sephy[3])
 
 		
 		<script type="text/javascript" src="./javascript/P2J.js?r=<?php echo $build; ?>"></script>
+		<script type="text/javascript" src="./javascript/Registry.js?r=<?php echo $build; ?>"></script>
 
 		<script type="text/javascript" src="./javascript/Aspect.js?r=<?php echo $build; ?>"></script>
 		<script type="text/javascript" src="./javascript/Observer.js?r=<?php echo $build; ?>"></script>

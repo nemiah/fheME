@@ -18,7 +18,7 @@
  *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
-class mNuntiusGUI extends anyC implements iGUIHTMLMP2 {
+class mNuntiusGUI extends mNuntius implements iGUIHTMLMP2 {
 
 	public function getHTML($id, $page){
 		$this->loadMultiPageMode($id, $page, 0);
@@ -123,7 +123,7 @@ class mNuntiusGUI extends anyC implements iGUIHTMLMP2 {
 		
 		$BS = new Button("Senden", "arrow_right", "touch");
 		$BS->style("margin-top:0px;height:190px;margin-bottom:0px;");
-		$BS->rmePCR("mNuntius", "-1", "sendMessage", array("\$j('.nuntiusMessageTo:visible').attr('id').replace('nuntiusMessageTarget', '')", "\$j('[name=NuntiusMessage]').val()", "\$j.jStorage.get('phynxDeviceID', -1)"), "function(){ ".OnEvent::closePopup("mNuntius")." }");
+		$BS->rmePCR("mNuntius", "-1", "sendMessage", array("\$j('.nuntiusMessageTo:visible').attr('id').replace('nuntiusMessageTarget', '')", "\$j('[name=NuntiusMessage]').val()", "'Device:'+\$j.jStorage.get('phynxDeviceID', -1)"), "function(){ ".OnEvent::closePopup("mNuntius")." }");
 		
 		$I = new HTMLInput("NuntiusMessage", "textarea");
 		$I->style("width:100%;height:200px;max-width:400px;font-size:15px;");
@@ -136,22 +136,6 @@ class mNuntiusGUI extends anyC implements iGUIHTMLMP2 {
 			<div style=\"display:none;padding-bottom:1px;\" id=\"nuntiusMessageContainer\">
 				<div style=\"width:100px;float:right;\">$BS</div><div style=\"width:300px;\">$I</div>
 			</div>";
-	}
-
-	public function sendMessage($target, $message, $from){
-		if(trim($message) == "")
-			return;
-		
-		$F = new Factory("Nuntius");
-		
-		$F->sA("NuntiusDeviceID", $target);
-		$F->sA("NuntiusSender", "Device:".$from);
-		$F->sA("NuntiusTime", time());
-		$F->sA("NuntiusUrgency", 50);
-		$F->sA("NuntiusMessage", $message);
-		$F->sA("NuntiusRead", "0");
-		
-		$F->store();
 	}
 }
 ?>

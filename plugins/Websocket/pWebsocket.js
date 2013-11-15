@@ -164,6 +164,11 @@ var pWebsocket = {
 
 				pWebsocket.socket.onmessage = pWebsocket.parseMessage;*/
 
+				var callbacks = Registry.list("pWebsocket");
+				for (var i = 0; i < callbacks.length; i++)
+					callbacks[i]();
+				
+
 				return true;
 			} catch(ex) { 
 				alert(ex);

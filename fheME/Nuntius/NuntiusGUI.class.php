@@ -24,5 +24,13 @@ class NuntiusGUI extends Nuntius implements iGUIHTML2 {
 	
 		return $gui->getEditHTML();
 	}
+	
+	function showMessageTimeout($timeout){
+		echo $this->messageParser();
+		
+		if($timeout > 0)
+			echo OnEvent::script("window.setTimeout(function(){".OnEvent::closePopup("Nuntius")."}, $timeout * 1000);");
+		
+	}
 }
 ?>
