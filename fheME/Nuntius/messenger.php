@@ -18,6 +18,11 @@
  *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
+/*if(isset($_GET["data"])){
+	$_GET["data"] = str_replace(array(":", ";"), array("=", "&"), $_GET["data"]);
+	parse_str($_GET["data"], $_GET);
+}*/
+
 if(isset($argv[1]))
 	$_GET["cloud"] = $argv[1];
 
@@ -47,20 +52,31 @@ $e->loadPlugin("fheME", "Nuntius");
 $e->useDefaultMySQLData();
 $e->useUser();
 
-$N  = new mNuntius();
-$NuntiusID = $N->sendMessage(0, $_GET["message"].",".$_SERVER[REMOTE_ADDR], $_GET["from"], $_GET["urgency"]);
-#file_put_contents("/home/nemiah/phonebook.xml", file_get_contents("php://input"));
 
+$caller = "";
 if($_GET["from"] == "FritzBox"){
-	/*$S = new SimpleXMLElement(file_get_contents("ftp://$_SERVER[REMOTE_ADDR]/phonebook.xml"));
+	$data = explode(",", $_GET["message"]);
 	
-	$dom = new DOMDocument('1.0');
-	$dom->preserveWhiteSpace = false;
-	$dom->formatOutput = true;
-	$dom->loadXML($S->asXML());
+	$xml = file_get_contents("ftp://$_SERVER[REMOTE_ADDR]/phonebook.xml");
+	$xml = str_replace("<?xml\nversion=\"1.0\" encoding=\"iso-8859-1\">", "<?xml version=\"1.0\" encoding=\"iso-8859-1\" ?><pb>", $xml)."</pb>";
 
-	file_put_contents("/home/nemiah/pb.xml", $dom->saveXML());*/
+	libxml_use_internal_errors(false);
+	try {
+		$S = new SimpleXMLElement($xml);
+		foreach($S->phonebook AS $PB){
+			foreach($PB->contact AS $C){
+				foreach($C->telephony->number AS $N)
+					if(ltrim($N."", "0") == ltrim($data[1], "0"))
+						$caller = $C->person->realName."";
+			}
+		}
+	} catch(Exception $ex){
+		#print_r(libxml_get_last_error());
+	}
 }
+
+$N  = new mNuntius();
+$NuntiusID = $N->sendMessage(0, $_GET["message"].",$caller,".$_SERVER[REMOTE_ADDR], $_GET["from"], $_GET["urgency"]);
 
 if($_GET["urgency"] < 10){
 	$entryData = array(

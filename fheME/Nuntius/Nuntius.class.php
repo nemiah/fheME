@@ -68,10 +68,13 @@ class Nuntius extends PersistentObject {
 	function messageParser(){
 		switch($this->A("NuntiusSender")){
 			case "FritzBox":
-				#call,01759315683,090979696114,SIP0
 				$ex = explode(",", $this->A("NuntiusMessage"));
+				$caller = $ex[1];
+				if(isset($ex[3]) AND trim($ex[3]) != "")
+					$caller = $ex[3]."<br /><small style=\"color:grey;\">$ex[1]</small>";
 				
-				return "<p>Anruf von</p><p class=\"prettyTitle highlight\" style=\"text-align:center;\">$ex[1]</p><p>An $ex[2]</p>";
+				
+				return "<p>Anruf von</p><p class=\"prettyTitle highlight\" style=\"text-align:center;\">$caller</p><p>An $ex[2]</p>";
 				
 			break;
 		
