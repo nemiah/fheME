@@ -248,14 +248,14 @@ class PersistentObject {
 		//}
 	}
 	
-	function loadMeOrEmptyT(){
+	/*function loadMeOrEmptyT(){
 	    $this->loadAdapter();
 	    
 		if($this->ID != -1) $this->loadMeT();
 		if($this->A == null) $this->A = $this->newAttributes();
 		$n = $this->getClearClass(get_class($this))."ID";
 		unset($this->A->$n);
-	}
+	}*/
 	
 	public function setA($A){
 		if($this->A == null) {

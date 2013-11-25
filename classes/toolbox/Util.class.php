@@ -355,6 +355,22 @@ class Util {
 		return $maxSize;
 	}
 
+	public static function getMaxMemory(){
+		$badFormat = ini_get("memory_limit");
+		$maxSize = 0;
+
+		if(stripos($badFormat, "m") !== false)
+			$maxSize = substr($badFormat, 0, strlen($badFormat)-1)*1024*1024;
+
+		if(stripos($badFormat, "k") !== false)
+			$maxSize = substr($badFormat, 0, strlen($badFormat)-1)*1024;
+
+		if(stripos($badFormat, "g") !== false)
+			$maxSize = substr($badFormat, 0, strlen($badFormat)-1)*1024*1024*1024;
+
+		return $maxSize;
+	}
+
 	public static function getRootPath(){
 		return str_replace("classes".DIRECTORY_SEPARATOR."toolbox".DIRECTORY_SEPARATOR."Util.class.php","",__FILE__);
 	}
@@ -1284,7 +1300,14 @@ class Util {
 			chmod($dirtouse, 0777);
 		}
 		
+		if(strpos($dirtouse, Util::getRootPath()) !== false /*AND !file_exists($dirtouse.".htaccess")*/ AND is_writable($dirtouse))
+			file_put_contents($dirtouse.".htaccess", "allow from ".$_SERVER["REMOTE_ADDR"]."\ndeny from all\nallow from ".$_SERVER["REMOTE_ADDR"]."");
+		
 		return $dirtouse;
+	}
+	
+	public static function getUploadedFilename($filename){
+		return self::getTempDir().$filename.".tmp";
 	}
 	
 	public static function getTempFilename($filename = null, $suffix = "pdf"){

@@ -380,6 +380,13 @@ class DBStorage {
 			$t++;
 		}
 
+		if($this->affectedRowsOnly AND count($statement->group) === 0) {
+			$tempFields = $statement->fields;
+			
+			$statement->fields = array("COUNT(*) AS anzahlTotal");
+			$order = "";
+		}
+		
 		$sql = "SELECT\n ".implode(",\n ",$statement->fields)."\n FROM `".$statement->table[0]."` t1$joinAdd ".($where != "()" ? "\n WHERE $where" : "").(count($statement->group) > 0 ? "\n GROUP BY ".implode(", ",$statement->group) : "").($order != "" ? "\n ORDER BY $order" : "").(count($statement->limit) > 0 ? "\n LIMIT ".implode(", ",$statement->limit) : "");
 		
 		$collector = array();
@@ -405,6 +412,14 @@ class DBStorage {
 		
 		if($this->affectedRowsOnly) {
 			$this->affectedRowsOnly = false;
+			
+			if(count($statement->group) === 0){
+				$statement->fields = $tempFields;
+				
+				$t = $q->fetch_object();
+				return $t->anzahlTotal;
+			}
+			
 			return $this->c->affected_rows;
 		}
 
@@ -533,6 +548,13 @@ class DBStorage {
 			$t++;
 		}
 		
+		if($this->affectedRowsOnly AND count($statement->group) === 0) {
+			$tempFields = $statement->fields;
+			
+			$statement->fields = array("COUNT(*) AS anzahlTotal");
+			$order = "";
+		}
+		
 		$sql = "SELECT\n ".implode(",\n ",$statement->fields)."\n FROM `".$statement->table[0]."` t1$joinAdd ".($where != "()" ? "\n WHERE $where" : "").(count($statement->group) > 0 ? "\n GROUP BY ".implode(", ",$statement->group) : "").($order != "" ? "\n ORDER BY $order" : "").(count($statement->limit) > 0 ? "\n LIMIT ".implode(", ",$statement->limit) : "");
 
 		$collector = array();
@@ -557,6 +579,14 @@ class DBStorage {
 		
 		if($this->affectedRowsOnly) {
 			$this->affectedRowsOnly = false;
+			
+			if(count($statement->group) === 0){
+				$statement->fields = $tempFields;
+				
+				$t = $q->fetch_object();
+				return $t->anzahlTotal;
+			}
+			
 			return $this->c->affected_rows;
 		}
 

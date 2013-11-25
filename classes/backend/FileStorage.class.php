@@ -153,6 +153,9 @@ class FileStorage {
 			if(strpos(basename($file), "NewsletterEmbID") === 0)
 				continue;
 
+			if(strpos(basename($file), "EingangsbelegID") === 0)
+				continue;
+
 			if(strpos(basename($file), "ArtikelID") === 0)
 				continue;
 

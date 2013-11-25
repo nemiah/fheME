@@ -164,6 +164,8 @@ if($sephy AND isset($sephy[3]) AND $sephy[3])
 		<script type="text/javascript" src="./libraries/flot/jquery.flot.orderBars.js"></script>
 		<script type="text/javascript" src="./libraries/nicEdit/nicEdit.js"></script>
 		<script type="text/javascript" src="./libraries/modernizr.custom.js"></script>
+		<script type="text/javascript" src="./libraries/snap.svg/snap.svg-min.js"></script>
+		<script type="text/javascript" src="./libraries/touchy/Touchy.js"></script>
 
 		
 		<script type="text/javascript" src="./javascript/P2J.js?r=<?php echo $build; ?>"></script>
@@ -206,6 +208,7 @@ if($sephy AND isset($sephy[3]) AND $sephy[3])
 		</script>
 		<link rel="stylesheet" type="text/css" href="./libraries/jquery/jquery-ui-1.10.1.custom.css" />
 		<link rel="stylesheet" type="text/css" href="./libraries/jquery/jquery.qtip.min.css" />
+		<link rel="stylesheet" type="text/css" href="./libraries/touchy/Touchy.css" />
 		<link rel="stylesheet" type="text/css" href="./styles/standard/overlayBox.css" />
 		<link rel="stylesheet" type="text/css" href="./styles/standard/frames.css" />
 		<link rel="stylesheet" type="text/css" href="./styles/standard/general.css" />
@@ -262,14 +265,16 @@ if($sephy AND isset($sephy[3]) AND $sephy[3])
 								class="mouseoverFade"
 								onclick="$j('#loginOptions, #altLogins').toggle();"
 								src="./images/i2/settings.png"
-								title="<?php echo T::_("Optionen anzeigen"); ?>" />
+								title="<?php echo T::_("Optionen anzeigen"); ?>"
+								alt="<?php echo T::_("Optionen anzeigen"); ?>"/>
 							
 							<img
 								style="float:right;margin-right:5px;"
 								class="mouseoverFade"
 								onclick="rmeP('Users', -1, 'lostPassword', [$('loginUsername').value], 'checkResponse(transport);');"
 								src="./images/i2/hilfe.png"
-								title="<?php echo T::_("Passwort vergessen?"); ?>" />
+								title="<?php echo T::_("Passwort vergessen?"); ?>"
+								alt="<?php echo T::_("Passwort vergessen?"); ?>"/>
 							<input
 								style="width:240px;"
 								onfocus="focusMe(this);"
@@ -421,8 +426,8 @@ if($sephy AND isset($sephy[3]) AND $sephy[3])
 					style="margin-top:15px;margin-right:10px;"
 					onclick="userControl.doCertificateLogin();"
 					id="buttonCertificateLogin"
-					value=" " 
-					title="<?php echo T::_("Mit Zertifikat anmelden");?>"/>
+					title="<?php echo T::_("Mit Zertifikat anmelden");?>"
+					alt="<?php echo T::_("Mit Zertifikat anmelden");?>"/>
 				<?php } ?>
 				<?php if(extension_loaded("curl")) { ?>
 				<img
@@ -431,8 +436,8 @@ if($sephy AND isset($sephy[3]) AND $sephy[3])
 					style="margin-top:15px;display:none;"
 					onclick="navigator.id.request({siteName: 'phynx'});"
 					id="buttonPersonaLogin"
-					value=" "
-					title="<?php echo T::_("Mit Mozilla Persona anmelden"); ?>" />
+					title="<?php echo T::_("Mit Mozilla Persona anmelden"); ?>"
+					alt="<?php echo T::_("Mit Mozilla Persona anmelden"); ?>"/>
 				<?php } ?>
 			</div>
 		</div>
@@ -584,14 +589,12 @@ if($sephy AND isset($sephy[3]) AND $sephy[3])
 						style="cursor:pointer;margin-left:5px;float:left;"
 						class="iconic iconicL x"
 						title="Abmelden"
-						alt="Abmelden"
 						onclick="<?php echo Environment::getS("onLogout", "userControl.doLogout();"); ?>"></span>
 					
 					<span
 						style="cursor:pointer;margin-left:20px;margin-right:15px;float:left;"
 						class="iconic iconicL layers_alt"
 						title="Navigation"
-						alt="Navigation"
 						id="buttonHideNavigation"></span>
 					<!--<img
 						style="margin-left:15px;float:left;"
@@ -608,7 +611,6 @@ if($sephy AND isset($sephy[3]) AND $sephy[3])
 							style="cursor:pointer;float:right;margin-left:15px;margin-right:5px;"
 							class="iconic iconicL wrench"
 							title="Layout"
-							alt="Layout"
 							onclick="phynxContextMenu.start(this, 'Colors','1','Einstellungen:','left', 'up');"></span>
 					
 						<!--<img
@@ -625,7 +627,6 @@ if($sephy AND isset($sephy[3]) AND $sephy[3])
 							style="cursor:pointer;float:right;margin-left:15px;margin-right:5px;"
 							class="iconic iconicL comment_alt2_stroke"
 							title="Hilfe"
-							alt="Hilfe"
 							onclick="window.open('http://www.phynx.de/support');"></span>
 						<!--<img
 							onclick="window.open('http://www.phynx.de/support');"
@@ -641,7 +642,6 @@ if($sephy AND isset($sephy[3]) AND $sephy[3])
 							style="cursor:pointer;float:right;margin-left:15px;margin-right:5px;"
 							class="iconic iconicL home"
 							title="Dashboard"
-							alt="Dashboard"
 							onclick="contentManager.loadDesktop()"></span>
 						<!--<img
 							onclick="contentManager.loadDesktop()"
@@ -657,8 +657,7 @@ if($sephy AND isset($sephy[3]) AND $sephy[3])
 							style="cursor:pointer;float:right;margin-left:15px;margin-right:5px;"
 							class="iconic iconicL cursor"
 							id="buttonTouchReset"
-							title="Touch"
-							alt="Touch"></span>
+							title="Touch"></span>
 					<?php } ?>
 					<!--<xsl:if test="options/showDesktopButton/@value='true'">
 						<img

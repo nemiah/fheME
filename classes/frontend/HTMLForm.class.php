@@ -326,6 +326,9 @@ class HTMLForm {
 				$onSuccessFunction .= $RC;
 		}
 		
+		if($onSuccessFunction != "" AND stripos($onSuccessFunction, "function(") === false)
+			$onSuccessFunction = "function(){ $onSuccessFunction }";
+		
 		$values = "";
 		foreach($this->fields AS $f){
 			if(!isset($this->types[$f]) OR $this->types[$f] != "checkbox")
@@ -441,6 +444,10 @@ class HTMLForm {
 		$this->spaces[$fieldName] = $label;
 	}
 
+	public function getSpaces(){
+		return $this->spaces;
+	}
+	
 	public function insertLineAbove($fieldName, $label = ""){
 		$this->spaceLines[$fieldName] = $label;
 	}
@@ -505,6 +512,10 @@ class HTMLForm {
 		return $Input;
 	}
 
+	public function getLabels(){
+		return $this->labels;
+	}
+	
 	private function getCustomButton($v, $Input){
 		$B = "";
 		if(!isset($this->types[$v]) OR $this->types[$v] != "parser"){
@@ -608,25 +619,33 @@ class HTMLForm {
 					$hiddenFields .= $Input;
 					continue;
 				}
-
+				
 				if(isset($this->spaces[$v])){
 					if($this->spaces[$v] == ""){
-						if(count($row) == 2) {
-							#$row[] = ""; $row[] = "";
-							$this->table->addRow(array("", "", "", ""));
-							$this->table->addRowClass("backgroundColor0");
-							#$row = array();
-						}
 						if(count($row) == 0) {
 							$this->table->addRow(array("", "", "", ""));
 							$this->table->addRowClass("backgroundColor0");
-							#$row[] = ""; $row[] = "";
-							#$row[] = ""; $row[] = "";
 						}
-						#$this->table->addRow(array());
-						#$this->table->addRowClass("backgroundColor0");
+						if(count($row) == 2) {
+							$row[] = "";
+							$row[] = "";
+							$this->table->addRow($row);
+							$row = array();
+							
+							$this->table->addRow(array("", "", "", ""));
+							$this->table->addRowClass("backgroundColor0");
+						}
 					} else {
 						if(count($row) == 0) {
+							$this->table->addRow(array($this->spaces[$v], "", "", ""));
+							$this->table->addRowClass("backgroundColor0");
+						}
+						if(count($row) == 2) {
+							$row[] = "";
+							$row[] = "";
+							$this->table->addRow($row);
+							$row = array();
+							
 							$this->table->addRow(array($this->spaces[$v], "", "", ""));
 							$this->table->addRowClass("backgroundColor0");
 						}

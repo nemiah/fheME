@@ -71,6 +71,19 @@ class DBImageGUI implements iGUIHTML2  {
 		return $mimeType.":::".$size.":::".base64_encode(addslashes($imageData));
 	}
 	
+	public static function stringifyDataS($mimeType, $imageData, $maxWidth = null, $maxHeight = null){
+		$size = strlen($imageData);
+		
+		if($maxWidth != null){
+			$mimeType = "image/png";
+			$imageData = self::resizeMax($imageData, $maxWidth, $maxHeight);
+			$size = strlen($imageData);
+		}
+		
+		return $mimeType.":::".$size.":::".base64_encode(addslashes($imageData));
+		
+	}
+	
 	public static function getData($imageString){
 		$data = explode(":::",$imageString);
 		

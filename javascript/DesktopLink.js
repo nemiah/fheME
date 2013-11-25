@@ -62,7 +62,7 @@ var DesktopLink = {
 		var DLH = Builder.node("div", {"id": "DesktopLinkHandle", "class" : "backgroundColor1 borderColor1", "style" : ""});
 		var DLC = Builder.node("div", {"id": "DesktopLink", "class" : "backgroundColor0 borderColor1", "style" : "display:none;"});
 
-		$("wrapper").insertBefore(DLW, $('wrapperTable'));
+		$("wrapper").insertBefore(DLW, $('contentScreen'));
 		$("DesktopLinkWrapper").appendChild(DLH);
 		$("DesktopLinkWrapper").appendChild(DLC);
 

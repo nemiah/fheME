@@ -20,14 +20,14 @@
 
 class ISO3166 {
 
-	public static function getCountries($lang = "de"){
+	public static function getCountries($lang = "de", $length = 2){
 		switch($lang){
 			case "de":
-				return self::getCountriesDE();
+				return self::getCountriesDE($length);
 			break;
 			
 			case "en":
-				return self::getCountriesEN();
+				return self::getCountriesEN($length);
 			break;
 		}
 	}
@@ -583,7 +583,7 @@ CY ,357";
 		
 	}
 	
-	public static function getCountriesDE(){
+	public static function getCountriesDE($length = 2){
 		$codes = "ABW    AW    Aruba
 AFG    AF    Afghanistan
 AGO    AO    Angola
@@ -836,7 +836,7 @@ ZWE    ZW    Simbabwe";
 
 		foreach($lines AS $k => $v){
 			$values = explode("    ", $v);
-			$countries[$values[1]] = $values[2];
+			$countries[$values[$length == 2 ? 1 : 0]] = $values[2];
 		}
 
 		asort($countries);
@@ -850,8 +850,8 @@ ZWE    ZW    Simbabwe";
 		return $countries[$code];
 	}
 
-	public static function getCodeToCountry($country, $lang = "de"){
-		$countries = self::getCountries($lang);
+	public static function getCodeToCountry($country, $lang = "de", $length = 2){
+		$countries = self::getCountries($lang, $length);
 
 		return array_search($country, $countries);
 	}

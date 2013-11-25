@@ -98,6 +98,8 @@ class htmlMimeMail5 {
 	 */
 	private $smtp_params;
 
+	private $smtp_conn;
+	
 	/**
 	 * Sendmail path. Do not include -f
 	 * @var $sendmail_path
@@ -897,15 +899,16 @@ class htmlMimeMail5 {
 			case 'smtp':
 				require_once(dirname(__FILE__) . '/smtp.php');
 				require_once(dirname(__FILE__) . '/RFC822.php');
-				$smtp = new smtp();
-				$smtp->connect($this->smtp_params);
-				if($this->dsn !== null)
-					$smtp->dsn($this->dsn[0], $this->dsn[1], $this->dsn[2]);
-				#print_r($con);
-				#die();
-				#if($con)
-				#	$smtp = $con;
+				if($this->smtp_conn == null){
+					$this->smtp_conn = new smtp();
 				
+				
+					$this->smtp_conn->connect($this->smtp_params);
+					if($this->dsn !== null)
+						$this->smtp_conn->dsn($this->dsn[0], $this->dsn[1], $this->dsn[2]);
+
+				}
+				$smtp = $this->smtp_conn;
 				// Parse recipients argument for internet addresses
 				foreach ($recipients as $recipient) {
 					$Mail_RFC822 = new Mail_RFC822();

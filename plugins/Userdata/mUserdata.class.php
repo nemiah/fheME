@@ -29,12 +29,16 @@ class mUserdata extends anyC {
 	}
 	
 	public static function getRelabels($forPlugin){
+		$labels = array();
+		
+		if($_SESSION["S"]->getCurrentUser() == null)
+			return $labels;
+		
 		$UD = new mUserdata();
 		$UD->addAssocV3("typ","=","relab");
 		$UD->addAssocV3("UserID","=",$_SESSION["S"]->getCurrentUser()->getID());
 		$UD->addAssocV3("name","LIKE","relabel".$forPlugin.":%");
 	
-		$labels = array();
 				
 		try	{
 			$UD->getNextEntry();
@@ -79,6 +83,9 @@ class mUserdata extends anyC {
 	
 	public static function getHides($forPlugin){
 		$labels = array();
+		
+		if($_SESSION["S"]->getCurrentUser() == null)
+			return $labels;
 		
 		$UD = new mUserdata();
 		$UD->addAssocV3("typ","=","hideF");
@@ -170,6 +177,12 @@ class mUserdata extends anyC {
 	}
 
 	public function getUDValue($name, $default = null){
+		if(!isset($_SESSION["S"]))
+			return $default;
+		
+		if($_SESSION["S"]->getCurrentUser() == null)
+			return $default;
+		
 		$this->addAssocV3("UserID","=",$_SESSION["S"]->getCurrentUser()->getID());
 		$this->addAssocV3("name","=",$name);
 		$this->lCV3();

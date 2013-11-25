@@ -1,0 +1,67 @@
+/* 
+ *  This file is part of Touchy.js.
+
+ *  Touchy.js is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 3 of the License, or
+ *  (at your option) any later version.
+
+ *  Touchy.js is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ *  2013, Rainer Furtmeier - Rainer@Furtmeier.IT
+ */
+
+.touchy-wheel-circle, .touchy-wheel-text {
+	cursor:pointer;
+}
+
+.touchy-wheel-text {
+	fill:black;
+	-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.touchy-wheel-circle {
+	fill:#d9e800;
+	-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	
+    transition: fill 200ms linear;
+}
+.touchy-wheel-background {
+	fill: white;
+	/*stroke:#d9e800;
+	strokeWidth:1px;*/
+}
+
+.touchy-wheel-close .touchy-wheel-circle {
+	fill:transparent;
+	stroke:#d9e800;
+	strokeWidth:1px;
+}
+
+.touchy-wheel-close .touchy-wheel-polyline {
+	fill:#d9e800;
+}
+
+.touchy-wheel-value {
+	fill:#aacc00;
+	
+    transition: fill 200ms linear;
+}

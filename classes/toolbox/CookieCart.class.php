@@ -644,7 +644,7 @@ class CookieCart {
 	public function getCartText($withPayPal = false){
 		$text = "";
 		
-		$paypalHTML = '<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
+		$paypalHTML = '<form id="formPayPal" action="https://www.paypal.com/cgi-bin/webscr" method="post">
 	<input type="hidden" name="cmd" value="_cart" />
 	<input type="hidden" name="upload" value="1" />
 	<input type="hidden" name="currency_code" value="EUR" />

@@ -223,6 +223,13 @@ class HTMLGUIX {
 		return $B;
 	}
 
+	/**
+	 * 
+	 * @param string $fieldName
+	 * @param string $labelOrButton
+	 * @param string $image
+	 * @return Button
+	 */
 	public function addFieldButton($fieldName, $labelOrButton, $image = ""){
 		if(!is_object($labelOrButton)){
 			$B = new Button($labelOrButton, $image);
@@ -408,7 +415,10 @@ class HTMLGUIX {
 	 * @param Collection PersistentObject $object
 	 */
 	// <editor-fold defaultstate="collapsed" desc="object">
-	public function object($object, $collectionName = null){
+	public function object($object = null, $collectionName = null){
+		if($object == null)
+			return $this->object;
+		
 		if($object instanceof PersistentObject){
 			$this->object = $object;
 			#$this->frame("contentLeft");

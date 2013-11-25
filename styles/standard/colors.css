@@ -94,6 +94,10 @@
 	background-color:#d1e769;
 }
 
+.error {
+	background-color:rgba(220, 50, 0, 0.5);
+}
+
 label {
 	color:#444;
 }
@@ -210,7 +214,7 @@ input[type=submit], select, textarea, .AJAXUpload {
 	transition: background-color .3s;
 }
 
-.phynxNoTouch #contentRight .contentBrowser tr:hover .iconic,
+.phynxNoTouch #contentRight tr:hover .iconic,
 .phynxNoTouch #contentLeft tr:hover .iconic,
 .phynxNoTouch .Tab:hover .iconic,
 .phynxNoTouch #contentScreen tr:hover .iconic,

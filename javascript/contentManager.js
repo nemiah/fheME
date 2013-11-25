@@ -683,7 +683,7 @@ var contentManager = {
 			for (var f = 0; f < fields.length; f++) {
 				var fieldS = $j(formID+'select[name='+fields[f]+'],'+formID+'input[name='+fields[f]+'],'+formID+'textarea[name='+fields[f]+']').parent().parent();
 				fieldS.css("display", "none");
-				if(fieldS.prev().hasClass("FormSeparatorWithLabel"))
+				if(fieldS.prev().hasClass("FormSeparatorWithLabel") || fieldS.prev().hasClass("FormSeparatorWithoutLabel"))
 					fieldS.prev().css("display", "none");
 			}
 
@@ -692,7 +692,7 @@ var contentManager = {
 				var fieldS = $j(formID+'select[name='+fields[f]+'],'+formID+'input[name='+fields[f]+'],'+formID+'textarea[name='+fields[f]+']').parent().parent();
 				fieldS.css("display", "");
 				
-				if(fieldS.prev().hasClass("FormSeparatorWithLabel"))
+				if(fieldS.prev().hasClass("FormSeparatorWithLabel") || fieldS.prev().hasClass("FormSeparatorWithoutLabel"))
 					fieldS.prev().css("display", "");
 			}
 	},

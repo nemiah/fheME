@@ -71,9 +71,9 @@ class SupportGUI {
 		$BOK->onclick(OnEvent::closePopup("Support"));
 		$BOK->style("float:right;margin:10px;");
 		
-		#if($mimeMail2->Send())
-		#	echo "<h1>$B Danke für Ihre Unterstützung!</h1><p>Sie erhalten in Kürze eine Antwort per E-Mail.</p>$BOK<div style=\"clear:both;\"></div>";
-		#else
+		if($mimeMail2->Send())
+			echo "<h1>$B Danke für Ihre Unterstützung!</h1><p>Sie erhalten in Kürze eine Antwort per E-Mail.</p>$BOK<div style=\"clear:both;\"></div>";
+		else
 			echo "<p style=\"padding:5px;color:red;\">Fehler beim Senden der E-Mail. Bitte überprüfen Sie Ihre Server-Einstellungen im Admin-Bereich.</p><p>Nachfolgend wird Ihre Nachricht angezeigt, falls Sie sie in die Zwischenablage kopieren (Strg + c) und manuell an <b>$mailto</b> möchten.</p><pre style=\"color:grey;max-height:300px;font-size:10px;padding:5px;width:590px;overflow:auto;\">".wordwrap(stripslashes($body), 80)."</pre>$BOK<div style=\"clear:both;\"></div>";
 	}
 	

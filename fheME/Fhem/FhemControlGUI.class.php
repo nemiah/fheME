@@ -110,12 +110,20 @@ class FhemControlGUI implements iGUIHTML2 {
 		#$B = new Button("", "./fheME/Fhem/fhemFHT.png", "icon");
 		#$B->style("float:left;margin-left:-10px;margin-top:-13px;margin-right:3px;");
 
-		$values = array("desired-temp 5.5" => "off", "desired-temp 17.0" => "17.0°", "desired-temp 18.0" => "18.0°", "desired-temp 21.0" => "21.0°", "desired-temp 21.5" => "21.5°", "desired-temp 22.0" => "22.0°", "desired-temp 23.0" => "23.0°", "desired-temp 24.0" => "24.0°");
+		#$values = array("desired-temp 5.5" => "off", "desired-temp 17.0" => "17.0°", "desired-temp 18.0" => "18.0°", "desired-temp 21.0" => "21.0°", "desired-temp 21.5" => "21.5°", "desired-temp 22.0" => "22.0°", "desired-temp 23.0" => "23.0°", "desired-temp 24.0" => "24.0°");
 
-		$controls = $this->getSetTable("H".$f->getID(), $values);
+		#$controls = $this->getSetTable("H".$f->getID(), $values);
 
-		return "<div class=\"touchButton\" onclick=\"\$j('.fhemeControl:not(#controls_H".$f->getID().")').hide(); \$j('#controls_H".$f->getID()."').toggle();\" style=\"cursor:pointer;\" class=\"\">
-				$controls
+		return "<div class=\"touchButton\" onclick=\"Touchy.wheelOnFire(event, {
+				data: {'desired-temp 17.0': '17,0°', 'desired-temp 21.0': '21,0°', 'desired-temp 21.5': '21,5°', 'desired-temp 22.0': '22,0°', 'desired-temp 22.5': '22,5°', 'desired-temp 23.0': '23,0°', 'desired-temp 28.0': '28,0°'},
+				selection: function(value){
+					".OnEvent::rme($this, "setDevice", array($f->getID(), "value"), "function(){ Fhem.requestUpdate(); }")."
+				},
+				value: function(){
+					return \$j('#FhemID_".$f->getID()."TargetTemp').data('value');
+				}
+			});/*\$j('.fhemeControl:not(#controls_H".$f->getID().")').hide(); \$j('#controls_H".$f->getID()."').toggle();*/\" style=\"cursor:pointer;\" class=\"\">
+				
 				<div id=\"FhemID_".$f->getID()."\">
 					
 				</div>
@@ -813,7 +821,7 @@ class FhemControlGUI implements iGUIHTML2 {
 					$Icon->style("float:left;margin-right:5px;");
 
 
-					$result[$F->getID()] = array("model" => $F->A("FhemFHTModel"), "state" => "$Icon$M<b>".($F->A("FhemAlias") == "" ? $F->A("FhemName") : $F->A("FhemAlias"))."</b><small style=\"color:grey;\"> {$measuredTemp}/{$desiredTemp} <small>({$actuator})</small>".($warnings != "none" ? "<br />$B{$warnings}" : "")."<div style=\"clear:both;\"></div>");
+					$result[$F->getID()] = array("model" => $F->A("FhemFHTModel"), "state" => "$Icon$M<b>".($F->A("FhemAlias") == "" ? $F->A("FhemName") : $F->A("FhemAlias"))."</b><small style=\"color:grey;\"> ".Util::CLFormatNumber(str_replace(".", ".", $measuredTemp), 1)."/".Util::CLFormatNumber(str_replace(".", ".", $desiredTemp), 1)."<span id=\"FhemID_".$F->getID()."TargetTemp\" data-value=\"desired-temp $desiredTemp\"></span> <small>({$actuator})</small>".($warnings != "none" ? "<br />$B{$warnings}" : "")."<div style=\"clear:both;\"></div>");
 				}
 			}
 		}

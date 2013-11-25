@@ -49,7 +49,7 @@ class BackupManagerGUI implements iGUIHTML2 {
 			$RD = new Button("Backup anzeigen","./images/i2/search.png", "icon");
 			$RD->windowRme("BackupManager", "", "displayBackup", $name);
 
-			$TB->addRow(array($name,Util::formatByte($size, 2),$RD/*,$RB*/));
+			$TB->addRow(array($name,Util::formatByte($size, 2),$RD, $RB));
 			$gesamt += $size;
 		}
 
@@ -335,6 +335,7 @@ require valid-user
 		$PMBP_SYS_VAR["except_tables"] = "";
 
 		$filename = PMBP_dump($CONF, $PMBP_SYS_VAR, $_SESSION["DBData"]["datab"], true, true, false, false, "");
+		
 		if(file_exists($filename))
 			chmod(Util::getRootPath()."system/Backup/".$filename, 0666);
 		return $filename;

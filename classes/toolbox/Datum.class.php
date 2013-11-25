@@ -93,13 +93,22 @@ class Datum {
 		$this->timestamp -= 7 * 24 * 3600;
 	}
 	
-	function addMonth(){
-		$this->timestamp = mktime(0, 1, 0, date("m", $this->timestamp)+1  , date("d", $this->timestamp), date("Y", $this->timestamp));
+	function addMonth($dontSkipMonth = false){
+		$date = new DateTime();
+		$date->setTimestamp($this->timestamp);
+		if($dontSkipMonth AND date("d", $this->timestamp) > 28){
+			$date->modify("last day of next month");
+		} else
+			$date->add(new DateInterval('P1M'));
+		
+		$this->timestamp  = $date->getTimestamp();
+		
+		#$this->timestamp = mktime(0, 1, 0, date("m", $this->timestamp)+1, date("d", $this->timestamp), date("Y", $this->timestamp));
 		return $this;
 	}
 	
 	function subMonth(){
-		$this->timestamp = mktime(0, 1, 0, date("m", $this->timestamp)-1  , date("d", $this->timestamp), date("Y", $this->timestamp));
+		$this->timestamp = mktime(0, 1, 0, date("m", $this->timestamp)-1, date("d", $this->timestamp), date("Y", $this->timestamp));
 		return $this;
 	}
 

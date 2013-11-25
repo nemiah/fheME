@@ -39,80 +39,82 @@ class ExtConn {
 		if($absolutePathToPhynx{strlen($absolutePathToPhynx) - 1} != "/") $absolutePathToPhynx .= "/";
 		
 		$this->absolutePath = $absolutePathToPhynx;
-
+		
 		$this->paths[] = $this->absolutePath."libraries/PhpFileDB.class.php";
 
-		$this->paths[] = $this->absolutePath."classes/backend/Collection.class.php";
-		$this->paths[] = $this->absolutePath."classes/backend/Adapter.class.php";
-		$this->paths[] = $this->absolutePath."classes/backend/SelectStatement.class.php";
-		$this->paths[] = $this->absolutePath."classes/backend/DBStorage.class.php";
-		$this->paths[] = $this->absolutePath."classes/backend/DBStorageU.class.php";
-		$this->paths[] = $this->absolutePath."classes/backend/Attributes.class.php";
-		#$this->paths[] = $this->absolutePath."classes/backend/PersistentClass.class.php";
-		$this->paths[] = $this->absolutePath."classes/backend/PersistentObject.class.php";
-		$this->paths[] = $this->absolutePath."classes/backend/User.class.php";
-		$this->paths[] = $this->absolutePath."classes/backend/anyC.class.php";
-		$this->paths[] = $this->absolutePath."classes/backend/Session.class.php";
-		$this->paths[] = $this->absolutePath."classes/backend/BackgroundPluginState.class.php";
-		$this->paths[] = $this->absolutePath."classes/backend/UnpersistentClass.class.php";
-		$this->paths[] = $this->absolutePath."classes/backend/PluginV2.class.php";
-		$this->paths[] = $this->absolutePath."classes/backend/XMLPlugin.class.php";
-		$this->paths[] = $this->absolutePath."classes/backend/FileStorage.class.php";
-		
-		$this->paths[] = $this->absolutePath."classes/exceptions/o3AException.class.php";
-		$this->paths[] = $this->absolutePath."classes/exceptions/StorageException.class.php";
-		$this->paths[] = $this->absolutePath."classes/exceptions/NoDBUserDataException.class.php";
-		$this->paths[] = $this->absolutePath."classes/exceptions/AOPNoAdviceException.class.php";
-		$this->paths[] = $this->absolutePath."classes/exceptions/ClassNotFoundException.class.php";
-		
-		$this->paths[] = $this->absolutePath."classes/toolbox/SysMessages.class.php";
-		$this->paths[] = $this->absolutePath."classes/toolbox/SystemCommand.class.php";
-		$this->paths[] = $this->absolutePath."classes/toolbox/PMReflector.class.php";
-		$this->paths[] = $this->absolutePath."classes/toolbox/Datum.class.php";
-		$this->paths[] = $this->absolutePath."classes/toolbox/Util.class.php";
-		$this->paths[] = $this->absolutePath."classes/toolbox/BPS.class.php";
-		$this->paths[] = $this->absolutePath."classes/toolbox/Factory.class.php";
-		$this->paths[] = $this->absolutePath."classes/toolbox/ISO3166.class.php";
-		$this->paths[] = $this->absolutePath."classes/toolbox/Aspect.class.php";
-		$this->paths[] = $this->absolutePath."classes/toolbox/EUCountries.class.php";
-		$this->paths[] = $this->absolutePath."classes/toolbox/Registry.class.php";
+		if(!defined("PHYNX_LOW_FOOTPRINT")){
+			$this->paths[] = $this->absolutePath."classes/backend/Collection.class.php";
+			$this->paths[] = $this->absolutePath."classes/backend/Adapter.class.php";
+			$this->paths[] = $this->absolutePath."classes/backend/SelectStatement.class.php";
+			$this->paths[] = $this->absolutePath."classes/backend/DBStorage.class.php";
+			$this->paths[] = $this->absolutePath."classes/backend/DBStorageU.class.php";
+			$this->paths[] = $this->absolutePath."classes/backend/Attributes.class.php";
+			#$this->paths[] = $this->absolutePath."classes/backend/PersistentClass.class.php";
+			$this->paths[] = $this->absolutePath."classes/backend/PersistentObject.class.php";
+			$this->paths[] = $this->absolutePath."classes/backend/User.class.php";
+			$this->paths[] = $this->absolutePath."classes/backend/anyC.class.php";
+			$this->paths[] = $this->absolutePath."classes/backend/Session.class.php";
+			$this->paths[] = $this->absolutePath."classes/backend/BackgroundPluginState.class.php";
+			$this->paths[] = $this->absolutePath."classes/backend/UnpersistentClass.class.php";
+			$this->paths[] = $this->absolutePath."classes/backend/PluginV2.class.php";
+			$this->paths[] = $this->absolutePath."classes/backend/XMLPlugin.class.php";
+			$this->paths[] = $this->absolutePath."classes/backend/FileStorage.class.php";
 
-		$this->paths[] = $this->absolutePath."classes/interfaces/iFileBrowser.class.php";
-		$this->paths[] = $this->absolutePath."classes/interfaces/iLDAPExport.class.php";
-		$this->paths[] = $this->absolutePath."classes/interfaces/iDesktopLink.class.php";
-		$this->paths[] = $this->absolutePath."classes/interfaces/icontextMenu.class.php";
-		$this->paths[] = $this->absolutePath."classes/interfaces/iCloneable.class.php";
-		$this->paths[] = $this->absolutePath."classes/interfaces/iDeletable.class.php";
-		$this->paths[] = $this->absolutePath."classes/interfaces/iDeletable2.class.php";
-		$this->paths[] = $this->absolutePath."classes/interfaces/iRepeatable.class.php";
-		$this->paths[] = $this->absolutePath."classes/interfaces/iScrollable.class.php";
-		$this->paths[] = $this->absolutePath."classes/interfaces/iNewWithValues.class.php";
-		$this->paths[] = $this->absolutePath."classes/interfaces/iGUIHTML2.class.php";
-		$this->paths[] = $this->absolutePath."classes/interfaces/iGUIHTMLMP2.class.php";
-		$this->paths[] = $this->absolutePath."classes/interfaces/iPluginSpecificRestrictions.class.php";
-		#$this->paths[] = $this->absolutePath."classes/interfaces/iFPDF.class.php";
-		$this->paths[] = $this->absolutePath."classes/interfaces/iXMLExport.class.php";
-		$this->paths[] = $this->absolutePath."classes/interfaces/iUnifiedTable.class.php";
-		$this->paths[] = $this->absolutePath."classes/interfaces/iPluginV2.class.php";
-		
-		$this->paths[] = $this->absolutePath."classes/frontend/Users.class.php";
-		#$this->paths[] = $this->absolutePath."classes/frontend/UserAttributes.class.php";
-		$this->paths[] = $this->absolutePath."classes/frontend/AppPlugins.class.php";
-		$this->paths[] = $this->absolutePath."classes/frontend/Applications.class.php";
-		$this->paths[] = $this->absolutePath."classes/frontend/HTMLGUI.class.php";
-		$this->paths[] = $this->absolutePath."classes/frontend/HTMLGUI2.class.php";
-		$this->paths[] = $this->absolutePath."classes/frontend/HTML_de_DE.class.php";
-		$this->paths[] = $this->absolutePath."classes/frontend/HTML_en_US.class.php";
-		$this->paths[] = $this->absolutePath."classes/frontend/UnifiedTable.class.php";
-		$this->paths[] = $this->absolutePath."classes/frontend/HTMLTable.class.php";
-		$this->paths[] = $this->absolutePath."classes/frontend/JSLoader.class.php";
-		
-		$this->paths[] = $this->absolutePath."plugins/Userdata/mUserdata.class.php";
-		$this->paths[] = $this->absolutePath."plugins/Userdata/Userdata.class.php";
-		#$this->paths[] = $this->absolutePath."plugins/Userdata/UserdataAttributes.class.php";
+			$this->paths[] = $this->absolutePath."classes/exceptions/o3AException.class.php";
+			$this->paths[] = $this->absolutePath."classes/exceptions/StorageException.class.php";
+			$this->paths[] = $this->absolutePath."classes/exceptions/NoDBUserDataException.class.php";
+			$this->paths[] = $this->absolutePath."classes/exceptions/AOPNoAdviceException.class.php";
+			$this->paths[] = $this->absolutePath."classes/exceptions/ClassNotFoundException.class.php";
 
-		$this->paths[] = $this->absolutePath."classes/toolbox/LoginData.class.php";//Or else will not find Userdata
-		$this->paths[] = $this->absolutePath."classes/toolbox/Environment.class.php";
+			$this->paths[] = $this->absolutePath."classes/toolbox/SysMessages.class.php";
+			$this->paths[] = $this->absolutePath."classes/toolbox/SystemCommand.class.php";
+			$this->paths[] = $this->absolutePath."classes/toolbox/PMReflector.class.php";
+			$this->paths[] = $this->absolutePath."classes/toolbox/Datum.class.php";
+			$this->paths[] = $this->absolutePath."classes/toolbox/Util.class.php";
+			$this->paths[] = $this->absolutePath."classes/toolbox/BPS.class.php";
+			$this->paths[] = $this->absolutePath."classes/toolbox/Factory.class.php";
+			$this->paths[] = $this->absolutePath."classes/toolbox/ISO3166.class.php";
+			$this->paths[] = $this->absolutePath."classes/toolbox/Aspect.class.php";
+			$this->paths[] = $this->absolutePath."classes/toolbox/EUCountries.class.php";
+			$this->paths[] = $this->absolutePath."classes/toolbox/Registry.class.php";
+
+			$this->paths[] = $this->absolutePath."classes/interfaces/iFileBrowser.class.php";
+			$this->paths[] = $this->absolutePath."classes/interfaces/iLDAPExport.class.php";
+			$this->paths[] = $this->absolutePath."classes/interfaces/iDesktopLink.class.php";
+			$this->paths[] = $this->absolutePath."classes/interfaces/icontextMenu.class.php";
+			$this->paths[] = $this->absolutePath."classes/interfaces/iCloneable.class.php";
+			$this->paths[] = $this->absolutePath."classes/interfaces/iDeletable.class.php";
+			$this->paths[] = $this->absolutePath."classes/interfaces/iDeletable2.class.php";
+			$this->paths[] = $this->absolutePath."classes/interfaces/iRepeatable.class.php";
+			$this->paths[] = $this->absolutePath."classes/interfaces/iScrollable.class.php";
+			$this->paths[] = $this->absolutePath."classes/interfaces/iNewWithValues.class.php";
+			$this->paths[] = $this->absolutePath."classes/interfaces/iGUIHTML2.class.php";
+			$this->paths[] = $this->absolutePath."classes/interfaces/iGUIHTMLMP2.class.php";
+			$this->paths[] = $this->absolutePath."classes/interfaces/iPluginSpecificRestrictions.class.php";
+			#$this->paths[] = $this->absolutePath."classes/interfaces/iFPDF.class.php";
+			$this->paths[] = $this->absolutePath."classes/interfaces/iXMLExport.class.php";
+			$this->paths[] = $this->absolutePath."classes/interfaces/iUnifiedTable.class.php";
+			$this->paths[] = $this->absolutePath."classes/interfaces/iPluginV2.class.php";
+
+			$this->paths[] = $this->absolutePath."classes/frontend/Users.class.php";
+			#$this->paths[] = $this->absolutePath."classes/frontend/UserAttributes.class.php";
+			$this->paths[] = $this->absolutePath."classes/frontend/AppPlugins.class.php";
+			$this->paths[] = $this->absolutePath."classes/frontend/Applications.class.php";
+			$this->paths[] = $this->absolutePath."classes/frontend/HTMLGUI.class.php";
+			$this->paths[] = $this->absolutePath."classes/frontend/HTMLGUI2.class.php";
+			$this->paths[] = $this->absolutePath."classes/frontend/HTML_de_DE.class.php";
+			$this->paths[] = $this->absolutePath."classes/frontend/HTML_en_US.class.php";
+			$this->paths[] = $this->absolutePath."classes/frontend/UnifiedTable.class.php";
+			$this->paths[] = $this->absolutePath."classes/frontend/HTMLTable.class.php";
+			$this->paths[] = $this->absolutePath."classes/frontend/JSLoader.class.php";
+
+			$this->paths[] = $this->absolutePath."plugins/Userdata/mUserdata.class.php";
+			$this->paths[] = $this->absolutePath."plugins/Userdata/Userdata.class.php";
+			#$this->paths[] = $this->absolutePath."plugins/Userdata/UserdataAttributes.class.php";
+
+			$this->paths[] = $this->absolutePath."classes/toolbox/LoginData.class.php";//Or else will not find Userdata
+			$this->paths[] = $this->absolutePath."classes/toolbox/Environment.class.php";
+		}
 		
 		if(file_exists($this->absolutePath."specifics/EnvironmentCurrent.class.php"))
 			$this->paths[] = $this->absolutePath."specifics/EnvironmentCurrent.class.php";

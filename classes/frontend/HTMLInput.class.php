@@ -352,6 +352,7 @@ class HTMLInput {
 								'class': '".(($this->options == null OR !isset($this->options["class"])) ? "TempFile" : $this->options["class"])."'
 								,'id':'-1'
 								".(($this->options != null AND isset($this->options["path"])) ? ",'path':'".$this->options["path"]."'" : "")."
+								".(($this->options != null AND isset($this->options["targetFilename"])) ? ",'targetFilename':'".$this->options["targetFilename"]."'" : "")."
 								".($physion ? ",'physion':'$physion[0]'" : "")."
 							},
 							".((isset($this->options["autoUpload"])) ? "autoUpload: ".($this->options["autoUpload"] ? "true" : "false")."," : "")."
@@ -379,6 +380,7 @@ class HTMLInput {
 			case "text":
 			case "hidden":
 			case "submit":
+			case "number":
 			case "button":
 			case "password":
 			case "checkbox":

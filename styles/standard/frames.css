@@ -215,16 +215,16 @@ caption {
 	top:0px;
 	right:0px;
 	background-color: #CCC;
-	border-left:1px solid #777;
+	/*border-left:1px solid #777;*/
 	z-index:990;
-	box-shadow: 0px 0px 2px #777;
+	/*box-shadow: 0px 0px 2px #777;*/
 	
-	-moz-transition: width .5s, padding-left 1s, background-color 1s;
+	/*-moz-transition: width .5s, padding-left 1s, background-color 1s;
 	-moz-transition-delay: .7s;
 	-webkit-transition: width .5s, padding-left 1s, background-color 1s;
 	-webkit-transition-delay: .7s;
 	-o-transition: width .5s, padding-left 1s, background-color 1s;
-	-o-transition-delay: .7s;
+	-o-transition-delay: .7s;*/
 	transition: width .5s, padding-left 1s, background-color 1s;
 	transition-delay: .7s;
 	
@@ -236,12 +236,12 @@ caption {
 	padding-left:15px;
 	background-color: #EEE;
 	
-	-moz-transition: width .5s, padding-left 1s, background-color 1s;
+	/*-moz-transition: width .5s, padding-left 1s, background-color 1s;
 	-moz-transition-delay: .3s;
 	-webkit-transition: width .5s, padding-left 1s, background-color 1s;
 	-webkit-transition-delay: .3s;
 	-o-transition: width .5s, padding-left 1s, background-color 1s;
-	-o-transition-delay: .3s;
+	-o-transition-delay: .3s;*/
 	
 	transition: width .5s, padding-left 1s, background-color 1s;
 	transition-delay: .3s;

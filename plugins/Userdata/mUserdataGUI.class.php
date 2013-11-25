@@ -64,19 +64,21 @@ class mUserdataGUI extends mUserdata implements iGUIHTML2, icontextMenu {
 			$w = str_replace("cantDelete","",$w);
 			$isRestricted = true;
 			$w = array_search($w,$ps);
-			if($w == "") $w = "Plugin ".str_replace("cantDelete","",$p)." nicht geladen";
+			if($w == "") $w = "Plugin ".str_replace("cantDelete","",$p)." nicht geladen<br /><small style=\"color:grey;\">Dieses Plugin steht in der aktiven Anwendung nicht zur Verfügung.</small>";
 		}
 		if(stristr($w,"antCreate")) {
 			$html .= "<img title=\"".(isset($text["kann nicht erstellen"]) ? $text["kann nicht erstellen"] : "kann nicht erstellen")."\" style=\"float:left;margin-left:10px;margin-right:5px;\" src=\"./images/i2/new.gif\" />";
 			$w = str_replace("cantCreate","",$w);
 			$isRestricted = true;
 			$w = array_search($w,$ps);
+			if($w == "") $w = "Plugin ".str_replace("cantCreate","",$p)." nicht geladen<br /><small style=\"color:grey;\">Dieses Plugin steht in der aktiven Anwendung nicht zur Verfügung.</small>";
 		}
 		if(stristr($w,"antEdit")) {
 			$html .= "<img title=\"".(isset($text["kann nicht bearbeiten"]) ? $text["kann nicht bearbeiten"] : "kann nicht bearbeiten")."\" style=\"float:left;margin-left:10px;margin-right:5px;\" src=\"./images/i2/edit.png\" />";
 			$w = str_replace("cantEdit","",$w);
 			$isRestricted = true;
 			$w = array_search($w,$ps);
+			if($w == "") $w = "Plugin ".str_replace("cantEdit","",$p)." nicht geladen<br /><small style=\"color:grey;\">Dieses Plugin steht in der aktiven Anwendung nicht zur Verfügung.</small>";
 		}
 		
 		if(stristr($w,"relabel")) {
@@ -84,6 +86,7 @@ class mUserdataGUI extends mUserdata implements iGUIHTML2, icontextMenu {
 			$w = str_replace("relabel","",$w);
 			$s = split(":",$w);
 			$w = $s[0].": ".$s[1]." = ".$p;
+			if($w == "") $w = "Plugin ".str_replace("relabel","",$p)." nicht geladen<br /><small style=\"color:grey;\">Dieses Plugin steht in der aktiven Anwendung nicht zur Verfügung.</small>";
 		}
 		
 		if(stristr($w,"hideField")) {
@@ -91,6 +94,7 @@ class mUserdataGUI extends mUserdata implements iGUIHTML2, icontextMenu {
 			$w = str_replace("hideField","",$w);
 			$s = split(":",$w);
 			$w = $s[0].": ".$s[1];
+			if($w == "") $w = "Plugin ".str_replace("hideField","",$p)." nicht geladen<br /><small style=\"color:grey;\">Dieses Plugin steht in der aktiven Anwendung nicht zur Verfügung.</small>";
 		}
 		
 		if(stristr($w,"pluginSpecific")) {
@@ -100,7 +104,7 @@ class mUserdataGUI extends mUserdata implements iGUIHTML2, icontextMenu {
 				$pSRs = $C->getPluginSpecificRestrictions();
 				$w = array_search($p,$ps).": ".$pSRs[$w];
 			} catch(ClassNotFoundException $e){
-				$html .= "Plugin $p nicht geladen";
+				$html .= "Plugin $p nicht geladen<br /><small style=\"color:grey;\">Dieses Plugin steht in der aktiven Anwendung nicht zur Verfügung.</small>";
 				$w = "";
 				#echo "Klasse $p nicht gefunden";
 			}
