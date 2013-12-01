@@ -63,6 +63,9 @@ class mRSSParserGUI extends anyC implements iGUIHTMLMP2 {
 			$E = $RSS->parseFeed();
 			
 			foreach($E AS $item){
+				if($RSS->A("RSSParserCount") > 0 AND $RSS->A("RSSParserCount") <= $i)
+					break;
+			
 				#$B = new Button("", "empty", "icon");
 				#
 				

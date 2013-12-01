@@ -238,6 +238,7 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 			$GoogleDLButton->style("margin-right:10px;");
 		}
 		
+		$xCalButton = "";
 		if (Session::isPluginLoaded("mxCal")) {
 			$xCalButton = xCal::getButton();
 			$xCalButton->style("margin-right:10px;");
@@ -277,6 +278,7 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 		<div id=\"KalenderAuswahl\">
 			$TCalendars
 		</div>
+		".$TC->getHeader()."
 		<div id=\"KalenderWrapper\" style=\"overflow:auto;\">
 			".($ansicht != "jahr" ? "
 			<div style=\"width:205px;float:right;margin-right:40px;\">
@@ -308,9 +310,10 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 		function fitKalender(){
 			if(!\$j('#KalenderTitle').length)
 				return;
-			console.log(\$j('#KalenderTitle').outerHeight());
-			console.log(\$j('#KalenderAuswahl').outerHeight());
-			var height = (contentManager.maxHeight() - \$j('#KalenderAuswahl').outerHeight() - \$j('#KalenderTitle').outerHeight()) + 4;
+			
+			//console.log(\$j('#KalenderTitle').outerHeight());
+			//console.log(\$j('#KalenderAuswahl').outerHeight());
+			var height = (contentManager.maxHeight() - \$j('#KalenderAuswahl').outerHeight() - \$j('#KalenderTitle').outerHeight() - \$j('#KalenderHeader').outerHeight()) + 4;
 			var width = contentManager.maxWidth();
 			
 			\$j('#KalenderWrapper').css('height', height);
@@ -319,6 +322,14 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 			var cellHeight = (height - \$j('#KalenderTable tr:first th').parent().outerHeight()) / (\$j('#KalenderTable tr').length - ".(($ansicht == "monat" OR $ansicht == "jahr") ? "1" : "0").") - 1;
 			\$j('.cellHeight').css('height', cellHeight+'px');
 			\$j('.innerCellHeight').css('height', (cellHeight - \$j('.innerCellTitle:visible').outerHeight())+'px');
+			
+			if(\$j('#KalenderHeader').length > 0){
+				//console.log(\$j('#KalenderHeader tr:first th'));
+				\$j('#KalenderTable tr:first td').each(function(k, v){
+					
+					\$j(\$j('#KalenderHeader tr:first th')[k]).css('width', \$j(v).width());
+				});
+			}
 			
 			if(\$j('#tagDiv').length) {
 				\$j('#tagDiv').css('width', \$j('#KalenderTable tr').width()+'px');

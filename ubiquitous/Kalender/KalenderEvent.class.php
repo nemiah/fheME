@@ -708,7 +708,7 @@ class KalenderEvent extends KalenderEntry {
 		
 		return "
 			<div onclick=\"$onClick\" style=\"".($this->status == 2 ? "color:grey;" : "")."clear:left;padding:2px;padding-left:4px;cursor:pointer;".($grey ? "color:grey;" : "")."\">
-				".(($grey AND isset(mKalenderGUI::$colors[$this->owner])) ? "<div style=\"display:inline-block;margin-right:3px;width:5px;background-color:".mKalenderGUI::$colors[$this->owner].";\">&nbsp;</div>" : "")."$zeit&nbsp;$this->title
+				".(($grey AND isset(mKalenderGUI::$colors[$this->owner])) ? "<div style=\"display:inline-block;margin-right:3px;width:5px;background-color:".mKalenderGUI::$colors[$this->owner].";\">&nbsp;</div>" : "")."$zeit $this->title
 			</div>";
 	}
 	

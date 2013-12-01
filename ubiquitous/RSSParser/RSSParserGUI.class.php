@@ -29,6 +29,14 @@ class RSSParserGUI extends RSSParser implements iGUIHTML2 {
 		
 		$gui->type("RSSParserParserClass", "select", $P);
 		
+		$gui->label("RSSParserParserClass", "Parser");
+		$gui->label("RSSParserOnCall", "Button");
+		$gui->label("RSSParserCount", "Anzahl");
+		
+		$gui->descriptionField("RSSParserParserClass", "Der Parser kann die Anzeige des Feeds anpassen");
+		$gui->descriptionField("RSSParserOnCall", "Der Feed wird mit einem eigenen Button geöffnet");
+		$gui->descriptionField("RSSParserCount", "Die maximale Anzahl der angezeigten Einträge. 0 zeigt alle");
+		
 		$gui->type("RSSParserLastUpdate", "hidden");
 		$gui->type("RSSParserOnCall", "checkbox");
 		
@@ -40,7 +48,11 @@ class RSSParserGUI extends RSSParser implements iGUIHTML2 {
 		$list->addListStyle("list-style-type:none;padding:5px;max-height:400px;overflow:auto;");
 		$E = $this->parseFeed();
 		$i = 0;
+		
 		foreach($E AS $item){
+			if($this->A("RSSParserCount") > 0 AND $this->A("RSSParserCount") <= $i)
+				break;
+			
 			$B = new Button("", "empty", "icon");
 			$B->style("float:left;margin-right:10px;margin-top:-5px;");
 
@@ -48,7 +60,7 @@ class RSSParserGUI extends RSSParser implements iGUIHTML2 {
 				$B->image($item->icon);
 			else
 				$B = "";
-
+			
 			$list->addItem(
 				$B.
 				"<div id=\"RSSParserItemSF$i\" style=\"margin-top:33px;position:absolute;width:400px;display:none;border-width:1px;border-style:solid;padding:5px;border-radius:5px;\" onclick=\"\$j(this).toggle();\" class=\"backgroundColor0 borderColor1 RSSParserItemSF\"><small>".$item->description."</small></div>

@@ -25,6 +25,10 @@ class KalenderViewJahr extends KalenderViewMonat {
 		parent::__construct();
 	}
 	
+	public function getHeader(){
+		return "";
+	}
+	
 	public function getTable($GUI){
 		$bps = BPS::getAllProperties("mKalenderGUI");
 		
@@ -33,8 +37,28 @@ class KalenderViewJahr extends KalenderViewMonat {
 		$cols = $this->cols;
 		$rows = $this->rows;
 		
+		#"<table id=\"KalenderHeader\" style=\"position:absolute;margin-left:10px;border-spacing: 0px;width:auto;\" class=\"backgroundColor0\">
+		$tableHeader = "
+			<thead>
+			<tr>
+				<th style=\"border-bottom-width:1px;border-bottom-style:solid;border-bottom-color:#EEE;padding-top:10px;text-align:right;\" class=\"backgroundColor0\">Monat</th>";
+		
+		for($j = 0; $j < $this->cols; $j++)
+			$tableHeader .= "
+				<th style=\"border-bottom-width:1px;border-bottom-style:solid;border-bottom-color:#EEE;padding-top:10px;\" class=\"backgroundColor0\">".($j + 1)."</th>";
+
+
+		$tableHeader .= "
+		</tr>
+		</thead>
+		";
+		#</table>
 		$html = "
+			
 		<div style=\"\">
+		<!--<table id=\"KalenderHeader\" style=\"position:absolute;margin-left:10px;border-spacing: 0px;\">
+			$tableHeader
+		</table>-->
 		<table style=\"margin-left:10px;border-spacing: 0px;\" id=\"KalenderTable\">
 			<colgroup>
 				<col></col>";
@@ -44,19 +68,10 @@ class KalenderViewJahr extends KalenderViewMonat {
 				<col style=\"width:".(100 / $cols)."%;\" />";
 			
 		
-		$html .= "
-			<thead>
-			<tr>
-				<th style=\"border-bottom-width:1px;border-bottom-style:solid;border-bottom-color:#EEE;padding-top:10px;\">Monat</th>";
-
-		for($j = 0; $j < $cols; $j++)
-			$html .= "
-				<th style=\"border-bottom-width:1px;border-bottom-style:solid;border-bottom-color:#EEE;padding-top:10px;\" class=\"backgroundColor0\">".($j + 1)."</th>";
-
+		$html .= "";
 
 		$html .= "
-		</tr>
-		</thead>
+		$tableHeader
 		<tbody>";
 		$D = clone $this->date;
 		for($i = 0; $i < $rows; $i++){
@@ -102,10 +117,10 @@ class KalenderViewJahr extends KalenderViewMonat {
 				</td>";
 				$D->addDay();
 				
-				if(date("d", $D->time()) == 1){
-					for(;$j < $cols;$j++)
-						$html .= "<td class=\"Day borderColor1\"></td>";
-				}
+				#if(date("d", $D->time()) == 1){
+					#for(;$j < $cols;$j++)
+					#	$html .= "<td class=\"Day borderColor1\"></td>";
+				#}
 			}
 			
 			
@@ -116,7 +131,7 @@ class KalenderViewJahr extends KalenderViewMonat {
 		$html .= "
 			</tbody>
 		</table>
-		</div>";#.OnEvent::script("\$j('#KalenderTable').fixedHeaderTable({ footer: false, cloneHeadToFoot: false, fixedColumn: true });");
+		</div>";#.OnEvent::script("\$j('#KalenderTable thead th').each(function(k, v){ \$j(\$j('#KalenderHeader thead th').get(k)).css('width', \$j(v).width()); console.log(\$j(v).width()); }); \$j('#KalenderHeader').css('width', \$j('#KalenderTable').width())");#.OnEvent::script("\$j('#KalenderTable').fixedHeaderTable({ footer: false, cloneHeadToFoot: false, fixedColumn: true });");
 		
 		return $html;
 	}

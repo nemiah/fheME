@@ -163,7 +163,7 @@ var phim = {
 			
 		
 	}
-}
+};
 
 $j(function(){
 	phim.init();

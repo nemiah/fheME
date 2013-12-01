@@ -55,7 +55,7 @@ class KalenderViewMonat {
 			case "woche":
 				$Date = new Datum(Datum::parseGerDate(date("d.m.Y")));
 				for($i = 0; $i < abs($display); $i++)
-					if($display > 0) $Date->addWeek();
+					if($display > 0) $Date->addWeek(true);
 					else $Date->subWeek();
 			break;
 			
@@ -131,6 +131,10 @@ class KalenderViewMonat {
 		
 		if($this->ansicht == "jahr")
 			return "Jahr ".date("Y", $this->current->time());
+	}
+	
+	public function getHeader(){
+		return "";
 	}
 	
 	public function getTable($GUI){

@@ -25,6 +25,16 @@ if(isset($_GET["CC"])){
 		$pageTitle = $I->getTitle();
 	
 	$content = $I->getCMSHTML();
+	
+	$styles = "";
+	if(method_exists($I, "getStyle"))
+		$styles = $I->getStyle();
+	
+	$script = "";
+	if(method_exists($I, "getScript"))
+		$script = $I->getScript();
+	
+	
 }
 
 if(isset($_GET["D"])){
@@ -49,6 +59,14 @@ if(isset($_GET["D"])){
 		$pageTitle = $I->getTitle();
 	
 	$content = $I->getCMSHTML();
+	
+	$styles = "";
+	if(method_exists($I, "getStyle"))
+		$styles = $I->getStyle();
+	
+	$script = "";
+	if(method_exists($I, "getScript"))
+		$script = $I->getScript();
 }
 ?>
 <!DOCTYPE html>
@@ -59,7 +77,6 @@ if(isset($_GET["D"])){
 		<title><?php echo $pageTitle; ?></title>
 		
 		<link rel="stylesheet" type="text/css" href="./lib/jquery-ui-1.8.24.custom.css" />
-		<link rel="stylesheet" type="text/css" href="./lib/jquery.jgrowl.min.css" />
 		<style type="text/css">
 			* { margin:0px; }
 			article, aside, details, figcaption, figure, footer, header, hgroup, nav, section { display: block; }
@@ -122,6 +139,7 @@ if(isset($_GET["D"])){
 			td { /*vertical-align: top; */padding:3px; }
 			
 			h1 { font-family:Roboto; padding-top:30px;padding-bottom:15px; }
+			h2 { font-family:Roboto; padding-top:20px;padding-bottom:10px; }
 			
 			label { text-align:right; width:120px; display:block; font-weight:bold; }
 			.submitFormButton { float:right; padding:4px; width:auto; padding-left:10px; padding-right:10px; }
@@ -130,6 +148,14 @@ if(isset($_GET["D"])){
 			
 			.borderColor1 { border-color: #97a652; }
 			.backgroundColor1 { background-color: #F5FFC5; }
+			
+			.tableForSelection tr {
+				cursor:pointer;
+			}
+			
+			.tableForSelection tr:hover {
+				background-color: #F5FFC5;
+			}
 			
 			form table { width:370px; }
 			form table td { width:120px; }
@@ -463,16 +489,65 @@ if(isset($_GET["D"])){
 				width:100%;
 				text-align:left;
 			}
+			
+			.highlight {
+				background-color:rgba(255,204,0,0.3);
+			}
+			
+			.overlay {
+				position:absolute;
+				top:0;
+				left:0;
+				right:0;
+				bottom:0;
+				background-color:white;
+				z-index:9999;
+			}
+			<?php
+			echo $styles;
+			?>
 		</style>
 		
 		<script type="text/javascript" src="./lib/jquery-1.8.2.min.js"></script>
 		<script type="text/javascript" src="./lib/jquery-ui-1.8.24.custom.min.js"></script>
 		<script type="text/javascript" src="./lib/jquery.validate.min.js"></script>
 		<script type="text/javascript" src="./lib/jstorage.min.js"></script>
-		<script type="text/javascript" src="./lib/jquery.jgrowl.min.js"></script>
+		<script type="text/javascript" src="./lib/noty/jquery.noty.js"></script>
+		<script type="text/javascript" src="./lib/noty/topLeft.js"></script>
+		<script type="text/javascript" src="./lib/noty/default.js"></script>
 		<script type="text/javascript" src="./lib/jquery.hammer.min.js"></script>
 		
 		<script type="text/javascript">
+		$.noty.defaults = {
+			layout: 'topLeft',
+			theme: 'defaultTheme',
+			type: 'alert',
+			text: '',
+			dismissQueue: true, // If you want to use queue feature set this true
+			template: '<div class="noty_message"><span class="noty_text"></span><div class="noty_close"></div></div>',
+			animation: {
+				open: {height: 'toggle'},
+				close: {height: 'toggle'},
+				easing: 'swing',
+				speed: 200 // opening & closing animation speed
+			},
+			timeout: 2000, // delay for closing event. Set false for sticky notifications
+			force: false, // adds notification to the beginning of queue when set to true
+			modal: false,
+			closeWith: ['click'], // ['click', 'button', 'hover']
+			callback: {
+				onShow: function() {
+				},
+				afterShow: function() {
+				},
+				onClose: function() {
+				},
+				afterClose: function() {
+				}
+			},
+			buttons: false // an array of buttons
+		};
+		
 		var CustomerPage = {
 			rme: function(method, parameters, onSuccessFunction, onFailureFunction){
 				
@@ -486,7 +561,7 @@ if(isset($_GET["D"])){
 					ps = "&"+parameters;
 				
 				
-				$.ajax({url: "./index.php?CC=<?php echo $_GET["CC"]; ?>&M="+method+ps, success: function(transport){
+				$.ajax({url: "./index.php?<?php if(isset($_GET["CC"])) echo "CC=".$_GET["CC"]; if(isset($_GET["D"])) echo "D=".$_GET["D"]; ?>&M="+method+ps, success: function(transport){
 
 					if(typeof onSuccessFunction == "function" && CustomerPage.checkResponse(transport))
 						onSuccessFunction(transport);
@@ -532,17 +607,20 @@ if(isset($_GET["D"])){
 			checkResponse: function(transport) {
 				if(transport.search(/^error:/) > -1){
 					eval("var message = "+transport.replace(/error:/,"")+";");
-					alert("Es ist ein Fehler aufgetreten:\n"+message);
+					//alert("Es ist ein Fehler aufgetreten:\n"+message);
+					noty({text: message, type: 'error'});
 					return false;
 				}
 				if(transport.search(/^alert:/) > -1){
 					eval("var message = "+transport.replace(/alert:/,"")+";");
-					alert(message);
+					noty({text: message, type: 'warning'});
+					//alert(message);
 					return false;
 				}
 				if(transport.search(/^message:/) > -1){
 					eval("var message = "+transport.replace(/message:/,"")+";");
-					alert(message);
+					noty({text: message, type: 'success'});
+					//alert(message);
 					return true;
 				}
 				if(transport.search(/^reload/) > -1){
@@ -575,6 +653,8 @@ if(isset($_GET["D"])){
 		contentManager = CustomerPage;
 		
 		$j = $;
+		
+			<?php echo $script; ?>
 		</script>
 		
 		

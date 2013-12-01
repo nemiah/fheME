@@ -283,7 +283,7 @@ class CCTimeTerminal implements iCustomContent {
 			$ZEA->debug = false;
 			$current = $ZEA->getContent();
 			
-			die('{"status":"OK", "message": "'.addslashes ($ok["Personal"]->A("vorname")." ".$ok["Personal"]->A("nachname")).'", "details": "Stunden '.Util::CLMonthName(date("m")).': '.Util::formatSeconds($current["totalHours"][1], false).'"}');
+			die('{"status":"OK", "message": "'.addslashes ($ok["Personal"]->A("vorname")." ".$ok["Personal"]->A("nachname")).'", "details": ""}');#Stunden '.Util::CLMonthName(date("m")).': '.Util::formatSeconds($current["totalHours"][1], false).'
 			
 		} catch (Exception $e){
 			switch($e->getCode()){
