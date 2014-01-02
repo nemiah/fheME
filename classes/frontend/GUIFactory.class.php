@@ -661,7 +661,7 @@ class GUIFactory {
 	// </editor-fold>
 
 	// <editor-fold defaultstate="collapsed" desc="buildFilteredWarningLine">
-	public function buildFilteredWarningLine(){
+	public function buildFilteredWarningLine($label = null){
 		$dB = new Button("Filter löschen", "./images/i2/delete.gif", "icon");
 		$dB->style("float:right;");
 		$dB->rmePCR("HTML","","saveContextMenu", array("'deleteFilters'","'$this->collectionName'"), "if(checkResponse(transport)) contentManager.reloadFrame('contentRight');");
@@ -674,7 +674,7 @@ class GUIFactory {
 			
 			$BW->style("margin-right:5px;float:left;");
 			
-			$wholeLine2 = array("$BW<span style=\"color:grey;\">Die Anzeige wurde gefiltert</span>");
+			$wholeLine2 = array("$BW<span style=\"color:grey;\">Die Anzeige wurde gefiltert ".($label != null ? "nach $label" : "")."</span>");
 			for($i = 1; $i < count($this->referenceLine) - 1; $i++)
 				$wholeLine2[] = "";
 			
@@ -684,7 +684,7 @@ class GUIFactory {
 			$this->table->addRowColspan(1, count($this->referenceLine) - 1);
 			$this->table->addRowClass("backgroundColor0");
 		} else {
-			$wholeLine2 = array($BW, $dB."<span style=\"color:grey;\">Die Anzeige wurde gefiltert</span>");
+			$wholeLine2 = array($BW, $dB."<span style=\"color:grey;\">Die Anzeige wurde gefiltert ".($label != null ? "nach $label" : "")."</span>");
 
 			$this->table->addRow($wholeLine2);
 			$this->table->addRowColspan(2, count($this->referenceLine) - 1);

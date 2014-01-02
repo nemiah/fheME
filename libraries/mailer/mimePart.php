@@ -197,13 +197,14 @@ class Mail_MIMEPart
     *         body and headers. The headers element is itself
     *         an indexed array.
     */
+	private static $bc = 0;
     public function encode()
     {
         $encoded =& $this->encoded;
 
         if (!empty($this->subparts)) {
             srand((double)microtime()*1000000);
-            $boundary = '=_' . md5(uniqid(rand()) . microtime());
+            $boundary = '=_' . md5(uniqid(rand()) . microtime().self::$bc++);
             $this->headers['Content-Type'] .= ';' . MAIL_MIMEPART_CRLF . "\t" . 'boundary="' . $boundary . '"';
 
             // Add body parts to $subparts

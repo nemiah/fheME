@@ -63,7 +63,7 @@ class AppPlugins {
 	}
 	
 	public function blockNonAdmin($pluginName){
-		print_r($this->blockNonAdmin);
+		#print_r($this->blockNonAdmin);
 		
 		$pluginName = str_replace("GUI", "", $pluginName);
 		
@@ -100,9 +100,12 @@ class AppPlugins {
 
 		$allowedPlugins = Environment::getS("allowedPlugins", array());
 		$extraPlugins = Environment::getS("pluginsExtra", array());
+		if(Applications::activeApplication() == "Zeus" OR Applications::activeApplication() == "nil")
+			$extraPlugins = array();
+		
 		$allowedPlugins = array_merge($allowedPlugins, $extraPlugins);
-
-
+		
+		
 		#$p = ".".(is_dir("./$folder/") ? "" : ".");
 		$p = Util::getRootPath();
 
@@ -132,13 +135,13 @@ class AppPlugins {
 				$plugins[] = $file;
 			}
 
-
+			
 			sort($plugins);
 
 			foreach($plugins as $key => $file){
 				$f = explode(".",$file);
 				if($f[0]{0} == "-") continue;
-				
+
 				if($f[1] == "xml") {
 					$c = new XMLPlugin("$p/$folder/$file", $allowedPlugins);
 				} else {
@@ -148,12 +151,12 @@ class AppPlugins {
 				}
 				
 				$_SESSION["messages"]->startMessage("trying to register ".$c->registerName().": ");
-				
+
 				if(count($allowedPlugins) > 0 AND !in_array($c->registerClassName(), $allowedPlugins)){
 					$_SESSION["messages"]->endMessage(" not allowed");
 					continue;
 				}
-				
+
 				$pFolder = $c->registerFolder();
 				if(!is_array($pFolder))
 					$this->folders[] = $pFolder;

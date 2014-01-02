@@ -51,6 +51,11 @@ html {
 	vertical-align:top;
 }
 
+.iconicS {
+	color:#9ec000;
+	vertical-align:top;
+}
+
 .iconicL {
 	font-size:30px;
 	width:32px;
@@ -480,6 +485,10 @@ label {
 }
 td, th {
 	padding:3px;
+}
+
+th {
+	text-align:left;
 }
 
 h1 {

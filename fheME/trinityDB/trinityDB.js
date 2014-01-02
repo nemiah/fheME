@@ -23,7 +23,7 @@ var trinityDB = {
 	overlay: '<div class="lightOverlay" id="trinityDBOverlay" style="display:none;">\n\
 		\n\
 			<div id=\"trinityDBLoading\" style=\"font-family:Roboto;font-size:30px;padding:10px;height:128px;width:500px;\">\n\
-				<img src=\"./images/loading128.png\" style=\"float:left;margin-right:20px;margin-top:-25px;\" />Die Verbindung<br />wird aufgebaut...\n\
+				<img src=\"./images/loading.svg\" style=\"float:left;margin-right:20px;margin-top:-25px;height:128px;width:128px;\" />Die Verbindung<br />wird aufgebaut...\n\
 			</div>\n\
 		\n\
 		</div>',

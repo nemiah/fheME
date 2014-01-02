@@ -124,6 +124,11 @@ class FormattedTextPDF extends FPDI {
 		if($xml->getName() == "u")
 			array_push($this->styleStack, "U");
 
+		if($xml->getName() == "hr")
+			$this->Line($this->GetMargin("L") , $this->GetY() + 2, $this->w - $this->GetMargin("R") , $this->GetY() + 2);
+
+		
+		
 		foreach($xml->attributes() AS $k => $a){
 			if($k == "style"){
 				$styles = explode(";", $a);

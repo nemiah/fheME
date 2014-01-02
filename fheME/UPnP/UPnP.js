@@ -47,7 +47,7 @@ var UPnP = {
 	overlay: '<div class="darkOverlay" id="UPnPOverlay" style="display:none;">\n\
 		\n\
 			<div id=\"UPnPLoading\" style=\"font-family:Roboto;font-size:30px;padding:10px;height:128px;width:500px;\">\n\
-				<img src=\"./images/loading128.png\" style=\"float:left;margin-right:20px;margin-top:-25px;\" />Die verfügbaren Geräte<br />werden abgefragt...\n\
+				<img src=\"./images/loading.svg\" style=\"float:left;margin-right:20px;margin-top:-25px;height:128px;width:128px;\" />Die verfügbaren Geräte<br />werden abgefragt...\n\
 			</div>\n\
 		\n\
 		</div>',

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+
+<!-- 
+Preloader scalable graphics
+author: Jorge C. S. Cardoso
+date: 2012 Oct 07
+-->
+
+<g>
+    <defs>
+    	<clipPath id="clip">
+      		<path d="M 50 50 L 35 0 L 65 0 z"/>
+	    </clipPath>
+    
+    	<ellipse id="MyEllipse" cx="50" cy="50" rx="40" ry="40" style="fill:none; stroke:#aaa" stroke-width="10"/>
+    </defs>
+
+
+<use xlink:href="#MyEllipse"/>
+
+
+<ellipse clip-path="url(#clip)" cx="50" cy="50" rx="40" ry="40" style="fill:none; stroke:black" stroke-width="12">
+	<animateTransform attributeName="transform" attributeType="XML" type="rotate" values="0 50 50; 360 50 50" dur="3s" repeatCount="indefinite" additive="replace" calcMode="linear" fill="freeze"/>
+</ellipse>  
+  </g>
+</svg>

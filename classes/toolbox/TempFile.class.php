@@ -178,7 +178,7 @@ class TempFile {
 			$newFilename = Util::getTempFilename($_GET['qqfile'],"tmp");
 			$output = fopen($newFilename, "w");
 
-			$realSize = stream_copy_to_stream($input, $output);
+			stream_copy_to_stream($input, $output);
 
 			fclose($input);
 			fclose($output);

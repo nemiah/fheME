@@ -36,7 +36,7 @@ class nicEditGUI {
 setTimeout(function(){
 	new nicEditor({
 		iconsPath : './libraries/nicEdit/nicEditorIconsTiny.gif',
-		buttonList : ['save','bold','italic','underline'],
+		buttonList : ['save','bold','italic','underline','hr'],
 		maxHeight : 400,
 
 		onSave : function(content, id, instance) {
@@ -64,7 +64,7 @@ setTimeout(function(){
 setTimeout(function(){
 	new nicEditor({
 		iconsPath : './libraries/nicEdit/nicEditorIconsTiny.gif',
-		buttonList : ['save','bold','italic','underline'],
+		buttonList : ['save','bold','italic','underline','hr'],
 		maxHeight : 400,
 
 		onSave : function(content, id, instance) {

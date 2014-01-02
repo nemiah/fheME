@@ -23,6 +23,9 @@ require "../system/connect.php";
 #$output = new Output('auto', true, false);
 #$T = new Timer();
 
+foreach($_POST AS $k => $v)
+	$_GET[$k] = $v;
+
 $build = Phynx::build();
 if($build)
 	header("X-Build: ".$build);
@@ -38,7 +41,7 @@ if(!$_SESSION["S"]->isUserAdmin()) $userHiddenPlugins = mUserdata::getHiddenPlug
 if(isset($userHiddenPlugins[$_GET["p"]])) Red::errorD("Sie haben keine Berechtigung, diese Seite zu betrachten!");
 
 if(isset($_GET["bps"]))
-	$_SESSION["BPS"]->setByString($_GET["bps"]);
+	$_SESSION["BPS"]->setByString($_GET["bps"].(isset($_GET["bpsPar"]) ? ";".implode(";", $_GET["bpsPar"]) : ""));
 
 $_GET["p"] = str_replace("GUI","",$_GET["p"]);
 $n = $_GET["p"]."GUI";

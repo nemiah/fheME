@@ -177,6 +177,10 @@
 	padding-right:3px;
 }
 
+#contentScreen p {
+	padding:5px;
+}
+
 #contentBelow {
 	padding-top:20px;
 }

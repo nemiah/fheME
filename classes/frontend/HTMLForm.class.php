@@ -327,7 +327,7 @@ class HTMLForm {
 		}
 		
 		if($onSuccessFunction != "" AND stripos($onSuccessFunction, "function(") === false)
-			$onSuccessFunction = "function(){ $onSuccessFunction }";
+			$onSuccessFunction = "function(transport){ $onSuccessFunction }";
 		
 		$values = "";
 		foreach($this->fields AS $f){

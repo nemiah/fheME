@@ -96,5 +96,9 @@ class anyC extends Collection {
 		
 		return $r;
 	}
+	
+	function n(){
+		return $this->getNextEntry();
+	}
 }
 ?>

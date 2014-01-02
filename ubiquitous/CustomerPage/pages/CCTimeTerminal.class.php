@@ -18,6 +18,8 @@
  *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class CCTimeTerminal implements iCustomContent {
+	protected $switch = false;
+
 	function getLabel(){
 		return "Zeiterfassungs-Terminal";
 	}
@@ -199,11 +201,7 @@ class CCTimeTerminal implements iCustomContent {
 		$BG = new Button("Gehen", "arrow_left", "iconic");
 		$BG->style("font-size:200px;width:auto;");
 		
-		$html .= "
-			<div id=\"displayTime\">
-				<div id=\"clock\" style=\"font-size:190px;text-align:center;margin-top:40px;color:#333;\"></div>
-				<div id=\"day\" style=\"font-size:35px;text-align:right;padding-right:45px;margin-top:0px;color:#CCC;\"></div>
-			</div>
+		$actschion = "
 			<div>
 				<div data-action=\"G\" class=\"touchField\" style=\"width:48%;display:inline-block;margin-right:3.7%;vertical-align:top;\">
 					<p style=\"padding:30px;font-size:60px;\">Gehen<br />$BG</p>
@@ -211,7 +209,25 @@ class CCTimeTerminal implements iCustomContent {
 				<div data-action=\"K\" class=\"touchField currentAction\" style=\"width:48%;display:inline-block;vertical-align:top;\">
 					<p style=\"padding:30px;font-size:60px;text-align:right;\">Kommen<br />$BK</p>
 				</div>
+			</div>";
+
+		if($this->switch)
+			$actschion = "
+			<div>
+				<div data-action=\"K\" class=\"touchField\" style=\"width:48%;display:inline-block;margin-right:3.7%;vertical-align:top;\">
+					<p style=\"padding:30px;font-size:60px;\">Kommen<br />$BG</p>
+				</div>
+				<div data-action=\"G\" class=\"touchField currentAction\" style=\"width:48%;display:inline-block;vertical-align:top;\">
+					<p style=\"padding:30px;font-size:60px;text-align:right;\">Gehen<br />$BK</p>
+				</div>
+			</div>";
+
+		$html .= "
+			<div id=\"displayTime\">
+				<div id=\"clock\" style=\"font-size:190px;text-align:center;margin-top:40px;color:#333;\"></div>
+				<div id=\"day\" style=\"font-size:35px;text-align:right;padding-right:45px;margin-top:0px;color:#CCC;\"></div>
 			</div>
+			$actschion
 			$I
 			<div class=\"overlay\">
 				<div class=\"overlayCenter\">
@@ -255,45 +271,51 @@ class CCTimeTerminal implements iCustomContent {
 		$A->TerminalID = $args["P1"];
 		try {
 			$ok = ZEData::addTime($A);
+		} catch(Exception $e){
+			try {
+				$A->ChipID = trim(strtolower(dechex($args["P0"])));
+				$ok = ZEData::addTime($A);
+			} catch(Exception $e){
 
-			if($args["P2"] == "G"){
-				$AC = anyC::get("ZEData", "ZEDataChipID", trim(strtolower($args["P0"])));
-				$AC->addAssocV3("ZEDataType", "=", "K");
-				$AC->addAssocV3("ZEDataDate + ZEDataTime", ">", time() - 3600 * 13);
-				$AC->addOrderV3("ZEDataID", "DESC");
-				$AC->addAssocV3("ZEDataIsDeleted", "=", "0");
-				$AC->setLimitV3("1");
-
-				$D = $AC->getNextEntry();
-				if($D != null){
-					$pause = ZEAuswertung::calcPause($D, $ok["ZEData"]);
-					if($pause !== null){
-						$DE = $ok["ZEData"];
-						$DE->changeA("ZEDataPause", $pause);
-						$DE->saveMe(false, false);
-					}
+				switch($e->getCode()){
+					case 100:
+						die('{"status":"error", "message":"Unbekannter Chip"}');
+					break;
+					default:
+						die('{"status":"error", "message":"'.$e->getMessage().'"}');
 				}
-			}#303046a1b7
-			
-			BPS::setProperty("ZEAuswertung", "objektLID", $T->A("ZETerminalObjektLID"));
-			BPS::setProperty("ZEAuswertung", "personalID", $ok["Personal"]->getID());
-			BPS::setProperty("ZEAuswertung", "month", date("Ym"));
-			
-			$ZEA = new ZEAuswertung(trim(strtolower($args["P0"])));
-			$ZEA->debug = false;
-			$current = $ZEA->getContent();
-			
-			die('{"status":"OK", "message": "'.addslashes ($ok["Personal"]->A("vorname")." ".$ok["Personal"]->A("nachname")).'", "details": ""}');#Stunden '.Util::CLMonthName(date("m")).': '.Util::formatSeconds($current["totalHours"][1], false).'
-			
-		} catch (Exception $e){
-			switch($e->getCode()){
-				case 100:
-					die('{"status":"error", "message":"Unbekannter Chip"}');
-				break;
-				default:
-					die('{"status":"error", "message":"'.$e->getMessage().'"}');
 			}
 		}
+
+		if($args["P2"] == "G"){
+			$AC = anyC::get("ZEData", "ZEDataChipID", $A->ChipID);
+			$AC->addAssocV3("ZEDataType", "=", "K");
+			$AC->addAssocV3("ZEDataDate + ZEDataTime", ">", time() - 3600 * 13);
+			$AC->addOrderV3("ZEDataID", "DESC");
+			$AC->addAssocV3("ZEDataIsDeleted", "=", "0");
+			$AC->setLimitV3("1");
+
+			$D = $AC->getNextEntry();
+			if($D != null){
+				$pause = ZEAuswertung::calcPause($D, $ok["ZEData"]);
+				if($pause !== null){
+					$DE = $ok["ZEData"];
+					$DE->changeA("ZEDataPause", $pause);
+					$DE->saveMe(false, false);
+				}
+			}
+		}#303046a1b7
+		
+		BPS::setProperty("ZEAuswertung", "objektLID", $T->A("ZETerminalObjektLID"));
+		BPS::setProperty("ZEAuswertung", "personalID", $ok["Personal"]->getID());
+		BPS::setProperty("ZEAuswertung", "month", date("Ym"));
+		
+		#$ZEA = new ZEAuswertung($A->ChipID);
+		#$ZEA->debug = false;
+		#$current = $ZEA->getContent();
+		
+		die('{"status":"OK", "message": "'.addslashes ($ok["Personal"]->A("vorname")." ".$ok["Personal"]->A("nachname")).'", "details": ""}');#Stunden '.Util::CLMonthName(date("m")).': '.Util::formatSeconds($current["totalHours"][1], false).'
+			
 	}
 	
 }

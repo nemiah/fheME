@@ -61,7 +61,7 @@ class UtilGUI extends Util {
 				foreach($data["recipients"] AS $ID => $Rec)
 					$recipients[$ID] = new HTMLInput ($Rec[0]." &lt;".$Rec[1]."&gt;", "option", $ID);;
 
-				$IS = new HTMLInput("EMailRecipient$dataClassID", "select", "0", $recipients);
+				$IS = new HTMLInput("EMailRecipient$dataClassID", "select", isset($data["default"]) ? $data["default"] : "0", $recipients);
 				$IS->id("EMailRecipient$dataClassID");
 
 				$tab->addLV("Empfänger:", $IS);

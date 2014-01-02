@@ -327,7 +327,7 @@ class HTMLTable extends UnifiedTable implements iUnifiedTable  {
 		if(count($this->header) > 0){
 			$rows .= "
 			<thead>
-			<tr>";
+			<tr ".(isset($this->rowClasses[-1]) ? "class=\"".$this->rowClasses[-1]."\"" : "").">";
 			
 			foreach($this->header as $K => $V){
 				if($this->colOrder != null AND isset($this->colOrder[$K]))

@@ -310,18 +310,20 @@ var contentManager = {
 			return;
 
 		if(elementID != "-1"){
-			new Ajax.Request('./interface/loadFrame.php?p='+CC+'&id='+elementID+'&type=main', {method:'get', onSuccess: function(transport){
-				if(checkResponse(transport)) {
-					if($('BrowserMain'+elementID))
-						$('BrowserMain'+elementID).update(transport.responseText);
+			new Ajax.Request('./interface/loadFrame.php?p='+CC+'&id='+elementID+'&type=main', {
+				method:'get', 
+				onSuccess: function(transport){
+					if(checkResponse(transport)) {
+						if($('BrowserMain'+elementID))
+							$('BrowserMain'+elementID).update(transport.responseText);
 
-					else if($('Browser'+CC+elementID))
-						$('Browser'+CC+elementID).update(transport.responseText);
+						else if($('Browser'+CC+elementID))
+							$('Browser'+CC+elementID).update(transport.responseText);
 
-					else if($('BrowserMainD'+elementID))
-						$('BrowserMainD'+elementID).update(transport.responseText);
-				}
-			}});
+						else if($('BrowserMainD'+elementID))
+							$('BrowserMainD'+elementID).update(transport.responseText);
+					}
+				}});
 		} else {
 			contentManager.reloadFrameRight();
 			if(TextEditor.open) TextEditor.hide();
@@ -513,9 +515,12 @@ var contentManager = {
 	},
 
 	loadContent: function(plugin, withId, page, bps, onSuccessFunction, hideError){
-		new Ajax.Request('./interface/loadFrame.php?p='+plugin+(typeof withId != "undefined" ? '&id='+withId : "")+((typeof bps != "undefined" && bps != "") ? '&bps='+bps : "")+((typeof page != "undefined" && page != "") ? '&page='+page : ""), {onSuccess: function(transport){
-			if(checkResponse(transport, hideError) && typeof onSuccessFunction != "undefined" && onSuccessFunction != "") onSuccessFunction(transport);
-		}});
+		new Ajax.Request('./interface/loadFrame.php', {
+			onSuccess: function(transport){
+				if(checkResponse(transport, hideError) && typeof onSuccessFunction != "undefined" && onSuccessFunction != "") onSuccessFunction(transport);
+			},
+			method: "POST",
+			parameters: 'p='+plugin+(typeof withId != "undefined" ? '&id='+withId : "")+((typeof bps != "undefined" && bps != "") ? '&bps='+bps : "")+((typeof page != "undefined" && page != "") ? '&page='+page : "")});
 	},
 
 	loadFrame: function(target, plugin, withId, page, bps, onSuccessFunction, hideError, options){
@@ -549,22 +554,29 @@ var contentManager = {
 		if(target != "contentRight" && target != "contentLeft" && target != "contentScreen")
 			contentManager.lastLoaded[target] = [plugin, withId, page];
 		
-		new Ajax.Request('./interface/loadFrame.php?p='+plugin+(typeof withId != "undefined" ? '&id='+withId : "")+((typeof bps != "undefined" && bps != "") ? '&bps='+bps : "")+((typeof page != "undefined" && page != "") ? '&page='+page : "")+"&r="+Math.random()+"&frame="+target, {onSuccess: function(transport, textStatus, request){
-			if(checkResponse(transport, hideError)) {
+		if(typeof bps != "undefined")
+			bps = bps.replace(/;/, "&bpsPar[]=");
+		
+		new Ajax.Request('./interface/loadFrame.php?r='+Math.random(), {
+			onSuccess: function(transport, textStatus, request){
+				if(checkResponse(transport, hideError)) {
 
-				if(typeof options == "object"){
-					if(typeof options.doBefore == "function")
-						options.doBefore();
+					if(typeof options == "object"){
+						if(typeof options.doBefore == "function")
+							options.doBefore();
+					}
+
+					$j("#"+target).html(transport.responseText);
+
+					if(typeof onSuccessFunction != "undefined" && onSuccessFunction != "") onSuccessFunction(transport);
+
+					Aspect.joinPoint("loaded", "contentManager.loadFrame", arg, transport.responseText);
+
 				}
+			},
 				
-				$j("#"+target).html(transport.responseText);
-				
-				if(typeof onSuccessFunction != "undefined" && onSuccessFunction != "") onSuccessFunction(transport);
-				
-				Aspect.joinPoint("loaded", "contentManager.loadFrame", arg, transport.responseText);
-				
-			}
-		}});
+			method: "POST",
+			parameters: 'p='+plugin+(typeof withId != "undefined" ? '&id='+withId : "")+((typeof bps != "undefined" && bps != "") ? '&bps='+bps : "")+((typeof page != "undefined" && page != "") ? '&page='+page : "")+"&frame="+target});
 
 	},
 

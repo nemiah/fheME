@@ -64,12 +64,9 @@ class HTMLColGUI {
 		
 		if($this->cols == 2){
 			$html = "
-		<div style=\"float:left;vertical-align:top;margin:0px;padding:0px;width:400px;\" id=\"contentScreenLeft\">
+		<div style=\"display:inline-block;vertical-align:top;margin:0px;padding:0px;width:50%;\" id=\"contentScreenLeft\">
 			".$this->content["left"]."
-		</div>
-		
-		
-		<div style=\"overflow:auto;margin-left:400px;vertical-align:top;border-left-style:solid;border-left-width:1px;margin:0px;min-height:400px;\" id=\"contentScreenRight\" class=\"borderColor1\">
+		</div><div style=\"-webkit-box-sizing:border-box;-moz-box-sizing:border-box;-ms-box-sizing:border-box;box-sizing:border-box;overflow:auto;display:inline-block;width:50%;vertical-align:top;border-left-style:solid;border-left-width:1px;margin:0px;min-height:400px;\" id=\"contentScreenRight\" class=\"borderColor1\">
 			".$this->content["right"]."
 		</div>";
 		
@@ -86,17 +83,13 @@ class HTMLColGUI {
 		
 		if($this->cols == 3){
 			$html = "
-		<div style=\"float:left;vertical-align:top;margin:0px;padding:0px;min-height:500px;\" id=\"contentScreenLeft\">
-			<div style=\"overflow:auto;max-width:400px;margin-left:auto;border-left-style:solid;border-left-width:1px;vertical-align:top;\" class=\"borderColor1\">
+		<div style=\"-webkit-box-sizing:border-box;-moz-box-sizing:border-box;-ms-box-sizing:border-box;box-sizing:border-box;display:inline-block;vertical-align:top;width:33%;margin:0px;padding:0px;min-height:500px;\" id=\"contentScreenLeft\">
+			
 				".$this->content["left"]."
-			</div>
-		</div>
-		
-		<div style=\"overflow:auto;float:left;width:33%;max-width:400px;vertical-align:top;border-left-style:solid;border-left-width:1px;margin:0px;padding:0px;min-height:500px;\" id=\"contentScreenCenter\" class=\"borderColor1\">
+			
+		</div><div style=\"-webkit-box-sizing:border-box;-moz-box-sizing:border-box;-ms-box-sizing:border-box;box-sizing:border-box;overflow:auto;display:inline-block;width:33%;vertical-align:top;border-left-style:solid;border-left-width:1px;margin:0px;padding:0px;min-height:400px;\" id=\"contentScreenCenter\" class=\"borderColor1\">
 			".$this->content["center"]."
-		</div>
-		
-		<div style=\"overflow:auto;float:left;width:33%;min-width:350px;max-width:400px;vertical-align:top;border-left-style:solid;border-left-width:1px;margin:0px;min-height:400px;\" id=\"contentScreenRight\" class=\"borderColor1\">
+		</div><div style=\"-webkit-box-sizing:border-box;-moz-box-sizing:border-box;-ms-box-sizing:border-box;box-sizing:border-box;overflow:auto;display:inline-block;width:33%;vertical-align:top;border-left-style:solid;border-left-width:1px;margin:0px;min-height:400px;\" id=\"contentScreenRight\" class=\"borderColor1\">
 			".$this->content["right"]."
 		</div>";
 		
@@ -104,17 +97,16 @@ class HTMLColGUI {
 				if(!\$j('#contentScreenLeft').length)
 					return;
 
-				var widthSL = (contentManager.maxWidth() - \$j('#contentScreenRight').outerWidth() - \$j('#contentScreenCenter').outerWidth() - 1)+'px';
+				//var widthSL = (contentManager.maxWidth() - \$j('#contentScreenRight').outerWidth() - \$j('#contentScreenCenter').outerWidth() - 1)+'px';
 
 
-				\$j('#contentScreenLeft').css('width', widthSL);
+				//\$j('#contentScreenLeft').css('width', widthSL);
 
-				var height = contentManager.maxHeight() + 20;
+				var height = contentManager.maxHeight();// + 20;
 				
-				\$j('#contentScreenLeft div').first().css('height', height+'px');
+				\$j('#contentScreenLeft').css('height', height+'px');
 				\$j('#contentScreenRight').css('height', height+'px');
 				\$j('#contentScreenCenter').css('height', height+'px');
-				//\$j('#kontoTable').parent().css('height', (height - \$j('#headerFrame').outerHeight() - \$j('#headerFrame').next().outerHeight() - \$j('#uploadFrame').outerHeight() - 30)+'px');
 			}";
 		}
 		

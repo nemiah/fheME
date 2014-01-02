@@ -34,9 +34,9 @@ class Factory {
 		return $this->className;
 	}
 
-	public function __construct($className, $newParameter = -1){
+	public function __construct($className, $newParameter = -1, $useParsers = true){
 		$this->className = $className;
-		$this->object = new $className($newParameter);
+		$this->object = new $className($newParameter, $useParsers);
 		$this->newParameter = $newParameter;
 
 		if(!$this->object instanceof PersistentObject)

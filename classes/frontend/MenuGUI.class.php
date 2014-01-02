@@ -30,7 +30,7 @@ class MenuGUI extends UnpersistentClass implements iGUIHTML2, icontextMenu {
 		$es = $_SESSION["CurrentAppPlugins"]->getMenuEntries();
 		$ts = $_SESSION["CurrentAppPlugins"]->getMenuTargets();
 		$icons = $_SESSION["CurrentAppPlugins"]->getIcons();
-
+		
 		$appIco = $_SESSION["applications"]->getApplicationIcon($_SESSION["applications"]->getActiveApplication());
 		if(isset($_COOKIE["phynx_color"]) AND $_COOKIE["phynx_color"] != "standard"){
 			$suffix = strrchr($appIco,".");
@@ -46,7 +46,7 @@ class MenuGUI extends UnpersistentClass implements iGUIHTML2, icontextMenu {
 
 		$appMenuHidden = "";
 		$appMenuDisplayed = "";
-		$appMenuActive = (!$_SESSION["S"]->isUserAdmin() AND (!isset($_COOKIE["phynx_layout"]) OR $_COOKIE["phynx_layout"] == "fixed" OR $_COOKIE["phynx_layout"] == "horizontal" OR $_COOKIE["phynx_layout"] == "desktop"));
+		$appMenuActive = (!$_SESSION["S"]->isUserAdmin() AND (!isset($_COOKIE["phynx_layout"]) OR $_COOKIE["phynx_layout"] == "fixed" OR $_COOKIE["phynx_layout"] == "horizontal" OR $_COOKIE["phynx_layout"] == "desktop" OR $_COOKIE["phynx_layout"] == "vertical"));
 
 		// <editor-fold defaultstate="collapsed" desc="Aspect:jP">
 		$aspectAppMenuActive = Aspect::joinPoint("appMenuActive", $this, __METHOD__);
@@ -64,7 +64,7 @@ class MenuGUI extends UnpersistentClass implements iGUIHTML2, icontextMenu {
 		
 
 		$bigWorld = false;
-		if(isset($_COOKIE["phynx_layout"]) AND $_COOKIE["phynx_layout"] == "desktop")
+		if(isset($_COOKIE["phynx_layout"]) AND ($_COOKIE["phynx_layout"] == "desktop" OR $_COOKIE["phynx_layout"] == "vertical"))
 			$bigWorld = true;
 		
 		if(!$_SESSION["S"]->isUserAdmin()) {

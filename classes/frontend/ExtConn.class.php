@@ -254,6 +254,10 @@ class ExtConn {
 
 		return $this->login($u->A("username"), $u->A("SHApassword"), true);
 	}
+	
+	public function setUser(User $User){
+		$this->currentUser = $User;
+	}
 
 	function setMySQLData($host, $username, $password, $database){
 

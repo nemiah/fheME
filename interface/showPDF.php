@@ -18,6 +18,7 @@
  *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 require "../classes/backend/BackgroundPluginState.class.php";
+require "../classes/toolbox/BPS.class.php";
 require "../classes/toolbox/Util.class.php";
 session_name("phynx_".sha1(str_replace("".DIRECTORY_SEPARATOR."interface".DIRECTORY_SEPARATOR."showPDF.php","".DIRECTORY_SEPARATOR."system".DIRECTORY_SEPARATOR."connect.php",__FILE__)));
 session_start();

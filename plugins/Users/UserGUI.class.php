@@ -71,7 +71,7 @@ class UserGUI extends User implements iGUIHTML2 {
 		$gui->label("UserSkype","Skype");
 		$gui->label("UserTel","Telefon");
 		
-		$gui->type("language","select", array("de_DE" => "Deutsch (Deutschland)", "de_CH" => "Deutsch (Schweiz)", "en_GB" => "English (United Kingdom)"));
+		$gui->type("language","select", array("de_DE" => "Deutsch (Deutschland) €", "de_DE_EUR" => "Deutsch (Deutschland) EUR", "de_CH" => "Deutsch (Schweiz) sFr", "de_CH_CHF" => "Deutsch (Schweiz) CHF", "en_GB" => "English (United Kingdom)"));
 		#$gui->setOptions("language",);
 		$gui->descriptionField("SHApassword","Zum Ändern eingeben.");
 		$gui->type("password","hidden");

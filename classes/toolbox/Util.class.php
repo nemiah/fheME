@@ -1215,14 +1215,16 @@ class Util {
 			$_SESSION["BPS"]->setACProperty("filename","$filename");
 			$_SESSION["BPS"]->setACProperty("delete", $delete ? "1" : "0");
 			echo "<!DOCTYPE html><html><script type=\"text/javascript\">document.location='./showPDF.php';</script></html>";
-		} else echo "<!DOCTYPE html><html><script type=\"text/javascript\">document.location='../system/IECache/".$_SESSION["S"]->getCurrentUser()->getID()."/".basename($filename)."?rand=".rand(100, 1000000)."';</script></html>";
+		} else
+			echo "<!DOCTYPE html><html><script type=\"text/javascript\">document.location='../system/IECache/".$_SESSION["S"]->getCurrentUser()->getID()."/".basename($filename)."?rand=".rand(100, 1000000)."';</script></html>";
 	}
 
 	public static function showPDF($object, $callbackFunction = "getPDF"){
 		if(Util::usePDFViewer()){
 			$filename = $object->$callbackFunction(true);
 			Util::PDFViewer($filename);
-		} else $object->$callbackFunction(false);	
+		} else 
+			$object->$callbackFunction(false);	
 	}
 	
 	public static function genPassword($length=8) {

@@ -47,6 +47,8 @@ class HTMLInput {
 	private $callback;
 	private $maxlength;
 	private $size;
+	private $autocorrect = true;
+	private $spellcheck = true;
 	
 	public function __construct($name, $type = "text", $value = null, $options = null){
 		$this->name = $name;
@@ -69,6 +71,14 @@ class HTMLInput {
 		$this->autocomplete = array($targetClass, $onSelectionFunction, $hideOnSelection, $getACData3rdParameter == null ? "null" : $getACData3rdParameter, $ButtonEmptyValues, $cal);
 		
 		return $cal;
+	}
+	
+	public function autocorrect($bool){
+		$this->autocorrect = $bool;
+	}
+	
+	public function spellcheck($bool){
+		$this->spellcheck = $bool;
 	}
 	
 	public function setType($type){
@@ -320,6 +330,8 @@ class HTMLInput {
 					".($this->placeholder != null ? " placeholder=\"$this->placeholder\"" : "")."
 					".($this->style != null ? " style=\"$this->style\"" : "")."
 					name=\"$this->name\"
+					".(!$this->autocorrect ? "autocorrect=\"off\"" : "")."
+					".(!$this->spellcheck ? "spellcheck=\"false\"" : "")."
 					".($this->className != null ? "class=\"$this->className\"" : "")."
 					".($this->onkeyup != null ? "onkeyup=\"$this->onkeyup\"" : "")."
 					".($this->onblur != null ? "onblur=\"$this->onblur\"" : "")."

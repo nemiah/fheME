@@ -38,6 +38,7 @@ abstract class Collection {
 	protected $loadedPage;
 	protected $loadedPerPage;
 	protected $isFiltered = false;
+	protected $isFilteredLabel = null;
 	
 	function __clone() {
 		$this->Adapter = clone $this->Adapter;
@@ -67,6 +68,10 @@ abstract class Collection {
 
 	public function isFiltered(){
 		return $this->isFiltered;
+	}
+
+	public function isFilteredLabel(){
+		return $this->isFilteredLabel;
 	}
 
 	/**
@@ -645,6 +650,7 @@ abstract class Collection {
 	protected function filterCategories(){
 		
 		$fC = false;
+		$Ks = array();
 		if(PMReflector::implementsInterface(get_class($this),"iCategoryFilter")){
 			$mU = new mUserdata();
 			$K = $mU->getUDValue("filteredCategoriesInHTMLGUI".$this->getClearClass());
@@ -656,6 +662,8 @@ abstract class Collection {
 	
 				$fC = true;
 			}
+			
+			$this->isFilteredLabel = $this->getCategoryFieldLabel($Ks);
 		}
 		$this->isFiltered = $fC;
 
@@ -743,6 +751,10 @@ abstract class Collection {
 		#$array[] = array("label" => "Test", "value" => "1");
 		#$array[] = array("label" => "Test2", "value" => "2");
 		return json_encode($array);
+	}
+	
+	public function getCategoryFieldLabel(array $KIDs){
+		return null;
 	}
 }
 ?>
