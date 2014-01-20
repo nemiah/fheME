@@ -48,6 +48,9 @@ class Nuntius extends PersistentObject {
 			if($ex[0] == "FritzBox")
 				$from = $this->A("NuntiusSender");
 			
+			if($ex[0] == "Mobile")
+				$from = $this->A("NuntiusSender");
+			
 			
 			return "
 			<div id=\"Nuntius".$this->getID()."\" style=\"cursor:pointer;".($read ? "" : "background-color:#efefef;")."min-height:40px;margin-bottom:10px;margin-top:10px;\" onclick=\"".OnEvent::rme($this, "read", "", "function(t){ \$j('#Nuntius".$this->getID()."').replaceWith(t.responseText); fheOverview.loadContent('mNuntiusGUI::getOverviewContent'); }")."\">
@@ -68,6 +71,7 @@ class Nuntius extends PersistentObject {
 	function messageParser(){
 		switch($this->A("NuntiusSender")){
 			case "FritzBox":
+			case "Mobile":
 				$ex = explode(",", $this->A("NuntiusMessage"));
 				$caller = $ex[1];
 				if(isset($ex[3]) AND trim($ex[3]) != "")

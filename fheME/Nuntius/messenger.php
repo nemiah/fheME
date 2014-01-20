@@ -57,8 +57,9 @@ $caller = "";
 if($_GET["from"] == "FritzBox"){
 	$data = explode(",", $_GET["message"]);
 	
-	$xml = file_get_contents("ftp://$_SERVER[REMOTE_ADDR]/phonebook.xml");
-	$xml = str_replace("<?xml\nversion=\"1.0\" encoding=\"iso-8859-1\">", "<?xml version=\"1.0\" encoding=\"iso-8859-1\" ?><pb>", $xml)."</pb>";
+	$xml = file_get_contents("ftp://ftpuser:ftpuser@$_SERVER[REMOTE_ADDR]/phonebook.xml");
+	$xml = str_replace("<?xml
+version=\"1.0\" encoding=\"utf-8\">", "<?xml version=\"1.0\" encoding=\"utf-8\" ?><pb>", $xml)."</pb>";
 
 	libxml_use_internal_errors(false);
 	try {

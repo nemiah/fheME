@@ -44,6 +44,10 @@ var UPnP = {
 		})
 	},
 	
+	search: function(filename){
+		Popup.load("Abspielen auf", "mUPnP", "-1", "search", [filename]);
+	},
+	
 	overlay: '<div class="darkOverlay" id="UPnPOverlay" style="display:none;">\n\
 		\n\
 			<div id=\"UPnPLoading\" style=\"font-family:Roboto;font-size:30px;padding:10px;height:128px;width:500px;\">\n\

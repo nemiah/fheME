@@ -150,7 +150,7 @@ class mFhemGUI extends anyC implements iGUIHTML2 {
 	public static function getOverviewPlugin(){
 		$P = new overviewPlugin("mFhemGUI", "Fhem", 360);
 		$P->updateInterval(120);
-		$P->updateFunction("function(){".OnEvent::rme(new FhemControlGUI(-1), "updateGUI", "", "function(transport){ fheOverview.updateTime('mFhemGUI'); Fhem.updateControls(transport); }")."}");
+		$P->updateFunction("function(){ if(!Fhem.doAutoUpdate) return; ".OnEvent::rme(new FhemControlGUI(-1), "updateGUI", "", "function(transport){ fheOverview.updateTime('mFhemGUI'); Fhem.updateControls(transport); }")."}");
 		
 		return $P;
 	}

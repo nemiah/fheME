@@ -51,6 +51,8 @@ class UPnPGUI extends UPnP implements iGUIHTML2 {
 			"UPnPModelName",
 			"UPnPUDN",
 			"UPnPHide",
+			"UPnPDefaultDownloadsServer",
+			"UPnPDefaultDownloadsDirectory",
 			"UPnPContentDirectory",
 			"UPnPContentDirectorySCPDURL",
 			"UPnPContentDirectorycontrolURL",
@@ -67,11 +69,17 @@ class UPnPGUI extends UPnP implements iGUIHTML2 {
 		
 		#$gui->optionsEdit(false, false);
 		
+		$gui->toggleFields("UPnPDefaultDownloadsServer", "1", array("UPnPDefaultDownloadsDirectory"));
+		
+		$gui->label("UPnPDefaultDownloadsServer", "Server?");
+		$gui->label("UPnPDefaultDownloadsDirectory", "Verzeichnis");
+		
 		$gui->label("UPnPConnectionManager", "Verfügbar?");
 		$gui->label("UPnPAVTransport", "Verfügbar?");
 		$gui->label("UPnPContentDirectory", "Verfügbar?");
 		$gui->label("UPnPRenderingControl", "Verfügbar?");
 		
+		$gui->type("UPnPDefaultDownloadsServer", "checkbox");
 		$gui->type("UPnPConnectionManager", "checkbox");
 		$gui->type("UPnPAVTransport", "checkbox");
 		$gui->type("UPnPContentDirectory", "checkbox");
@@ -88,6 +96,7 @@ class UPnPGUI extends UPnP implements iGUIHTML2 {
 		$gui->label("UPnPConnectionManagercontrolURL", "controlURL");
 		$gui->label("UPnPRenderingControlcontrolURL", "controlURL");
 		
+		$gui->space("UPnPDefaultDownloadsServer", "Downloads");
 		$gui->space("UPnPConnectionManager", "ConnectionManager");
 		$gui->space("UPnPAVTransport", "AVTransport");
 		$gui->space("UPnPContentDirectory", "ContentDirectory");
@@ -105,10 +114,27 @@ class UPnPGUI extends UPnP implements iGUIHTML2 {
 		if($this->A("UPnPContentDirectory") == "1"){
 			$B = $gui->addSideButton("Verzeichnis", "./fheME/UPnP/directory.png");
 			$B->popup("", "Verzeichnis", "UPnP", $this->getID(), "directory", "0", "", "{width:800}");
+			
+			#$B = $gui->addSideButton("Suche", "./fheME/UPnP/search.png");
+			#$B->popup("", "Suche", "UPnP", $this->getID(), "suche", "0", "", "{width:800}");
 		}
 		
 		return $gui->getEditHTML();
 	}
+	
+	/*function suche(){
+		$result = $this->Search("0$3$35", "(dc:title contains \"Bitten.S01E02\")", "");
+		$xml = new SimpleXMLElement($result["Result"]);
+		echo "<pre>";
+		print_r($xml);
+		echo "</pre>";
+		$L = new HTMLList();
+		foreach($xml->item AS $item){#".OnEvent::popup("", "UPnP", $this->getID(), "readSetStart", array("'".$item->attributes()->id."'"))."
+			$L->addItem("<a href=\"#\" onclick=\"return false;\">".$item->children("http://purl.org/dc/elements/1.1/")."</a>");
+		}
+		echo $L;
+		#echo htmlentities(print_r($result, true));
+	}*/
 	
 	private function findSeries(&$entries){
 		$series = array();
@@ -283,6 +309,7 @@ class UPnPGUI extends UPnP implements iGUIHTML2 {
 	}
 	
 	public function controls(){
+		echo "<p class=\"prettyTitle\">".$this->A("UPnPName")."</p>";
 		#$desiredCommands = array("Play", "Pause", "Stop", "Next", "Previous");
 		$icons = array(
 			"Play" => "play",
@@ -320,19 +347,20 @@ class UPnPGUI extends UPnP implements iGUIHTML2 {
 		
 		$B = new Button("Play", $icons["Play"], "touch");
 		$B->rmePCR("UPnP", $this->getID(), "Play", array("'0'"));
-		$B->style("display:inline-block;width:30%;");
+		#$B->style("display:inline-block;width:30%;");
 		echo $B;
 		
 		$B = new Button("Pause", $icons["Pause"], "touch");
 		$B->rmePCR("UPnP", $this->getID(), "Pause", array("'0'"));
-		$B->style("display:inline-block;width:30%;");
+		#$B->style("display:inline-block;width:30%;");
 		echo $B;
 		
 		$B = new Button("Stop", $icons["Stop"], "touch");
 		$B->rmePCR("UPnP", $this->getID(), "Stop", array("'0'"));
-		$B->style("display:inline-block;width:30%;");
+		#$B->style("display:inline-block;width:30%;");
 		echo $B;
 		
+		echo "<br />";
 		echo "<br />";
 		
 		$B = new Button("Previous", $icons["Previous"], "touch");
@@ -358,13 +386,13 @@ class UPnPGUI extends UPnP implements iGUIHTML2 {
 		$B->id("UPnPControlsUnMute");
 		echo $B;
 		
-		if(strpos($this->A("UPnPModelName"), "XBMC") !== false){
+		/*if(strpos($this->A("UPnPModelName"), "XBMC") !== false){
 			$B = new Button("Shutdown", $icons["Shutdown"], "touch");
 			$B->doBefore("if(confirm('Möchten Sie das Gerät herunterfahren?')) %AFTER");
 			$B->rmePCR("UPnP", $this->getID(), "VendorShutdown");
 			$B->style("display:inline-block;width:47%;");
 			echo $B;
-		}
+		}*/
 		
 		echo "<div style=\"height:1px;\"></div>";
 	}

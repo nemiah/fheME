@@ -54,6 +54,16 @@ class UPnPCommand {
 		return $result;
 	}
 	
+	function Search($ObjectID, $SearchCriteria, $Filter){
+		$args = '<ContainerID>'.$ObjectID.'</ContainerID>' . "\r\n";
+		$args .= '<SearchCriteria>'.$SearchCriteria.'</SearchCriteria>' . "\r\n";
+		$args .= '<Filter>'.$Filter.'</Filter>' . "\r\n";
+		$args .= '<StartingIndex>0</StartingIndex>' . "\r\n";
+		$args .= '<RequestedCount>0</RequestedCount>' . "\r\n";
+		$args .= '<SortCriteria>'.'</SortCriteria>' . "\r\n";
+		return $this->execute(__FUNCTION__, $args, "ContentDirectory");
+	}
+	
 	function Browse($ObjectID, $BrowseFlag, $Filter = "*") {
 		$args = '<ObjectID>'.$ObjectID.'</ObjectID>' . "\r\n";
 		$args .= '<BrowseFlag>'.$BrowseFlag.'</BrowseFlag>' . "\r\n";

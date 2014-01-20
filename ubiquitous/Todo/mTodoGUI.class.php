@@ -548,7 +548,7 @@ END:VCALENDAR";
 		$F->setLabel("TodoRepeatDayOfWeek", "Tage");
 		$F->setLabel("TodoRepeatUntil", "Bis");
 		
-		$F->setType("TodoRepeatInterval", "select", null, array("Wöchentlich", "Jede 2. Woche", "Jede 3. Woche"));
+		$F->setType("TodoRepeatInterval", "select", null, array("Wöchentlich", "Jede 2. Woche", "Jede 3. Woche", "Jede 4. Woche"));
 		$F->setType("TodoRepeatUntil", "date");
 		
 		#$currentWeek = ceil((date("d", $T->A("TodoFromDay")) - date("w", $T->A("TodoFromDay")) - 1) / 7) + 1;

@@ -38,7 +38,9 @@ var Popup = {
 		
 		var arrayCopy = targetPluginMethodParameters.slice(0, targetPluginMethodParameters.length); //because targetPluginMethodParameters is only a reference
 		
-		Popup.displayNamed(name, title, { responseText: "<p style=\"color:grey;\"><img src=\"./images/loading.svg\" style=\"height:32px;width:32px;float:left;margin-right:10px;\" />Die Daten<br />werden geladen...</p>" }, targetPlugin, options);
+		eval("Popup.displayNamed('"+name+"', '"+title+"', { responseText: '' }, '"+targetPlugin+"', "+(typeof options == "undefined" ? "{}" : options)+");");
+		
+		Popup.update({ responseText: "<p style=\"color:grey;\"><img src=\"./images/loading.svg\" style=\"height:32px;width:32px;float:left;margin-right:10px;\" />Die Daten<br />werden geladen...</p>" }, targetPlugin, name);
 		
 		contentManager.rmePCR(targetPlugin, targetPluginID, targetPluginMethod, targetPluginMethodParameters, function(transport){
 			Popup.update(transport, targetPlugin, name);

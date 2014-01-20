@@ -1,13 +1,13 @@
 <?php
 /*
- *  This file is part of open3A.
+ *  This file is part of fheME.
 
- *  open3A is free software; you can redistribute it and/or modify
+ *  fheME is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 3 of the License, or
  *  (at your option) any later version.
 
- *  open3A is distributed in the hope that it will be useful,
+ *  fheME is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
@@ -51,7 +51,6 @@ require_once(__DIR__.'/lib/BrickletTemperatureIR.php');
 declare(ticks = 1);
 
 function callback($value, $data) {
-	$value = floor($value / 10.0);
 
 	$bricklet = $data[0];
 	$type = $data[1];
@@ -74,9 +73,9 @@ function callback($value, $data) {
 
 use Tinkerforge\IPConnection;
 
-$connections = array();
+#$connections = array();
 
-$AC = anyC::get("Tinkerforge");
+/*$AC = anyC::get("Tinkerforge");
 while($T = $AC->getNextEntry()){
 	$connections[$T->getID()] = new IPConnection();
 	$connections[$T->getID()]->connect($T->A("TinkerforgeServerIP"), $T->A("TinkerforgeServerPort"));
@@ -105,6 +104,52 @@ while($T = $AC->getNextEntry()){
 	}
 	$connections[$T->getID()]->dispatchCallbacks(-1);
 	$connections[$T->getID()]->disconnect();
+}*/
+
+$nextRequest = array();
+while(true){
+	$AC = anyC::get("Tinkerforge");
+	while($T = $AC->getNextEntry()){
+		#echo "go\n";
+		$connection = new IPConnection();
+		$connection->connect($T->A("TinkerforgeServerIP"), $T->A("TinkerforgeServerPort"));
+		
+		$ACB = anyC::get("TinkerforgeBricklet", "TinkerforgeBrickletTinkerforgeID", $T->getID());
+		while($B = $ACB->getNextEntry()){
+			$Type = "Tinkerforge\\".$B->A("TinkerforgeBrickletType");
+
+			try {
+				switch($B->A("TinkerforgeBrickletType")){
+					case "BrickletTemperatureIR":
+						if(isset($nextRequest[$B->getID()]) AND $nextRequest[$B->getID()] > time())
+							continue;
+						
+						$Bricklet = new $Type($B->A("TinkerforgeBrickletUID"), $connection);
+
+						$temp = floor($Bricklet->getObjectTemperature() / 10.0);
+						callback($temp, array($B->A("TinkerforgeBrickletUID"), $B->A("TinkerforgeBrickletType")));
+						#echo date("H:i:s").": ".$temp."\n";
+						
+						if($temp < 35)
+							$nextRequest[$B->getID()] = time() + 60 * 30;
+						else
+							$nextRequest[$B->getID()] = time() + 60;
+						
+					break;
+				}
+			} catch (ClassNotFoundException $ex){
+				echo "Class not found: ";
+				echo $ex->getClassName();
+				echo "\n";
+			}
+
+		}
+		
+		$connection->disconnect();
+	}
+	
+	DBStorage::disconnect();
+	sleep(60);
 }
 
 $e->cleanUp();

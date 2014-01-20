@@ -98,7 +98,7 @@ class FhemControlGUI implements iGUIHTML2 {
 		$B = new Button("", "./fheME/Fhem/events.png", "icon");
 		$B->style("float:left;margin-left:-10px;margin-top:-13px;margin-right:3px;");
 
-		return "<div onclick=\"".OnEvent::rme($this, "setPreset", $f->getID(), "Fhem.requestUpdate();")."\" style=\"cursor:pointer;width:200px;float:left;min-height:15px;border-radius:5px;border-width:1px;border-style:solid;margin:5px;padding:5px;\" class=\"borderColor1\">
+		return "<div onclick=\"".OnEvent::rme($this, "setPreset", $f->getID(), "if(Fhem.doAutoUpdate) Fhem.requestUpdate();")."\" style=\"cursor:pointer;width:200px;float:left;min-height:15px;border-radius:5px;border-width:1px;border-style:solid;margin:5px;padding:5px;\" class=\"borderColor1\">
 				$B
 				<div>
 					<b>".$f->A("FhemPresetName")."</b>
@@ -117,7 +117,7 @@ class FhemControlGUI implements iGUIHTML2 {
 		return "<div class=\"touchButton\" onclick=\"Touchy.wheelOnFire(event, {
 				data: {'desired-temp 17.0': '17,0°', 'desired-temp 21.0': '21,0°', 'desired-temp 21.5': '21,5°', 'desired-temp 22.0': '22,0°', 'desired-temp 22.5': '22,5°', 'desired-temp 23.0': '23,0°', 'desired-temp 28.0': '28,0°'},
 				selection: function(value){
-					".OnEvent::rme($this, "setDevice", array($f->getID(), "value"), "function(){ Fhem.requestUpdate(); }")."
+					".OnEvent::rme($this, "setDevice", array($f->getID(), "value"), "function(){ if(Fhem.doAutoUpdate) Fhem.requestUpdate(); }")."
 				},
 				value: function(){
 					return \$j('#FhemID_".$f->getID()."TargetTemp').data('value');
@@ -148,7 +148,7 @@ class FhemControlGUI implements iGUIHTML2 {
 					if($f->A("FhemModel") == "fs20st"){
 						$values = array("on" => "on", "off" => "off");
 						$togggle = true;
-						$onclick = OnEvent::rme($this, "toggleDevice", $f->getID(), "Fhem.requestUpdate();");
+						$onclick = OnEvent::rme($this, "toggleDevice", $f->getID(), "if(Fhem.doAutoUpdate) Fhem.requestUpdate();");
 					}
 					
 					if($f->A("FhemModel") == "fs20du")
@@ -225,7 +225,7 @@ class FhemControlGUI implements iGUIHTML2 {
 			$onclick = "\$j('.fhemeControl:not(#controls_D".$f->getID().")').hide(); \$j('#controls_D".$f->getID()."').toggle();";
 
 			$values = array("on" => "on", "off" => "off");
-			$onclick = OnEvent::rme($this, "toggleDevice", $f->getID(), "Fhem.requestUpdate();");
+			$onclick = OnEvent::rme($this, "toggleDevice", $f->getID(), "if(Fhem.doAutoUpdate) Fhem.requestUpdate();");
 
 			$html = "<div id=\"FhemControlID_".$f->getID()."\" onclick=\"$onclick\" style=\"cursor:pointer;\" class=\"touchButton\">
 					
@@ -363,7 +363,7 @@ class FhemControlGUI implements iGUIHTML2 {
 				$controls->addCellClass(1, "borderColor1");
 			}
 
-			$controls->addCellEvent(1, "click", OnEvent::rme($this, "setDevice", array(str_replace(array("D", "H"), "", $DeviceID), "'$v'"), "function(){ \$j('#controls_$DeviceID').hide(); Fhem.requestUpdate(); }"));
+			$controls->addCellEvent(1, "click", OnEvent::rme($this, "setDevice", array(str_replace(array("D", "H"), "", $DeviceID), "'$v'"), "function(){ \$j('#controls_$DeviceID').hide(); if(Fhem.doAutoUpdate) Fhem.requestUpdate(); }"));
 
 			$i++;
 		}
@@ -620,7 +620,7 @@ class FhemControlGUI implements iGUIHTML2 {
 		return null;
 	}
 	
-	public function updateGUI(){
+	public function updateGUI($ID = null){
 		$result = array();
 		$S = new mFhemServerGUI();
 		$S->addAssocV3("FhemServerType", "=", "0");
@@ -639,8 +639,13 @@ class FhemControlGUI implements iGUIHTML2 {
 					$F->addAssocV3("FhemName","=",$v->attributes()->name);
 
 					$F = $F->getNextEntry();
+					
 					if($F == null)
 						continue;
+					
+					if($ID AND $F->getID() != $ID)
+						continue;
+					
 
 					$state = $v->attributes()->state;
 
@@ -674,7 +679,11 @@ class FhemControlGUI implements iGUIHTML2 {
 					$F->addAssocV3("FhemName","=",$v->attributes()->name);
 
 					$F = $F->getNextEntry();
+					
 					if($F == null)
+						continue;
+					
+					if($ID AND $F->getID() != $ID)
 						continue;
 
 					$state = $v->attributes()->state;
@@ -702,7 +711,11 @@ class FhemControlGUI implements iGUIHTML2 {
 					$F->addAssocV3("FhemName","=",$v->attributes()->name);
 
 					$F = $F->getNextEntry();
+					
 					if($F == null)
+						continue;
+					
+					if($ID AND $F->getID() != $ID)
 						continue;
 
 					$state = $v->attributes()->state;
@@ -726,25 +739,14 @@ class FhemControlGUI implements iGUIHTML2 {
 					$F->addAssocV3("FhemName","=",$v->attributes()->name);
 
 					$F = $F->getNextEntry();
+					
 					if($F == null)
+						continue;
+					
+					if($ID AND $F->getID() != $ID)
 						continue;
 
 					$result[$F->getID()] = $F->getStatus($v);
-					
-					/*$state = $v->attributes()->state;
-
-					$state = strtolower(str_replace("dim", "", $state));
-
-					$HM = new Button("", "./fheME/Fhem/off.png", "icon");
-					$HM->style("float:left;margin-right:5px;");
-
-					if($state != "off" && $state != "aus")
-						$HM->image("./fheME/Fhem/on.png");
-
-					if(!is_numeric(str_replace("%", "", $state)))
-						$state = "";
-
-					$result[$F->getID()] = array("state" => "$HM<b>".($F->A("FhemAlias") == "" ? $F->A("FhemName") : $F->A("FhemAlias"))."</b> <small style=\"color:grey;\">$state</small><div style=\"clear:both;\">");*/
 				}
 
 			if(isset($x->CUL_EM_LIST->CUL_EM) AND count($x->CUL_EM_LIST->CUL_EM) > 0)
@@ -753,7 +755,11 @@ class FhemControlGUI implements iGUIHTML2 {
 					$F->addAssocV3("FhemName", "=", $em->attributes()->name);
 					$F = $F->getNextEntry();
 
-					if($F == null) continue;
+					if($F == null)
+						continue;
+					
+					if($ID AND $F->getID() != $ID)
+						continue;
 
 					foreach($em->STATE AS $state)
 						if($state->attributes()->key == "current")
@@ -770,7 +776,12 @@ class FhemControlGUI implements iGUIHTML2 {
 					$F->addAssocV3("FhemName", "=", $fht->attributes()->name);
 
 					$F = $F->getNextEntry();
-					if($F == null) continue;
+					
+					if($F == null)
+						continue;
+					
+					if($ID AND $F->getID() != $ID)
+						continue;
 
 					$measuredTemp = 0;
 					$warnings = "";

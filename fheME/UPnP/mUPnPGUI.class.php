@@ -44,6 +44,56 @@ class mUPnPGUI extends anyC implements iGUIHTMLMP2 {
 		return $gui->getBrowserHTML($id);
 	}
 
+	public function search($filename){
+		ob_start();
+		$this->discoverNow();
+		ob_end_clean();
+		
+		echo OnEvent::script(OnEvent::popup("", "mUPnP", "-1", "searchNow", array("'$filename'")));
+	}
+	
+	public function searchNow($filename){
+		$AC = anyC::get("UPnP", "UPnPDefaultDownloadsServer", "1");
+		$S = $AC->getNextEntry();
+		
+		echo "<p class=\"prettyTitle\">Abspielen auf</p>";
+		
+		if($S == null)
+			die("<p>Es wurde kein Downloads-Server definiert</p>");
+		
+		echo "<div style=\"padding-bottom:10px;\">";
+		
+		$result = $S->Search($S->A("UPnPDefaultDownloadsDirectory"), "(dc:title contains \"$filename\")", "");
+		$xml = new SimpleXMLElement($result["Result"]);
+		if(count($xml->item) == 0)
+			die("<p>Die Datei wurde nicht gefunden</p>");
+		
+		$item = $xml->item[0];
+		
+		$AC = anyC::get("UPnP");
+		$AC->addAssocV3("UPnPAVTransport", "=", "1");
+		while($U = $AC->getNextEntry()){
+			$B = new Button($U->A("UPnPName"), "arrow_right", "touch");
+			$B->rmePCR("UPnP", $S->getID(), "readSetStart", array("'".$item->attributes()->id."'", $U->getID()), "function(){ ".OnEvent::closePopup("mUPnP")." ".OnEvent::popup("Steuerung", "UPnP", $U->getID(), "controls")." }");
+			
+			echo $B;
+		}
+		
+		
+		#echo "<pre>";
+		#print_r($xml);
+		#echo "</pre>";
+		
+		#$L = new HTMLList();
+		#foreach($xml->item AS $item){#".OnEvent::popup("", "UPnP", $this->getID(), "readSetStart", array("'".$item->attributes()->id."'"))."
+		#	$L->addItem("<a href=\"#\" onclick=\"return false;\">".$item->children("http://purl.org/dc/elements/1.1/")."</a>");
+		#}
+		#echo $L;
+		
+		#echo $filename;
+		echo "<div style=\"clear:both;\"></div></div>";
+	}
+	
 	public function remote(){
 		
 		echo "

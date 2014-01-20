@@ -28,7 +28,17 @@ var Fhem = {
 	sliderUpDownValues: ["off", "none", "on"],
 	updater: null,
 	lastStates: null,
-
+	
+	doAutoUpdate: true,
+	
+	handleWS: function(topic, data){
+		Fhem.doAutoUpdate = false;
+		//if(data.type === "BrickletTemperatureIR")
+		//	Tinkerforge.updatePlot(data);
+		//console.log(data);
+		Fhem.requestUpdate(data.id);
+	},
+			
 	initUpdater: function(){
 		if(Fhem.updater != null)
 			window.clearInterval(Fhem.updater);
@@ -41,6 +51,11 @@ var Fhem = {
 	},
 
 	refreshControls: function(){
+		if(!Fhem.doAutoUpdate){
+			window.clearInterval(Fhem.updater);
+			return;
+		}
+		
 		if(!$('mFhemMenuEntry')) return;
 		if(lastLoadedLeftPlugin != "FhemControl") {
 			if(Fhem.updater != null){
@@ -55,8 +70,8 @@ var Fhem = {
 
 	},
 
-	requestUpdate: function(){
-		contentManager.rmePCR('FhemControl','','updateGUI','','Fhem.updateControls(transport);', "", false);
+	requestUpdate: function(id){
+		contentManager.rmePCR('FhemControl','','updateGUI',typeof id != "undefined" ? id : "",'Fhem.updateControls(transport);', "", false);
 	},
 
 	updateControls: function(transport){
@@ -176,3 +191,4 @@ var Fhem = {
 }
 
 Fhem.initUpdater();
+Registry.callback("pWebsocket", function(){pWebsocket.subscribe("fhem", Fhem.handleWS);});
