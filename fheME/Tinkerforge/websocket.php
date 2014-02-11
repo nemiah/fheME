@@ -107,17 +107,23 @@ while($T = $AC->getNextEntry()){
 }*/
 
 $nextRequest = array();
+$counter = array();
 while(true){
 	$AC = anyC::get("Tinkerforge");
 	while($T = $AC->getNextEntry()){
 		#echo "go\n";
-		$connection = new IPConnection();
-		$connection->connect($T->A("TinkerforgeServerIP"), $T->A("TinkerforgeServerPort"));
-		
+		try {
+			$connection = new IPConnection();
+			$connection->connect($T->A("TinkerforgeServerIP"), $T->A("TinkerforgeServerPort"));
+		} catch(Exception $e){
+			echo $e->getMessage();
+			continue;
+		}
 		$ACB = anyC::get("TinkerforgeBricklet", "TinkerforgeBrickletTinkerforgeID", $T->getID());
 		while($B = $ACB->getNextEntry()){
 			$Type = "Tinkerforge\\".$B->A("TinkerforgeBrickletType");
-
+			if(!isset($counter[$B->getID()]))
+				$counter[$B->getID()] = 0;
 			try {
 				switch($B->A("TinkerforgeBrickletType")){
 					case "BrickletTemperatureIR":
@@ -131,6 +137,11 @@ while(true){
 						#echo date("H:i:s").": ".$temp."\n";
 						
 						if($temp < 35)
+							$counter[$B->getID()]++;
+						else
+							$counter[$B->getID()] = 0;
+						
+						if($counter[$B->getID()] >= 3)
 							$nextRequest[$B->getID()] = time() + 60 * 30;
 						else
 							$nextRequest[$B->getID()] = time() + 60;
