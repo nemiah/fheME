@@ -62,7 +62,7 @@ if (!$fp) {
 		
 		$entryData = array(
 			'topic' => "fhem",
-			'value' => $line,
+			'value' => trim($line),
 			'id' => $F->getID(),
 			'when' => time()
 		);
