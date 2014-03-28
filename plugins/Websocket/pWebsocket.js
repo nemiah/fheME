@@ -20,7 +20,7 @@
 
 var pWebsocket = {
 	socket: null,
-	retryCounter: 5,
+	retryCounter: 500,
 	server: null,
 	queue: new Array(),
 	setQueue: [],
@@ -75,7 +75,7 @@ var pWebsocket = {
 				
 				pWebsocket.sendQueue();
 				
-				pWebsocket.retryCounter = 5;
+				pWebsocket.retryCounter = 500;
 				
 				//console.log('WebSocket connection established');
 			},

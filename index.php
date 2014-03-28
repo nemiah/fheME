@@ -18,10 +18,10 @@
  *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
-if(!function_exists("array_fill_keys")){
+if(!function_exists("array_replace")){
 	require_once "./system/basics.php";
 	
-	emoFatalError("I'm sorry, but your PHP version is too old.", "You need at least PHP version 5.2.0 to run this program.<br />You are using ".phpversion().". Please talk to your provider about this.", "phynx");
+	emoFatalError("I'm sorry, but your PHP version is too old.", "You need at least PHP version 5.3.0 to run this program.<br />You are using ".phpversion().". Please talk to your provider about this.", "phynx");
 }
 
 $dir = new DirectoryIterator(dirname(__FILE__));
@@ -68,6 +68,7 @@ T::load(Util::getRootPath()."libraries");
 $E = new Environment();
 */
 $cssColorsDir = Environment::getS("cssColorsDir", (isset($_COOKIE["phynx_color"]) ? $_COOKIE["phynx_color"] : "standard"));
+$cssCustomFiles = Environment::getS("cssCustomFiles", null);
 /*
 if(file_exists(Util::getRootPath()."plugins/Cloud/Cloud.class.php")){
 	require_once Util::getRootPath()."plugins/Cloud/Cloud.class.php";
@@ -166,6 +167,9 @@ if($sephy AND isset($sephy[3]) AND $sephy[3])
 		<script type="text/javascript" src="./libraries/modernizr.custom.js"></script>
 		<script type="text/javascript" src="./libraries/snap.svg/snap.svg-min.js"></script>
 		<script type="text/javascript" src="./libraries/touchy/Touchy.js"></script>
+		<script type="text/javascript" src="./libraries/iconic/iconic.min.js"></script>
+		<script type="text/javascript" src="./libraries/tinymce/tinymce.min.js?r=<?php echo $build; ?>"></script>
+		<script type="text/javascript" src="./libraries/tinymce/jquery.tinymce.min.js?r=<?php echo $build; ?>"></script>
 
 		
 		<script type="text/javascript" src="./javascript/P2J.js?r=<?php echo $build; ?>"></script>
@@ -189,12 +193,6 @@ if($sephy AND isset($sephy[3]) AND $sephy[3])
 		<script type="text/javascript" src="./libraries/TextEditor.js?r=<?php echo $build; ?>"></script>
 		<script type="text/javascript" src="./libraries/fileuploader.js?r=<?php echo $build; ?>"></script>
 
-			
-		<?php if(file_exists(Util::getRootPath()."ubiquitous/Wysiwyg/tiny_mce/tiny_mce.js")) echo '
-		<script type="text/javascript" src="./ubiquitous/Wysiwyg/tiny_mce/tiny_mce.js?r='.$build.'"></script>
-		<script type="text/javascript" src="./ubiquitous/Wysiwyg/tiny_mce/jquery.tinymce.js?r='.$build.'"></script>'; ?> 
-		<!--<script type="text/javascript" src="./javascript/DynamicJS.php?r=<?php echo rand(); ?>"></script> MOVED TO JSLOADER 22042013!!-->
-
 		<script type="text/javascript">
 			if(typeof contentManager == "undefined")
 				alert("Die JavaScript-Dateien konnten nicht geladen werden.\nDies kann an der Server-Konfiguration liegen.\nBitte versuchen Sie, diese Anwendung in ein Unterverzeichnis zu installieren.");
@@ -216,26 +214,35 @@ if($sephy AND isset($sephy[3]) AND $sephy[3])
 		<link rel="stylesheet" type="text/css" href="./styles/standard/autoCompletion.css" />
 		<link rel="stylesheet" type="text/css" href="./styles/standard/phynxContextMenu.css" />
 		<link rel="stylesheet" type="text/css" href="./styles/standard/TextEditor.css" />
-		<!--<link rel="stylesheet" type="text/css" href="./styles/standard/calendar.css" />-->
 		<link rel="stylesheet" type="text/css" href="./styles/standard/colors.css" />
 		<?php
 		
 		if($cssColorsDir != "standard") 
-			echo '<link rel="stylesheet" type="text/css" href="./styles/'.$cssColorsDir.'/colors.css" />';
+			echo '
+		<link rel="stylesheet" type="text/css" href="./styles/'.$cssColorsDir.'/colors.css" />';
+		
+		if($cssCustomFiles != null){
+			foreach (explode("\n", $cssCustomFiles) AS $cssFile)
+				echo '
+		<link rel="stylesheet" type="text/css" href="'.$cssFile.'" />';
+		}
 		
 		if((isset($_COOKIE["phynx_layout"]) AND $_COOKIE["phynx_layout"] == "vertical"))
-			echo '<link rel="stylesheet" type="text/css" href="./styles/standard/vertical.css" />';
+			echo '
+		<link rel="stylesheet" type="text/css" href="./styles/standard/vertical.css" />';
 		
 		if((isset($_COOKIE["phynx_layout"]) AND $_COOKIE["phynx_layout"] == "desktop"))
-			echo '<link rel="stylesheet" type="text/css" href="./styles/standard/desktop.css" />';
+			echo '
+		<link rel="stylesheet" type="text/css" href="./styles/standard/desktop.css" />';
 		
 		if((isset($_COOKIE["phynx_layout"]) AND $_COOKIE["phynx_layout"] == "fixed"))
-			echo '<link rel="stylesheet" type="text/css" href="./styles/standard/fixed.css" />';
+			echo '
+		<link rel="stylesheet" type="text/css" href="./styles/standard/fixed.css" />';
 		?>
 
-		<!--[if lt IE 8]>
+		<!--[if lt IE 9]>
 		<script type="text/javascript">
-			alert("Sie benötigen mindestens Internet Explorer Version 8!");
+			alert("Sie benötigen mindestens Internet Explorer Version 9!");
 		</script>
 		<![endif]-->
 
@@ -538,7 +545,7 @@ if($sephy AND isset($sephy[3]) AND $sephy[3])
 			<div id="navigation"></div>
 			<?php if(isset($_COOKIE["phynx_layout"]) AND $_COOKIE["phynx_layout"] == "desktop"){ ?>
 				<div id="desktopWrapper">
-					<div id="wrapperHandler" class="backgroundColor1 borderColor1"></div>
+					<div id="wrapperHandler" class=""></div>
 					<div id="wrapper">
 						<div id="contentScreen"></div>
 						<div id="wrapperTable" style="display:none;"></div><!-- Remove some time -->
@@ -580,8 +587,8 @@ if($sephy AND isset($sephy[3]) AND $sephy[3])
 					<div id="contentBelow" style="display:none;"><div id="contentBelowContent"></div></div>
 				</div>
 			<?php } ?>
-			<div id="windowsPersistent"></div>
 			<div id="windows"></div>
+			<div id="windowsPersistent"></div>
 			<div id="stash"></div>
 			<div id="footer">
 				<p>
@@ -592,7 +599,7 @@ if($sephy AND isset($sephy[3]) AND $sephy[3])
 						onclick="<?php echo Environment::getS("onLogout", "userControl.doLogout();"); ?>"></span>
 					
 					<span
-						style="cursor:pointer;margin-left:20px;margin-right:15px;float:left;"
+						style="cursor:pointer;margin-left:40px;margin-right:15px;float:left;"
 						class="iconic iconicL layers_alt"
 						title="Navigation"
 						id="buttonHideNavigation"></span>
@@ -668,7 +675,7 @@ if($sephy AND isset($sephy[3]) AND $sephy[3])
 							alt="Desktop"><xsl:attribute name="src"><xsl:value-of select="iconDesktop" /></xsl:attribute></img>
 					</xsl:if>-->
 					<?php if(Environment::getS("showCopyright", "1") == "1")
-						echo 'Copyright (C) 2007 - 2013 by <a href="http://www.Furtmeier.IT">Furtmeier Hard- und Software</a>. This program comes with ABSOLUTELY NO WARRANTY; this is free software, and you are welcome to redistribute it under certain conditions; see <a href="gpl.txt">gpl.txt</a> for details.<!--<br />Thanks to the authors of the libraries and icons used by this program. <a href="javascript:contentManager.loadFrame(\'contentRight\',\'Credits\');">View credits.</a>-->';
+						echo 'Copyright (C) 2007 - 2014 by <a href="http://www.Furtmeier.IT">Furtmeier Hard- und Software</a>. This program comes with ABSOLUTELY NO WARRANTY; this is free software, and you are welcome to redistribute it under certain conditions; see <a href="gpl.txt">gpl.txt</a> for details.<!--<br />Thanks to the authors of the libraries and icons used by this program. <a href="javascript:contentManager.loadFrame(\'contentRight\',\'Credits\');">View credits.</a>-->';
 					?>
 				</p>
 			</div>
