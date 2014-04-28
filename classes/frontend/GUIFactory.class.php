@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class GUIFactory {
 
@@ -372,14 +372,14 @@ class GUIFactory {
 			$pageBrowser = $this->getPageBrowser();
 
 			return "
-			<div id=\"subFrameContainer$this->collectionName\" style=\"margin-top:20px;\">
+			<div id=\"subFrameContainer$this->collectionName\" style=\"min-height:500px;\">
 				<div style=\"width:$widths[0]px;\" class=\"backgroundColor1 Tab\">
 					<p>$newButton<span style=\"float:right;font-weight:normal;\">$pageBrowser</span>$caption</p><div style=\"clear:both;\"></div>
 				</div>
 				<div id=\"subFrameEdit$this->collectionName\" style=\"display:none;width:$widths[0]px;padding-bottom:15px;\"></div>
 				<div id=\"subFrame$this->collectionName\" style=\"width:$widths[0]px;margin-left:10px;\">
 				".Aspect::joinPoint("aboveList", $this, __METHOD__)."
-					<div style=\"overflow:auto;max-height:252px;\">
+					<div style=\"\">
 					$Table
 					</div>
 				".Aspect::joinPoint("belowList", $this, __METHOD__)."</div>
@@ -674,7 +674,7 @@ class GUIFactory {
 			
 			$BW->style("margin-right:5px;float:left;");
 			
-			$wholeLine2 = array("$BW<span style=\"color:grey;\">Die Anzeige wurde gefiltert ".($label != null ? "nach $label" : "")."</span>");
+			$wholeLine2 = array("$BW<span>Die Anzeige wurde gefiltert ".($label != null ? "nach $label" : "")."</span>");
 			for($i = 1; $i < count($this->referenceLine) - 1; $i++)
 				$wholeLine2[] = "";
 			
@@ -682,13 +682,13 @@ class GUIFactory {
 
 			$this->table->addRow($wholeLine2);
 			$this->table->addRowColspan(1, count($this->referenceLine) - 1);
-			$this->table->addRowClass("backgroundColor0");
+			$this->table->addRowClass("highlight");
 		} else {
-			$wholeLine2 = array($BW, $dB."<span style=\"color:grey;\">Die Anzeige wurde gefiltert ".($label != null ? "nach $label" : "")."</span>");
+			$wholeLine2 = array($BW, $dB."<span>Die Anzeige wurde gefiltert ".($label != null ? "nach $label" : "")."</span>");
 
 			$this->table->addRow($wholeLine2);
 			$this->table->addRowColspan(2, count($this->referenceLine) - 1);
-			$this->table->addRowClass("backgroundColor0");
+			$this->table->addRowClass("highlight");
 		}
 	}
 	// </editor-fold>
@@ -816,6 +816,12 @@ class GUIFactory {
 				\$j('#$FormID input[type=checkbox]').change(function(event){ 
 						
 					\$j(event.currentTarget).addClass('recentlyChanged'); 
+					\$j('#$FormID input[name=currentSaveButton], #$FormID input[name=submitForm]').closest('tr').addClass('recentlyChanged');
+				});
+
+				\$j('#$FormID input[type=hidden]').change(function(event){ 
+						
+					\$j(event.currentTarget).closest('td').addClass('recentlyChanged'); 
 					\$j('#$FormID input[name=currentSaveButton], #$FormID input[name=submitForm]').closest('tr').addClass('recentlyChanged');
 				});
 

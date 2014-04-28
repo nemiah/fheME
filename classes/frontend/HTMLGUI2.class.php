@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class HTMLGUI2 extends HTMLGUI {
 	private $displaySide = "default";
@@ -347,8 +347,8 @@ class HTMLGUI2 extends HTMLGUI {
 			$filteredCol = array("<img src=\"./images/i2/note.png\" />",$dB.$this->texts["Anzeige wurde gefiltert"]);
 			$valuesTab->addRow($filteredCol);
 			$valuesTab->addRowColspan(2, $cols-1);
-			$valuesTab->addRowClass("backgroundColor0");
-			$valuesTab->addRowStyle("color:grey;");
+			$valuesTab->addRowClass("highlight");
+			#$valuesTab->addRowStyle("color:grey;");
 		}
 		
 		/**
@@ -461,8 +461,8 @@ class HTMLGUI2 extends HTMLGUI {
 		if($filteredCol !== null){
 			$valuesTab->addRow($filteredCol);
 			$valuesTab->addRowColspan(2, $cols-1);
-			$valuesTab->addRowClass("backgroundColor0");
-			$valuesTab->addRowStyle("color:grey;");
+			$valuesTab->addRowClass("highlight");
+			#$valuesTab->addRowStyle("color:grey;");
 		}
 		
 		if($lineWithId == -1 AND $isMultiPageMode) {

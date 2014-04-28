@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class LoginDataGUI extends LoginData implements iGUIHTML2 {
 	function getHTML($id){
@@ -28,18 +28,18 @@ class LoginDataGUI extends LoginData implements iGUIHTML2 {
 
 	private function getGUI($id){
 		try {
-		$this->loadMeOrEmpty();
+			$this->loadMeOrEmpty();
 		} catch (StorageException $e){
 			die("<p>Bitte legen Sie zuerst die Datenbank-Tabellen an.</p>");
 		}
 		if($id == -1)
 			$this->A->typ = "LoginData";
-
+		
 		$gui = new HTMLGUIX($this);
 		$gui->name("LoginData");
 
 		$gui->label("UserID", "Benutzer");
-		$gui->label("name", "Typ");
+		#$gui->label("name", "Typ");
 		$gui->label("passwort", "Passwort");
 		$gui->label("optionen", "Optionen");
 		$gui->label("benutzername", "Benutzername");
@@ -104,6 +104,8 @@ class LoginDataGUI extends LoginData implements iGUIHTML2 {
 			$gui->type("name", "hidden");
 			$this->changeA("name", "MailServerUserPass");
 
+			$gui->descriptionField("server", "Für eine verschlüsselte Verbindung tragen Sie ein: Protokoll://server.de:Port<br />Also zum Beispiel tls://smtp.1und1.de:465");
+			
 			$gui->type("optionen", "hidden");
 		}
 		
@@ -119,6 +121,23 @@ class LoginDataGUI extends LoginData implements iGUIHTML2 {
 
 			$gui->type("name", "hidden");
 			$this->changeA("name", "JabberServerUserPass");
+
+			$gui->type("optionen", "hidden");
+		}
+		
+		if($bps != -1 AND isset($bps["preset"]) AND $bps["preset"] == "regID"){
+			$BAbort = new Button("Abbrechen", "stop");
+			$BAbort->onclick("Popup.close('LoginData', 'edit');");
+			$BAbort->style("float:right;");
+			
+			#$html = "<p style=\"padding:5px;\">{$BAbort}<small>Sie müssen hier nur Einstellungen vornehmen, wenn Sie diese Anwendung lokal auf einem Windows-Rechner betreiben oder direkt über einen SMTP-Server versenden möchten (z.B. Newsletter). Es kann auch notwendig sein, die E-Mail über den korrekten Server zu schicken, um die Ankunft beim Empfänger sicherzustellen.</small></p>";
+
+			$gui->type("UserID", "hidden");
+			$gui->type("server", "hidden");
+			$this->changeA("UserID", "-1");
+
+			$gui->type("name", "hidden");
+			$this->changeA("name", "RegIDUserPass");
 
 			$gui->type("optionen", "hidden");
 		}

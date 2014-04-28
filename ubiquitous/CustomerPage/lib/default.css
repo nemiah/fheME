@@ -414,6 +414,14 @@ tr:hover .iconic.reverse {
 	background-color:rgba(255,204,0,0.3);
 }
 
+.confirm {
+	background-color:#d1e769;
+}
+
+.error {
+	background-color:rgba(220, 50, 0, 0.5);
+}
+
 .overlay {
 	position:absolute;
 	top:0;
@@ -422,4 +430,21 @@ tr:hover .iconic.reverse {
 	bottom:0;
 	background-color:white;
 	z-index:9999;
+}
+
+.touchButton {
+	background-color:#f2f2f2;
+	margin-bottom:15px;
+	cursor:pointer;
+	padding:5px;
+	color:#333;
+}
+
+.touchButton .label {
+	padding-top:7px;
+	display:inline-block;
+}
+
+.touchButton .iconicL {
+	margin-right:5px;
 }

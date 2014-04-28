@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class HTMLInput {
 	private $type;
@@ -29,7 +29,7 @@ class HTMLInput {
 	private $id = null;
 	private $onkeyup = "";
 	private $onkeydown = null;
-	private $hasFocusEvent = false;
+	private $hasFocusEvent = true;
 	private $isSelected = false;
 	protected $isDisabled = false;
 	private $isDisplayMode = false;
@@ -417,6 +417,21 @@ class HTMLInput {
 					$this->onblur .= "blurMe(this);";
 				}
 
+				if($this->multiEditOptions != null){
+					$this->id($this->name."ID".$this->multiEditOptions[1]);
+					
+					if($this->type == "checkbox")
+						$this->onchange = "saveMultiEditInput('".$this->multiEditOptions[0]."','".$this->multiEditOptions[1]."','".$this->name."'".($this->multiEditOptions[2] != null ? ", ".$this->multiEditOptions[2] : "").");";
+					else {
+						$this->onfocus .= " oldValue = this.value;";
+						$this->onkeyup .= "if(event.keyCode == 13) saveMultiEditInput('".$this->multiEditOptions[0]."','".$this->multiEditOptions[1]."','".$this->name."'".($this->multiEditOptions[2] != null ? ", ".$this->multiEditOptions[2] : "").");";
+						$this->onblur .= "if(oldValue != this.value) saveMultiEditInput('".$this->multiEditOptions[0]."','".$this->multiEditOptions[1]."','".$this->name."'".($this->multiEditOptions[2] != null ? ", ".$this->multiEditOptions[2] : "").");";
+					}
+					
+					if($this->type == "date")
+						$this->onchange .= "saveMultiEditInput('".$this->multiEditOptions[0]."','".$this->multiEditOptions[1]."','".$this->name."'".($this->multiEditOptions[2] != null ? ", ".$this->multiEditOptions[2] : "").");";
+				}		
+				
 				$cal = "";
 				$B2 = "";
 				if($this->type == "date") {
@@ -434,17 +449,6 @@ class HTMLInput {
 				$value = "value=\"".htmlspecialchars($this->value)."\"";
 				if($this->type == "checkbox") $value = $this->value == "1" ? "checked=\"checked\"" : "";
 
-				if($this->multiEditOptions != null){
-					$this->id($this->name."ID".$this->multiEditOptions[1]);
-					
-					if($this->type == "checkbox")
-						$this->onchange = "saveMultiEditInput('".$this->multiEditOptions[0]."','".$this->multiEditOptions[1]."','".$this->name."'".($this->multiEditOptions[2] != null ? ", ".$this->multiEditOptions[2] : "").");";
-					else {
-						$this->onfocus .= " oldValue = this.value;";
-						$this->onkeyup .= "if(event.keyCode == 13) saveMultiEditInput('".$this->multiEditOptions[0]."','".$this->multiEditOptions[1]."','".$this->name."'".($this->multiEditOptions[2] != null ? ", ".$this->multiEditOptions[2] : "").");";
-						$this->onblur .= "if(oldValue != this.value) saveMultiEditInput('".$this->multiEditOptions[0]."','".$this->multiEditOptions[1]."','".$this->name."'".($this->multiEditOptions[2] != null ? ", ".$this->multiEditOptions[2] : "").");";
-					}
-				}
 
 				if($this->autocomplete != null){
 					if($this->id == null)
@@ -468,9 +472,9 @@ class HTMLInput {
 							$this->style .= "width:80%";
 					} else {
 						if(strpos($this->style, "width") === false)
-							$this->style .= "width:87%";
+							$this->style .= "width:90%";
 					}
-						
+					
 					
 					if($this->autocomplete[1] == null){
 						$cal->onclick("$('{$this->id}Display').style.display = ''; $('{$this->id}Display').value = ''; $('{$this->id}').value = ''; $('{$this->id}Display').focus();");
@@ -485,10 +489,11 @@ class HTMLInput {
 							$C = substr($this->autocomplete[0], 1)."GUI";
 							$C = new $C($this->value);
 							
-							$value = "value=\"".htmlspecialchars($C->ACLabel())."\"";
+							$value = "value=\"".htmlspecialchars($C->ACLabel($this->value))."\"";
 						}
 						
 						$this->id.= "Display";
+						$this->onkeyup .= "\$j('[name=$this->name]').val(this.value);";
 						
 					}
 					

@@ -29,14 +29,14 @@ class phynxBackup {
 }
 
 // standard debug function
-function PMBP_debug($object) {
+/*function PMBP_debug($object) {
 	echo "<pre>";
 	print_r($object);
 	echo "</pre>";
 }
-
+*/
 // prints the basis html header in the $lang language with $scriptname scriptname
-function PMBP_print_header($scriptname) {
+/*function PMBP_print_header($scriptname) {
 	global $CONF;
 	global $_POST;
 	global $PMBP_SYS_VAR;
@@ -168,10 +168,10 @@ Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">
   <td class=\"main\">
 <!-- HEADER END -->
 ";
-}
+}*/
 
 // print basis html footer
-function PMBP_print_footer() {
+/*function PMBP_print_footer() {
 	global $PMBP_SYS_VAR;
 	global $PMBP_MU_CONF;
 
@@ -267,10 +267,10 @@ function PMBP_print_footer() {
 </body>
 </html>
 ";
-}
+}*/
 
 // prints html export form used on several pages
-function PMBP_print_export_form($dirs1 = FALSE) {
+/*function PMBP_print_export_form($dirs1 = FALSE) {
 	global $CONF;
 	global $PMBP_SYS_VAR;
 
@@ -368,10 +368,10 @@ function PMBP_print_export_form($dirs1 = FALSE) {
 		echo "<input type=\"checkbox\" name=\"packed\" " . $checked . "> Packed in one ZIP file\n";
 		echo "</td>\n</tr>\n</table>\n<p></p>\n";
 	}
-}
+}*/
 
 // checks if settings on the export form where made and saves them
-function PMBP_save_export_settings() {
+/*function PMBP_save_export_settings() {
 	global $PMBP_SYS_VAR;
 
 	// check if any settings have changed
@@ -414,7 +414,7 @@ function PMBP_save_export_settings() {
 
 	// update global_conf.php
 	PMBP_save_global_conf();
-}
+}*/
 
 // generates image tag
 function PMBP_image_tag($image, $alt = "", $title = "", $link = "") {
@@ -441,13 +441,13 @@ function PMBP_pop_up($path, $link, $type, $title_attr = "") {
 }
 
 // generates event hanlders to change the border color in a td.list list
-function PMBP_change_color($color1, $color2) {
+/*function PMBP_change_color($color1, $color2) {
 	return "onmouseout=\"changeColor(this, '" . $color1 . "');\" onmouseover=\"changeColor(this, '" . $color2 . "');\"";
-}
+}*/
 
 // generates javascript confirm dialog
 // if $popupType is "view" or something else, a pop up like in PMBP_pop_up will be opened after the confirmation
-function PMBP_confirm($text, $path, $link, $popupType = false) {
+/*function PMBP_confirm($text, $path, $link, $popupType = false) {
 	global $CONF;
 	switch ($CONF['confirm']) {
 		case 0:
@@ -486,7 +486,7 @@ function PMBP_confirm($text, $path, $link, $popupType = false) {
 				return "<a href=\"" . $path . "\">" . $link . "</a>";
 			}
 	}
-}
+}*/
 
 // function to execute the sql queries provided by the file handler $file
 // $file can be a gzopen() or open() handler, $con is the database connection
@@ -674,21 +674,21 @@ function PMBP_dump($CONF, $PMBP_SYS_VAR, $db, $tables, $data, $drop, $zip, $comm
 	}
 
 	// order $all_tables and check for ring constraints
-	$all_tables_copy = $all_tables;
-	$all_tables = PMBP_order_sql_tables($all_tables, $fks);
-	$ring_contraints = false;
+	#$all_tables_copy = $all_tables;
+	#$all_tables = PMBP_order_sql_tables($all_tables, $fks);
+	#$ring_contraints = false;
 
 	// ring constraints found
-	if ($all_tables === false) {
-		$ring_contraints = true;
-		$all_tables = $all_tables_copy;
+	#if ($all_tables === false) {
+	#	$ring_contraints = true;
+	#	$all_tables = $all_tables_copy;
 
-		$out.="\n# ring constraints workaround\n";
-		$out.="SET FOREIGN_KEY_CHECKS=0;\n";
-		$out.="SET AUTOCOMMIT=0;\n";
-		$out.="START TRANSACTION;\n";
-	}
-	unset($all_tables_copy);
+	#	$out.="\n# ring constraints workaround\n";
+	#	$out.="SET FOREIGN_KEY_CHECKS=0;\n";
+	#	$out.="SET AUTOCOMMIT=0;\n";
+	#	$out.="START TRANSACTION;\n";
+	#}
+	#unset($all_tables_copy);
 
 	// as long as no error occurred
 	if ($error) {
@@ -743,7 +743,7 @@ function PMBP_dump($CONF, $PMBP_SYS_VAR, $db, $tables, $data, $drop, $zip, $comm
 					if (is_null($row2[$k]))
 						$out .="null";
 					else
-						$out .="'" . mysql_escape_string($row2[$k]) . "'";
+						$out .="'" . mysql_real_escape_string($row2[$k]) . "'";
 					if ($k < ($nf - 1))
 						$out .=", ";
 				}
@@ -770,11 +770,11 @@ function PMBP_dump($CONF, $PMBP_SYS_VAR, $db, $tables, $data, $drop, $zip, $comm
 
 
 	// if db contained ring constraints        
-	if ($ring_contraints) {
-		$out.="\n\n# ring constraints workaround\n";
-		$out .= "SET FOREIGN_KEY_CHECKS=1;\n";
-		$out .= "COMMIT;\n";
-	}
+	#if ($ring_contraints) {
+	#	$out.="\n\n# ring constraints workaround\n";
+	#	$out .= "SET FOREIGN_KEY_CHECKS=1;\n";
+	#	$out .= "COMMIT;\n";
+	#}
 
 	// save to file
 	if ($backupfile = PMBP_save_to_file($backupfile, $zip, $out, "a")) {
@@ -808,7 +808,7 @@ function PMBP_dump($CONF, $PMBP_SYS_VAR, $db, $tables, $data, $drop, $zip, $comm
 
 // orders the tables in $tables according to the constraints in $fks
 // $fks musst be filled like this: $fks[tablename][0]=needed_table1; $fks[tablename][1]=needed_table2; ...
-function PMBP_order_sql_tables($tables, $fks) {
+/*function PMBP_order_sql_tables($tables, $fks) {
 	// do not order if no contraints exist
 	if (!count($fks))
 		return $tables;
@@ -848,7 +848,7 @@ function PMBP_order_sql_tables($tables, $fks) {
 		return false;
 	}
 	return $new_tables;
-}
+}*/
 
 // saves the string in $fileData to the file $backupfile as gz file or not ($zip)
 // returns backup file name if name has changed (zip), else TRUE. If saving failed, return value is FALSE
@@ -881,7 +881,7 @@ function PMBP_save_to_file($backupfile, $zip, &$fileData, $mode) {
 }
 
 // updates the content in global_conf.php
-function PMBP_save_global_conf($global_conf_path = "") {
+/*function PMBP_save_global_conf($global_conf_path = "") {
 	global $CONF;
 	global $PMBP_SYS_VAR;
 
@@ -940,10 +940,10 @@ function PMBP_save_global_conf($global_conf_path = "") {
 	if (!$global_conf_path)
 		$global_conf_path = PMBP_GLOBAL_CONF;
 	return PMBP_save_to_file($global_conf_path, FALSE, $file, "w");
-}
+}*/
 
 // saves $files backup files on $server ftp server in $path path using $user username and $pass password
-function PMBP_ftp_store($files) {
+/*function PMBP_ftp_store($files) {
 	global $CONF;
 	global $PMBP_SYS_VAR;
 	$out = FALSE;
@@ -992,10 +992,10 @@ function PMBP_ftp_store($files) {
 		}
 	}
 	return $out;
-}
+}*/
 
 // send email with $attachments backup files to $email email using $sitename for sender and subject
-function PMBP_email_store($attachments, $backup_info) {
+/*function PMBP_email_store($attachments, $backup_info) {
 	global $CONF;
 	$out = FALSE;
 	$lb = "\n";
@@ -1066,10 +1066,10 @@ function PMBP_email_store($attachments, $backup_info) {
 		$out.="<div class=\"green\">" . F_MAIL_6 . " " . $CONF['email'] . ".</div>\n";
 
 	return $out;
-}
+}*/
 
 // returns present local backup files after deleting backups files 
-function PMBP_get_backup_files() {
+/*function PMBP_get_backup_files() {
 	global $CONF;
 	$delete_files = FALSE;
 	$all_files = FALSE;
@@ -1133,10 +1133,10 @@ function PMBP_delete_backup_files($files) {
 	if ($CONF['ftp_use'] && $CONF['ftp_del'])
 		$out.=PMBP_ftp_del($files);
 	return $out;
-}
+}*/
 
 // deletes $files backup files from $server ftp server in $path path using $user username and $pass password
-function PMBP_ftp_del($delete_files = array()) {
+/*function PMBP_ftp_del($delete_files = array()) {
 	global $CONF;
 	global $PMBP_SYS_VAR;
 	$out = FALSE;
@@ -1234,7 +1234,7 @@ function PMBP_ftp_del($delete_files = array()) {
 		}
 	}
 	return $out;
-}
+}*/
 
 // returns list of databases on $host host using $user user and $passwd password
 function PMBP_get_db_list($CONF) {
@@ -1455,17 +1455,17 @@ function PMBP_getln($path, $close = false, $org_path = false) {
 }
 
 // determines the best size type for filesize $size and returns array('value'=xxx,'type'=yyy)
-function PMBP_size_type($size) {
+/*function PMBP_size_type($size) {
 	$types = array("B", "KB", "MB", "GB");
 	for ($i = 0; $size > 1000; $i++, $size/=1024)
 		;
 	$result['value'] = round($size, 2);
 	$result['type'] = $types[$i];
 	return $result;
-}
+}*/
 
 // get recursive directory list
-function PMBP_get_dirs($dir, $renew = FALSE) {
+/*function PMBP_get_dirs($dir, $renew = FALSE) {
 	$dirs = FALSE;
 
 	// renew date if the 'renew' link was clicked
@@ -1493,10 +1493,10 @@ function PMBP_get_dirs($dir, $renew = FALSE) {
 	}
 	$_SESSION['file_system'][$dir] = $dirs;
 	return $dirs;
-}
+}*/
 
 // get list of all files in directory
-function PMBP_get_files($dir) {
+/*function PMBP_get_files($dir) {
 	global $CONF;
 
 	$dirs = array();
@@ -1518,10 +1518,10 @@ function PMBP_get_files($dir) {
 		@closedir($dir_handle);
 	}
 	return $dirs;
-}
+}*/
 
 // transfer files $files to FTP servers dirs and create missing folders
-function PMBP_save_FTP($files, $packed = false) {
+/*function PMBP_save_FTP($files, $packed = false) {
 	global $CONF;
 	global $PMBP_SYS_VAR;
 	$out = FALSE;
@@ -1627,13 +1627,13 @@ function PMBP_save_FTP($files, $packed = false) {
 		}
 	}
 	return $out;
-}
+}*/
 
 // login module
-function PMBP_auth() {
+/*function PMBP_auth() {
 	header("WWW-Authenticate: Basic realm=\"phpMyBackupPro\"");
 	header("HTTP/1.0 401 Unauthorized");
 	echo LI_MSG . "\n";
-}
+}*/
 
 ?>

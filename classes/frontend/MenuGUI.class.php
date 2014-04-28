@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class MenuGUI extends UnpersistentClass implements iGUIHTML2, icontextMenu {
 	function  __construct() {
@@ -214,7 +214,10 @@ class MenuGUI extends UnpersistentClass implements iGUIHTML2, icontextMenu {
 		try {
 			$c = get_class(Session::currentUser());
 			$U = new $c(Session::currentUser()->getID());
-			echo "<script type=\"text/javascript\">\$j.datepicker.setDefaults(\$j.datepicker.regional['".$U->A("language")."']); ".(Session::physion() ? "\$j('#navigation').hide();" : "")."</script>";
+			$ex = explode("_", $U->A("language"));
+			if(isset($ex[2]))
+				unset($ex[2]);
+			echo "<script type=\"text/javascript\">\$j.datepicker.setDefaults(\$j.datepicker.regional['".  implode("_", $ex)."']); ".(Session::physion() ? "\$j('#navigation').hide();" : "")."</script>";
 		} catch (Exception $e){ }
 	}
 

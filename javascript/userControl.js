@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
  
  
@@ -69,6 +69,7 @@ var userControl = {
 			   
 				loadMenu();
 				DesktopLink.loadContent();
+				contentManager.clearHistory();
 			//$('loginPassword').value = "";
 			}
 		});
@@ -248,6 +249,7 @@ var userControl = {
 		contentManager.rmePCR("Users", "", "doLogout", "", function() {
 			Popup.closeNonPersistent();
 			Popup.closePersistent();
+			contentManager.clearHistory();
 			loadMenu();
 			contentManager.contentBelow("");
 			if(typeof redirect != "undefined" && redirect != "") document.location.href= redirect;

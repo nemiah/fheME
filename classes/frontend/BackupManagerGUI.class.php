@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 function BackupManagerGUIFatalErrorShutdownHandler() {
 	$last_error = error_get_last();
@@ -23,7 +23,9 @@ function BackupManagerGUIFatalErrorShutdownHandler() {
 		return;
 
 	if(strpos($last_error['message'], "Allowed memory size of") !== false)
-		echo "<p style=\"color:red;\">Ihrer PHP-Installation steht nicht genügend Speicher zur Verfügung, um die Datensicherung abzuschließen. Bitte erhöhen Sie den Speicher in der PHP-Konfiguration oder führen Sie die Datenbank-Sicherung mit einer externen Anwendung durch.</p>";
+		echo "<p style=\"color:red;\">Ihrer PHP-Installation steht nicht genügend Arbeitsspeicher zur Verfügung,
+um die Datensicherung abzuschließen. Bitte erhöhen Sie den Speicher in der
+PHP-Konfiguration oder führen Sie die Datenbank-Sicherung mit einer externen Anwendung durch.</p>";
 }
 
 class BackupManagerGUI implements iGUIHTML2 {
@@ -201,7 +203,7 @@ class BackupManagerGUI implements iGUIHTML2 {
 						$T->addRow(array($B."Das Backup wurde erfolgreich auf den FTP-Server hochgeladen"));
 					}
 				} catch (Exception $e){
-					
+					$B->image("warning");
 					$T->addRow(array($B.$e->getMessage()));
 				}
 				$html .= $T;
@@ -367,7 +369,7 @@ require valid-user
 		$lokale_datei = $filename;
 
 		$upload = ftp_put($connection_id, $zieldatei, $lokale_datei, FTP_ASCII);
-
+		
 		if (!$upload)
 		  throw new Exception("Beim FTP-Upload ist ein Fehler aufgetreten");
 		

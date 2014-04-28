@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 abstract class Collection {
 	protected $A = null;
@@ -748,9 +748,7 @@ abstract class Collection {
 			$array[] = $subArray;
 		}
 		
-		#$array[] = array("label" => "Test", "value" => "1");
-		#$array[] = array("label" => "Test2", "value" => "2");
-		return json_encode($array);
+		return json_encode($array, defined("JSON_UNESCAPED_UNICODE") ? JSON_UNESCAPED_UNICODE : 0);
 	}
 	
 	public function getCategoryFieldLabel(array $KIDs){

@@ -28,7 +28,7 @@
 }
 
 .backgroundColor4 {
-	background-color:#efefef;
+	background-color:#f4f4f4;
 }
 
 .backgroundColorHeader td:not(.ACCell) {
@@ -144,6 +144,17 @@ input[type=submit], select, textarea, .AJAXUpload {
 }
 
 /**
+  * BECAUSE CHROME HAS ISSUES WITH DROPDOWNS AS OF 20140125
+  * MAY BE REMOVED IN THE FUTURE
+  **/
+select {
+	-moz-transition: none;
+	-webkit-transition: none;
+	-o-transition: none;
+	transition: none;
+}
+
+/**
   * SPECIAL
   **/
   
@@ -186,8 +197,8 @@ input[type=submit], select, textarea, .AJAXUpload {
 	font-weight:bold;
 }
 
-#desktopWrapper #wrapper {
-	border-color:#6868C9;
+#desktopWrapper #wrapper, #desktopWrapper #wrapperHandler {
+	border-color:#aaa;
 }
 
 #contentLeft table, #contentRight table, #windows table {
@@ -203,9 +214,9 @@ input[type=submit], select, textarea, .AJAXUpload {
 	transition: background-color .3s;
 }
 
-.phynxNoTouch #contentRight .contentBrowser tr:not(.noHover):hover,
-.phynxNoTouch #contentLeft .contentBrowser tr:not(.noHover):hover,
-.phynxNoTouch #contentScreen tr:not(.noHover):hover {
+.phynxNoTouch #contentRight .contentBrowser tr:not(.noHover):not(.lastSelected):hover,
+.phynxNoTouch #contentLeft .contentBrowser tr:not(.noHover):not(.lastSelected):hover,
+.phynxNoTouch #contentScreen tr:not(.noHover):not(.lastSelected):hover {
 	background-color:white;
 	
 	-moz-transition: background-color .3s;
@@ -273,7 +284,7 @@ input[type=submit], select, textarea, .AJAXUpload {
 	border-bottom-color:#888888;/*#444444;*/
 }
 
-.phynxNoTouch #navTabsWrapper .navTab:hover {
+.phynxNoTouch #navTabsWrapper .navTab:not(.theOne):hover {
 	background-color:#9E9EF0;
 }
 
@@ -284,7 +295,7 @@ input[type=submit], select, textarea, .AJAXUpload {
 }
 
 .phynxNoTouch .selectionBox:hover,
-.phynxNoTouch .tableForSelection tr:hover {
+.phynxNoTouch .tableForSelection tr:not(.lastSelected):hover {
 	background-color:white;
 	
 	-moz-transition: background-color .3s;
@@ -300,6 +311,10 @@ input[type=submit], select, textarea, .AJAXUpload {
 
 .tableWeightLight .lastSelected {
 	background-color:rgb(237, 237, 237);
+}
+
+.tableWeightLightColored .lastSelected {
+	background-color:rgba(255,204,0,0.3);
 }
 
 .topBG {
@@ -340,10 +355,10 @@ input[type=submit], select, textarea, .AJAXUpload {
 	padding:5px;
 }
 
-.tableWeightLightColored tr:nth-child(odd) {
+.tableWeightLightColored tr:nth-child(odd):not(.lastSelected) {
 	background-color:#e5e5e5;
 }
 
-.tableWeightLightColored tr:nth-child(even){
+.tableWeightLightColored tr:nth-child(even):not(.lastSelected){
 	background-color:#f4f4f4;
 }

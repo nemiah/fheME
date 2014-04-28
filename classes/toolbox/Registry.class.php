@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class Registry {
 	public static $pointers = array();
@@ -30,7 +30,7 @@ class Registry {
 		BPS::setProperty("R".$forPlugin."S".$selector, "callbacks", ($used != "" ? $used."%%" : "").$methodToCall);
 	}
 
-	public static function getCallbacks($forPlugin, $selector = "general"){
+	public static function getCallbacks($forPlugin, $selector = "general", $skip = array()){
 		if(is_object($forPlugin) AND $forPlugin instanceof PersistentObject)
 			$forPlugin = $forPlugin->getClearClass();
 
@@ -43,18 +43,25 @@ class Registry {
 		if($used == null)
 			return null;
 
-		return explode("%%", $used);
+		$u = explode("%%", $used);
+		
+		foreach($skip AS $s)
+			foreach($u AS $k => $e)
+				if(strpos($e, $s."::") === 0)
+					unset($u[$k]);
+			
+		return $u;
 	}
 
 	public static function reset($forPlugin){
 		self::$pointers[$forPlugin] = 0;
 	}
 	
-	public static function callNext($forPlugin, $selector = "general", $parameters = array()){
+	public static function callNext($forPlugin, $selector = "general", $parameters = array(), $skip = array()){
 		if(!isset(self::$pointers[$forPlugin]))
 			self::$pointers[$forPlugin] = 0;
 
-		$callBacks = self::getCallbacks($forPlugin, $selector);
+		$callBacks = self::getCallbacks($forPlugin, $selector, $skip);
 		if(!isset($callBacks[self::$pointers[$forPlugin]]))
 			return null;
 

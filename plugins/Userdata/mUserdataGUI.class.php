@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class mUserdataGUI extends mUserdata implements iGUIHTML2, icontextMenu {
 	public function getHTML($id){
@@ -84,7 +84,7 @@ class mUserdataGUI extends mUserdata implements iGUIHTML2, icontextMenu {
 		if(stristr($w,"relabel")) {
 			$html .= "<img title=\"".(isset($text["Feld wurde umbenannt"]) ? $text["Feld wurde umbenannt"] : "Feld wurde umbenannt")."\" style=\"float:left;margin-left:10px;margin-right:5px;\" src=\"./images/i2/relabel.png\" />";
 			$w = str_replace("relabel","",$w);
-			$s = split(":",$w);
+			$s = explode(":",$w);
 			$w = $s[0].": ".$s[1]." = ".$p;
 			if($w == "") $w = "Plugin ".str_replace("relabel","",$p)." nicht geladen<br /><small style=\"color:grey;\">Dieses Plugin steht in der aktiven Anwendung nicht zur Verfügung.</small>";
 		}
@@ -92,7 +92,7 @@ class mUserdataGUI extends mUserdata implements iGUIHTML2, icontextMenu {
 		if(stristr($w,"hideField")) {
 			$html .= "<img title=\"".(isset($text["Feld wurde versteckt"]) ? $text["Feld wurde versteckt"] : "Feld wurde versteckt")."\" style=\"float:left;margin-left:10px;margin-right:5px;\" src=\"./images/i2/clear.png\" />";
 			$w = str_replace("hideField","",$w);
-			$s = split(":",$w);
+			$s = explode(":",$w);
 			$w = $s[0].": ".$s[1];
 			if($w == "") $w = "Plugin ".str_replace("hideField","",$p)." nicht geladen<br /><small style=\"color:grey;\">Dieses Plugin steht in der aktiven Anwendung nicht zur Verfügung.</small>";
 		}

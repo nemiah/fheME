@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class HTMLTable extends UnifiedTable implements iUnifiedTable  {
 	private $colStyles = array();
@@ -243,7 +243,7 @@ class HTMLTable extends UnifiedTable implements iUnifiedTable  {
 			if(isset($this->rowEvents[$K]))
 				foreach($this->rowEvents[$K] AS $n => $a)
 					$events .= "on$n=\"$a\"";
-
+			
 			if(isset($this->insertSpaceBefore[$K-1]) AND $this->insertSpaceBefore[$K-1] == "")
 			$rows .= "
 			<tr>
@@ -286,7 +286,7 @@ class HTMLTable extends UnifiedTable implements iUnifiedTable  {
 			<tr $events $data ".(isset($this->rowIDs[$K]) ? "id=\"".$this->rowIDs[$K]."\" " : "")."".(isset($this->rowStyles[$K]) ? "style=\"".$this->rowStyles[$K]."\"" : "")." ".(isset($this->rowClasses[$K]) ? "class=\"".$this->rowClasses[$K]."\"" : "").">";
 
 			for($l = 0; $l < $this->numCols; $l++){
-
+				
 				if($this->colOrder != null AND isset($this->colOrder[$l]))
 					$j = $this->colOrder[$l] - 1;
 				else $j = $l;
@@ -303,9 +303,9 @@ class HTMLTable extends UnifiedTable implements iUnifiedTable  {
 
 				$rows .= "
 				<td ".(isset($this->cellClasses[$K][$j+1]) ? "class=\"".$this->cellClasses[$K][$j+1]."\"" : "")." $cellEvents ".((isset($this->cellIDs[$K]) AND isset($this->cellIDs[$K][$j+1])) ? "id=\"".$this->cellIDs[$K][$j+1]."\"" : "")." ".((isset($this->rowColspan[$K]) AND $this->rowColspan[$K][0] == $j+1) ? "colspan=\"".$this->rowColspan[$K][1]."\"" : "")." ".((isset($this->colRowspan[$K]) AND $this->colRowspan[$K][0] == $j+1) ? "rowspan=\"".$this->colRowspan[$K][1]."\"" : "")." ".$style.">".(isset($this->content[$K][$j]) ? $this->content[$K][$j] : "")."</td>";
-
-				if(isset($this->rowColspan[$K]) AND $this->rowColspan[$K][0] == $j+1)
-					$l+= $this->rowColspan[$K][1] - 1;
+				
+				if(isset($this->rowColspan[$K]) AND $this->rowColspan[$K][0] == $j+1 AND $this->rowColspan[$K][1] > 0)
+					$l += $this->rowColspan[$K][1] - 1;
 			}
 			if($addTR) $rows .= "
 			</tr>";

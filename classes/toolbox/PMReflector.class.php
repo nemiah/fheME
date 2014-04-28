@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class PMReflector {
 
@@ -34,6 +34,9 @@ class PMReflector {
 	}
 
 	public static function implementsInterface($className, $interfaceName){
+		if(trim($className) == "")
+			return false;
+		
 		$r = new ReflectionClass($className);
 
 		foreach($r->getInterfaces() as $in)

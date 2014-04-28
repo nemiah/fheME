@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class mKalenderGUI extends mKalender implements iGUIHTML2 {
 	function  __construct() {
@@ -212,6 +212,8 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 		$ST->addRow("<div id=\"calendar1stMonth\"></div>");
 		$ST->addRow("<div id=\"calendar2ndMonth\"></div>");
 		
+		$TC = "KalenderView".ucfirst($ansicht);
+		$TC = new $TC();
 		
 		$TCalendars = "<div>";
 		if(trim($Calendars) != "")
@@ -234,7 +236,7 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 			
 
 			$GoogleDLButton = new Button("Daten herunterladen", "./ubiquitous/Google/googleDL.png", "icon");
-			$GoogleDLButton->popup("", "Daten herunterladen", "Google", "-1", "syncByDateRange", array("'".date("Y-m-d", $firstDay)."'", "'".date("Y-m-d", $lastDay)."'"));
+			$GoogleDLButton->popup("", "Daten herunterladen", "Google", "-1", "syncByDateRange", array("'".date("Y-m-d", $TC->getFirst())."'", "'".date("Y-m-d", $TC->getLast())."'"));
 			$GoogleDLButton->style("margin-right:10px;");
 		}
 		
@@ -255,8 +257,6 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 		
 		$ST->addRow($pCalButton.$GoogleButton.$GoogleDLButton);
 		
-		$TC = "KalenderView".ucfirst($ansicht);
-		$TC = new $TC();
 		
 		$html .= "
 		<div style=\"width:205px;float:right;margin-right:40px;\">

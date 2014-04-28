@@ -253,6 +253,7 @@ caption {
 /*
   For flot diagrams
 */
-#contentScreen .legend table {
+#contentScreen .legend table,
+#windows .legend table{
 	width: auto;
 }

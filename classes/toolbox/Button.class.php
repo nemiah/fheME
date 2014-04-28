@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class Button {
 	
@@ -217,8 +217,8 @@ class Button {
 		$this->rme = "contentManager.loadFrame('$target', '$plugin', '$withId', '$page', '$bps'".($onSuccessFunction != "" ? ", $onSuccessFunction" : "").");";
 	}
 	
-	function loadPlugin($target, $plugin, $bps = "", $withId = null){
-		$this->rme = "contentManager.loadPlugin('$target', '$plugin', '$bps'".($withId != null ? ", $withId" : "").");";
+	function loadPlugin($target, $plugin, $bps = "", $withId = null, $options = "{}"){
+		$this->rme = "contentManager.loadPlugin('$target', '$plugin', '$bps'".($withId != null ? ", $withId" : "").", $options);";
 	}
 	
 	function onclick($value){
@@ -246,7 +246,7 @@ class Button {
 	
 	function popup($name, $title, $targetClass, $targetClassId, $targetMethod, $targetMethodParameters = "", $bps = "", $popupOptions = null){
 		#$this->rme = "contentManager.rmePCR('$targetClass', '$targetClassId', '$targetMethod', Array(".(is_array($targetMethodParameters) ? implode(",",$targetMethodParameters) : "'".$targetMethodParameters."'")."), 'Popup.displayNamed(\'edit\', \'$title\', transport, \'$name\');', '$bps');";
-		$this->rme = "Popup.load('".T::_($title)."', '$targetClass', '$targetClassId', '$targetMethod', [".(is_array($targetMethodParameters) ? implode(",",$targetMethodParameters) : "'".$targetMethodParameters."'")."], '$bps'".($name != "" ? ", '$name'" : ", 'edit'")."".($popupOptions != null ? ", '".addslashes($popupOptions)."'" : "").")";
+		$this->rme = "Popup.load('".T::_($title)."', '$targetClass', '$targetClassId', '$targetMethod', [".(is_array($targetMethodParameters) ? implode(",",$targetMethodParameters) : "'".$targetMethodParameters."'")."], '$bps'".($name != "" ? ", '$name'" : ", 'edit'")."".($popupOptions != null ? ", '".addslashes($popupOptions)."'" : "").");";
 	}
 
 	function hasMouseOverEffect($bool){
@@ -278,6 +278,8 @@ class Button {
 		if($this->type == "icon") return "<img ".($this->id ? "id=\"$this->id\" " : "")." ".($onclick != "" ? "onclick=\"$onclick\"" : "")." class=\"".($this->mouseOverEffect ? "mouseoverFade" : "")." $this->class\" style=\"{$this->style}\" src=\"".$this->image."\" title=\"$this->label\" alt=\"$this->label\" />$this->js";
 		
 		if($this->type == "iconic") return "<span ".($this->id ? "id=\"$this->id\" " : "")." ".($onclick != "" ? "onclick=\"$onclick\"" : "")." class=\"iconic $this->class $this->image\" style=\"{$this->style}\" title=\"$this->label\" alt=\"$this->label\" ></span>$this->js";
+		
+		#if($this->type == "iconic2") return "<img ".($this->id ? "id=\"$this->id\" " : "")." ".($onclick != "" ? "onclick=\"$onclick\"" : "")." class=\"iconic $this->class\" data-src=\"./libraries/iconic/$this->image.svg\" style=\"{$this->style}\" title=\"$this->label\" alt=\"$this->label\" >$this->js";
 		
 		if($this->type == "save") return "<input ".($this->id ? "id=\"$this->id\" " : "")." onclick=\"$onclick\" type=\"button\" value=\"$this->label\" style=\"{$this->style}background-image:url(".$this->image.");\" />$this->js";
 		

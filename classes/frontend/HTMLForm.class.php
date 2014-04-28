@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class HTMLForm {
 	protected $id;
@@ -286,6 +286,15 @@ class HTMLForm {
 		$this->saveButtonLabel = $saveButtonLabel;
 		$this->saveButtonBGIcon = $saveButtonBGIcon;
 		$this->saveButtonSubmit = ($checkIfValid ? "if($('#$this->id').valid()) " : "")."CustomerPage.rme('handleForm', $('#$this->id').serialize(), $onSuccessFunction)";
+		
+		#$this->onSubmit = $this->saveButtonSubmit." return false;";
+	}
+	
+	public function setSaveCustom($saveButtonLabel, $saveButtonBGIcon = null, $onClick = ""){
+		$this->saveMode = "rmeP";
+		$this->saveButtonLabel = $saveButtonLabel;
+		$this->saveButtonBGIcon = $saveButtonBGIcon;
+		$this->saveButtonSubmit = $onClick;
 	}
 
 	public function setSaveJSON($saveButtonLabel, $saveButtonBGIcon, $targetClass, $targetClassId, $targetMethod, $onSuccessFunction = null){
@@ -521,7 +530,7 @@ class HTMLForm {
 		if(!isset($this->types[$v]) OR $this->types[$v] != "parser"){
 			if(isset($this->buttons[$v])) {
 				$B = $this->buttons[$v];
-				if(!isset($this->types[$v]) OR $this->types[$v] == "text" OR $this->types[$v] == "select" OR $this->types[$v] == "readonly")
+				if((!isset($this->types[$v]) OR $this->types[$v] == "text" OR $this->types[$v] == "select" OR $this->types[$v] == "readonly") AND strpos($this->inputStyle[$v], "width") === false)
 					$Input->style("width:87%;");
 			}
 		}

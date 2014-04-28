@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
 class File extends PersistentObject {
@@ -46,9 +46,13 @@ class File extends PersistentObject {
 	
 	public function download(){
 		$this->loadMe();
-		if(strpos($this->getID(), realpath(FileStorage::getFilesDir())) === false)
+		if(!file_exists($this->getID()))
 			return;
-		#if(strpos($this->ID, "specifics") === false) return;
+		
+		
+		if(strpos(realpath($this->getID()), Aspect::joinPoint("checkfor", $this, __METHOD__, "", realpath(FileStorage::getFilesDir()))) === false)
+			return;
+		#if(strpos(realpath($this->ID), "specifics") === false) return;
 		
 		#if(strpos(strtolower($this->ID), ".pdf") !== false) 
 		#	header("Content-Type: application/pdf");
@@ -62,8 +66,10 @@ class File extends PersistentObject {
 		#if(strpos(strtolower($this->ID), ".gif") !== false) 
 		#	header("Content-Type: image/gif");
 		
+		$ex = explode(DIRECTORY_SEPARATOR, $this->ID);
+		
 		header("Content-Type: ".$this->A("FileMimetype"));
-		header("Content-Disposition: attachment; filename=\"".basename($this->ID)."\"");
+		header("Content-Disposition: attachment; filename=\"".$ex[count($ex) - 1]."\"");
 		header('Content-Length: '.filesize($this->ID));
 		readfile($this->ID);
 	}

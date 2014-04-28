@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class mInstallationGUI extends mInstallation implements iGUIHTML2 {
 
@@ -475,7 +475,7 @@ class mInstallationGUI extends mInstallation implements iGUIHTML2 {
 
 		if($mailfrom == "")
 			Red::errorD("Bitte geben Sie einen Absender ein!");
-
+		
 		if($mailto == "")
 			Red::errorD("Bitte geben Sie einen Empfänger ein!");
 		try {

@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class mTodoGUI extends mTodo implements iGUIHTMLMP2, iKalender {
 	public function  __construct() {
@@ -327,8 +327,12 @@ END:VCALENDAR";
 			
 			if($T->A("TodoType") == "1" AND Session::isPluginLoaded("mAkquise")){
 				$B = new Button("Akquise", "./lightCRM/Akquise/callTel.png");
-				$B->doBefore(OnEvent::rme($T, "setStatus", array("'2'"), OnEvent::closePopup("mKalender").OnEvent::reload("Screen"))." %AFTER");
-				$B->popup("", "Akquise", "mAkquise", "-1", "showTelPopup", array($T->A("TodoClassID")), "", "{width: 950, top:20, left:20}");
+				#$B->doBefore(OnEvent::rme($T, "setStatus", array("'2'"), OnEvent::closePopup("mKalender").OnEvent::reload("Screen"))." %AFTER");
+				
+				$B->doBefore(OnEvent::closePopup("mKalender")."contentManager.emptyFrame('contentScreen'); %AFTER");
+				$B->loadFrame("contentLeft", "WAdresse", $T->A("TodoClassID"), 0, "mWAdresseGUI;Akquise:1;from:mKalender");
+		
+				#$B->popup("", "Akquise", "mAkquise", "-1", "showTelPopup", array($T->A("TodoClassID")), "", "{width: 950, top:20, hPosition:'center'}");
 				
 				$KE->addTopButton($B);
 			}

@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
 class Environment {
@@ -101,6 +101,24 @@ class Environment {
 				$return = $dbData;
 			break;
 			
+			case "databaseDataWrite":
+				if($return == null)
+					return null;
+				
+				if(is_array($return))
+					return $return;
+				
+				$ex = explode(";;", $return);
+
+				$dbData = array();
+				$dbData["host"] = $ex[0];
+				$dbData["user"] = $ex[1];
+				$dbData["password"] = $ex[2];
+				$dbData["httpHost"] = "*";
+				$dbData["datab"] = $ex[3];
+				
+				$return = $dbData;
+			
 			case "allowedApplications":
 				if($return == null)
 					return null;
@@ -131,6 +149,10 @@ class Environment {
 		return $return;
 	}
 
+	public static function reset(){
+		Environment::$currentEnvironment = null;
+	}
+	
 	public static function load(){
 		if(Environment::$currentEnvironment != null) return;
 

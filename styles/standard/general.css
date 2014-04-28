@@ -362,7 +362,7 @@ input[disabled], select[disabled], input[readonly], button[disabled] {
 	box-shadow: 0px 0px 0px 3px rgba(150, 150, 150, 0.5);
 }
 
-.prettyTitle {
+.prettyTitle, #contentLeft p.prettyTitle, #contentScreen p.prettyTitle {
 	font-family:Roboto;
 	font-size:30px;
 	padding:10px;
@@ -873,6 +873,21 @@ input[type=button][name=currentSaveButton], input[type=button][name=submitForm] 
 	background-color:#ffb400;
 }
 
+.ui-widget-content .ui-state-focus {
+	border: 1px solid transparent;
+	background-image: none;
+}
+
 .tableWeightLightColored {
 	border-spacing: 0 0px;
+}
+
+.mce-panel {
+	border: 0px !important;
+	background-image: none !important;
+}
+
+.mce-btn {
+	background-image: none !important;
+	background-color:#ddd !important;
 }

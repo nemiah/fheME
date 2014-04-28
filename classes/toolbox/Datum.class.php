@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class Datum {
 
@@ -57,8 +57,12 @@ class Datum {
 		return date("w", $this->time());
 	}
 	
-	function setToJan1st($jahr){
-		$this->timestamp = $this->parseGerDate("01.01.$jahr");
+	function setToDayThisYear(){
+		$this->timestamp = mktime(0, 1, 0, date("m", $this->timestamp)  , date("d", $this->timestamp), date("Y"));
+	}
+	
+	function setToJan1st($jahr = null){
+		$this->timestamp = $this->parseGerDate("01.01.".($jahr == null ? date("Y", $this->timestamp) : $jahr));
 	}
 	
 	function setToMonth1st(){
@@ -95,14 +99,25 @@ class Datum {
 	
 	function addMonth($dontSkipMonth = false){
 		$date = new DateTime();
-		$date->setTimestamp($this->timestamp);
-		if($dontSkipMonth AND date("d", $this->timestamp) > 28){
-			$date->modify("last day of next month");
-		} else
-			$date->add(new DateInterval('P1M'));
 		
-		$this->timestamp  = $date->getTimestamp();
+		if(method_exists($date, "setTimestamp")){//at least 5.3 required!
+			$date->setTimestamp($this->timestamp);
+			if($dontSkipMonth AND date("d", $this->timestamp) > 28){
+				$date->modify("last day of next month");
+			} else
+				$date->add(new DateInterval('P1M'));
 		
+			$this->timestamp  = $date->getTimestamp();
+		} else {
+			$date = new DateTime("@".$this->timestamp);
+				
+			if($dontSkipMonth AND date("d", $this->timestamp) > 28){
+				$date->modify("last day of next month");
+			} else
+				$date->modify('+1 month');
+			
+			$this->timestamp  = $date->format("U");
+		}
 		#$this->timestamp = mktime(0, 1, 0, date("m", $this->timestamp)+1, date("d", $this->timestamp), date("Y", $this->timestamp));
 		return $this;
 	}

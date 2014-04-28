@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
 class KalenderViewMonat {
@@ -117,6 +117,14 @@ class KalenderViewMonat {
 	
 	public function getCurrent(){
 		return $this->current;
+	}
+	
+	function getFirst(){
+		return $this->first;
+	}
+	
+	function getLast(){
+		return $this->last;
 	}
 	
 	public function getTitle(){

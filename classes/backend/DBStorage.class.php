@@ -15,28 +15,48 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
 class DBStorage {
 	private $parsers;
 	protected $affectedRowsOnly = false;
 	protected $c;
+	protected $cWrite;
 	public static $globalConnection = array();
+	public static $globalConnectionWrite = array();
 	protected $data;
+	protected $dataWrite;
 	public static $queryCounter = 0;
 
 	function __construct(){
 		if($this->data == null AND isset($_SESSION["DBData"]))
 			$this->data = $_SESSION["DBData"];
+		
+		if($this->dataWrite == null AND isset($_SESSION["DBDataWrite"]))
+			$this->dataWrite = $_SESSION["DBDataWrite"];
 
 		if(!isset(self::$globalConnection[get_class($this)]))
 			self::$globalConnection[get_class($this)] = null;
 
+		if(!isset(self::$globalConnectionWrite[get_class($this)]))
+			self::$globalConnectionWrite[get_class($this)] = null;
+
+		
 		if(self::$globalConnection[get_class($this)] == null){
 			if($this->data == null) throw new NoDBUserDataException();
 			$this->renewConnection();
 		} else $this->c = self::$globalConnection[get_class($this)];
+		
+		
+		$this->cWrite = $this->c;
+			
+		if(self::$globalConnectionWrite[get_class($this)] != null)
+			$this->cWrite = self::$globalConnectionWrite[get_class($this)];
+		
+		if(self::$globalConnectionWrite[get_class($this)] == null AND $this->dataWrite != null)
+			$this->renewConnectionWrite();
+		
 		
 		#echo "<br /><br />".get_class($this).":";
 		#print_r(self::$globalConnection[get_class($this)]);
@@ -44,17 +64,26 @@ class DBStorage {
 	}
 
 	/**
-	 *
 	 * @return mysqli
 	 */
 	public function getConnection(){
 		return $this->c;
 	}
 	
+	/**
+	 * @return mysqli
+	 */
+	public function getConnectionWrite(){
+		return $this->cWrite;
+	}
+	
 	public static function disconnect(){ //has to be static or new connection will be built in __construct()
-		$status =  self::$globalConnection[__CLASS__]->close();
-
+		$status = self::$globalConnection[__CLASS__]->close();
+		if(isset(self::$globalConnectionWrite[__CLASS__]) AND self::$globalConnectionWrite[__CLASS__] != null)
+			self::$globalConnectionWrite[__CLASS__]->close();
+		
 		self::$globalConnection[__CLASS__] = null;
+		self::$globalConnectionWrite[__CLASS__] = null;
 
 		return $status;
 	}
@@ -79,6 +108,17 @@ class DBStorage {
 		$this->c->query("SET SESSION sql_mode='';");
 		
 		self::$globalConnection[get_class($this)] = $this->c;
+	}
+	
+	public function renewConnectionWrite(){
+		$this->cWrite = new mysqli($this->dataWrite["host"],$this->dataWrite["user"],$this->dataWrite["password"],$this->dataWrite["datab"]);
+		if(mysqli_connect_error() AND (mysqli_connect_errno() == 1045 OR mysqli_connect_errno() == 2002 OR mysqli_connect_errno() == 2003 OR mysqli_connect_errno() == 2005)) throw new NoDBUserDataException(mysqli_connect_errno().":".mysqli_connect_error());
+		if(mysqli_connect_error() AND mysqli_connect_errno() == 1049 OR mysqli_connect_errno() == 1044) throw new DatabaseNotFoundException();
+		echo $this->cWrite->error;
+		$this->cWrite->set_charset("utf8");
+		$this->cWrite->query("SET SESSION sql_mode='';");
+		
+		self::$globalConnectionWrite[get_class($this)] = $this->cWrite;
 	}
 	/*
 	public function renewConnection(){
@@ -136,7 +176,7 @@ class DBStorage {
 		$oldTable = PMReflector::getAttributesArrayAnyObject($this->getTableColumns($regs[1]));
 		$unterschied2 = array_diff($newTable,$oldTable);
 		
-		$this->c->query("ALTER TABLE `$regs[1]` COMMENT = '".$_SESSION["applications"]->getActiveApplication()."_".$_SESSION["applications"]->getRunningVersion().";'");
+		$this->cWrite->query("ALTER TABLE `$regs[1]` COMMENT = '".$_SESSION["applications"]->getActiveApplication()."_".$_SESSION["applications"]->getRunningVersion().";'");
 		DBStorage::$queryCounter++;
 
 		if(count($unterschied2) == 0){
@@ -156,7 +196,7 @@ class DBStorage {
 			$newSQL = strstr($CIA->MySQL,"`$value`");
 			$ex = explode(",\n",$newSQL);
 			$newSQL = $ex[0];
-			$this->c->query("ALTER TABLE `$regs[1]` ADD $newSQL");
+			$this->cWrite->query("ALTER TABLE `$regs[1]` ADD $newSQL");
 			DBStorage::$queryCounter++;
 			$_SESSION["messages"]->addMessage("Added field $value in table $regs[1]");
 			
@@ -171,23 +211,23 @@ class DBStorage {
 		
 		$_SESSION["messages"]->addMessage("executing MySQL: $CIA->MySQL");
 
-		$this->c->query($CIA->MySQL);
+		$this->cWrite->query($CIA->MySQL);
 		DBStorage::$queryCounter++;
-		if($this->c->error) echo $this->c->error;
+		if($this->cWrite->error) echo $this->cWrite->error;
 		
 	}
 	
 	private function dropTable($name){
 		$sql = "DROP TABLE `".$name."`";
 		$_SESSION["messages"]->addMessage("executing MySQL: $sql");
-		$this->c->query($sql);
+		$this->cWrite->query($sql);
 		DBStorage::$queryCounter++;
 	}
 	
 	private function dropView($name){
 		$sql = "DROP VIEW `".$name."`";
 		$_SESSION["messages"]->addMessage("executing MySQL: $sql");
-		$this->c->query($sql);
+		$this->cWrite->query($sql);
 		DBStorage::$queryCounter++;
 	}
 	
@@ -243,14 +283,14 @@ class DBStorage {
 		else preg_match("/CREATE VIEW `([a-zA-Z0-9]*)`/",$CIA->MySQL,$regs);
 
 		$_SESSION["messages"]->addMessage("executing MySQL: $CIA->MySQL");
-		$this->c->query($CIA->MySQL);
+		$this->cWrite->query($CIA->MySQL);
 		DBStorage::$queryCounter++;
-		if($this->c->error AND $this->c->errno == 1046) throw new DatabaseNotSelectedException();
+		if($this->cWrite->error AND $this->cWrite->errno == 1046) throw new DatabaseNotSelectedException();
 		
 		if(strpos($CIA->MySQL, "INSERT INTO") === false AND !$view){
 			$sql = "ALTER TABLE `$regs[1]` COMMENT = '".$_SESSION["applications"]->getActiveApplication()."_".$_SESSION["applications"]->getRunningVersion().";'";
 			$_SESSION["messages"]->addMessage("executing MySQL: $sql");
-			$this->c->query($sql);
+			$this->cWrite->query($sql);
 			DBStorage::$queryCounter++;
 		}
 		return $this->c;
@@ -265,15 +305,15 @@ class DBStorage {
 	    
 		for($i = 0;$i < count($fields);$i++)
 			#if(!is_numeric($A->$fields[$i]))
-				$sql .= ($i > 0 ? "," : "")." ".$fields[$i]." = '".$this->c->real_escape_string($A->$fields[$i])."'";
+				$sql .= ($i > 0 ? "," : "")." ".$fields[$i]." = '".$this->cWrite->real_escape_string($A->$fields[$i])."'";
 			#else $sql .= ($i > 0 ? "," : "")." ".$fields[$i]." = ".$A->$fields[$i]."";
 			
 		$sql .= " WHERE ".$table."ID = '$id'";
 		$_SESSION["messages"]->addMessage("executing MySQL: $sql");
-		$this->c->query($sql);
+		$this->cWrite->query($sql);
 		DBStorage::$queryCounter++;
-		if($this->c->error AND $this->c->errno == 1062) throw new DuplicateEntryException($this->c->error);
-		echo $this->c->error;
+		if($this->cWrite->error AND $this->cWrite->errno == 1062) throw new DuplicateEntryException($this->cWrite->error);
+		echo $this->cWrite->error;
 	}
 
 	function getTableColumns($forWhat){
@@ -333,7 +373,8 @@ class DBStorage {
 			$currentWhereValue = $statement->whereValues[$key];
 			if($currentWhereValue != "NULL" 
 				AND $currentWhereValue != "NOT NULL"
-				AND substr($currentWhereValue, 0, 3) != "t1.") 
+				AND substr($currentWhereValue, 0, 3) != "t1."
+				AND substr($currentWhereValue, 0, 3) != "t2.") 
 				$currentWhereValue = "'".$this->c->real_escape_string($currentWhereValue)."'";
 				
 			$where .= ($where != "(" ? " ".$statement->whereLogOp[$key]." ".($addOpenBracket ? "(" : "") : "")./*(in_array($statement->whereFields[$key], $nJAs) ? "t1." : "").*/"".$statement->whereFields[$key]." ".$statement->whereOperators[$key]." ".$currentWhereValue."";
@@ -444,7 +485,7 @@ class DBStorage {
 		$fields = null;
 		$cName = $statement->table[0];
 		if($statement->className != "") $cName = $statement->className[0];
-
+		
 
 		while($t = $q->fetch_object()){
 			$A = new Attributes();
@@ -640,6 +681,7 @@ class DBStorage {
 		return $types;
 	}*/
 
+	public static $useAsNextID = null;
 	function makeNewLine2($table, $A) {
 		$fields = PMReflector::getAttributesArray($A);
 
@@ -647,35 +689,40 @@ class DBStorage {
 		#	$this->fixTypes($table, $A);
 
 	    $values = "NULL";
+		if(self::$useAsNextID != null){
+			$values = self::$useAsNextID;
+			self::$useAsNextID = null;
+		}
+		
 	    $sets = "`".$table."ID`";
 		for($i = 0;$i < count($fields);$i++){
 			if($fields[$i] == $table."ID") continue;
 
 			#if(is_numeric($A->$fields[$i])) $values .= ", ".$A->$fields[$i]."\n";
 			#else
-				$values .= ", '".$this->c->real_escape_string($A->$fields[$i])."'\n";
+				$values .= ", '".$this->cWrite->real_escape_string($A->$fields[$i])."'\n";
 
 			$sets .= ",\n`".$fields[$i]."`";
 		}
 	    $sql = "INSERT INTO\n $table\n ($sets) VALUES ($values)";
 		$_SESSION["messages"]->addMessage("executing MySQL: $sql");
-	    $this->c->query($sql);
+	    $this->cWrite->query($sql);
 		DBStorage::$queryCounter++;
 	
-		if($this->c->error AND $this->c->errno == 1054) {
-			preg_match("/[a-zA-Z0-9 ]*\'([a-zA-Z0-9\.]*)\'[a-zA-Z ]*\'([a-zA-Z ]*)\'.*/", $this->c->error, $regs);
+		if($this->cWrite->error AND $this->cWrite->errno == 1054) {
+			preg_match("/[a-zA-Z0-9 ]*\'([a-zA-Z0-9\.]*)\'[a-zA-Z ]*\'([a-zA-Z ]*)\'.*/", $this->cWrite->error, $regs);
 			throw new FieldDoesNotExistException($regs[1],$regs[2]);
 		}
-		if($this->c->error AND $this->c->errno == 1062) throw new DuplicateEntryException($this->c->error);
+		if($this->cWrite->error AND $this->cWrite->errno == 1062) throw new DuplicateEntryException($this->cWrite->error);
 		
-		if($this->c->error) throw new StorageException($this->c->error);
+		if($this->cWrite->error) throw new StorageException($this->cWrite->error);
 		
-	    return $this->c->insert_id;
+	    return $this->cWrite->insert_id;
 	}
 	
 	function deleteSingle($table, $keyName, $id){
 		$sql = "DELETE FROM $table WHERE $keyName = '$id'";
-		$this->c->query($sql);
+		$this->cWrite->query($sql);
 		DBStorage::$queryCounter++;
 		$_SESSION["messages"]->addMessage("executing MySQL: $sql");
 	}

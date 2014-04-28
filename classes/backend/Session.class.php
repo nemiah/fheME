@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class Session {
 	static $instance;
@@ -50,6 +50,10 @@ class Session {
 	
 	public static function reloadDBData() {
 		$_SESSION["DBData"] = $_SESSION[self::$sessionVariable]->getDBData();
+		
+		$DBWrite = Environment::getS("databaseDataWrite", null);
+		if($DBWrite !== null)
+			$_SESSION["DBDataWrite"] = $DBWrite;
 	}
 	
 	public function getDBData($newFolder = null){

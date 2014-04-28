@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class KalenderEvent extends KalenderEntry {
 	private $day;
@@ -605,10 +605,10 @@ class KalenderEvent extends KalenderEntry {
 				$BE->popup("", "Kalendereintrag bearbeiten", "mKalender", $this->classID, "editInPopup", array("'".$this->className."'", $this->classID, "'{$this->editable[0]}'"));
 			}
 			
-			$BD = new Button("Dieses Event Löschen", "trash", "icon");
+			$BD = new Button("Dieses Event löschen", "trash", "icon");
 			$BD->style("float:right;margin:10px;");
 			$BD->onclick("if(confirm('Löschen?')) ");
-			$BD->rmePCR(str_replace("GUI", "", $this->className), $this->classID, $this->editable[1], $this->classID, "contentManager.reloadFrame('contentLeft'); Popup.close('mKalender', 'edit');");
+			$BD->rmePCR(str_replace("GUI", "", $this->className), $this->classID, $this->editable[1], $this->classID, "contentManager.reloadFrame('contentScreen'); Popup.close('mKalender', 'edit');");
 			
 			if($this->repeat() !== false){
 				$BD->rmePCR(str_replace("GUI", "", $this->className), $this->classID, $this->editable[1], array($this->classID, $time+Kalender::parseTime($this->time)-60), "contentManager.reloadFrame('contentLeft'); Popup.close('mKalender', 'edit');");

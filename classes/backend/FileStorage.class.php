@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class FileStorage {
 	protected $instance;
@@ -72,8 +72,10 @@ class FileStorage {
 		else {
 			$A = $F->newAttributes();
 
+			$ex = explode(DIRECTORY_SEPARATOR, $file);
+			
 			$A->FileDir = dirname(realpath($file));
-			$A->FileName = basename($file);
+			$A->FileName = $ex[count($ex) - 1];
 			$A->FileIsDir = $isDir;
 			$A->FileSize = filesize($file);
 			if(is_readable($file) AND $isDir == "0" AND function_exists("mime_content_type")) $A->FileMimetype = mime_content_type($file);
@@ -100,13 +102,18 @@ class FileStorage {
 			
 			if(!file_exists($dir)){
 				#mkdir($CH->scientiaDir."/".strtolower(Environment::$currentEnvironment->cloudUser())."/");
-				mkdir($CH->scientiaDir."/".($cloudUser != "" ? "$cloudUser/" : "")."specifics/", 0777, true);
+				mkdir($dir, 0777, true);
+				chmod($dir, 0777);
 			}
 			
-			return $dir;
+			return realpath($dir)."/";
 		}
 		
 		return $path;
+	}
+	
+	public static function getElementDir($class, $id){
+		return FileStorage::getFilesDir().$class."ID".str_pad($id, 4, "0", STR_PAD_LEFT);
 	}
 	
 	function loadMultipleV4(SelectStatement $statement){
@@ -120,9 +127,13 @@ class FileStorage {
 		$dirs = array();
 		$files = array();
 		
-		$fp = opendir($dir);
-		while(($file = readdir($fp)) !== false) {
-			#if($file == ".") continue;
+		$dirIt = new DirectoryIterator($dir);
+		foreach ($dirIt as $fileObj) {
+			if($fileObj->isDot())
+				continue;
+			
+			$file = $fileObj->getFilename();
+			
 			if(strpos(basename($file), "NewsletterID") === 0)
 				continue;
 
@@ -171,10 +182,17 @@ class FileStorage {
 			if(strpos(basename($file), ".lock") !== false)
 				continue;
 
-			if(is_dir($dir.$file)) $dirs[] = $dir.$file;
-			else $files[] = $dir.$file;
+			if($fileObj->isDir())
+				$dirs[] = $dir.$file;
+			else 
+				$files[] = $dir.$file;
 		}
-		closedir($fp);
+		
+		#$fp = opendir($dir);
+		#while(($file = readdir($fp)) !== false) {
+			#if($file == ".") continue;
+		#}
+		#closedir($fp);
 		if($this->affectedRowsOnly) {
 			$this->affectedRowsOnly = false;
 			return count($dirs) + count($files);
@@ -197,6 +215,7 @@ class FileStorage {
 			
 			$collector[] = $this->getFileClass($dirs[$i], 1);
 		}
+		
 		for($i = 0;$i < count($files); $i++){
 			$c++;
 			if($c < $start+1) continue;
@@ -204,6 +223,9 @@ class FileStorage {
 			
 			$collector[] = $this->getFileClass($files[$i], 0);
 		}
+		#echo "<pre>";
+		#print_r($collector);
+		#echo "</pre>";
 		return $collector;
 	}
 	

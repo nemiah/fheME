@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class ADesktopGUI extends UnpersistentClass implements iGUIHTML2 {
 	function  __construct() {
@@ -52,14 +52,14 @@ class ADesktopGUI extends UnpersistentClass implements iGUIHTML2 {
 		if(Environment::getS("blogShow", "1") == "0")
 			return "";
 		
-		$data = file_get_contents(Environment::getS("blogRSSURL", "http://blog.office3a.eu/feed/"));
+		$data = file_get_contents(Environment::getS("blogRSSURL", "http://blog.furtmeier.it/feed/"));
 		
 		if($data === false)
 			return "";
 		
 		$html = "
-			<div style=\"border-bottom:1px solid #DDD;position:relative;\" class=\"desktopButton\" onclick=\"window.open('".Environment::getS("blogURL", "http://blog.office3a.eu/")."', '_blank');\">
-				<h1 style=\"font-size:2.0em;color:#999999;position:absolute;bottom:5px;\">".Environment::getS("blogName", "office<span style=\"color:#A0C100;\">3a</span> blog")."</h1>
+			<div style=\"border-bottom:1px solid #DDD;position:relative;\" class=\"desktopButton\" onclick=\"window.open('".Environment::getS("blogURL", "http://blog.furtmeier.it/")."', '_blank');\">
+				<h1 style=\"font-size:2.0em;color:#999999;position:absolute;bottom:5px;\">".Environment::getS("blogName", "Furtmeier.<span style=\"color:#A0C100;\">IT</span> blog")."</h1>
 			</div>
 			<div id=\"blogContainer\" style=\"padding-left:30px;padding-right:30px;overflow:auto;\">";
 		try {

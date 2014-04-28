@@ -16,7 +16,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class mKalender extends UnpersistentClass {
 	public function getEMailData($parameters){
@@ -156,18 +156,18 @@ END:VCALENDAR";
 		$C->setNotified($className, $classID);
 	}
 	
-	public function getData($firstDay, $lastDay, $UserID = null){
+	public function getData($firstDay, $lastDay, $UserID = null, $skip = array()){
 		if($UserID === null)
-			$UserID = Session::currentUser();
+			$UserID = Session::currentUser()->getID();
 		
 		Registry::reset("Kalender");
 		
 		$K = new Kalender();
 		$K->timeRange($firstDay, $lastDay);
-		while($return = Registry::callNext("Kalender", "events", array($firstDay, $lastDay, $UserID)))
+		while($return = Registry::callNext("Kalender", "events", array($firstDay, $lastDay, $UserID), $skip))
 			$K->merge($return);
 
-		while($return = Registry::callNext("Kalender", "holidays", array($firstDay, $lastDay, $UserID)))
+		while($return = Registry::callNext("Kalender", "holidays", array($firstDay, $lastDay, $UserID), $skip))
 			$K->merge($return);
 		
 		$K->exceptions();

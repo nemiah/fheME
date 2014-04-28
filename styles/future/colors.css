@@ -1,0 +1,45 @@
+@CHARSET "UTF-8";
+
+#navigation {
+    background-image: none;
+}
+
+body {
+    background-color: white;
+}
+
+.backgroundColor2 {
+	background-color:transparent;
+}
+
+.backgroundColor3 {
+	background-color:transparent;
+}
+
+.navBackgroundColor {
+    background-color: transparent;
+}
+
+.phynxNoTouch #navTabsWrapper .navTab:not(.theOne):hover {
+    background-color: transparent;
+}
+
+#navTabsWrapper {
+	padding-bottom:20px;
+}
+
+#footer .iconic {
+	color:grey;
+}
+
+#navigation div.theOne {
+	background-color:rgba(255,204,0,0.3);
+}
+
+.lastSelected {
+	background-color:rgba(255,204,0,0.3);
+}
+
+#navigation div.theOne:hover {
+	background-color:rgba(255,204,0,0.3);
+}

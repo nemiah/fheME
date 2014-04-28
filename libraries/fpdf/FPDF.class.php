@@ -73,6 +73,21 @@ class FPDF {
 	protected $replaceWith;
 	protected $fakePage;
 
+	function strlen($str){
+		return mb_strlen($str, "ISO-8859-15");
+	}
+	
+	function substr($str, $start, $length = null){
+		if($length === null)
+			$length = mb_strlen ($str, "ISO-8859-15");
+		
+		return mb_substr($str, $start, $length, "ISO-8859-15");
+	}
+	
+	function strpos($haystack, $needle, $offset = 0){
+		return mb_strpos($haystack, $needle, $offset, "ISO-8859-15");
+	}
+	
 	function __construct($orientation='P', $unit='mm', $format='A4') {
 		//Some checks
 		$this->_dochecks();
@@ -440,7 +455,7 @@ class FPDF {
 		$s = (string) $s;
 		$cw = &$this->CurrentFont['cw'];
 		$w = 0;
-		$l = strlen($s);
+		$l = $this->strlen($s);
 		for ($i = 0; $i < $l; $i++)
 			$w+=$cw[$s{$i}];
 		return $w * $this->FontSize / 1000;
@@ -531,7 +546,7 @@ class FPDF {
 		elseif ($family == 'symbol' || $family == 'zapfdingbats')
 			$style = '';
 		$style = strtoupper($style);
-		if (strpos($style, 'U') !== false) {
+		if ($this->strpos($style, 'U') !== false) {
 			$this->underline = true;
 			$style = str_replace('U', '', $style);
 		}
@@ -661,13 +676,13 @@ class FPDF {
 		if (is_string($border)) {
 			$x = $this->x;
 			$y = $this->y;
-			if (strpos($border, 'L') !== false)
+			if ($this->strpos($border, 'L') !== false)
 				$s.=sprintf('%.2f %.2f m %.2f %.2f l S ', $x * $k, ($this->h - $y) * $k, $x * $k, ($this->h - ($y + $h)) * $k);
-			if (strpos($border, 'T') !== false)
+			if ($this->strpos($border, 'T') !== false)
 				$s.=sprintf('%.2f %.2f m %.2f %.2f l S ', $x * $k, ($this->h - $y) * $k, ($x + $w) * $k, ($this->h - $y) * $k);
-			if (strpos($border, 'R') !== false)
+			if ($this->strpos($border, 'R') !== false)
 				$s.=sprintf('%.2f %.2f m %.2f %.2f l S ', ($x + $w) * $k, ($this->h - $y) * $k, ($x + $w) * $k, ($this->h - ($y + $h)) * $k);
-			if (strpos($border, 'B') !== false)
+			if ($this->strpos($border, 'B') !== false)
 				$s.=sprintf('%.2f %.2f m %.2f %.2f l S ', $x * $k, ($this->h - ($y + $h)) * $k, ($x + $w) * $k, ($this->h - ($y + $h)) * $k);
 		}
 		if ($txt !== '') {
@@ -708,7 +723,7 @@ class FPDF {
 			$w = $this->w - $this->rMargin - $this->x;
 		$wmax = ($w - 2 * $this->cMargin) * 1000 / $this->FontSize;
 		$s = str_replace("\r", '', $txt);
-		$nb = strlen($s);
+		$nb = $this->strlen($s);
 		if ($nb > 0 && $s[$nb - 1] == "\n")
 			$nb--;
 		$b = 0;
@@ -719,11 +734,11 @@ class FPDF {
 				$b2 = 'LR';
 			} else {
 				$b2 = '';
-				if (strpos($border, 'L') !== false)
+				if ($this->strpos($border, 'L') !== false)
 					$b2.='L';
-				if (strpos($border, 'R') !== false)
+				if ($this->strpos($border, 'R') !== false)
 					$b2.='R';
-				$b = (strpos($border, 'T') !== false) ? $b2 . 'T' : $b2;
+				$b = ($this->strpos($border, 'T') !== false) ? $b2 . 'T' : $b2;
 			}
 		}
 		$sep = -1;
@@ -741,7 +756,7 @@ class FPDF {
 					$this->ws = 0;
 					$this->_out('0 Tw');
 				}
-				$this->Cell($w, $h, substr($s, $j, $i - $j), $b, 2, $align, $fill);
+				$this->Cell($w, $h, $this->substr($s, $j, $i - $j), $b, 2, $align, $fill);
 				$i++;
 				$sep = -1;
 				$j = $i;
@@ -767,13 +782,13 @@ class FPDF {
 						$this->ws = 0;
 						$this->_out('0 Tw');
 					}
-					$this->Cell($w, $h, substr($s, $j, $i - $j), $b, 2, $align, $fill);
+					$this->Cell($w, $h, $this->substr($s, $j, $i - $j), $b, 2, $align, $fill);
 				} else {
 					if ($align == 'J') {
 						$this->ws = ($ns > 1) ? ($wmax - $ls) / 1000 * $this->FontSize / ($ns - 1) : 0;
 						$this->_out(sprintf('%.3f Tw', $this->ws * $this->k));
 					}
-					$this->Cell($w, $h, substr($s, $j, $sep - $j), $b, 2, $align, $fill);
+					$this->Cell($w, $h, $this->substr($s, $j, $sep - $j), $b, 2, $align, $fill);
 					$i = $sep + 1;
 				}
 				$sep = -1;
@@ -792,9 +807,9 @@ class FPDF {
 			$this->ws = 0;
 			$this->_out('0 Tw');
 		}
-		if ($border && strpos($border, 'B') !== false)
+		if ($border && $this->strpos($border, 'B') !== false)
 			$b.='B';
-		$this->Cell($w, $h, substr($s, $j, $i - $j), $b, 2, $align, $fill);
+		$this->Cell($w, $h, $this->substr($s, $j, $i - $j), $b, 2, $align, $fill);
 		$this->x = $this->lMargin;
 	}
 
@@ -804,7 +819,7 @@ class FPDF {
 		$w = $this->w - $this->rMargin - $this->x;
 		$wmax = ($w - 2 * $this->cMargin) * 1000 / $this->FontSize;
 		$s = str_replace("\r", '', $txt);
-		$nb = strlen($s);
+		$nb = $this->strlen($s);
 		$sep = -1;
 		$i = 0;
 		$j = 0;
@@ -815,7 +830,7 @@ class FPDF {
 			$c = $s{$i};
 			if ($c == "\n") {
 				//Explicit line break
-				$this->Cell($w, $h, substr($s, $j, $i - $j), 0, 2, '', 0, $link);
+				$this->Cell($w, $h, $this->substr($s, $j, $i - $j), 0, 2, '', 0, $link);
 				$i++;
 				$sep = -1;
 				$j = $i;
@@ -846,10 +861,10 @@ class FPDF {
 					}
 					if ($i == $j)
 						$i++;
-					$this->Cell($w, $h, substr($s, $j, $i - $j), 0, 2, '', 0, $link);
+					$this->Cell($w, $h, $this->substr($s, $j, $i - $j), 0, 2, '', 0, $link);
 				}
 				else {
-					$this->Cell($w, $h, substr($s, $j, $sep - $j), 0, 2, '', 0, $link);
+					$this->Cell($w, $h, $this->substr($s, $j, $sep - $j), 0, 2, '', 0, $link);
 					$i = $sep + 1;
 				}
 				$sep = -1;
@@ -867,7 +882,7 @@ class FPDF {
 		}
 		//Last chunk
 		if ($i != $j)
-			$this->Cell($l / 1000 * $this->FontSize, $h, substr($s, $j), 0, 0, '', 0, $link);
+			$this->Cell($l / 1000 * $this->FontSize, $h, $this->substr($s, $j), 0, 0, '', 0, $link);
 	}
 
 	function Image($file, $x, $y, $w=0, $h=0, $type='', $link='') {
@@ -878,7 +893,7 @@ class FPDF {
 				$pos = strrpos($file, '.');
 				if (!$pos)
 					$this->Error('Image file has no extension and no type was specified: ' . $file);
-				$type = substr($file, $pos + 1);
+				$type = $this->substr($file, $pos + 1);
 			}
 			$type = strtolower($type);
 			#$mqr=get_magic_quotes_runtime();
@@ -984,7 +999,7 @@ class FPDF {
 					header('Content-Type: application/pdf');
 					if (headers_sent ())
 						$this->Error('Some data has already been output to browser, can\'t send PDF file');
-					header('Content-Length: ' . strlen($this->buffer));
+					header('Content-Length: ' . $this->strlen($this->buffer));
 					header('Content-disposition: inline; filename="' . $name . '"');
 				}
 				echo $this->buffer;
@@ -993,13 +1008,13 @@ class FPDF {
 				//Download file
 				if (ob_get_contents ())
 					$this->Error('Some data has already been output, can\'t send PDF file');
-				if (isset($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE'))
+				if (isset($_SERVER['HTTP_USER_AGENT']) && $this->strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE'))
 					header('Content-Type: application/force-download');
 				else
 					header('Content-Type: application/octet-stream');
 				if (headers_sent ())
 					$this->Error('Some data has already been output to browser, can\'t send PDF file');
-				header('Content-Length: ' . strlen($this->buffer));
+				header('Content-Length: ' . $this->strlen($this->buffer));
 				header('Content-disposition: attachment; filename="' . $name . '"');
 				echo $this->buffer;
 				break;
@@ -1008,7 +1023,7 @@ class FPDF {
 				$f = fopen($name, 'wb');
 				if (!$f)
 					$this->Error('Das PDF kann nicht zwischengespeichert werden!' . "<br /><br />Bitte machen Sie das Verzeichnis<br />system/IECache<br />sowie dessen Unterverzeichnisse durch den Webserver beschreibbar:<br /><br /><code>chmod -R 777 system/IECache</code><br /><br /><span style=\"color:red;\">Hinweis:</span> Dadurch werden die PDF Dateien <b>temporär</b> in einem von außerhalb erreichbaren Verzeichnis abgelegt und können eventuell von Suchmaschinen oder anderen Benutzern gefunden werden.<br />Wenn Sie dies nicht möchten, verwenden Sie bitte den <a href=\"http://www.mozilla.com/de/firefox/\">Firefox-Browser</a>.".(ini_get("safe_mode") ? "<br /><br /><span style=\"color:red;\">Auf diesem Webserver wurde der Safe Mode aktiviert.<br />Bitte beachten Sie die Hinweise in der <a href=\"../system/info.php\">info.php-Datei</a></span>" : ""));
-				fwrite($f, $this->buffer, strlen($this->buffer));
+				fwrite($f, $this->buffer, $this->strlen($this->buffer));
 				fclose($f);
 				break;
 			case 'S':
@@ -1106,12 +1121,12 @@ class FPDF {
 			//Page content
 			$p = ($this->compress) ? gzcompress($this->pages[$n]) : $this->pages[$n];
 			$this->_newobj();
-			$this->_out('<<' . $filter . '/Length ' . strlen($p) . '>>');
+			$this->_out('<<' . $filter . '/Length ' . $this->strlen($p) . '>>');
 			$this->_putstream($p);
 			$this->_out('endobj');
 		}
 		//Pages root
-		$this->offsets[1] = strlen($this->buffer);
+		$this->offsets[1] = $this->strlen($this->buffer);
 		$this->_out('1 0 obj');
 		$this->_out('<</Type /Pages');
 		$kids = '/Kids [';
@@ -1145,19 +1160,19 @@ class FPDF {
 			while (!feof($f))
 				$font.=fread($f, 8192);
 			fclose($f);
-			$compressed = (substr($file, -2) == '.z');
+			$compressed = ($this->substr($file, -2) == '.z');
 			if (!$compressed && isset($info['length2'])) {
 				$header = (ord($font{0}) == 128);
 				if ($header) {
 					//Strip first binary header
-					$font = substr($font, 6);
+					$font = $this->substr($font, 6);
 				}
 				if ($header && ord($font{$info['length1']}) == 128) {
 					//Strip second binary header
-					$font = substr($font, 0, $info['length1']) . substr($font, $info['length1'] + 6);
+					$font = $this->substr($font, 0, $info['length1']) . $this->substr($font, $info['length1'] + 6);
 				}
 			}
-			$this->_out('<</Length ' . strlen($font));
+			$this->_out('<</Length ' . $this->strlen($font));
 			if ($compressed)
 				$this->_out('/Filter /FlateDecode');
 			$this->_out('/Length1 ' . $info['length1']);
@@ -1241,7 +1256,7 @@ class FPDF {
 			$this->_out('/Width ' . $info['w']);
 			$this->_out('/Height ' . $info['h']);
 			if ($info['cs'] == 'Indexed')
-				$this->_out('/ColorSpace [/Indexed /DeviceRGB ' . (strlen($info['pal']) / 3 - 1) . ' ' . ($this->n + 1) . ' 0 R]');
+				$this->_out('/ColorSpace [/Indexed /DeviceRGB ' . ($this->strlen($info['pal']) / 3 - 1) . ' ' . ($this->n + 1) . ' 0 R]');
 			else {
 				$this->_out('/ColorSpace /' . $info['cs']);
 				if ($info['cs'] == 'DeviceCMYK')
@@ -1258,7 +1273,7 @@ class FPDF {
 					$trns.=$info['trns'][$i] . ' ' . $info['trns'][$i] . ' ';
 				$this->_out('/Mask [' . $trns . ']');
 			}
-			$this->_out('/Length ' . strlen($info['data']) . '>>');
+			$this->_out('/Length ' . $this->strlen($info['data']) . '>>');
 			$this->_putstream($info['data']);
 			unset($this->images[$file]['data']);
 			$this->_out('endobj');
@@ -1266,7 +1281,7 @@ class FPDF {
 			if ($info['cs'] == 'Indexed') {
 				$this->_newobj();
 				$pal = ($this->compress) ? gzcompress($info['pal']) : $info['pal'];
-				$this->_out('<<' . $filter . '/Length ' . strlen($pal) . '>>');
+				$this->_out('<<' . $filter . '/Length ' . $this->strlen($pal) . '>>');
 				$this->_putstream($pal);
 				$this->_out('endobj');
 			}
@@ -1293,7 +1308,7 @@ class FPDF {
 		$this->_putfonts();
 		$this->_putimages();
 		//Resource dictionary
-		$this->offsets[2] = strlen($this->buffer);
+		$this->offsets[2] = $this->strlen($this->buffer);
 		$this->_out('2 0 obj');
 		$this->_out('<<');
 		$this->_putresourcedict();
@@ -1362,7 +1377,7 @@ class FPDF {
 		$this->_out('>>');
 		$this->_out('endobj');
 		//Cross-ref
-		$o = strlen($this->buffer);
+		$o = $this->strlen($this->buffer);
 		$this->_out('xref');
 		$this->_out('0 ' . ($this->n + 1));
 		$this->_out('0000000000 65535 f ');
@@ -1421,7 +1436,7 @@ class FPDF {
 	protected function _newobj() {
 		//Begin a new object
 		$this->n++;
-		$this->offsets[$this->n] = strlen($this->buffer);
+		$this->offsets[$this->n] = $this->strlen($this->buffer);
 		$this->_out($this->n . ' 0 obj');
 	}
 
@@ -1505,11 +1520,11 @@ class FPDF {
 				//Read transparency info
 				$t = fread($f, $n);
 				if ($ct == 0)
-					$trns = array(ord(substr($t, 1, 1)));
+					$trns = array(ord($this->substr($t, 1, 1)));
 				elseif ($ct == 2)
-					$trns = array(ord(substr($t, 1, 1)), ord(substr($t, 3, 1)), ord(substr($t, 5, 1)));
+					$trns = array(ord($this->substr($t, 1, 1)), ord($this->substr($t, 3, 1)), ord($this->substr($t, 5, 1)));
 				else {
-					$pos = strpos($t, chr(0));
+					$pos = $this->strpos($t, chr(0));
 					if ($pos !== false)
 						$trns = array($pos);
 				}
@@ -1577,7 +1592,7 @@ class FPDF {
 	//
     private function _readstr($var, &$pos, $n) {
 		//Read some bytes from string
-		$string = substr($var, $pos, $n);
+		$string = $this->substr($var, $pos, $n);
 		$pos += $n;
 		return $string;
 	}
@@ -1639,11 +1654,11 @@ class FPDF {
 				//Read transparency info
 				$t = $this->_readstr($var, $pos, $n);
 				if ($ct == 0)
-					$trns = array(ord(substr($t, 1, 1)));
+					$trns = array(ord($this->substr($t, 1, 1)));
 				elseif ($ct == 2)
-					$trns = array(ord(substr($t, 1, 1)), ord(substr($t, 3, 1)), ord(substr($t, 5, 1)));
+					$trns = array(ord($this->substr($t, 1, 1)), ord($this->substr($t, 3, 1)), ord($this->substr($t, 5, 1)));
 				else {
-					$pos = strpos($t, chr(0));
+					$pos = $this->strpos($t, chr(0));
 					if (is_int($pos))
 						$trns = array($pos);
 				}

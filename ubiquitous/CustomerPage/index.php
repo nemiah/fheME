@@ -143,9 +143,15 @@ if(isset($I)){
 			rme: function(method, parameters, onSuccessFunction, onFailureFunction, type){
 				if(typeof type == "undefined")
 					type = "GET";
-				
+
 				var ps = "";
-				if(typeof parameters == "object"){
+				if(typeof parameters == "object" && !$.isArray(parameters)){
+					$.each(parameters, function(k, v){
+						ps += "&"+k+"="+v;
+					})
+				}
+				
+				if(typeof parameters == "object" && $.isArray(parameters)){
 					for(var i = 0; i < parameters.length; i++)
 						ps += "&P"+i+"="+parameters[i];
 				}
@@ -153,14 +159,13 @@ if(isset($I)){
 				if(typeof parameters == "string")
 					ps = "&"+parameters;
 				
-				
 				$.ajax({url: "./index.php", success: function(transport){
 
 					if(typeof onSuccessFunction == "function" && CustomerPage.checkResponse(transport))
 						onSuccessFunction(transport);
 					
 				}, 
-				data: "<?php if(isset($_POET["CC"])) echo "CC=".$_POET["CC"]; if(isset($_POET["D"])) echo "D=".$_POET["D"]; ?>&M="+method+ps,
+				data: "<?php if(isset($_POET["CC"])) echo "CC=".$_POET["CC"]; if(isset($_POET["D"])) echo "D=".$_POET["D"]; ?>&M="+method+ps+"&_="+Math.random(),
 				error: function(){
 					if(typeof onFailureFunction == "function")
 						onFailureFunction();
@@ -249,6 +254,13 @@ if(isset($I)){
 		
 		$j = $;
 		
+		function blurMe(){
+		
+		}
+
+		function focusMe(){
+
+		}
 			<?php echo $script; ?>
 		</script>
 		

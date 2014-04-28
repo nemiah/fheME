@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
 var lastLoadedLeft        = -1;
@@ -37,12 +37,14 @@ var contentManager = {
 	isAltUser: false,
 	updateTitle: true,
 	currentPlugin: null,
+	historyLeft: [],
+	historyRight: [],
 	
 	maxHeight: function(){
 		if($j('#desktopWrapper').length > 0)
 			return $j('#wrapper').height() - $j('#wrapperTable').height() - 20; // 20 px padding on contentLeft and contentRight
 		
-		return ($j(window).height() - $j('#navTabsWrapper').height() - $j('#footer').height() - 30);
+		return ($j(window).height() - $j('#navTabsWrapper').outerHeight() - $j('#footer').height() - 30);
 	},
 			
 	maxWidth: function(getWindow){
@@ -180,6 +182,12 @@ var contentManager = {
 		contentManager.loadDesktop();
 		contentManager.loadJS();
 		contentManager.loadTitle();
+		contentManager.clearHistory();
+	},
+
+	clearHistory: function(){
+		contentManager.historyLeft = [];
+		contentManager.historyRight = []
 	},
 
 	selectRow: function(currentElement, group){
@@ -222,9 +230,49 @@ var contentManager = {
 	},
 	
 	loadPlugin: function(targetFrame, targetPlugin, bps, withId, options){
+		var page = 0;
+		if(contentManager.historyRight[targetPlugin])
+			page = contentManager.historyRight[targetPlugin][0];
 		
-		contentManager.loadFrame(targetFrame, targetPlugin, -1, 0, bps, function(){
-			if(typeof withId != "undefined" && withId != null) contentManager.loadFrame("contentLeft", targetPlugin.substr(1), withId);
+		contentManager.loadFrame(targetFrame, targetPlugin, -1, page, bps, function(){
+			if(typeof withId != "undefined" && withId != null){
+				contentManager.loadFrame("contentLeft", !options.single ? targetPlugin.substr(1) : options.single, withId);
+				return;
+			}
+			
+			if(targetFrame == "contentRight"){
+				var historyPlugin = targetPlugin;
+				if(historyPlugin == "Auftraege")
+					historyPlugin = "mAuftrag";
+
+				if(historyPlugin == "Adressen")
+					historyPlugin = "mAdresse";
+
+				if(historyPlugin == "Kategorien")
+					historyPlugin = "mKategorie";
+
+				if(historyPlugin == "Textbausteine")
+					historyPlugin = "mTextbaustein";
+
+				if(historyPlugin == "ObjekteL")
+					historyPlugin = "mObjektL";
+
+				if(contentManager.historyLeft[historyPlugin]){
+					var found = false;
+					if($j('#Browser'+historyPlugin+contentManager.historyLeft[historyPlugin][1]).length)
+						found = true;
+
+					if($j('#BrowserMain'+contentManager.historyLeft[historyPlugin][1]).length)
+						found = true;
+
+					if(found)
+						contentManager.loadFrame("contentLeft", contentManager.historyLeft[historyPlugin][0], contentManager.historyLeft[historyPlugin][1], 0, "", function(){
+							$j('#Browser'+historyPlugin+contentManager.historyLeft[historyPlugin][1]).addClass("lastSelected");
+							$j('#BrowserMain'+contentManager.historyLeft[historyPlugin][1]).addClass("lastSelected");
+						});
+
+				}
+			}
 		},
 		false,
 		{
@@ -535,6 +583,7 @@ var contentManager = {
 			lastLoadedRightPage = page;
 			lastLoadedRight = withId;
 			contentManager.currentPlugin = plugin;
+			contentManager.historyRight[plugin] = [page];
 		}
 
 		if(target == "contentLeft"){
@@ -542,6 +591,7 @@ var contentManager = {
 			lastLoadedLeftPage = page;
 			lastLoadedLeft = withId;
 			contentManager.currentPlugin = plugin;
+			contentManager.historyLeft["m"+plugin] = [plugin, withId];
 		}
 
 		if(target == "contentScreen"){
@@ -595,7 +645,7 @@ var contentManager = {
 
 		new Ajax.Request(contentManager.getRoot()+"interface/rme.php?rand="+Math.random(), {
 		method: 'post',
-		parameters: "class="+targetClass+"&construct="+targetClassId+"&method="+targetMethod+"&parameters="+targetMethodParameters+((bps != "" && typeof bps != "undefined") ? "&bps="+bps : ""),
+		parameters: "class="+targetClass+"&construct="+encodeURIComponent(targetClassId)+"&method="+targetMethod+"&parameters="+targetMethodParameters+((bps != "" && typeof bps != "undefined") ? "&bps="+bps : ""),
 		onSuccess: function(transport) {
 			var check = checkResponse(transport);
 			if(!responseCheck || check) {
@@ -742,6 +792,9 @@ var contentManager = {
 		if(event.keyCode == 8)
 			return;
 		
+		if(event.keyCode == 9)
+			return;
+		
 		
 		
 		if($j('#'+timeInputID).val().length == 2 && $j('#'+timeInputID).val().lastIndexOf(':') == -1){
@@ -758,6 +811,9 @@ var contentManager = {
 		if(event.keyCode == 8)
 			return;
 		
+		if(event.keyCode == 9)
+			return;
+
 		contentManager.timeInput(event, timeInput1ID);
 		
 		if($j('#'+timeInput1ID).val().lastIndexOf(':') == -1)

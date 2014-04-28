@@ -15,11 +15,11 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class Util {
 	public static function ext($filename){
-		return strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+		return trim(strtolower(pathinfo($filename, PATHINFO_EXTENSION)));
 	}
 	
 	public static function filesTree($files){
@@ -52,9 +52,11 @@ class Util {
 		return $zipDirectories;
 	}
 	
-	public static function getCloudHost(){
+	public static function getCloudHost($host = null){
+		if($host == null)
+			$host = $_SERVER["HTTP_HOST"];
 		
-		$host = Aspect::joinPoint("host", null, __METHOD__, array($_SERVER["HTTP_HOST"]), $_SERVER["HTTP_HOST"]);
+		$host = Aspect::joinPoint("host", null, __METHOD__, array($host), $host);
 		
 		if($host == "*")
 			return null;
@@ -498,7 +500,7 @@ class Util {
 		
 		$float = Util::parseFloat($language, $number);
 		
-		$float *= Util::getLangCurrencyFactor($language);
+		#$float *= Util::getLangCurrencyFactor($language);
 		
 		$negative = false;
 		if($float < 0) $negative = true;
@@ -509,12 +511,12 @@ class Util {
 		$stringCurrency = number_format(Util::kRound($float, $format[4]), $format[4], $format[3], $format[5]);
 		$stringCurrency = str_replace("n", $stringCurrency, $negative ? $format[2] : $format[1]);
 		
-		if(!$withSymbol) $stringCurrency = str_replace($format[0], "", $stringCurrency);
+		if(!$withSymbol) $stringCurrency = trim(str_replace($format[0], "", $stringCurrency));
 		
 		return $stringCurrency;
 	}
 	
-	public static function getLangCurrencyFactor($language){
+	/*public static function getLangCurrencyFactor($language){
 		if(!Session::isPluginLoaded("mSprache")) return 1;
 		
 		$Sprache = anyC::getFirst("Sprache", "SpracheIdentifier", $language);
@@ -530,7 +532,7 @@ class Util {
 		}
 		
 		return $faktor;
-	}
+	}*/
 	
 	public static function CLFormatCurrency($number, $withSymbol = false){
 		return Util::formatCurrency($_SESSION["S"]->getUserLanguage(), $number, $withSymbol);
@@ -574,24 +576,24 @@ class Util {
 			case "2":
 				if($shortmode) $A = $format["maleShort"];
 				else {
-					$A = $format["male"]." ".$Adresse->A("nachname");
+					$A = $format["male"]." ".trim($Adresse->A("nachname"));
 					if(trim($Adresse->A("nachname")) == "")
 						$A = $format["unknown"];
 				}
 				
 				if($perDu == true)
-					$A = "Hallo ".$Adresse->A("vorname");
+					$A = "Hallo ".trim($Adresse->A("vorname"));
 			break;
 			case "1":
 				if($shortmode) $A = $format["femaleShort"];
 				else {
-					$A = $format["female"]." ".$Adresse->A("nachname");
+					$A = $format["female"]." ".trim($Adresse->A("nachname"));
 					if(trim($Adresse->A("nachname")) == "")
 						$A = $format["unknown"];
 				}
 				
 				if($perDu == true)
-					$A = "Hallo ".$Adresse->A("vorname");
+					$A = "Hallo ".trim($Adresse->A("vorname"));
 			break;
 			case "3":
 				if($shortmode) $A = "";
@@ -602,7 +604,7 @@ class Util {
 			break;
 			case "4":
 				if($shortmode) $A = $format["familyShort"];
-				else $A = $format["family"]." ".$Adresse->A("nachname");
+				else $A = $format["family"]." ".trim($Adresse->A("nachname"));
 				
 				if($perDu == true)
 					$A = "Hallo";
@@ -904,11 +906,11 @@ class Util {
 		 */
 		switch($languageTag) {
 			case "DE":
-				return array("€", "n€", "-n€", ",", 2, ".");
+				return array("€", "n €", "-n €", ",", 2, ".");
 			break;
 		
 			case "DE_EUR":
-				return array(" EUR", "n EUR", "-n EUR", ",", 2, ".");
+				return array("EUR", "n EUR", "-n EUR", ",", 2, ".");
 			break;
 		
 			case "CH":
@@ -916,7 +918,7 @@ class Util {
 			break;
 		
 			case "CH_CHF":
-				return array(" CHF", "CHF n", "CHF -n", ".", 2, "'");
+				return array("CHF", "CHF n", "CHF -n", ".", 2, "'");
 			break;
 		
 			case "US":
@@ -924,7 +926,7 @@ class Util {
 			break;
 		
 			case "GB":
-				return array("£", "£n", "-£n", ".", 2, ",");
+				return array("£", "£ n", "-£ n", ".", 2, ",");
 			break;
 		
 			case "NO":
@@ -932,7 +934,7 @@ class Util {
 			break;
 		
 			case "NO_NOK":
-				return array(" NOK", "n NOK", "-n NOK", ",", 2, " ");
+				return array("NOK", "n NOK", "-n NOK", ",", 2, " ");
 			break;
 		
 			case "DK":
@@ -940,7 +942,7 @@ class Util {
 			break;
 		
 			case "DK_DKK":
-				return array(" DKK", "n DKK", "-n DKK", ",", 2, ".");
+				return array("DKK", "n DKK", "-n DKK", ",", 2, ".");
 			break;
 		
 			case "SE":
@@ -948,11 +950,11 @@ class Util {
 			break;
 		
 			case "SE_SEK":
-				return array(" SEK", "n SEK", "-n SEK", ",", 2, ".");
+				return array("SEK", "n SEK", "-n SEK", ",", 2, ".");
 			break;
 		
 			default:
-				return array("€", "n€", "-n€", ",", 2, ".");
+				return array("€", "n €", "-n €", ",", 2, ".");
 			break;
 		}
 	}
@@ -1355,9 +1357,14 @@ class Util {
 	}
 	
 	public static function catchParser($w, $l = "load", $p = ""){
-		if(!is_array($p))
+		
+		if(!is_array($p) AND !is_object($p))
 			$p = HTMLGUI::getArrayFromParametersString($p);
-		else
+		
+		if(is_object($p))
+			$p = array();
+		
+		if(is_array($p))
 			unset($p[0]);
 		return $w == 1 ? "<img ".(isset($p[0]) ? "title=\"$p[0]\"" : "")." src=\"./images/i2/ok.gif\" />" : "<img ".(isset($p[1]) ? "title=\"$p[1]\"" : "")." src=\"./images/i2/notok.gif\" />";
 	}
@@ -1572,6 +1579,7 @@ class Util {
 	public function getStatusMessagesLog($tableColumns = 1, $tableName = ""){
 		if($tableName != "") $tab = new HTMLTable($tableColumns, $tableName);
 		else $tab = new HTMLTable($tableColumns);
+		$tab->maxHeight(400);
 		
 		foreach($this->statusMessagesLog AS $k => $v)
 			$tab->addRow($v);
@@ -1642,6 +1650,22 @@ class Util {
 		</style>".$message;
 		
 		return Util::getBasicHTML($message, $title);
+	}
+	
+	public static function getBasicHTMLMail($content, $title){
+		#header("Content-Type: text/html; charset=utf-8");
+		return '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>'.$title.'</title>
+	</head>
+	<body style="background-color:#efefef;color:#222;">
+		<h1 style="font-family:sans-serif;margin-left:30px;">'.$title.'</h1>
+		<div style="font-family:sans-serif;background-color:white;font-size:14px;margin:20px;padding:10px;">
+		'.$content.'
+		</div>
+	</body>
+</html>';
 	}
 	
 	public static function getBasicHTML($content, $title, $js = true){

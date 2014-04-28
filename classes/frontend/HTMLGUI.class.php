@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
 class HTMLGUI implements icontextMenu {
@@ -1390,6 +1390,7 @@ class HTMLGUI implements icontextMenu {
 		return (isset($top) ? $top : "").$string.$filtered.str_replace("browserSeparatorTop", "browserSeparatorBottom", $separator).$multiPageRow."</table>";
 	}
 	
+	private $rand;
 	/**
 	 * Creates standard auto completion forms for use as quicksearch results.
 	 * Available modes:
@@ -1401,8 +1402,10 @@ class HTMLGUI implements icontextMenu {
 	 * @param string $mode
 	 * @return string
 	 */
-	public function getACHTMLBrowser($mode = ""){
-		$random = rand();
+	public function getACHTMLBrowser($mode = "", $showHeader = true, $title = null, $idAttribute = null){
+		if($this->rand == null)
+			$this->rand = rand();
+		$random = $this->rand;
 		$_SESSION["BPS"]->setActualClass(get_class($this));
 		$bps = $_SESSION["BPS"]->getAllProperties();
 
@@ -1412,7 +1415,8 @@ class HTMLGUI implements icontextMenu {
 		<input type=\"hidden\" id=\"AutoCompleteFields_$random\" value=\"".implode(", ",(count($this->showAttributes) == 0) ? $as : $this->showAttributes)."\" />
 		<input type=\"hidden\" id=\"AutoCompleteNumRows_$random\" value=\"".count($this->attributes)."\" />
 		<input type=\"hidden\" id=\"ACTranslator\" value=\"$random\" />
-		".(($mode == "quickSearchLoadFrame" OR $mode == "quickSearchSelectionMode") ? "<div onmouseover=\"AC.SetMouseIn();\" onmouseout=\"AC.SetMouseOut();\" class=\"ACHandler backgroundColor1\" id=\"ACHandler_$random\"><input type=\"checkbox\" id=\"keepOpen\" value=\"1\" onclick=\"AC.makeFreeWindow(this, '$random')\" /> Ergebnisse geöffnet lassen</div>" : "")."
+		".(($showHeader AND ($mode == "quickSearchLoadFrame" OR $mode == "quickSearchSelectionMode")) ? "<div onmouseover=\"AC.SetMouseIn();\" onmouseout=\"AC.SetMouseOut();\" class=\"ACHandler backgroundColor1\" id=\"ACHandler_$random\"><input type=\"checkbox\" id=\"keepOpen\" value=\"1\" onclick=\"AC.makeFreeWindow(this, '$random')\" /> Ergebnisse geöffnet lassen</div>" : "")."
+		".($title ? "<p class=\"prettySubtitle\">$title</p>" : "")."
 		<table style=\"border:0px;width:100%;\">
 			<colgroup>
 				<col class=\"backgroundColor2\" />
@@ -1421,6 +1425,8 @@ class HTMLGUI implements icontextMenu {
 		$l = 1;
 		for($i=0;$i<count($this->attributes);$i++) {
 			$aid = $this->attributes[$i]->getID(); // get the id of an object separately
+			if($idAttribute)
+				$aid = $this->attributes[$i]->A($idAttribute);
 			$sc = $this->attributes[$i]->getA(); // get the attributes-object from the object
 			$as = PMReflector::getAttributesArray($sc); // get an array of attribute-names from the object
 			$html .= "
@@ -1510,7 +1516,10 @@ class HTMLGUI implements icontextMenu {
 	}
 	
 	public static function getArrayFromParametersString($string){
-		return explode("%§%",$string);
+		#echo "<pre>";
+		#debug_print_backtrace();
+		#echo "</pre>";
+		return explode("%§%", $string);
 	}
 	
 	public static function addReturnButton($w, $t, $p){
@@ -1875,8 +1884,18 @@ class HTMLGUI implements icontextMenu {
 				
 				$mU = new mUserdata();
 				$mU->delUserdata("filteredCategoriesInHTMLGUI$key");
+				
 				$mU = new mUserdata();
 				$mU->delUserdata("searchFilterInHTMLGUI$key");
+				
+				$mU = new mUserdata();
+				$mU->delUserdata("customFilterInHTMLGUI$key");
+				
+				$mU = new mUserdata();
+				$mU->delUserdata("customFilter2InHTMLGUI$key");
+				
+				$mU = new mUserdata();
+				$mU->delUserdata("customFilter3InHTMLGUI$key");
 				
 				#echo "message:'$key'";
 			break;

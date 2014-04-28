@@ -1,0 +1,103 @@
+html {
+	background-color:#efefef;
+}
+
+body, td, pre {
+	color:#000;
+	font-family:Helvetica, sans-serif;
+	font-size:12px;
+	margin:8px;
+}
+
+body {
+	background:#FFF;
+	width:170mm;
+	margin:auto;
+	padding-left:20mm;
+	padding-right:20mm;
+	padding-top:10mm;
+	padding-bottom:10mm;
+	
+	/*-moz-box-shadow: 0px 0px 3px 0px #AAA;
+	-webkit-box-shadow: 0px 0px 0px 3px #AAA;
+	box-shadow: 0px 0px 3px 0px #AAA;*/
+
+	margin-top:15px;
+	margin-bottom:15px;
+}
+body.mceForceColors {background:#FFF; color:#000;}
+p {font-size: 9pt;}
+h1 {font-size: 15pt}
+h2 {font-size: 13pt}
+h3 {font-size: 12pt}
+h4 {font-size: 10pt}
+h5 {font-size: 10pt}
+h6 {font-size: 10pt}
+.mceItemTable, .mceItemTable td, .mceItemTable th, .mceItemTable caption, .mceItemVisualAid {border: 1px dashed #BBB;}
+a.mceItemAnchor {width:12px; line-height:6px; overflow:hidden; padding-left:12px; background:url(img/items.gif) no-repeat bottom left;}
+img.mceItemAnchor {width:12px; height:12px; background:url(img/items.gif) no-repeat;}
+img {border:0;}
+table {cursor:default}
+table td, table th {cursor:text}
+ins {border-bottom:1px solid green; text-decoration: none; color:green}
+del {color:red; text-decoration:line-through}
+cite {border-bottom:1px dashed blue}
+acronym {border-bottom:1px dotted #CCC; cursor:help}
+abbr, html\:abbr {border-bottom:1px dashed #CCC; cursor:help}
+
+/* IE */
+* html body {
+	scrollbar-3dlight-color:#F0F0EE;
+	scrollbar-arrow-color:#676662;
+	scrollbar-base-color:#F0F0EE;
+	scrollbar-darkshadow-color:#DDD;
+	scrollbar-face-color:#E0E0DD;
+	scrollbar-highlight-color:#F0F0EE;
+	scrollbar-shadow-color:#F0F0EE;
+	scrollbar-track-color:#F5F5F5;
+}
+
+@font-face {
+	font-family: 'Ubuntu';
+	font-style: italic;
+	font-weight: bold;
+	src: local('Ubuntu Bold Italic'), local('Ubuntu-BoldItalic'), url('http://themes.googleusercontent.com/font?kit=OMD20Sg9RTs7sUORCEN-7YbN6UDyHWBl620a-IRfuBk') format('woff');
+}
+@font-face {
+	font-family: 'Ubuntu';
+	font-style: normal;
+	font-weight: normal;
+	src: local('Ubuntu'), url('http://themes.googleusercontent.com/font?kit=_xyN3apAT_yRRDeqB3sPRg') format('woff');
+}
+@font-face {
+	font-family: 'Ubuntu';
+	font-style: normal;
+	font-weight: bold;
+	src: local('Ubuntu Bold'), local('Ubuntu-Bold'), url('http://themes.googleusercontent.com/font?kit=0ihfXUL2emPh0ROJezvraD8E0i7KZn-EPnyo3HZu7kw') format('woff');
+}
+@font-face {
+	font-family: 'Ubuntu';
+	font-style: italic;
+	font-weight: normal;
+	src: local('Ubuntu Italic'), local('Ubuntu-Italic'), url('http://themes.googleusercontent.com/font?kit=kbP_6ONYVgE-bLa9ZRbvvvesZW2xOQ-xsNqO47m55DA') format('woff');
+}
+
+@font-face {
+	font-family: 'Orbitron';
+	font-style: normal;
+	font-weight: 700;
+	src: local('Orbitron-Bold'), url('http://themes.googleusercontent.com/font?kit=Y82YH_MJJWnsH2yUA5AuYYbN6UDyHWBl620a-IRfuBk') format('woff');
+}
+@font-face {
+	font-family: 'Orbitron';
+	font-style: normal;
+	font-weight: 400;
+	src: local('Orbitron-Light'), local('Orbitron-Regular'), url('http://themes.googleusercontent.com/font?kit=94ug0rEgQO_WuI_xKJMFc_esZW2xOQ-xsNqO47m55DA') format('woff');
+}
+
+@font-face {
+	font-family: 'Raleway';
+	font-style: normal;
+	font-weight: 100;
+	src: local('Raleway Thin'), local('Raleway-Thin'), url('http://themes.googleusercontent.com/font?kit=RJMlAoFXXQEzZoMSUteGWD8E0i7KZn-EPnyo3HZu7kw') format('woff');
+}

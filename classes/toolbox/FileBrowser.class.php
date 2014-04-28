@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class FileBrowser {
 	private $dirs = array();
@@ -66,18 +66,24 @@ class FileBrowser {
 
 			$c = false;
 			for($i = 0; $i < count($this->excludeExtensions);$i++)
-				if(strtolower(substr($file,strlen($this->excludeExtensions[$i]) * -1)) == $this->excludeExtensions[$i]) $c = true;
-			if($c) continue;
+				if(strtolower(substr($file,strlen($this->excludeExtensions[$i]) * -1)) == $this->excludeExtensions[$i])
+					$c = true;
+			if($c)
+				continue;
 			
 			$c = false;
 			for($i = 0; $i < count($this->onlyExtensions);$i++)
-				if(strtolower(substr($file,strlen($this->onlyExtensions[$i]) * -1)) != $this->onlyExtensions[$i]) $c = true;
-			if($c) continue;
+				if(strtolower(substr($file,strlen($this->onlyExtensions[$i]) * -1)) != $this->onlyExtensions[$i])
+					$c = true;
+			if($c)
+				continue;
 			
 			$c = false;
 			for($i = 0; $i < count($this->implementedInterfaces);$i++)
-				if(!PMReflector::implementsInterface(str_replace($this->onlyExtensions,"",$file),$this->implementedInterfaces[$i])) $c = true;
-			if($c) continue;
+				if(!PMReflector::implementsInterface(str_replace($this->onlyExtensions,"",$file),$this->implementedInterfaces[$i]))
+					$c = true;
+			if($c)
+				continue;
 			
 			$this->foundFiles[] = $file;
 		}

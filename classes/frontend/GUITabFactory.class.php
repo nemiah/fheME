@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class GUITabFactory {
 
@@ -55,7 +55,7 @@ class GUITabFactory {
 
 		$bar = "";
 		if(count($this->tabBar) > 0) $bar = "
-			<div style=\"width:$widths[0]px;margin-top:30px;padding-left:10px;border-top-width:1px;border-top-style:solid;\" class=\"borderColor1\">";
+			<div style=\"width:$widths[0]px;margin-top:30px;padding-left:10px;padding-bottom:5px;\" class=\"backgroundColor4\">";
 
 		foreach($this->tabBar AS $value){
 			$B = new Button($value[1], $value[2]);
@@ -75,7 +75,7 @@ class GUITabFactory {
 			$bar .= "
 				<div
 					id=\"tab_$id\"
-					style=\"float:left;width:110px;padding:3px;cursor:pointer;-moz-user-select:none;margin-bottom:5px;overflow:hidden;white-space:nowrap;\"
+					style=\"float:left;width:110px;padding:3px;cursor:pointer;-moz-user-select:none;margin-top:5px;overflow:hidden;white-space:nowrap;\"
 					onmouseover=\"if(this.className != 'navBackgroundColor') this.className = 'backgroundColor2';\"
 					onmouseout=\"if(this.className != 'navBackgroundColor') this.className = '';\"
 					onclick=\"$onClick\">
@@ -88,13 +88,13 @@ class GUITabFactory {
 		}
 
 
-		$bar .= "
+		$bar .= "<div style=\"clear:both;\"></div>
 			</div>
 			<div style=\"clear:both;margin-bottom:-5px;\"></div>";
 
 		foreach($this->tabBar AS $key => $value){
 			if(!is_object($value[0])) continue;
-			$bar .= "<div id=\"".get_class($value[0])."\" style=\"display:none;".($this->tabContainer[$key] === true ? "padding:10px;" : "")."\">".$value[0]->getHTML(-1, 0)."</div>";
+			$bar .= "<div id=\"".get_class($value[0])."\" style=\"display:none;".($this->tabContainer[$key] === true ? "padding:10px;" : "")."\"><p class=\"prettyTitle\">".$this->tabBar[$key][1]."</p>".$value[0]->getHTML(-1, 0)."</div>";
 		}
 
 		return $bar;

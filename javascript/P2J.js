@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
 /*
@@ -458,9 +458,11 @@ var qTipSharedYellow = $j.extend({}, qTipSharedRed, {
 	alert("touch dragdown release!");
 });*/
 	
-var useTouch = $j.jStorage.get('phynxUseTouch', null);
+var useTouch = null;
+if(typeof $j.jStorage != "undefined")
+	$j.jStorage.get('phynxUseTouch', null);
 
-if(Modernizr.touch && useTouch == null){
+if(typeof Modernizr != "undefined" && Modernizr.touch && useTouch == null){
 	$j(function(){
 		$j("#messageTouch").dialog({
 			modal: true,
@@ -480,7 +482,7 @@ if(Modernizr.touch && useTouch == null){
 	});
 };
 
-
+var iconic = IconicJS();
 var Touch = {
 	trigger: "click",
 	use:false,
@@ -496,7 +498,8 @@ var Touch = {
 		jQuery.fn.html = function(){
 			var r = currentHTMLMethod.apply(this, arguments);
 			Touch.make();
-		
+			
+			iconic.inject('img.iconic');
 			Aspect.joinPoint("after", "jQuery.html", arguments);
 			return r;
 		};
@@ -506,6 +509,7 @@ var Touch = {
 			var r = currentPrependMethod.apply(this, arguments);
 			Touch.make();
 		
+			iconic.inject('img.iconic');
 			Aspect.joinPoint("after", "jQuery.prepend", arguments);
 			return r;
 		};
@@ -515,6 +519,7 @@ var Touch = {
 			var r = currentAppendMethod.apply(this, arguments);
 			Touch.make();
 			
+			iconic.inject('img.iconic');
 			Aspect.joinPoint("after", "jQuery.append", arguments);
 			return r;
 		};
@@ -547,10 +552,13 @@ if(useTouch){
 		if(ev.target != this)
 			return;
 
-		if($j(ev.target).hasClass("editButton"))
+		if($j(ev.target).hasClass("editButton") || $j(ev.target).hasClass("selectionButton"))
 			return;
 
-		$j(this).parent().find("td").first().find(".editButton").triggerHandler("touchend");
+		if($j(this).parent().find("td").first().find(".editButton").length)
+			$j(this).parent().find("td").first().find(".editButton").triggerHandler("touchend");
+		else if($j(this).parent().find("td").first().find(".selectionButton").length)
+			$j(this).parent().find("td").first().find(".selectionButton").triggerHandler("touchend");
 	});
 
 	$j(document).on("touchend mouseup", "[ontouchend]", function(ev){
@@ -572,11 +580,13 @@ if(useTouch){
 }
 Touch.propagateCSS();
 
-Touchy.jQuery = $j;
-Touchy.trigger = Touch.trigger;
+if(typeof Touchy != "undefined"){
+	Touchy.jQuery = $j;
+	Touchy.trigger = Touch.trigger;
+}
 
 $j(function(){
-	if(Modernizr.touch || useTouch != null){
+	if(typeof Modernizr != "undefined" && Modernizr.touch || useTouch != null){
 		$j('#buttonTouchReset').click(function(){
 			$j.jStorage.deleteKey('phynxUseTouch');
 			//$j(this).dialog("close");
@@ -639,10 +649,13 @@ if(!useTouch){
 		if(ev.target != this)
 			return;
 
-		if($j(ev.target).hasClass("editButton"))
+		if($j(ev.target).hasClass("editButton") || $j(ev.target).hasClass("selectionButton"))
 			return;
 
-		$j(this).parent().find("td").first().find(".editButton").triggerHandler("click");
+		if($j(this).parent().find("td").first().find(".editButton").length)
+			$j(this).parent().find("td").first().find(".editButton").triggerHandler("click");
+		else if($j(this).parent().find("td").first().find(".selectionButton").length)
+			$j(this).parent().find("td").first().find(".selectionButton").triggerHandler("click");
 	});
 }
 

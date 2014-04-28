@@ -4,14 +4,24 @@ body {
 	background-image:url(../../images/background/Standard.png);
 }
 
+
+html {
+	overflow-y: hidden;
+}
+
+#wrapperHandler {
+	background-color: #eee;
+	color:#aaa;
+}
+
 #desktopWrapper {
 	margin-left:250px;
 	margin-top:50px;
-	margin-right:50px;
+	/*margin-right:50px;*/
 	position:fixed;
-	-moz-box-shadow: 2px 2px 2px #AAA;
+	/*-moz-box-shadow: 2px 2px 2px #AAA;
 	-webkit-box-shadow: 2px 2px 2px #AAA;
-	box-shadow: 2px 2px 2px #AAA;
+	box-shadow: 2px 2px 2px #AAA;*/
 }
 
 #wrapper {
@@ -19,6 +29,8 @@ body {
 	border-left-width:1px;
 	border-right-style:solid;
 	border-right-width:1px;
+	border-bottom-style:solid;
+	border-bottom-width:1px;
 	border-top:0px;
 	clear:none;
 	overflow:auto;

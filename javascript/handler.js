@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
 var cookieManager = {
@@ -170,11 +170,13 @@ function windowWithRme(targetClass, targetClassId, targetMethod, targetMethodPar
  	}
  	else targetMethodParameters = "'"+targetMethodParameters+"'";
 	
- 	if(target == "window")
-		window.open(contentManager.getRoot()+'interface/rme.php?class='+targetClass+'&constructor='+targetClassId+'&method='+targetMethod+'&parameters='+targetMethodParameters+((bps != "" && typeof bps != "undefined") ? "&bps="+bps : "")+"&r="+Math.random()+(Ajax.physion != "default" ? "&physion="+Ajax.physion : ""),'Druckansicht','height=650,width=875,left=20,top=20,scrollbars=yes,resizable=yes');
- 	
+ 	if(target == "window"){
+		var win = window.open(contentManager.getRoot()+'interface/rme.php?class='+targetClass+'&constructor='+encodeURIComponent(targetClassId)+'&method='+targetMethod+'&parameters='+targetMethodParameters+((bps != "" && typeof bps != "undefined") ? "&bps="+bps : "")+"&r="+Math.random()+(Ajax.physion != "default" ? "&physion="+Ajax.physion : ""),'Druckansicht','height=650,width=875,left=20,top=20,scrollbars=yes,resizable=yes');
+		win.focus();
+	}
+	
 	if(target == "tab")
-		window.open(contentManager.getRoot()+'interface/rme.php?class='+targetClass+'&constructor='+targetClassId+'&method='+targetMethod+'&parameters='+targetMethodParameters+((bps != "" && typeof bps != "undefined") ? "&bps="+bps : "")+"&r="+Math.random()+(Ajax.physion != "default" ? "&physion="+Ajax.physion : ""));
+		window.open(contentManager.getRoot()+'interface/rme.php?class='+targetClass+'&constructor='+encodeURIComponent(targetClassId)+'&method='+targetMethod+'&parameters='+targetMethodParameters+((bps != "" && typeof bps != "undefined") ? "&bps="+bps : "")+"&r="+Math.random()+(Ajax.physion != "default" ? "&physion="+Ajax.physion : ""));
 }
 
 

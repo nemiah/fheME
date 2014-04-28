@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
 class CookieCart {
@@ -811,13 +811,13 @@ $s
 	
 	public function getNextElement(){
 		if($this->elements == null) {
-			$this->elements = split("----",$this->cookie);
+			$this->elements = explode("----",$this->cookie);
 			$this->elements[0] = ereg_replace("^--","",$this->elements[0]);
 			$this->elements[count($this->elements)-1] = ereg_replace("--$","",$this->elements[count($this->elements)-1]);
 		}
 		
 		if(!isset($this->elements[$this->elementPointer])) return null;
-		$s = split(":__:",$this->elements[$this->elementPointer++]);
+		$s = explode(":__:",$this->elements[$this->elementPointer++]);
 		return $s;
 	}
 	

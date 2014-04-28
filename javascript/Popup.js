@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 var Popup = {
 	windowsOpen: 0,
@@ -39,14 +39,21 @@ var Popup = {
 		var arrayCopy = targetPluginMethodParameters.slice(0, targetPluginMethodParameters.length); //because targetPluginMethodParameters is only a reference
 		
 		eval("Popup.displayNamed('"+name+"', '"+title+"', { responseText: '' }, '"+targetPlugin+"', "+(typeof options == "undefined" ? "{}" : options)+");");
+		if(typeof options == "string")
+			eval("options = "+options+";");
 		
-		Popup.update({ responseText: "<p style=\"color:grey;\"><img src=\"./images/loading.svg\" style=\"height:32px;width:32px;float:left;margin-right:10px;\" />Die Daten<br />werden geladen...</p>" }, targetPlugin, name);
+		if(typeof options == "undefined" || typeof options.loader == "undefined" || options.loader)
+			Popup.loading(targetPlugin, name);
 		
 		contentManager.rmePCR(targetPlugin, targetPluginID, targetPluginMethod, targetPluginMethodParameters, function(transport){
 			Popup.update(transport, targetPlugin, name);
-		}, bps);
+		}, bps, true, function(){ Popup.close(targetPlugin, name); });
 		 
 		Popup.lastPopups[targetPlugin] = [title, targetPlugin, targetPluginID, targetPluginMethod, arrayCopy, null];
+	},
+
+	loading: function(targetPlugin, name){
+		Popup.update({ responseText: "<p style=\"color:grey;\"><img src=\"./images/loading.svg\" style=\"height:32px;width:32px;float:left;margin-right:10px;\" />Die Daten<br />werden geladen...</p>" }, targetPlugin, name);
 	},
 
 	refresh: function(targetPlugin, bps, firstParameter){
@@ -89,7 +96,10 @@ var Popup = {
 		}
 	
 		if($j('#'+targetPluginContainer+'SidePanel').length == 0){
-			$j('#windows').append('<div id="'+targetPluginContainer+'SidePanel" style="display:none;top:'+($j("#"+targetPluginContainer).css("top").replace("px", "") * 1)+'px;left:'+($j("#"+targetPluginContainer).position().left + $j("#"+targetPluginContainer).width() + 10)+'px;" class="backgroundColor0 popupSidePanel"></div>');
+			var targetContainer = $j('#'+targetPluginContainer).parent().prop("id");
+			//if($('#'+targetPluginContainer).parent().attr("id") == "windowsPersistent")
+				
+			$j('#'+targetContainer).append('<div id="'+targetPluginContainer+'SidePanel" style="z-index:'+$j('#'+targetPluginContainer).css("z-index")+';display:none;top:'+($j("#"+targetPluginContainer).css("top").replace("px", "") * 1)+'px;left:'+($j("#"+targetPluginContainer).position().left + $j("#"+targetPluginContainer).width() + 10)+'px;" class="backgroundColor0 popupSidePanel"></div>');
 
 			$j("#"+targetPluginContainer).bind("dragstart", function(event, ui) {
 				$j('#'+targetPluginContainer+'SidePanel').fadeOut();
@@ -158,11 +168,21 @@ var Popup = {
 			if(typeof options.hasX == "boolean")
 				hasX = options.hasX;
 
+			if(options.position){
+				if(options.position == "left"){
+					left = $j('#contentLeft').offset().left + $j('#contentLeft').width();
+					top = $j('#contentLeft').offset().top + parseInt($j('#contentLeft').css('padding-top'));
+				}
+			}
+
 			if(options.top)
 				top = options.top;
 
 			if(options.left)
 				left = options.left;
+
+			if(options.right)
+				right = options.right;
 			
 			if(options.persistent)
 				persistent = options.persistent;

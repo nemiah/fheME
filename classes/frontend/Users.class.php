@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class Users extends anyC {
 	function __construct(){
@@ -229,7 +229,7 @@ class Users extends anyC {
 		return 1;
 	}
 	
-	protected function doLogout(){
+	public function doLogout(){
 		if(isset($_SESSION["applications"])) $_SESSION["applications"]->setActiveApplication("nil");
 		$_SESSION["CurrentAppPlugins"] = null;
 		$_SESSION["BPS"] = null;

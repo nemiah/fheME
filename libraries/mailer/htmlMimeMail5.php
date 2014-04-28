@@ -177,7 +177,7 @@ class htmlMimeMail5 {
 		try {
 			$MailServerSet = false;
 			$MailServer = LoginData::get("MailServerUserPass");
-			if ($MailServer != null AND $MailServer->A("server") != "") {
+			if ($MailServer != null AND $MailServer->A("server") != "" AND !$skipOwnServer) {
 				$this->default_method = "smtp";
 
 				$MailServerSet = true;
@@ -193,6 +193,9 @@ class htmlMimeMail5 {
 				
 			$MailServer = null;
 			for($i = 2; $i <= 5; $i++){
+				if($skipOwnServer)
+					break;
+				
 				if($MailServer == null AND $i > 2)
 					break;
 

@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class UserGUI extends User implements iGUIHTML2 {
 	function getHTML($id){
@@ -41,6 +41,14 @@ class UserGUI extends User implements iGUIHTML2 {
 		</table>";
 		$this->A->password = ";;;-1;;;";
 		
+		$AC = anyC::get("User", "isAdmin", "1");
+		$AC->lCV3();
+		$admins = $AC->numLoaded();
+		
+		$AC = anyC::get("User", "isAdmin", "0");
+		$AC->lCV3();
+		$users = $AC->numLoaded();
+		
 		$gui = new HTMLGUIX($this);
 		#$gui->setObject();
 		$gui->name("Benutzer");
@@ -59,6 +67,7 @@ class UserGUI extends User implements iGUIHTML2 {
 			"UserSkype",
 			"UserTel"));
 		
+		
 		$gui->label("name","Name");
 		$gui->label("username","Benutzername");
 		$gui->label("password","Passwort");
@@ -76,13 +85,15 @@ class UserGUI extends User implements iGUIHTML2 {
 		$gui->descriptionField("SHApassword","Zum Ändern eingeben.");
 		$gui->type("password","hidden");
 		$gui->type("SHApassword","password");
-		$gui->type("isAdmin","radio");
+		#$gui->type("isAdmin","radio");
 		$gui->descriptionField("isAdmin","<span style=\"color:red;\">Achtung: als Admin sehen Sie nur diese Admin-Oberfläche und NICHT das Programm selbst!</span>");
 		
 		
 		#$gui->translate($this->loadTranslation());
 		$gui->space("UserEmail",isset($this->texts["Kontaktdaten"]) ? $this->texts["Kontaktdaten"] : "Kontaktdaten");
 		$gui->type("isAdmin","checkbox");
+		if($admins == 1 AND $users == 0)
+			$gui->type("isAdmin", "hidden");
 		#$gui->setOptions("isAdmin",array("1","0"),array("ja ","nein"));
 		#$gui->setStandardSaveButton($this);
 		
@@ -96,7 +107,7 @@ class UserGUI extends User implements iGUIHTML2 {
 		$mUD->addAssocV3("typ","=","pSpec","OR","1");
 		$mUD->addAssocV3("typ","=","pHide","OR","1");
 		$html = "<div>".$mUD->getHTML(-1)."</div>";
-		if($id == -1) $html = "<table><tr><td class=\"backgroundColor3\">Sie können Einschränkungen erst anlegen, wenn der Benutzer angelegt wurde.</td></tr></table>";
+		if($id == -1) $html = "<table><tr><td class=\"backgroundColor3\">Sie können Einschränkungen erst anlegen, wenn der Benutzer gespeichert wurde.</td></tr></table>";
 		return $gui->getEditHTML().(($this->A->isAdmin != 1) ? $html :"");
 	}
 }

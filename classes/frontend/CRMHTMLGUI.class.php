@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class CRMHTMLGUI extends HTMLGUIX {
 	#private $types = array();
@@ -48,8 +48,9 @@ class CRMHTMLGUI extends HTMLGUIX {
 		return $B;
 	}
 
-	public function space($fieldName, $label = "", $forceNewRow = false) {
+	public function space($fieldName, $label = "", $forceNewRow = false, $replaceWith = null) {
 		$this->forceNewRow[$fieldName] = $forceNewRow;
+		$this->replaceWith[$fieldName] = $replaceWith;
 		
 		parent::space($fieldName, $label);
 	}
@@ -141,6 +142,9 @@ class CRMHTMLGUI extends HTMLGUIX {
 		foreach($this->parsers AS $n => $l)
 			$tab->setType($n, "parser", null, array($l, $this->object));
 		
+		foreach($this->inputStyles AS $k => $n)
+			$tab->setInputStyle($k, $n);
+		
 		$tab->setValues($this->object);
 
 		if($this->object->getID() == -1)
@@ -219,6 +223,11 @@ class CRMHTMLGUI extends HTMLGUIX {
 					$TC->addRow(array($this->spaces[$v]));
 					$TC->addRowClass("backgroundColor2");
 					$TC->addRowColspan(1, 2);
+					
+				}
+				
+				if($this->replaceWith[$v] !== null){
+					$TC = $this->replaceWith[$v];
 				}
 			}
 			
@@ -307,8 +316,8 @@ class CRMHTMLGUI extends HTMLGUIX {
 			case "CRMEditAbove":
 				$this->features["CRMEditAbove"] = "";
 
-				$this->functionAbort = "new Effect.BlindUp('subFrameEditm%CLASSNAME', {duration: 0.5});";
-				$this->functionSave = "function() { new Effect.BlindUp('subFrameEditm%CLASSNAME', {duration: 0.5}); contentManager.updateLine('%CLASSNAMEForm', %CLASSID, 'm%CLASSNAME'); }";
+				$this->functionAbort = "\$j('#subFrameEditm%CLASSNAME').hide(); \$j('#subFramem%CLASSNAME').show();/* new Effect.BlindUp('subFrameEditm%CLASSNAME', {duration: 0.5});*/";
+				$this->functionSave = "function() { \$j('#subFrameEditm%CLASSNAME').hide(); \$j('#subFramem%CLASSNAME').show(); /*new Effect.BlindUp('subFrameEditm%CLASSNAME', {duration: 0.5});*/ contentManager.updateLine('%CLASSNAMEForm', %CLASSID, 'm%CLASSNAME'); }";
 				$this->functionSaveNew = "function() { contentManager.reloadFrame('contentLeft'); }";
 			break;
 			/*case "reloadOnNew":

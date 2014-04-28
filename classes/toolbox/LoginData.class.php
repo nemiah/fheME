@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class LoginData extends Userdata {
 	public function loadMe(){
@@ -146,10 +146,17 @@ class LoginData extends Userdata {
 			"SPuserAndPass" => "signaturportal",
 			"LDAPServerUserPass" => "LDAP-Server",
 			"MailServerUserPass" => "Mail-Server",
+			"MailServer2UserPass" => "Mail-Server2",
+			"MailServer3UserPass" => "Mail-Server3",
+			"MailServer4UserPass" => "Mail-Server4",
 			"GoogleAccountUserPass" => "Google",
 			"AmazonAPIKey" => "Amazon API key",
 			"klickTelAPIKey" => "klickTel API key",
-			"GemeinschaftServerUserPass" => "Gemeinschaft-Server");
+			"GemeinschaftServerUserPass" => "Gemeinschaft-Server",
+			"BackupFTPServerUserPass" => "Backup FTP",
+			"RegIDUserPass" => "RegID",
+			"AnySMSUserPass" => "AnySMS",
+			"JabberServerUserPass" => "Jabber-Server");
 
 		if($w == "") return $n;
 		else return $n[$w];

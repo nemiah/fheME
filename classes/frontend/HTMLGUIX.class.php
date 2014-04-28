@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class HTMLGUIX {
 
@@ -84,12 +84,17 @@ class HTMLGUIX {
 	protected $targetFrame;
 	protected $useScreenHeight = false;
 	protected $hiddenJS = "";
+	protected $tableWeight;
 	
 	public function __construct($object = null, $collectionName = null){
 		if($object != null)
 			$this->object($object, $collectionName);
 
 		$this->languageClass = $this->loadLanguageClass("HTML");
+	}
+	
+	public function tableWeight($weight){
+		$this->tableWeight = $weight;
 	}
 	
 	public function screenHeight(){
@@ -393,7 +398,7 @@ class HTMLGUIX {
 			$this->addToEvent("onSave", "/*ADD*/ contentManager.reloadFrame('contentLeft'); Popup.close('m".$this->object->getClearClass("GUI")."', 'edit');");
 
 		if($DM == "popup" AND $this->object instanceof Collection)
-			$this->addToEvent("onDelete", "Popup.refresh('".$this->object->getClearClass()."');");
+			$this->addToEvent("onDelete", "Popup.refresh('".$this->object->getClearClass()."'); /*ADD*/");
 
 		return $this->displayMode;
 	}
@@ -673,6 +678,9 @@ class HTMLGUIX {
 
 
 		$Tab = $GUIF->getTable($E == null ? array("") : $this->attributes, $this->colStyle, $this->caption);
+		if($this->tableWeight)
+			$Tab->weight($this->tableWeight);
+		
 		$Tab->setTableID("Browserm$this->className");
 		$Tab->addTableClass("contentBrowser");
 		if($this->useScreenHeight)
@@ -746,7 +754,11 @@ class HTMLGUIX {
 		foreach ($this->prepended AS $PE)
 			$prepend .= $PE;
 		
-		return "<div class=\"browserContainer\">".$prepend.$this->topButtons($bps).$this->sideButtons($bps).$GUIF->getContainer($Tab, $this->caption)."</div>".str_replace("%CLASSNAME", $this->className, $this->sortable).$this->tip;
+		$appended = "";
+		foreach ($this->appended AS $PE)
+			$appended .= $PE;
+		
+		return "<div class=\"browserContainer\">".$prepend.$this->topButtons($bps).$this->sideButtons($bps).$GUIF->getContainer($Tab, $this->caption)."$appended</div>".str_replace("%CLASSNAME", $this->className, $this->sortable).$this->tip;
 	}
 	// </editor-fold>
 
@@ -914,7 +926,7 @@ class HTMLGUIX {
 			break;
 			case "CRMEditAbove":
 				#$this->features["CRMEditAbove"] = "";
-				$new = "contentManager.loadFrame('subFrameEdit%COLLECTIONNAME', '%CLASSNAME', %CLASSID, 0, '', function(transport) { if($('subFrameEdit%COLLECTIONNAME').style.display == 'none') new Effect.BlindDown('subFrameEdit%COLLECTIONNAME', {duration:0.5}); });";
+				$new = "contentManager.loadFrame('subFrameEdit%COLLECTIONNAME', '%CLASSNAME', %CLASSID, 0, '', function(transport) { \$j('#subFrameEdit%COLLECTIONNAME').show(); \$j('#subFrame%COLLECTIONNAME').hide(); /*if($('subFrameEdit%COLLECTIONNAME').style.display == 'none') new Effect.BlindDown('subFrameEdit%COLLECTIONNAME', {duration:0.5});*/ });";
 				if($par1 != null)
 					$new = $par1;
 				

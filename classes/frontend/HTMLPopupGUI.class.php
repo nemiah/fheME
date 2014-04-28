@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class HTMLPopupGUI {
 	private $object;
@@ -24,6 +24,9 @@ class HTMLPopupGUI {
 	private $parsers = array();
 	private $colsLeft = array();
 	private $colsRight = array();
+	private $showTrash = true;
+	private $showNew = true;
+	private $showEdit = true;
 	
 	public function __construct($object){
 		$this->object = $object;
@@ -42,13 +45,19 @@ class HTMLPopupGUI {
 		
 	}
 	
-	public static function edit(HTMLGUIX $gui){
+	public function options($showTrash = true, $showEdit = true, $showNew = true){
+		$this->showTrash = $showTrash;
+		$this->showEdit = $showEdit;
+		$this->showNew = $showNew;
+	}
+	
+	public static function edit(HTMLGUIX $gui, $parentClass = null){
 		
 		$BC = new Button("Abbrechen", "stop");
 		$BC->style("margin:10px;float:right;");
-		$BC->onclick("\$j('#popupListEntries .lastSelected').removeClass('lastSelected'); \$j('#popupEditEntry').fadeOut(400, function(){ \$j('#editDetailsm".$gui->object()->getClearClass()."').animate({'width':'400px'}, 200, 'swing'); });");
+		$BC->onclick("\$j('#popupListEntries .lastSelected').removeClass('lastSelected'); \$j('#popupEditEntry').fadeOut(400, function(){ \$j('#editDetailsm".($parentClass == null ? $gui->object()->getClearClass() : $parentClass)."').animate({'width':'400px'}, 200, 'swing'); });");
 		
-		$gui->addToEvent("onSave", "\$j('#popupListEntries .lastSelected').removeClass('lastSelected'); \$j('#popupEditEntry').fadeOut(400, function(){ \$j('#editDetailsm".$gui->object()->getClearClass()."').animate({'width':'400px'}, 200, 'swing', function(){ ".OnEvent::reloadPopup("m".$gui->object()->getClearClass())." }); }); ");
+		$gui->addToEvent("onSave", "\$j('#popupListEntries .lastSelected').removeClass('lastSelected'); \$j('#popupEditEntry').fadeOut(400, function(){ \$j('#editDetailsm".($parentClass == null ? $gui->object()->getClearClass() : $parentClass)."').animate({'width':'400px'}, 200, 'swing', function(){ ".OnEvent::reloadPopup("m".($parentClass == null ? $gui->object()->getClearClass() : $parentClass))." }); }); ");
 		
 		#$gui->displayMode("popup");
 		
@@ -68,13 +77,19 @@ class HTMLPopupGUI {
 		$BA->doBefore("\$j('#popupEditEntry').fadeOut(400, function(){ \$j('#editDetails".$this->object->getClearClass()."').animate({'width':'400px'}, 200, 'swing', function(){ %AFTER }); });");
 		$BA->rmePCR($this->object->getClearClass(), "-1", "create", $this->parametersCreate, OnEvent::reloadPopup($this->object->getClearClass()));
 		$BA->style("margin:10px;");
-
-		$cols = 3 + count($this->colsLeft) + count($this->colsRight);
+		if(!$this->showNew)
+			$BA = "";
+		
+		$cols = ($this->showTrash ? 1 : 0) + ($this->showEdit ? 1 : 0) + 1 + count($this->colsLeft) + count($this->colsRight);
 		
 		$TE = new HTMLTable($cols, "Einträge");
-		$TE->setColWidth(1, 20);
-		$TE->setColWidth($cols, 20);
-		$TE->useForSelection(false);
+		if($this->showTrash)
+			$TE->setColWidth(1, 20);
+		
+		if($this->showEdit){
+			$TE->setColWidth($cols, 20);
+			$TE->useForSelection(false);
+		}
 		$TE->maxHeight(400);
 		$TE->weight("light");
 		
@@ -82,13 +97,15 @@ class HTMLPopupGUI {
 		
 		$autoLoad = false;
 		while($A = $this->object->getNextEntry()){
+			$action = "contentManager.selectRow(this); \$j('#editDetails".$this->object->getClearClass()."').animate({'width':'800px'}, 200, 'swing', function(){ ".OnEvent::frame("popupEditEntry", get_class($A), $A->getID(), "0", "function(){ \$j('#popupEditEntry').fadeIn(); }")." });";
+			
 			$BD = new Button("Eintrag löschen", "trash_stroke", "iconic");
 			$BD->doBefore("\$j('#popupEditEntry').fadeOut(400, function(){ \$j('#editDetails".$this->object->getClearClass()."').animate({'width':'400px'}, 200, 'swing', function(){ %AFTER }); });");
 			$BD->onclick("deleteClass('".get_class($A)."','".$A->getID()."', function() { ".OnEvent::reloadPopup($this->object->getClearClass())." },'Eintrag wirklich löschen?');");
 
 			$isEmpty = false;
 			if($this->emptyCheckField != null AND $A->A($this->emptyCheckField) == ""){
-				$autoLoad = $A->getID();
+				$autoLoad = $action;
 				$isEmpty = true;
 			}
 			
@@ -98,36 +115,43 @@ class HTMLPopupGUI {
 				$div = "Neuer Eintrag";
 			
 			$row = array();
-			$row[] = $BD;
+			
+			if($this->showTrash)
+				$row[] = $BD;
+			
+			
 			$row[] = $div;
 			
-			foreach($this->colsRight AS $col){
-				$c = Util::invokeStaticMethod(get_class($this->object), $col[0], array($A));
-				$row[] = $c;
-			}
+			foreach($this->colsRight AS $col)
+				$row[] = Util::invokeStaticMethod(get_class($this->object), $col[0], array($A));
 			
-			$row[] = $BE;
+			if($this->showEdit)
+				$row[] = $BE;
 			
 			$TE->addRow($row);
-			$action = "contentManager.selectRow(this); \$j('#editDetails".$this->object->getClearClass()."').animate({'width':'800px'}, 200, 'swing', function(){ ".OnEvent::frame("popupEditEntry", get_class($A), $A->getID(), "0", "function(){ \$j('#popupEditEntry').fadeIn(); }")." });";
 			
-			$TE->addCellEvent(2, "click", $action);
-			$TE->addCellID(2, "popupEntryID".$A->getID());
+			if($this->showTrash)
+				$TE->addCellStyle(1, "vertical-align:top;");
 			
-			$TE->addCellEvent(count($row), "click", $action);
+			#$TE->addCellEvent(2, "click", $action);
 			
+			if($this->showEdit){
+				$TE->addCellID(count($row), "popupEntryID".$A->getID());
+				$TE->addCellStyle(count($row), "vertical-align:top;");
+				$TE->addCellEvent(count($row), "click", $action);
+			}
 		}
 		
 		if($this->object->numLoaded() == 0){
 			$TE->addRow("Keine Einträge");
-			$TE->addRowColspan(1, 3);
+			$TE->addRowColspan(1, $cols);
 		}
 		
 		return "$BA
-			<div style=\"float:right;width:400px;height:500px;display:none;\" id=\"popupEditEntry\"></div>
+			<div style=\"float:right;width:400px;height:500px;display:none;background-color:#f4f4f4;\" id=\"popupEditEntry\"></div>
 			<div id=\"popupListEntries\" style=\"width:400px;height:440px;overflow:auto;\">$TE</div>
 			<div style=\"clear:both;\"></div>
-			".($autoLoad ? OnEvent::script("\$j('#popupEntryID".$autoLoad."').trigger(Touch.trigger);") : "");
+			".($autoLoad ? OnEvent::script($autoLoad) : "");
 		
 	}
 }
