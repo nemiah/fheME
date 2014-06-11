@@ -56,7 +56,11 @@ class mRSSParserGUI extends anyC implements iGUIHTMLMP2 {
 		
 		$this->addAssocV3("RSSParserOnCall", "=", "0");
 		while($RSS = $this->getNextEntry()){
-			$html .= "<div class=\"touchHeader\"><span class=\"lastUpdate\" id=\"lastUpdatemRSSParserGUI\"></span><p>".$RSS->A("RSSParserName")."</p></div><div style=\"padding:10px;\">";
+			$html .= "<div class=\"touchHeader\">
+				<span class=\"lastUpdate\" id=\"lastUpdatemRSSParserGUI\"></span>
+				<p>".$RSS->A("RSSParserName")."</p></div>
+					<div id=\"RSSParserItemText\" class=\"backgroundColor4\" style=\"padding:10px;display:none;font-size:10px;\" onclick=\"\$j(this).hide(); \$j('#RSSParserItemList').show();\">asd</div>
+					<div id=\"RSSParserItemList\" style=\"padding:10px;\">";
 			
 			$list = new HTMLList();
 			$list->addListStyle("list-style-type:none;");
@@ -75,7 +79,7 @@ class mRSSParserGUI extends anyC implements iGUIHTMLMP2 {
 					$B->style($B->getStyle()."float:left;margin-right:10px;margin-top:-5px;margin-bottom:10px;");
 				}
 				
-				$list->addItem($B."<div id=\"RSSParserItem$i\" style=\"margin-top:33px;position:absolute;width:400px;display:none;border-width:1px;border-style:solid;padding:5px;border-radius:5px;\" onclick=\"\$j(this).toggle();\" class=\"backgroundColor0 borderColor1 RSSParserItem\"><small>".$item->description."</small></div>".($item->description != "" ? "<a href=\"#\" onclick=\"\$j('.RSSParserItem').hide(); \$j('#RSSParserItem$i').toggle();\" >" : "").$item->title.($item->description != "" ? "</a>" : ""));
+				$list->addItem($B."<div id=\"RSSParserItem$i\" style=\"display:none;\">".$item->description."</div>".($item->description != "" ? "<a href=\"#\" onclick=\"\$j('#RSSParserItemList').hide(); \$j('#RSSParserItemText').html(\$j('#RSSParserItem$i').html()).show();\" >" : "").$item->title.($item->description != "" ? "</a>" : ""));
 				$list->addItemStyle("clear:both;display:block;margin-left:0px;");
 				
 				$i++;
