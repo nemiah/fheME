@@ -168,9 +168,9 @@ class UPnPGUI extends UPnP implements iGUIHTML2 {
 	}
 	
 	public function directoryTouch($ObjectID, $UPnPTargetID = null, $isBack = false, $seriesName = null){
-		$result = $this->Browse($ObjectID, "BrowseDirectChildren", "*");
+		$result = $this->Browse($ObjectID, "BrowseDirectChildren", "");
 		$xml = new SimpleXMLElement($result["Result"]);
-		
+		#print_r($result);
 		#$L = new HTMLList();
 		$L = "";
 		$ex = explode("$", $ObjectID);
