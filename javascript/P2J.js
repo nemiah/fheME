@@ -460,7 +460,7 @@ var qTipSharedYellow = $j.extend({}, qTipSharedRed, {
 	
 var useTouch = null;
 if(typeof $j.jStorage != "undefined")
-	$j.jStorage.get('phynxUseTouch', null);
+	useTouch = $j.jStorage.get('phynxUseTouch', null);
 
 if(typeof Modernizr != "undefined" && Modernizr.touch && useTouch == null){
 	$j(function(){
