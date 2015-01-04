@@ -34,10 +34,10 @@ var fheOverview = {
 		if(fheOverview.isInit)
 			return;
 		
-		$j('body').hammer().on("swipeleft", function(){
+		/*$j('body').hammer().on("swipeleft", function(){
 			//contentManager.loadPlugin('contentScreen', 'mfheOverview', 'mfheOverviewGUI;-');
 			Interface.frameRestore();
-		});
+		});*/
 		
 		fheOverview.isInit = true;
 	},

@@ -64,7 +64,11 @@ class mGerichtGUI extends anyC implements iGUIHTMLMP2 {
 		$B = new Button("Liste anzeigen", "compass", "touch");
 		$B->popup("", "Essen", "mGericht", "-1", "showCurrentList", "", "", "{top:20, width:800, hPosition:'center', blackout:true}");
 		
-		$html .= "$B</div>";
+		$BF = new Button("Gefrierschrank", "hash", "touch");
+		$BF->popup("", "Gefrierschrank", "mGericht", "-1", "showCurrentFrozenList", "", "", "{top:20, width:800, hPosition:'center', blackout:true}");
+		
+		
+		$html .= "$B$BF</div>";
 		echo $html;
 	}
 	
@@ -74,7 +78,26 @@ class mGerichtGUI extends anyC implements iGUIHTMLMP2 {
 		$E->changeA("GerichtAdded", time());
 		$E->saveMe();
 		
+		echo $this->getListTable();
 		#echo $this->getListTable();
+	}
+	
+	public function reAddFrozenItem($GefrierschrankID){
+		$E = new Gefrierschrank($GefrierschrankID);
+		
+		$E->changeA("GefrierschrankAdded", "1");
+		$E->saveMe();
+		
+		echo $this->getFrozenListTable();
+		#echo $this->getListTable();
+	}
+	
+	
+	public function reMoveFrozenItem($GefrierschrankID){
+		$E = new Gefrierschrank($GefrierschrankID);
+		
+		$E->changeA("GefrierschrankAdded", "0");
+		$E->saveMe();
 	}
 	
 	public function reMoveItem($GerichtID){
@@ -84,6 +107,46 @@ class mGerichtGUI extends anyC implements iGUIHTMLMP2 {
 		$E->saveMe();
 		
 		#echo $this->getListTable();
+	}
+	
+	public function addFrozenItem($name){
+		if(preg_match("/[0-9]+/", $name)){
+			$this->addEAN($name, false);
+		} elseif(trim($name) != ""){
+			$F = new Factory("Gefrierschrank");
+			$F->sA("GefrierschrankName", $name);
+			$F->sA("GefrierschrankAdded", "1");
+			$F->store();
+		}
+		
+		echo $this->getFrozenListTable();
+	}
+	
+	public function showCurrentFrozenList(){
+		
+		$B = new Button("Fenster\nschließen", "stop");
+		$B->onclick(OnEvent::closePopup("mGericht"));
+		$B->style("float:right;margin:10px;");
+		
+		
+		$I = new HTMLInput("GefrierschrankNewEntry", "textarea", "");
+		$I->placeholder("Neuer Eintrag");
+		$I->style("width:390px;padding:5px;margin-left:5px;font-size:20px;float:left;font-family:monospace;max-width:390px;resize:none;height:35px;max-height:35px;");
+		$I->onEnter(OnEvent::rme($this, "addFrozenItem", array("this.value"), "function(transport){ \$j('#currentList').html(transport.responseText); }")." \$j(this).val('');");
+		
+		
+		echo "
+		<div style=\"width:400px;float:right;\">
+			$B
+			$I
+			<div style=\"clear:both;\"></div>
+			<div id=\"currentList\">".$this->getFrozenListTable()."</div>
+		</div>
+		<div style=\"width:385px;\" id=\"reAddList\" style=\"overflow-y:auto;overflow-x:hidden;\">
+			".$this->getFrozenListReAddTable()."
+		</div>
+		<div style=\"clear:both;\"></div>
+			";
 	}
 	
 	public function showCurrentList(){
@@ -99,11 +162,30 @@ class mGerichtGUI extends anyC implements iGUIHTMLMP2 {
 			<div style=\"clear:both;\"></div>
 			<div id=\"currentList\">".$this->getListTable()."</div>
 		</div>
-		<div style=\"width:400px;\" id=\"reAddList\">
+		<div style=\"width:385px;\" id=\"reAddList\" style=\"overflow-y:auto;overflow-x:hidden;\">
 			".$this->getListReAddTable()."
 		</div>
 		<div style=\"clear:both;\"></div>
 			";
+	}
+	
+	private function getFrozenListReAddTable(){
+		$AC = anyC::get("Gefrierschrank");
+		$AC->addAssocV3("GefrierschrankAdded", "=", "0");
+		$AC->addOrderV3("GefrierschrankName");
+		
+		$L = new HTMLList();
+		$L->noDots();
+		$L->addListStyle("padding-top:10px;width:370px;padding-left:0px;");
+		
+		while($B = $AC->getNextEntry()){
+			$L->addItem($B->A("GefrierschrankName"));
+			$L->addItemStyle("margin-left:5px;height:24px;white-space:nowrap;font-size:20px;padding-left:10px;padding-top:10px;padding-bottom:10px;margin-top:0px;cursor:move;-webkit-touch-callout: none;-webkit-user-select: none;-khtml-user-select: none;-moz-user-select: none;-ms-user-select: none;user-select: none;");
+			$L->addItemClass("swipe");
+			$L->addItemData("itemid", $B->getID());
+		}
+		
+		return $L.$this->js("reAddFrozenItem");
 	}
 	
 	private function getListReAddTable(){
@@ -113,42 +195,85 @@ class mGerichtGUI extends anyC implements iGUIHTMLMP2 {
 		
 		$L = new HTMLList();
 		$L->noDots();
-		$L->addListStyle("padding-top:10px;width:380px;");
+		$L->addListStyle("padding-top:10px;width:370px;padding-left:0px;");
 		
 		while($B = $AC->getNextEntry()){
 			$L->addItem($B->A("GerichtName"));
-			$L->addItemStyle("font-size:20px;padding-top:10px;padding-bottom:10px;margin-top:0px;");
+			$L->addItemStyle("margin-left:5px;height:24px;white-space:nowrap;font-size:20px;padding-left:10px;padding-top:10px;padding-bottom:10px;margin-top:0px;cursor:move;-webkit-touch-callout: none;-webkit-user-select: none;-khtml-user-select: none;-moz-user-select: none;-ms-user-select: none;user-select: none;");
 			$L->addItemClass("swipe");
 			$L->addItemData("itemid", $B->getID());
 		}
 		
-		return $L.OnEvent::script("
+		return $L.$this->js("reAddItem");
+	}
+	
+	private function js($method){
+		return OnEvent::script("
 			\$j('#reAddList ul').parent().css('height', contentManager.maxHeight()).css('overflow', 'auto');
 			\$j('.swipe').hammer().on('touch release dragright', function(event){
 				if(event.type == 'touch'){
+					scrollStartedAt = \$j('#reAddList').scrollTop();
+					
 					\$j(this).addClass('highlight');
 					return;
 				}
 				
 				if(event.type == 'release'){
-					if(event.gesture.deltaX > 150)
-						".OnEvent::rme($this, "reAddItem", array("\$j(this).data('itemid')"))."
+					event.gesture.preventDefault();
 					
+					if(event.gesture.deltaX > 150)
+						".OnEvent::rme($this, $method, array("\$j(this).data('itemid')"), "function(transport){ \$j('#currentList').html(transport.responseText); }")."
+					
+					\$j(this).removeClass('confirm');
 					\$j(this).removeClass('highlight');
-					\$j(this).animate({'margin-left': 15});
+					\$j(this).animate({'margin-left': 5});
 					return;
 				}
 				
 				if(event.type == 'dragright'){
+					event.gesture.preventDefault();
 					var margin = event.gesture.deltaX;
+
+					if(margin >= 150)
+						\$j(this).addClass('confirm');
+						
+					if(margin < 150)
+						\$j(this).removeClass('confirm');
+
 					if(margin > 250)
 						margin = 250;
 						
 					\$j(this).css('margin-left', margin);
 				}
-			});
-					
-				");
+			});");
+	}
+	
+	public function getFrozenListTable(){
+		$T = new HTMLTable(2, "Gefrierschrank");
+		$T->maxHeight(480);
+		$T->setColWidth(2, 30);
+		$T->weight("light");
+		$T->useForSelection(false);
+		
+		$AC = anyC::get("Gefrierschrank");
+		$AC->addAssocV3("GefrierschrankAdded", ">", "0");
+		
+		while($E = $AC->getNextEntry()){
+			$BT = new Button("Löschen", "trash_stroke", "iconicL");
+			$BT->onclick(OnEvent::rme($this, "reMoveFrozenItem", $E->getID(), OnEvent::reloadPopup("mGericht")));
+			
+			$T->addRow(array($E->A("GefrierschrankName"), $BT));
+			$T->addRowStyle("font-size:20px;");
+			#$T->addCellEvent(1, "click", OnEvent::rme($this, "boughtItem", $E->getID(), "function(transport){ \$j('#currentList').html(transport.responseText); }"));
+			
+		}
+		
+		if($AC->numLoaded() == 0){
+			$T->addRow (array("Die Liste enthält keine Einträge."));
+			$T->addRowColspan(1, 2);
+		}
+		
+		return $T;
 	}
 	
 	public function getListTable(){

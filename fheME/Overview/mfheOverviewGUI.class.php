@@ -259,7 +259,11 @@ class mfheOverviewGUI extends anyC implements iGUIHTMLMP2 {
 	}
 	
 	public function pluginLoad($DeviceID, $plugin){
-		echo $this->pluginShow(new Device($DeviceID), $plugin, false);
+		$o = new stdClass();
+		$o->top = 0;
+		$o->left = 20;
+		
+		echo $this->pluginShow(new Device($DeviceID), $plugin, false, $o);
 		
 		echo OnEvent::script("fheOverview.draggableStart($DeviceID);");
 	}

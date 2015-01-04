@@ -194,7 +194,7 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 		
 		$I = new HTMLInput("EinkaufslisteNewEntry", "textarea", "");
 		$I->placeholder("Neuer Eintrag");
-		$I->style("width:390px;padding:5px;margin-left:5px;font-size:20px;float:left;font-family:monospace;max-width:390px;resize:none;height:35px;max-height:35px;margin-top:-45px;");
+		$I->style("width:390px;padding:5px;margin-left:5px;font-size:20px;float:left;font-family:monospace;max-width:390px;resize:none;height:35px;max-height:35px;");
 		#$I->onfocus("if(this.value == 'Neuer Eintrag') { \$j(this).val('').css('color', 'black'); }");
 		#$I->onblur("if(this.value == '') { \$j(this).val('Neuer Eintrag').css('color', 'grey'); }");
 		#$I->onkeyup("var currentContent = \$j(this).val(); ".OnEvent::rme($this, "getACData", array("this.value"), "function(transport){ var json = jQuery.parseJSON(transport.responseText); if(json.length >= 1) \$j('#EinkaufslisteNewEntryAC').html(json[0].EinkaufszettelName.replace(currentContent, '<span style=\'color:white;\'>'+currentContent+'</span>')); else \$j('#EinkaufslisteNewEntryAC').html(''); }"));
@@ -206,16 +206,14 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 		$B->onclick(OnEvent::closePopup("mEinkaufszettel"));
 		$B->style("float:right;margin:10px;");
 		
-		
+		#<div id=\"EinkaufslisteNewEntryAC\" style=\"width:390px;height:35px;padding:5px;font-size:20px;margin-top:3px;font-family:monospace;color:grey;float:left;\"></div>
 		echo "
 		<div style=\"width:400px;float:right;\">
 			$B$BM
-			<div id=\"EinkaufslisteNewEntryAC\" style=\"width:390px;height:35px;padding:5px;font-size:20px;margin-left:6px;margin-top:3px;font-family:monospace;color:grey;float:left;\"></div>
-			".$I."
+			$I
 			<div style=\"clear:both;\"></div>
 			<div id=\"currentList\">".$this->getListTable()."</div>
-		</div>
-		<div style=\"width:400px;\" id=\"reAddList\">
+		</div><div style=\"width:400px;\" id=\"reAddList\">
 			".$this->getListReAddTable()."
 		</div>
 		<div style=\"clear:both;\"></div>
@@ -258,18 +256,9 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 		
 		return $L.OnEvent::script("
 			\$j('#reAddList ul').parent().css('height', contentManager.maxHeight()).css('overflow', 'auto');
-			//var scrollStartedAt = null;
-			\$j('.swipe').hammer().on('touch release dragright', function(event){
-				//event.gesture.preventDefault();
-				
-				
-				/*if(event.type == 'dragdown'){
-					\$j('#reAddList').scrollTop(-event.gesture.deltaY);
-				}
-				if(event.type == 'dragup'){
-					\$j('#reAddList').scrollTop(-event.gesture.deltaY);
-				}*/
 
+			\$j('.swipe').hammer().on('touch release dragright', function(event){
+				
 				if(event.type == 'touch'){
 					scrollStartedAt = \$j('#reAddList').scrollTop();
 					
@@ -291,7 +280,6 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 				
 				if(event.type == 'dragright'){
 					event.gesture.preventDefault();
-					//\$j('#logger').html(event.gesture.deltaX);
 					var margin = event.gesture.deltaX;
 
 					if(margin >= 150)
@@ -305,9 +293,7 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 						
 					\$j(this).css('margin-left', margin);
 				}
-			});
-					
-				");
+			});");
 	}
 	
 	public function getACData($query){
