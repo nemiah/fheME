@@ -27,7 +27,8 @@ class ArrayCollection extends Collection {
 	}
 	
 	public function add($element){
-		$element->setID($this->counter);
+		if(method_exists($element, "setID"))
+			$element->setID($this->counter);
 		$this->collector[$this->counter++] = $element;
 	}
 	

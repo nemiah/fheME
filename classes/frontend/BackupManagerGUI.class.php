@@ -75,7 +75,8 @@ class BackupManagerGUI implements iGUIHTML2 {
 		$BFTP = $ST->addButton("FTP-Server\neintragen", "./plugins/Installation/serverMail.png");
 		$BFTP->popup("edit", "FTP-Server", "LoginData", $FTPServerID, "getPopup", "", "LoginDataGUI;preset:backupFTPServer");
 		
-		
+		$B = $ST->addButton("Einstellungen\nzurücksetzen", "clear");
+		$B->rmePCR("BackupManager", "-1", "clearSettings");
 		
 		if(count($list) == 0)
 			return "$ST<p class=\"highlight\">Es wurden noch keine Sicherungen angelegt.</p>";
@@ -83,6 +84,18 @@ class BackupManagerGUI implements iGUIHTML2 {
 		return $ST.$TB;
 	}
 
+	public function clearSettings(){
+		$AC = anyC::get("Userdata", "name", "noBackupManager");
+		while($U = $AC->n())
+			$U->deleteMe ();
+		
+		$AC = anyC::get("Userdata", "name", "disableBackupManager");
+		while($U = $AC->n())
+			$U->deleteMe ();
+		
+		Red::messageD("Einstellungen zurückgesetzt");
+	}
+	
 	public function inPopup(){
 		if($_SESSION["S"]->isUserAdmin() == "0")
 			throw new AccessDeniedException();

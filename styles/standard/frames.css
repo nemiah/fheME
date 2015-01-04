@@ -2,64 +2,6 @@
 	/*width:100%;*/
 }
 
-
-#DesktopLinkElements {
-	list-style-type: none;
-}
-
-#DesktopLinkWrapper {
-	border-bottom-style:solid;
-	border-bottom-width:1px;
-}
-
-#DesktopLink {
-	position:absolute;
-	width:100%;
-	border-bottom-style:solid;
-	border-bottom-width:1px;
-}
-
-#DesktopLinkHandle {
-	height:7px;
-	overflow:hidden;
-	cursor:pointer;
-}
-
-.DesktopLinkIcon {
-	float:left;
-	height:65px;
-	width:80px;
-	overflow:hidden;
-	text-align:center;
-	margin-top:5px;
-	/*border:1px solid black;*/
-}
-
-.DesktopLinkIcon p {
-	font-size:9px;
-}
-
-.DesktopLinkSettings {
-	display:none;
-	position:absolute;
-	margin-left:62px;
-}
-
-.DesktopLinkIcon:hover .DesktopLinkSettings {
-	display:block;
-}
-
-.DesktopLinkIcon:hover .DesktopLinkHandler {
-	display:block;
-}
-
-.DesktopLinkHandler {
-	display:none;
-	position:absolute;
-	margin-left:62px;
-	margin-top:18px;
-}
-
 #wrapper {
 	border-top-width:0px;
 	border-top-style: solid;

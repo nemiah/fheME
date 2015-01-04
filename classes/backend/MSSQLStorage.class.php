@@ -144,6 +144,14 @@ class MSSQLStorage {
 		return $changes;
 	}
 	
+	public function lockTable($table){
+		
+	}
+	
+	public function unlockTable($table){
+		
+	}
+	
 	public function alterTable($CIA){
 		if(strpos($CIA->MSSQL, "ALTER TABLE") != 0) return;
 		

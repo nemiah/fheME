@@ -49,6 +49,8 @@ class HTMLInput {
 	private $size;
 	private $autocorrect = true;
 	private $spellcheck = true;
+	private $title;
+	private $data = array();
 	
 	public function __construct($name, $type = "text", $value = null, $options = null){
 		$this->name = $name;
@@ -57,6 +59,14 @@ class HTMLInput {
 		$this->options = $options;
 	}
 
+	public function title($title){
+		$this->title = $title;
+	}
+	
+	public function data($key, $value){
+		$this->data[$key] = $value;
+	}
+	
 	public function maxlength($length){
 		$this->maxlength = $length;
 	}
@@ -162,11 +172,11 @@ class HTMLInput {
 		return $this->value;
 	}
 
-	public function requestFocus(){
+	public function requestFocus($setToLast = false){
 		if($this->id === null)
 			$this->id = "Field".rand(100, 1000000);
 		
-		$this->requestFocus = "<script type=\"text/javascript\">setTimeout(function() { $('$this->id').focus(); }, 200);</script>";
+		$this->requestFocus = "<script type=\"text/javascript\">setTimeout(function() { \$j('#$this->id').trigger('focus'); ".($setToLast ? "var strLength = \$j('#$this->id').val().length; \$j('#$this->id')[0].setSelectionRange(strLength, strLength);;" : "")." }, 200);</script>";
 	}
 	
 	public function onEnter($function){
@@ -204,6 +214,28 @@ class HTMLInput {
 		#if($this->style != null) $style = " style=\"$this->style\"";
 
 		switch($this->type){
+			/*case "JSONMultiText":
+				$data = json_decode($this->value);
+				
+				print_r($data);
+				
+				$L = new HTMLList();
+				$L->noDots();
+				$L->addListStyle("padding:0px;");
+				
+				foreach($data AS $k => $v){
+					$IL = new HTMLInput($this->name."_$k", "text", $v);
+					$BL = new Button("Element hinzufügen");
+					$L->addItem($IL);
+					$L->addItemStyle("margin-left:0px;");
+				}
+				
+				$I = new HTMLInput($this->name, "textarea", $this->value);
+				$I->id($this->name);
+				
+				return $L.$I;
+			break;*/
+			
 			case "audio":
 				return "<audio controls preload=\"auto\" autobuffer style=\"$this->style\"><source src=\"$this->value\"></audio>";
 			break;
@@ -280,10 +312,10 @@ class HTMLInput {
 					
 				$B = new Button("in Editor\nbearbeiten","editor");
 				#$B->windowRme("Wysiwyg","","getEditor","","WysiwygGUI;FieldClass:{$this->options[0]};FieldClassID:{$this->options[1]};FieldName:{$this->options[2]}");
-				$B->popup("", "Editor", "Wysiwyg", "-1", "editInPopup", $BO, "", "Popup.presets.large");
+				$B->popup("", "Editor", "tinyMCE", "-1", "editInPopup", $BO, "", "Popup.presets.large");
 				$B->className("backgroundColor2");
 
-				$ITA = new HTMLInput($this->name, "textarea", $this->value);
+				$ITA = new HTMLInput($this->name, "hidden", $this->value);
 				
 				return $B->__toString().$ITA;
 			break;
@@ -348,7 +380,7 @@ class HTMLInput {
 				
 				if(isset($this->options["autoUpload"]) AND !$this->options["autoUpload"])
 					$this->callback = "QQUploader$currentId.uploadStoredFiles();";
-				
+
 				return "
 					<div id=\"progress_$currentId\" style=\"height:10px;width:95%;display:none;\" class=\"\">
 						<div id=\"progressBar_$currentId\" style=\"height:10px;width:0%;\" class=\"backgroundColor1\"></div>
@@ -398,6 +430,7 @@ class HTMLInput {
 			case "checkbox":
 			case "readonly":
 			case "fileold":
+			case "color":
 				$JS = "";
 				if($this->type == "radio1")
 					$this->type = "radio";
@@ -449,6 +482,11 @@ class HTMLInput {
 				$value = "value=\"".htmlspecialchars($this->value)."\"";
 				if($this->type == "checkbox") $value = $this->value == "1" ? "checked=\"checked\"" : "";
 
+				$data = "";
+				foreach($this->data AS $k => $v)
+					$data .= " data-$k=\"$v\"";
+				
+				
 
 				if($this->autocomplete != null){
 					if($this->id == null)
@@ -523,10 +561,12 @@ class HTMLInput {
 					".($this->onkeyup != null ? "onkeyup=\"$this->onkeyup\"" : "")."
 					".($this->onkeydown != null ? "onkeydown=\"$this->onkeydown\"" : "")."
 					".($this->tabindex != null ? "tabindex=\"$this->tabindex\"" : "")."
+					".($this->title != null ? "title=\"$this->title\"" : "")."
 					".($this->isSelected ? "checked=\"checked\"" : "")."
 					".($this->type == "file" ? "size=\"1\"" : "")."
 					".($this->type == "readonly" ? "readonly=\"readonly\"" : "")."
 					name=\"$this->name\"
+					$data
 					".($this->isDisabled ? "disabled=\"disabled\"" : "")."
 					type=\"".($this->type != "readonly" ? $this->type : "text" )."\"
 					".($this->onchange != null ? "onchange=\"$this->onchange\"" : "")."
@@ -538,6 +578,16 @@ class HTMLInput {
 				return "<option".($this->style != null ? " style=\"$this->style\"" : "")." ".($this->isDisabled ? "disabled=\"disabled\"" : "")." ".($this->isSelected ? "selected=\"selected\"" : "")." value=\"$this->value\">$this->name</option>";
 			break;
 
+			case "optgroup":
+				$html = "<optgroup label=\"".htmlentities($this->name)."\">";
+				
+				foreach($this->options AS $k => $v)
+					$html .= $v;
+				
+				$html .= "</optgroup>";
+				
+				return $html;
+			break;
 		
 			case "radio":
 				$html = "";
@@ -560,7 +610,7 @@ class HTMLInput {
 				if($this->isDisplayMode) return is_object($this->options[$this->value]) ? $this->options[$this->value]->__toString() : $this->options[$this->value];
 
 				if($this->multiEditOptions != null){
-					$this->onchange("saveMultiEditInput('".$this->multiEditOptions[0]."','".$this->multiEditOptions[1]."','".$this->name."'".($this->multiEditOptions[2] != null ? ", ".$this->multiEditOptions[2] : "").");");
+					$this->onchange .= "saveMultiEditInput('".$this->multiEditOptions[0]."','".$this->multiEditOptions[1]."','".$this->name."'".($this->multiEditOptions[2] != null ? ", ".$this->multiEditOptions[2] : "").");";
 					$this->id($this->name."ID".$this->multiEditOptions[1]);
 				}
 

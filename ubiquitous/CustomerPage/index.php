@@ -3,7 +3,11 @@ session_name("CP_".sha1(__FILE__));
 define("PHYNX_NO_SESSION_RELOCATION", true);
 
 require "../../system/connect.php";
+require_once __DIR__.'/CCPage.class.php';
 $content = "";
+
+if(!isset($_SESSION["BPS"]))
+	$_SESSION["BPS"] = new BackgroundPluginState();
 
 #$_POET = $_GET;#array();
 foreach($_GET AS $k => $v)
@@ -140,6 +144,8 @@ if(isset($I)){
 		};
 		
 		var CustomerPage = {
+			path: ".",
+			cloud: "",
 			rme: function(method, parameters, onSuccessFunction, onFailureFunction, type){
 				if(typeof type == "undefined")
 					type = "GET";
@@ -147,25 +153,25 @@ if(isset($I)){
 				var ps = "";
 				if(typeof parameters == "object" && !$.isArray(parameters)){
 					$.each(parameters, function(k, v){
-						ps += "&"+k+"="+v;
+						ps += "&"+k+"="+encodeURIComponent(v);
 					})
 				}
 				
 				if(typeof parameters == "object" && $.isArray(parameters)){
 					for(var i = 0; i < parameters.length; i++)
-						ps += "&P"+i+"="+parameters[i];
+						ps += "&P"+i+"="+encodeURIComponent(parameters[i]);
 				}
-				
+
 				if(typeof parameters == "string")
 					ps = "&"+parameters;
 				
-				$.ajax({url: "./index.php", success: function(transport){
+				$.ajax({url: CustomerPage.path+"/index.php", success: function(transport){
 
 					if(typeof onSuccessFunction == "function" && CustomerPage.checkResponse(transport))
 						onSuccessFunction(transport);
 					
 				}, 
-				data: "<?php if(isset($_POET["CC"])) echo "CC=".$_POET["CC"]; if(isset($_POET["D"])) echo "D=".$_POET["D"]; ?>&M="+method+ps+"&_="+Math.random(),
+				data: "<?php if(isset($_POET["CC"])) echo "CC=".$_POET["CC"]; if(isset($_POET["D"])) echo "D=".$_POET["D"]; ?>&M="+method+ps+(CustomerPage.cloud ? "&cloud="+CustomerPage.cloud : "")+"&_="+Math.random(),
 				error: function(){
 					if(typeof onFailureFunction == "function")
 						onFailureFunction();
@@ -247,6 +253,28 @@ if(isset($I)){
 					for (var f = 0; f < fields.length; f++) 
 						$j(formID+'select[name='+fields[f]+'],'+formID+'input[name='+fields[f]+'],'+formID+'textarea[name='+fields[f]+']').parent().parent().css("display", "");
 
+			},
+			
+			window: function(method, parameters){
+				var ps = "";
+				if(typeof parameters == "object" && !$.isArray(parameters)){
+					$.each(parameters, function(k, v){
+						ps += "&"+k+"="+v;
+					})
+				}
+				
+				if(typeof parameters == "object" && $.isArray(parameters)){
+					for(var i = 0; i < parameters.length; i++)
+						ps += "&P"+i+"="+parameters[i];
+				}
+				
+				if(typeof parameters == "string")
+					ps = "&"+parameters;
+				
+				var win = window.open("?<?php if(isset($_POET["CC"])) echo "CC=".$_POET["CC"]; if(isset($_POET["D"])) echo "D=".$_POET["D"]; ?>&M="+method+ps+"&_="+Math.random(),'Druckansicht','height=650,width=875,left=20,top=20,scrollbars=yes,resizable=yes');
+				win.focus();
+				
+
 			}
 		}
 		
@@ -261,6 +289,35 @@ if(isset($I)){
 		function focusMe(){
 
 		}
+		
+		$.datepicker.regional['de_DE'] = {clearText: 'löschen', clearStatus: 'aktuelles Datum löschen',
+				closeText: 'schließen', closeStatus: 'ohne Änderungen schließen',
+				prevText: '&#x3c;zurück', prevStatus: 'letzten Monat zeigen',
+				nextText: 'vor&#x3e;', nextStatus: 'nächsten Monat zeigen',
+				currentText: 'heute', currentStatus: '',
+				monthNames: ['Januar','Februar','März','April','Mai','Juni',
+				'Juli','August','September','Oktober','November','Dezember'],
+				monthNamesShort: ['Jan','Feb','Mär','Apr','Mai','Jun',
+				'Jul','Aug','Sep','Okt','Nov','Dez'],
+				monthStatus: 'anderen Monat anzeigen', yearStatus: 'anderes Jahr anzeigen',
+				weekHeader: 'Wo', weekStatus: 'Woche des Monats',
+				dayNames: ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'],
+				dayNamesShort: ['So','Mo','Di','Mi','Do','Fr','Sa'],
+				dayNamesMin: ['So','Mo','Di','Mi','Do','Fr','Sa'],
+				dayStatus: 'Setze DD als ersten Wochentag', dateStatus: 'Wähle D, M d',
+				dateFormat: 'dd.mm.yy', firstDay: 1, 
+				initStatus: 'Wähle ein Datum', isRTL: false};
+
+		$.datepicker.regional['de_CH'] = $.datepicker.regional['de_DE'];
+		
+		
+		<?php
+			$ex = explode("_", Session::getLanguage());
+			if(isset($ex[2]))
+				unset($ex[2]);
+			echo "\$.datepicker.setDefaults(\$.datepicker.regional['".implode("_", $ex)."']);"
+			?>
+		
 			<?php echo $script; ?>
 		</script>
 		

@@ -63,10 +63,10 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 		<style type=\"text/css\">
 		.Day {
 			-moz-user-select:none;
-			border-left:1px solid #EEE;
-			border-bottom:1px solid #EEE;
+			border-left:1px solid #DDD;
+			border-bottom:1px solid #DDD;
 		}
-		
+
 		/*.Day:hover {
 			border-style:solid;
 			border-width:1px;
@@ -79,6 +79,14 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 
 		.Day:hover .dayOptions {
 			display:inline;
+		}
+
+		.Month {
+			border-bottom:1px solid #DDD;
+		}
+		
+		.MonthDay {
+			border-left:1px solid #DDD;
 		}
 
 		.Termin {
@@ -251,17 +259,18 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 		$BShare->style("margin-right:10px;");
 			
 		
-		#$AWVButton = new Button("Müllabfuhr-Daten herunterladen", "trash_stroke", "iconicL");
-		#$AWVButton->popup("", "Müllabfuhr-Daten", "mKalender", "-1", "downloadTrashData");
-		$AWVButton = "";
 		
-		$ST->addRow($pCalButton.$GoogleButton.$GoogleDLButton);
+		$AWVButton = "";
+		if(Session::isPluginLoaded("mAWV"))
+			$AWVButton = mAWVGUI::getButton();
+		
+		$ST->addRow($pCalButton.$GoogleButton.$GoogleDLButton.$AWVButton);
 		
 		
 		$html .= "
 		<div style=\"width:205px;float:right;margin-right:40px;\">
 				<div style=\"padding-top:30px;padding-bottom:15px;padding-left:0px;\">
-					$newWindow$BShare$AWVButton$xCalButton$reminder
+					$newWindow$BShare$xCalButton$reminder
 				</div>
 		</div>
 		
@@ -310,7 +319,7 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 		function fitKalender(){
 			if(!\$j('#KalenderTitle').length)
 				return;
-			
+
 			//console.log(\$j('#KalenderTitle').outerHeight());
 			//console.log(\$j('#KalenderAuswahl').outerHeight());
 			var height = (contentManager.maxHeight() - \$j('#KalenderAuswahl').outerHeight() - \$j('#KalenderTitle').outerHeight() - \$j('#KalenderHeader').outerHeight()) + 4;
@@ -413,7 +422,7 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 		$lastTime = $Datum->time();
 		$Datum->subMonth();
 		$Woche = date("W");
-		$K = $this->getData($time, $lastTime);
+		$K = $this->getData($time, $lastTime, null, array("mxCalGUI"));
 		
 		$hasEvent = array();
 		
@@ -591,60 +600,6 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 	
 	public function saveShowCalendarOf($UserID, $value){
 		mUserdata::setUserdataS("showCalendarOf".$UserID, $value);
-	}
-	
-	public function downloadTrashData(){
-		$json = file_get_contents("http://www.awv-nordschwaben.de/WebService/AWVService.svc/getData/00000000-0000-0000-0000-000000001190");
-
-		echo "<pre style=\"font-size:10px;max-height:400px;overflow:auto;\">";
-		$data = json_decode($json);
-		foreach($data->calendar AS $day){
-			if($day->fr == "")
-				continue;
-			
-			if($day->dt < date("Ymd"))
-				continue;
-			
-			print_r($day);
-			
-			
-			$tag = Util::parseDate("de_DE", substr($day->dt, 6).".".substr($day->dt, 4, 2).".".substr($day->dt, 0, 4));
-
-			$name = "";
-			foreach($day->fr AS $T){
-				if($T == "PT")
-					$name .= ($name != "" ? ", " : "")."Papiertonne";
-				
-				if($T == "RM")
-					$name .= ($name != "" ? ", " : "")."Restmüll";
-				
-				if($T == "GS")
-					$name .= ($name != "" ? ", " : "")."Gelber Sack";
-				
-				if($T == "BT")
-					$name .= ($name != "" ? ", " : "")."Biotonne";
-			}
-			
-			if($name == "")
-				continue;
-			
-			$F = new Factory("Todo");
-			$F->sA("TodoName", $name);
-			$F->sA("TodoFromDay", $tag);
-			$F->sA("TodoFromTime", "32400");
-			$F->sA("TodoTillDay", $tag);
-			$F->sA("TodoTillTime", "36000");
-			$F->sA("TodoUserID", "-1");
-			$F->sA("TodoClass", "Kalender");
-			$F->sA("TodoClassID", "-1");
-			$F->sA("TodoType", "2");
-			$F->sA("TodoRemind", "-1");
-			if($F->exists())
-				continue;
-			
-			$F->store();
-		}
-		echo "</pre>";
 	}
 }
 ?>

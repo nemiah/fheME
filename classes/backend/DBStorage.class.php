@@ -28,7 +28,8 @@ class DBStorage {
 	protected $data;
 	protected $dataWrite;
 	public static $queryCounter = 0;
-
+	public static $lastQuery = array();
+			
 	function __construct(){
 		if($this->data == null AND isset($_SESSION["DBData"]))
 			$this->data = $_SESSION["DBData"];
@@ -102,7 +103,7 @@ class DBStorage {
 	public function renewConnection(){
 		$this->c = new mysqli($this->data["host"],$this->data["user"],$this->data["password"],$this->data["datab"]);
 		if(mysqli_connect_error() AND (mysqli_connect_errno() == 1045 OR mysqli_connect_errno() == 2002 OR mysqli_connect_errno() == 2003 OR mysqli_connect_errno() == 2005)) throw new NoDBUserDataException(mysqli_connect_errno().":".mysqli_connect_error());
-		if(mysqli_connect_error() AND mysqli_connect_errno() == 1049 OR mysqli_connect_errno() == 1044) throw new DatabaseNotFoundException();
+		if(mysqli_connect_error() AND (mysqli_connect_errno() == 1049 OR mysqli_connect_errno() == 1044)) throw new DatabaseNotFoundException();
 		echo $this->c->error;
 		$this->c->set_charset("utf8");
 		$this->c->query("SET SESSION sql_mode='';");
@@ -113,7 +114,7 @@ class DBStorage {
 	public function renewConnectionWrite(){
 		$this->cWrite = new mysqli($this->dataWrite["host"],$this->dataWrite["user"],$this->dataWrite["password"],$this->dataWrite["datab"]);
 		if(mysqli_connect_error() AND (mysqli_connect_errno() == 1045 OR mysqli_connect_errno() == 2002 OR mysqli_connect_errno() == 2003 OR mysqli_connect_errno() == 2005)) throw new NoDBUserDataException(mysqli_connect_errno().":".mysqli_connect_error());
-		if(mysqli_connect_error() AND mysqli_connect_errno() == 1049 OR mysqli_connect_errno() == 1044) throw new DatabaseNotFoundException();
+		if(mysqli_connect_error() AND (mysqli_connect_errno() == 1049 OR mysqli_connect_errno() == 1044)) throw new DatabaseNotFoundException();
 		echo $this->cWrite->error;
 		$this->cWrite->set_charset("utf8");
 		$this->cWrite->query("SET SESSION sql_mode='';");
@@ -196,7 +197,15 @@ class DBStorage {
 			$newSQL = strstr($CIA->MySQL,"`$value`");
 			$ex = explode(",\n",$newSQL);
 			$newSQL = $ex[0];
-			$this->cWrite->query("ALTER TABLE `$regs[1]` ADD $newSQL");
+			
+			$sql = "ALTER TABLE `$regs[1]` ADD $newSQL";
+			$this->cWrite->query($sql);
+			
+			if($this->cWrite->error)
+				throw new Exception($this->cWrite->error);
+			
+			#ALTER command denied to user
+			
 			DBStorage::$queryCounter++;
 			$_SESSION["messages"]->addMessage("Added field $value in table $regs[1]");
 			
@@ -204,6 +213,20 @@ class DBStorage {
 		}
 		
 		return $changes;
+	}
+
+	public function lockTable($table){
+		$this->cWrite->query("LOCK TABLES `$table` WRITE, `$table` READ;");# AS `{$table}_locked`
+		
+		if($this->cWrite->error)
+			echo $this->cWrite->error;
+	}
+	
+	public function unlockTable($table){
+		$this->cWrite->query('UNLOCK TABLES;');
+		
+		if($this->cWrite->error)
+			echo $this->cWrite->error;
 	}
 	
 	public function alterTable($CIA){
@@ -213,7 +236,8 @@ class DBStorage {
 
 		$this->cWrite->query($CIA->MySQL);
 		DBStorage::$queryCounter++;
-		if($this->cWrite->error) echo $this->cWrite->error;
+		if($this->cWrite->error)
+			echo $this->cWrite->error;
 		
 	}
 	
@@ -312,8 +336,11 @@ class DBStorage {
 		$_SESSION["messages"]->addMessage("executing MySQL: $sql");
 		$this->cWrite->query($sql);
 		DBStorage::$queryCounter++;
-		if($this->cWrite->error AND $this->cWrite->errno == 1062) throw new DuplicateEntryException($this->cWrite->error);
-		echo $this->cWrite->error;
+		if($this->cWrite->error AND $this->cWrite->errno == 1062)
+			throw new DuplicateEntryException($this->cWrite->error);
+		
+		if($this->cWrite->error)
+			Red::errorD ($this->cWrite->error);
 	}
 
 	function getTableColumns($forWhat){
@@ -373,6 +400,8 @@ class DBStorage {
 			$currentWhereValue = $statement->whereValues[$key];
 			if($currentWhereValue != "NULL" 
 				AND $currentWhereValue != "NOT NULL"
+				AND $statement->whereOperators[$key] != "IN"
+				AND $statement->whereOperators[$key] != "NOT IN"
 				AND substr($currentWhereValue, 0, 3) != "t1."
 				AND substr($currentWhereValue, 0, 3) != "t2.") 
 				$currentWhereValue = "'".$this->c->real_escape_string($currentWhereValue)."'";
@@ -435,9 +464,13 @@ class DBStorage {
 		if($statement->table[0] != "Userdata") $_SESSION["messages"]->startMessage("executing MySQL: $sql");
 		#echo nl2br($sql)."<br /><br />";
 		$q = $this->c->query($sql);
+		self::$lastQuery[] = $sql;
+		if(count(self::$lastQuery) > 5)
+			array_shift(self::$lastQuery);
+		
 		DBStorage::$queryCounter++;
 
-		if($this->c->error AND ($this->c->errno == 1045 OR $this->c->errno == 2002)) throw new NoDBUserDataException();
+		if($q === null OR ($this->c->error AND ($this->c->errno == 1045 OR $this->c->errno == 2002))) throw new NoDBUserDataException();
 		if($this->c->error AND $this->c->errno == 1146) throw new TableDoesNotExistException($statement->table[0]);
 		if($this->c->error AND $this->c->errno == 1046) throw new DatabaseNotSelectedException();
 		if($this->c->error AND $this->c->errno == 1054) {
@@ -446,8 +479,11 @@ class DBStorage {
 		}
 		#if($this->c->error AND $this->c->errno == 1028) //aborted query
 		#	die($sql);
+		if($this->c->error AND $this->c->errno == 2006) throw new StorageException($this->c->error);
 		
-		if($this->c->error) echo "MySQL-Fehler: ".$this->c->error."<br />Fehlernummer: ".$this->c->errno;
+		
+		
+		if($this->c->error) echo "MySQL-Fehler: ".$this->c->error." (".$this->c->errno.")<br>\nQuery:$sql";
 		#echo $sql."<br /><br />";
 		if($statement->table[0] != "Userdata") $_SESSION["messages"]->endMessage(": ".$this->c->affected_rows." ".$statement->table[0]." geladen");
 		

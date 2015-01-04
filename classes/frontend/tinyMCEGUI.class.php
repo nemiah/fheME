@@ -44,7 +44,7 @@ class tinyMCEGUI {
 			});';
 	}
 	
-	public static function editorDokument($tinyMCEID, $saveCallback, $buttons = null, $css = null){
+	public static function editorDokument($tinyMCEID, $saveCallback, $buttons = null, $css = "./styles/tinymce/office.css"){
 		if($buttons == null)
 			$buttons = "save | undo redo | pastetext | styleselect fontsizeselect fontselect | bold italic underline forecolor | hr fullscreen code";
 		
@@ -73,9 +73,10 @@ class tinyMCEGUI {
 					}
 				],
 				font_formats: "Helvetica=helvetica;Courier=courier;Times New Roman=times new roman;Ubuntu=Ubuntu;Orbitron=Orbitron;Raleway=Raleway",
+				fontsize_formats: "6pt 7pt 8pt 9pt 10pt 11pt 12pt 26pt 36pt",
 				paste_as_text: true,
 				browser_spellcheck : true,
-				content_css : "./styles/tinymce/office.css",
+				content_css : "'.$css.'",
 				convert_urls : false,
 				extended_valid_elements : "blockquote[cite|class|dir<ltr?rtl|id|lang|onclick|ondblclick|onkeydown|onkeypress|onkeyup|onmousedown|onmousemove|onmouseout|onmouseover|onmouseup|style|title|type],div[align<center?justify?left?right|class|dir<ltr?rtl|id|lang|onclick|ondblclick|onkeydown|onkeypress|onkeyup|onmousedown|onmousemove|onmouseout|onmouseover|onmouseup|style|title]",
 				language : "de",
@@ -93,7 +94,7 @@ class tinyMCEGUI {
 		$ITA->style("width:".($variablesCallback != null ? "830" : "1000")."px;height:300px;");
 		
 		if($variablesCallback != null)
-			echo "<div style=\"float:right;width:160px;margin:5px;\">
+			echo "<div style=\"float:right;width:160px;margin:5px;height:324px;overflow-y:auto;overflow-x:hidden;\">
 					<p><small id=\"tinyMCEVarsDescription\"></small></p>
 					<p style=\"margin-top:5px;\" id=\"tinyMCEVars\"></p></div>";
 
@@ -106,6 +107,27 @@ setTimeout(function(){
 	\$j('#$tinyMCEID').val(\$j('#$formID [name=$fieldName]').val());
 	".$this->editorDokument($tinyMCEID, "function(content){\$j('#$formID [name=$fieldName]').val(content.getContent()).trigger('change'); ".OnEvent::closePopup("nicEdit")."}", $buttons)."
 			".($variablesCallback != null ? "$variablesCallback('$fieldName');" : "")."
+		}, 100);");
+	}
+	
+	public function openInPopup($className, $classID, $fieldName){
+		$C = new $className($classID);
+		
+		$tinyMCEID = "tinyMCEEditor".rand(100, 9000000);
+		
+		$ITA = new HTMLInput("tinyMCEEditor", "textarea", $C->A($fieldName));
+		$ITA->id($tinyMCEID);
+		$ITA->style("width:1000px;height:300px;");
+
+
+		echo "<div style=\"width:1000px;\">".$ITA."</div>";
+		
+		
+		$buttons = "save | undo redo | pastetext | styleselect fontsizeselect fontselect | bold italic underline forecolor | hr code";
+		echo OnEvent::script("
+setTimeout(function(){
+	".$this->editorDokument($tinyMCEID, "function(content){".OnEvent::rme($C, "saveMultiEditField", array("'$fieldName'", "content.getContent()"))."".OnEvent::closePopup("nicEdit")."}", $buttons)."
+			
 		}, 100);");
 	}
 }

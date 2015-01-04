@@ -156,7 +156,8 @@ class LoginData extends Userdata {
 			"BackupFTPServerUserPass" => "Backup FTP",
 			"RegIDUserPass" => "RegID",
 			"AnySMSUserPass" => "AnySMS",
-			"JabberServerUserPass" => "Jabber-Server");
+			"JabberServerUserPass" => "Jabber-Server",
+			"AWSUserPass" => "AWS");
 
 		if($w == "") return $n;
 		else return $n[$w];

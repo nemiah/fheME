@@ -29,7 +29,8 @@ if(!isset($_SESSION["BPS"]))
 $_SESSION["BPS"]->setActualClass("showPDF");
 $f = $_SESSION["BPS"]->getACProperty("filename");
 		
-if($f == "") die("No filename set!");
+if($f == "")
+	die("No filename set!");
 
 header('Content-Type: application/pdf');
 header('Content-Length: '.filesize($f));
@@ -37,7 +38,7 @@ header("Content-Disposition: inline; filename=\"".basename($f)."\"");
 
 readfile($f);
 
-if(BPS::getProperty("showPDF", "delete", true))
+if(BPS::getProperty("showPDF", "delete", true) AND strpos($f, "/tmp") !== 0)
 	unlink($f);
 
 exit();

@@ -19,7 +19,18 @@
  */
 class RSSParser extends PersistentObject {
 	public function parseFeed(){
-		$xml = new SimpleXMLElement(file_get_contents($this->A("RSSParserURL")));
+		if($this->A("RSSParserUseCache"))
+			$data = $this->A("RSSParserCache");
+		else
+			$data = file_get_contents($this->A("RSSParserURL"));
+		
+		$data = str_replace("<content:encoded>","<contentEncoded>",$data);
+        $data = str_replace("</content:encoded>","</contentEncoded>",$data);
+		try {
+			$xml = new SimpleXMLElement($data);
+		} catch(Exception $e){
+			return array();
+		}
 		
 		$E = array();
 		
@@ -30,6 +41,7 @@ class RSSParser extends PersistentObject {
 			$I->description = $item->description."";
 			$I->pubDate = strtotime($item->pubDate);
 			$I->icon = null;
+			$I->content = $item->contentEncoded."";
 			
 			$E[] = $I;
 		}
@@ -46,6 +58,55 @@ class RSSParser extends PersistentObject {
 		}
 		
 		return $E;
+	}
+	
+	public function download(){
+		if($this->A("RSSParserPOST") != ""){
+			$ch = curl_init();
+
+			$D = new Datum();
+			$D->normalize();
+
+			$fieldsString = "";
+			$fields = explode("\n", trim($this->A("RSSParserPOST")));
+			foreach($fields AS $field){
+				$field = str_replace("\$timestampToday", $D->time() - 60, $field);
+				$field = str_replace("\$dateToday", date("d.m.Y"), $field);
+				
+				$ex = explode(":", $field);
+				$fieldsString .= ($fieldsString != "" ? "&" : "")."$ex[0]=".urlencode($ex[1]);
+			}
+
+			curl_setopt($ch,CURLOPT_URL, $this->A("RSSParserURL"));
+			curl_setopt($ch,CURLOPT_POST, true);
+			curl_setopt($ch,CURLOPT_POSTFIELDS, $fieldsString);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			
+			$result = curl_exec($ch);
+
+			curl_close($ch);
+
+			if($this->A("RSSParserDataParserClass") != ""){
+				$C = $this->A("RSSParserDataParserClass");
+				$C = new $C();
+				
+				$result = $C->parse($result);
+			}
+			
+			$this->changeA("RSSParserCache", $result);
+			$this->changeA("RSSParserLastUpdate", time());
+			$this->saveMe();
+		
+			return;
+		}
+		
+		$data = file_get_contents($this->A("RSSParserURL"));
+		if(!$data)
+			return;
+		
+		$this->changeA("RSSParserCache", $data);
+		$this->changeA("RSSParserLastUpdate", time());
+		$this->saveMe();
 	}
 }
 ?>

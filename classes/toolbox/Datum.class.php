@@ -21,10 +21,21 @@ class Datum {
 
 	private $timestamp;
 
-	function __construct($timestamp = null) {
-		if($timestamp == null) $timestamp = time();
+	function __construct($date = null) {
+		$timestamp = time();
+		
+		if($date !== null){
+			if(is_numeric($date))
+				$timestamp = $date;
+			else
+				$timestamp = Util::CLDateParser($date, "store");
+		}
 		
 		$this->timestamp = $timestamp;
+	}
+	
+	function normalize(){
+		$this->timestamp = mktime(0, 1, 0, date("m", $this->timestamp), date("d", $this->timestamp), date("Y", $this->timestamp));
 	}
 	
 	function getNthDayOfMonth(){

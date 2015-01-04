@@ -30,8 +30,11 @@ class Red {
 		die("redirect:$JSFunction");
 	}
 	
-	public static function errorD($message){
-		die("error:'".addslashes($message)."'");
+	public static function errorD($message, $exception = false){
+		if(!$exception)
+			die("error:'".addslashes($message)."'");
+		else 
+			throw new Exception ($message);
 	}
 
 	public static function errorC($class, $message){
@@ -63,9 +66,9 @@ class Red {
 				$value[$k] = $v;
 			
 			if(defined("JSON_UNESCAPED_UNICODE"))
-				$flags = JSON_UNESCAPED_UNICODE;
-			
-			die(json_encode($value, $flags = 0));
+				die(json_encode($value, JSON_UNESCAPED_UNICODE));;
+
+			die(json_encode($value));
 		}
 		
 		die("message:'".addslashes($message)."'");

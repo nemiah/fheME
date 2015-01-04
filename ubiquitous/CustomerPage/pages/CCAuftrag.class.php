@@ -20,9 +20,21 @@
 
 ini_set('session.gc_maxlifetime', 24 * 60 * 60);
 
-class CCAuftrag implements iCustomContent {
-	private $loggedIn = true;
+class CCAuftrag extends CCPage implements iCustomContent {
+	
+	protected $showZahlungsart = false;
+	protected $showButtonEditAddress = false;
+	protected $showButtonCheckWithGoogle = false;
+	protected $showPrices = true;
+	protected $showPosten = true;
 	function __construct() {
+		$this->customize();
+		
+		if(get_class($this) != "CCAuftrag"){
+			parent::__construct();
+			return;
+		}
+		
 		/*if(!isset($_POST["benutzer"])){
 			$_POST["benutzer"] = "Max";
 			$_POST["password"] = sha1("Max");
@@ -34,9 +46,13 @@ class CCAuftrag implements iCustomContent {
 			$_POST["plz"] = "86682";
 			$_POST["ort"] = "Genderkingen";
 		}*/
-	
+		$this->loggedIn = true;
 		if(Session::currentUser() == null AND !Users::login($_POST["benutzer"], $_POST["password"], "open3A"))
 			$this->loggedIn = false;
+		
+		$this->showZahlungsart = true;
+		$this->showButtonEditAddress = true;
+		$this->showButtonCheckWithGoogle = true;
 	}
 	
 	function getTitle(){
@@ -127,76 +143,8 @@ class CCAuftrag implements iCustomContent {
 	
 	public function getAuftrag($data){
 		$Beleg = new GRLBM($data["GRLBMID"]);#$this->createAuftrag(new Adresse(1), "W");
-		$Auftrag = new Auftrag($Beleg->A("AuftragID"));
-		$Adresse = new Adresse($Auftrag->A("AdresseID"));
+
 		
-		$BCheckK = "";
-		if(Session::isPluginLoaded("mklickTel")){
-			$BCheckK = new Button("Adresse mit klickTel prüfen", "compass", "iconic");
-			$BCheckK->style("float:right;font-size:30px;margin-right:15px;");
-			$BCheckK->onclick("CustomerPage.popup('Adressprüfung', 'checkAddressKlickTel', {AdresseID: {$Adresse->getID()}, GRLBMID: $data[GRLBMID]}, {modal: true, width: 500, resizable: false, position: ['center', 40]});");
-			$BCheckK->id("BCheckKT");
-			Aspect::joinPoint("modButtonKlickTel", $this, __METHOD__, array($BCheckK, $Auftrag));
-		}
-		
-		$BUpdate = new Button("Adresse ändern", "pen_alt2", "iconic");
-		$BUpdate->style("float:right;font-size:30px;margin-right:15px;");
-		$BUpdate->onclick("CustomerPage.popup('Adresse ändern', 'alterAddress', {AdresseID: {$Adresse->getID()}, GRLBMID: $data[GRLBMID]}, {modal: true, width: 500, resizable: false, position: ['center', 40]});");
-		
-		$BCheckG = new Button("Adresse mit Google prüfen", "compass", "iconic");
-		$BCheckG->style("float:right;font-size:30px;");
-		$BCheckG->onclick("CustomerPage.popup('Adressprüfung', 'checkAddressGoogle', {AdresseID: {$Adresse->getID()}, GRLBMID: $data[GRLBMID]}, {modal: true, width: 500, resizable: false, position: ['center', 40]});");
-		$BCheckG->id("BCheckG");
-		
-		Aspect::joinPoint("modButtonGoogle", $this, __METHOD__, array($BCheckG, $Auftrag));
-		
-		$TAdresse = new HTMLTable(2, "Kundenadresse");
-		$TAdresse->setColWidth(1, 26);
-		$TAdresse->setTableStyle("width:100%;");
-		$TAdresse->addRow(array(new Button("Adresse", "home", "iconic"), $BCheckG.$BCheckK.$BUpdate.$Adresse->getHTMLFormattedAddress()));
-		$TAdresse->setColStyle(1, "vertical-align:top;");
-		
-		$TPosten = new HTMLTable(7, "Auftragspositionen");
-		$TPosten->setTableStyle("width:100%;");
-		#$TPosten->addColStyle(3, "text-align:right;");
-		$TPosten->addColStyle(4, "text-align:right;");
-		$TPosten->addColStyle(5, "text-align:right;");
-		$TPosten->addColStyle(6, "text-align:right;color:grey;");
-		$TPosten->setColWidth(1, 26);
-		$TPosten->setColWidth(2, 80);
-		$TPosten->setColWidth(4, 80);
-		$TPosten->setColWidth(5, 80);
-		$TPosten->setColWidth(6, 80);
-		$TPosten->setColWidth(7, 20);
-		$AC = anyC::get("Posten", "GRLBMID", $Beleg->getID());
-		$AC->addOrderV3("PostenID");
-		$i = 0;
-		$O = new Button("Positionen", "list", "iconic");
-		while($P = $AC->getNextEntry()){
-			$B = new Button("Position löschen", "trash_stroke", "iconic");
-			$B->onclick("CustomerPage.rme('delPosten', {PostenID: '".$P->getID()."'}, function(){ CustomerPage.rme('getAuftrag', {GRLBMID: $data[GRLBMID]}, function(transport){ $('#contentLeft').html(transport); }); });");
-			
-			$I = new HTMLInput("mwst", "text", Util::CLNumberParserZ($P->A("menge")));
-			$I->style("text-align:right;width:80px;");
-			$I->onEnter("\$j(this).trigger('blur');");
-			$I->onblur("CustomerPage.rme('setMenge', {PostenID: '".$P->getID()."', menge: this.value}, function(){ CustomerPage.rme('getAuftrag', {GRLBMID: $data[GRLBMID]}, function(transport){ $('#contentLeft').html(transport); }); });");
-			
-			$TPosten->addRow(array(
-				$i == 0 ? $O : "",
-				$I, 
-				$P->A("name"), Util::CLNumberParserZ($P->A("preis")), 
-				Util::CLNumberParserZ($P->A("menge") * $P->A("preis")), 
-				Util::CLNumberParserZ($P->A("mwst"))."%",
-				$B));
-			
-			$i++;
-		}
-		if($AC->numLoaded() == 0){
-			$TPosten->addRow(array($O, "Bitte fügen Sie einen Artikel hinzu."));
-			$TPosten->addRowColspan(2, 6);
-			$TPosten->setColWidth(2, "100%");
-			$TPosten->setColStyle(2, "text-align:left;");
-		}
 		
 		$TSumme = new HTMLTable(3);
 		$TSumme->setTableStyle("width:100%;border-top:1px solid #AAA;margin-top:30px;");
@@ -247,30 +195,34 @@ class CCAuftrag implements iCustomContent {
 		$IBemerkung->onkeyup("if(CustomerPage.timeout != null) window.clearTimeout(CustomerPage.timeout); CustomerPage.timeout = window.setTimeout(CustomerPage.saveBemerkung, 300);");
 		
 		$TZahlungsart->addRow(array(new Button("Bemerkung", "document_alt_stroke", "iconic"), $IBemerkung));
-		#$TSumme->addRowColspan(2, 2);
 		$TZahlungsart->addCellStyle(1, "vertical-align:top;padding-top:40px;");
 		
 		
 		
-		$IOK = new Button("Abschließen");
-		$IOK->className("submitFormButton");
-		$IOK->onclick("$(window).unbind('beforeunload'); document.location.href='?CC=Auftrag&page=1';");
-		
-		$IC = new Button("Abbrechen");
-		$IC->className("submitFormButton");
-		$IC->style("background-color:#DDD;color:grey;float:none;");
-		$IC->onclick("$(window).unbind('beforeunload'); CustomerPage.rme('cancelAuftrag', {GRLBMID: $data[GRLBMID]}, function(){ document.location.href='?CC=Auftrag&page=2'; });");
-		
-		$TZahlungsart->addRow(array("", $IC.$IOK));
-		$TZahlungsart->addCellStyle(2, "padding-top:50px;");
 		#$TZahlungsart->addCellStyle(3, "padding-top:50px;");
 		
-		$html = "<h1>Auftrag</h1>
-				$TAdresse
-				$TPosten
-				$TSumme
-				$TZahlungsart";
+		$TFinish = new HTMLTable(1);
+		$TFinish->setTableStyle("width:100%;");
 		
+		$TFinish->addRow(array($this->buttonCancel($data).$this->buttonDone($data)));
+		$TFinish->addCellStyle(1, "padding-top:50px;");
+		
+		$html = "<h1>Auftrag ".$Beleg->A("prefix").$Beleg->A("nummer")."</h1>";
+		
+		$html .= $this->getAdresse($Beleg);
+		
+		if($this->showPosten)
+			$html .= $this->getPosten($Beleg);
+		
+		if($this->showPrices)
+			$html .= $TSumme;
+		
+		if($this->showZahlungsart)
+			$html .= $TZahlungsart;
+		
+		$html .= $this->getBottom($Beleg);
+		
+		$html .= $TFinish;
 		
 		return $html.OnEvent::script("
 			CustomerPage.timeout = null;
@@ -281,6 +233,119 @@ class CCAuftrag implements iCustomContent {
 				kontonummer: $('input[name=kontonummer]').val(),
 				bankleitzahl: $('input[name=bankleitzahl]').val()
 			}, function(t){ $('#bankMessage').html(t); }); };");
+	}
+	
+	public function getBottom($Beleg){
+		return "";
+	}
+	
+	public function getAdresse($Beleg){
+		$Auftrag = new Auftrag($Beleg->A("AuftragID"));
+		$Adresse = new Adresse($Auftrag->A("AdresseID"));
+		
+		$BCheckK = "";
+		if(Session::isPluginLoaded("mklickTel")){
+			$BCheckK = new Button("Adresse mit klickTel prüfen", "compass", "iconic");
+			$BCheckK->style("float:right;font-size:30px;margin-right:15px;");
+			$BCheckK->onclick("CustomerPage.popup('Adressprüfung', 'checkAddressKlickTel', {AdresseID: {$Adresse->getID()}, GRLBMID: $data[GRLBMID]}, {modal: true, width: 500, resizable: false, position: ['center', 40]});");
+			$BCheckK->id("BCheckKT");
+			Aspect::joinPoint("modButtonKlickTel", $this, __METHOD__, array($BCheckK, $Auftrag));
+		}
+		
+		$BUpdate = new Button("Adresse ändern", "pen_alt2", "iconic");
+		$BUpdate->style("float:right;font-size:30px;margin-right:15px;");
+		$BUpdate->onclick("CustomerPage.popup('Adresse ändern', 'alterAddress', {AdresseID: {$Adresse->getID()}, GRLBMID: $data[GRLBMID]}, {modal: true, width: 500, resizable: false, position: ['center', 40]});");
+		if(!$this->showButtonEditAddress)
+			$BUpdate = "";
+		
+		$BCheckG = new Button("Adresse mit Google prüfen", "compass", "iconic");
+		$BCheckG->style("float:right;font-size:30px;");
+		$BCheckG->onclick("CustomerPage.popup('Adressprüfung', 'checkAddressGoogle', {AdresseID: {$Adresse->getID()}, GRLBMID: $data[GRLBMID]}, {modal: true, width: 500, resizable: false, position: ['center', 40]});");
+		$BCheckG->id("BCheckG");
+		if(!$this->showButtonCheckWithGoogle)
+			$BCheckG = "";
+		
+		Aspect::joinPoint("modButtonGoogle", $this, __METHOD__, array($BCheckG, $Auftrag));
+		
+		$TAdresse = new HTMLTable(2, "Kundenadresse");
+		$TAdresse->setColWidth(1, 26);
+		$TAdresse->setTableStyle("width:100%;");
+		$TAdresse->addRow(array(new Button("Adresse", "home", "iconic"), $BCheckG.$BCheckK.$BUpdate.$Adresse->getHTMLFormattedAddress()));
+		$TAdresse->setColStyle(1, "vertical-align:top;");
+		
+		return $TAdresse;
+	}
+	
+	public function getPosten(GRLBM $Beleg){
+		$TPosten = new HTMLTable(8, "Auftragspositionen");
+		$TPosten->setTableStyle("width:100%;");
+		#$TPosten->addColStyle(3, "text-align:right;");
+		$TPosten->addColStyle(5, "text-align:right;");
+		$TPosten->addColStyle(6, "text-align:right;");
+		$TPosten->addColStyle(7, "text-align:right;color:grey;");
+		$TPosten->addColStyle(8, "text-align:right;");
+		$TPosten->setColWidth(1, 26);
+		$TPosten->setColWidth(2, 80);
+		$TPosten->setColWidth(5, 80);
+		$TPosten->setColWidth(6, 80);
+		$TPosten->setColWidth(7, 80);
+		$TPosten->setColWidth(8, 20);
+		
+		Aspect::joinPoint("alterTable", $this, __METHOD__, array($TPosten));
+		
+		$AC = anyC::get("Posten", "GRLBMID", $Beleg->getID());
+		$AC->addOrderV3("PostenID");
+		$i = 0;
+		$O = new Button("Positionen", "list", "iconic");
+		while($P = $AC->getNextEntry()){
+			$B = new Button("Position löschen", "trash_stroke", "iconic");
+			$B->onclick("CustomerPage.rme('delPosten', {PostenID: '".$P->getID()."'}, function(){ CustomerPage.rme('getAuftrag', {GRLBMID: ".$Beleg->getID()."}, function(transport){ $('#contentLeft').html(transport); }); });");
+			
+			$I = new HTMLInput("mwst", "text", Util::CLNumberParserZ($P->A("menge")));
+			$I->style("text-align:right;width:80px;");
+			$I->onEnter("\$j(this).trigger('blur');");
+			$I->onblur("CustomerPage.rme('setMenge', {PostenID: '".$P->getID()."', menge: this.value}, function(){ CustomerPage.rme('getAuftrag', {GRLBMID: ".$Beleg->getID()."}, function(transport){ $('#contentLeft').html(transport); }); });");
+			
+			$name = Aspect::joinPoint("alterName", $this, __METHOD__, array($P, $P->A("name")), $P->A("name"));
+			$buttons = Aspect::joinPoint("alterButtons", $this, __METHOD__, array($P, $B), $B);
+			
+			$TPosten->addRow(array(
+				$i == 0 ? $O : "",
+				$I, 
+				$P->A("gebinde"),
+				$name,
+				$this->showPrices ? Util::CLNumberParserZ($P->A("preis")) : "",
+				$this->showPrices ? Util::CLNumberParserZ($P->A("menge") * $P->A("preis")) : "", 
+				$this->showPrices ? Util::CLNumberParserZ($P->A("mwst"))."%" : "",
+				$buttons));
+			
+			$i++;
+		}
+		if($AC->numLoaded() == 0){
+			$TPosten->addRow(array($O, "Bitte fügen Sie einen Artikel hinzu."));
+			$TPosten->addRowColspan(2, 6);
+			$TPosten->setColWidth(2, "100%");
+			$TPosten->setColStyle(2, "text-align:left;");
+		}
+		
+		return $TPosten;
+	}
+	
+	public function buttonCancel($data){
+		$IC = new Button("Abbrechen");
+		$IC->className("submitFormButton");
+		$IC->style("background-color:#DDD;color:grey;float:none;");
+		$IC->onclick("$(window).unbind('beforeunload'); CustomerPage.rme('cancelAuftrag', {GRLBMID: $data[GRLBMID]}, function(){ document.location.href='?CC=Auftrag&page=2'; });");
+		
+		return $IC;
+	}
+	
+	public function buttonDone($data){
+		$IOK = new Button("Abschließen");
+		$IOK->className("submitFormButton");
+		$IOK->onclick("$(window).unbind('beforeunload'); document.location.href='?CC=Auftrag&page=1';");
+		
+		return $IOK;
 	}
 	
 	public function getArtikel($data){
@@ -359,7 +424,7 @@ class CCAuftrag implements iCustomContent {
 				$B,
 				$A->A("artikelnummer"), 
 				$A->A("name").($A->A("bemerkung") != "" ? "<br /><small style=\"color:grey;\">".$A->A("bemerkung")."</small>" : ""),
-				Util::CLFormatCurrency($A->getGesamtBruttoVK() * 1, true)."<br /><small style=\"color:grey;\">".Util::CLFormatCurrency($A->getGesamtNettoVK() * 1, true)."</small>"
+				$this->showPrices ? Util::CLFormatCurrency($A->getGesamtBruttoVK() * 1, true)."<br /><small style=\"color:grey;\">".Util::CLFormatCurrency($A->getGesamtNettoVK() * 1, true)."</small>" : ""
 			));
 			$TArtikel->addRowClass("selectable");
 			$TArtikel->addRowEvent("click", "CustomerPage.rme('addArtikel', {ArtikelID: '".$A->getID()."', GRLBMID: $data[GRLBMID]}, function(transport){ CustomerPage.rme('getAuftrag', {GRLBMID: $data[GRLBMID]}, function(transport){ $('#contentLeft').html(transport); }); });");
@@ -577,6 +642,12 @@ class CCAuftrag implements iCustomContent {
 		$GRLBM->saveMe();
 	}
 	
+	public function removeOptional($data){
+		$P = new Posten($data["PostenID"]);
+		$P->changeA("PostenIsAlternative", "0");
+		$P->saveMe();
+	}
+	
 	public function setKontodaten($data){
 		if($data["zahlungsart"] != "debit"){
 			$data["kontonummer"] = "";
@@ -616,6 +687,27 @@ class CCAuftrag implements iCustomContent {
 				$F->store();
 			break;
 		}
+		
+		parent::handleForm($valuesAssocArray);
+	}
+	
+	public function getPDFViewer($data){
+		if(!$this->loggedIn)
+			return "TIMEOUT";
+		
+		return "<iframe src=\"index.php?CC=Lieferschein&M=getPDF&GRLBMID=$data[GRLBMID]&_=".rand(0, 99999999)."\" style=\"border:0px;height:500px;width:100%;\"></iframe>";
+	}
+	
+	public function getPDF($data){
+		if(!$this->loggedIn)
+			return "TIMEOUT";
+		
+		$G = new GRLBM($data["GRLBMID"]);
+		$Auftrag = new Auftrag($G->A("AuftragID"));
+		
+		$brief = $Auftrag->getLetter("", false, $data["GRLBMID"]);
+		
+		$brief->generate(false, null);
 	}
 }
 ?>

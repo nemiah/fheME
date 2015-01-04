@@ -40,7 +40,7 @@ class MenuGUI extends UnpersistentClass implements iGUIHTML2, icontextMenu {
 		}
 
 		// <editor-fold defaultstate="collapsed" desc="Aspect:jP">
-		$newAppIco = Aspect::joinPoint("appLogo", $this, __METHOD__);
+		$newAppIco = Aspect::joinPoint("appLogo", $this, __METHOD__, array($_SESSION["applications"]->getActiveApplication()));
 		if($newAppIco != null) $appIco = $newAppIco;
 		// </editor-fold>
 
@@ -211,6 +211,9 @@ class MenuGUI extends UnpersistentClass implements iGUIHTML2, icontextMenu {
 		
 		echo OnEvent::script("contentManager.isAltUser = ".(Session::isAltUserS() ? "true" : "false").";");
 		
+		$onTimeout = Environment::getS("onTimeout", null);
+		if($onTimeout != null)
+			echo OnEvent::script("Menu.onTimeout = $onTimeout;");
 		try {
 			$c = get_class(Session::currentUser());
 			$U = new $c(Session::currentUser()->getID());
@@ -360,6 +363,15 @@ class MenuGUI extends UnpersistentClass implements iGUIHTML2, icontextMenu {
 		#print_r($kal);
 		#foreach($kal as $k => $v)
 		#	$kal[$k] = $k;
+		
+		$AC = anyC::get("Userdata", "typ", "loginTo");
+		$AC->addAssocV3("UserID", "=", Session::currentUser()->getID());
+		while($UD = $AC->n()){
+			if($UD->A("wert") != "0")
+				continue;
+			
+			unset($kal[str_replace("loginTo", "", $UD->A("name"))]);
+		}
 			
 		$gui = new HTMLGUI();
 		echo "<div style=\"max-height:400px;overflow:auto;\">".$gui->getContextMenu($kal, 'Menu','1',$sk,'phynxContextMenu.stop(); contentManager.switchApplication();')."</div>";

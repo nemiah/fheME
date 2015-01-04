@@ -19,7 +19,8 @@
  */
 class SpeedCache {
 	public static $sessionVariable = "phynx_SpeedCache";
-
+	private static $staticCache = array();
+	
 	public static function inCache($name){
 		return isset($_SESSION[SpeedCache::$sessionVariable][$name]);
 	}
@@ -40,6 +41,29 @@ class SpeedCache {
 
 	public static function clearCache(){
 		$_SESSION[SpeedCache::$sessionVariable] = null;
+	}
+	
+	
+	public static function inStaticCache($name){
+		return isset(self::$staticCache[$name]);
+	}
+	
+	public static function getStaticCache($name, $default = null, $setIfDefault = false){
+		if(isset(self::$staticCache[$name]))
+			return self::$staticCache[$name];
+
+		if($setIfDefault)
+			self::setStaticCache ($name, $default);
+		
+		return $default;
+	}
+
+	public static function setStaticCache($name, $values){
+		self::$staticCache[$name] = $values;
+	}
+
+	public static function clearStaticCache(){
+		self::$staticCache = array();
 	}
 }
 ?>

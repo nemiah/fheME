@@ -42,8 +42,11 @@ class KalenderHolidays extends KalenderEntry {
 		parent::__construct();
 	}
 	
-	function group($group){
-		$this->group = $group;
+	function group($group = null){
+		if($group != null)
+			$this->group = $group;
+		
+		return $this->group;
 	}
 	
 	private function color($hexBG, $hexText){
@@ -175,9 +178,7 @@ class KalenderHolidays extends KalenderEntry {
 		
 		#$('time_$this->className$this->classID$this->time').style.display = ''; 
 		return "
-			<div onclick=\"$this->onClick\" style=\"margin-top:".(17 * (self::$pos[$monat][$this->group] - $countBefore))."px;clear:left;padding:2px;cursor:pointer;overflow:hidden;height:13px;".($this->colorBG != null ? "color:$this->colorText;background-color:$this->colorBG" : "")."\">
-				$this->title
-			</div>";
+			<div onclick=\"$this->onClick\" style=\"white-space:nowrap;position:absolute;margin-top:".(17 * (self::$pos[$monat][$this->group]))."px;padding:2px;cursor:pointer;overflow:hidden;height:13px;width:60px;".($this->colorBG != null ? "color:$this->colorText;background-color:$this->colorBG" : "")."\"><small>$this->title</small></div>";
 	}
 }
 ?>

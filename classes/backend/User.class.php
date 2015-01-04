@@ -43,6 +43,7 @@ class User extends PersistentObject {
 		$allowedUsers = Environment::getS("allowedUsers", null);
 		if($allowedUsers !== null AND $this->A("isAdmin") == "0"){
 			$AC = anyC::get("User", "isAdmin", "0");
+			$AC->addAssocV3("UserType", "=", "0");
 			$AC->addAssocV3("UserID", "!=", $this->getID());
 			$AC->lCV3();
 			
@@ -65,9 +66,13 @@ class User extends PersistentObject {
 	}
 	
 	function newMe($checkUserData = true, $output = false){
+		if($this->A->password == "")
+			$this->A->password = ";;;-1;;;";
+		
 		$allowedUsers = Environment::getS("allowedUsers", null);
 		if($allowedUsers !== null AND $this->A("isAdmin") == "0"){
 			$AC = anyC::get("User", "isAdmin", "0");
+			$AC->addAssocV3("UserType", "=", "0");
 			$AC->lCV3();
 			
 			if($AC->numLoaded() >= $allowedUsers)
@@ -104,6 +109,9 @@ class User extends PersistentObject {
 		$A->UserJabber = "";
 		$A->UserSkype = "";
 		$A->UserTel = "";
+		$A->UserPosition = "";
+		$A->UserLoginToken = "";
+		$A->UserType = "0";
 		
 		return $A;
 	}

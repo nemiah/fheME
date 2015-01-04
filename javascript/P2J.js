@@ -237,9 +237,11 @@ var Ajax = {
 	physion: "default",
 	build: null,
 	counter: 0,
+	lastRequest: null,
 	
 	Request: function(anurl, options){
 		Ajax.counter++;
+		Ajax.lastRequest = options.parameters;
 		var counter = Ajax.counter;
 		var start;
 		$j.ajax({
@@ -264,6 +266,14 @@ var Ajax = {
 						console.log("%c "+v[0]+" "+v[1]+" ("+v[2]+":"+v[3]+")", "color:grey;");
 					});
 					console.log(" total:    "+duration+"ms");
+				}
+				
+				if(window.console && request.getResponseHeader('X-Achievements')){
+					var obj = jQuery.parseJSON(request.getResponseHeader('X-Achievements'));
+					
+					$j.each(obj, function(k, v){
+						Achievement.display(v);
+					});
 				}
 				//if(request.getResponseHeader("X-Build") && Ajax.build && Ajax.build != request.getResponseHeader("X-Build"))
 				//	console.log("Update required!");
@@ -672,7 +682,7 @@ $j(document).on('mouseover', '.bigButton', function(event) {
 		},
 		content: {
 			text: function() {
-				return $j(this).html();
+				return $j(this).html() == '' ? $j(this).attr("oldtitle") : $j(this).html();
 			}
 		},
 		position: {

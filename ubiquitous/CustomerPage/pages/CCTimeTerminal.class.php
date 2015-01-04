@@ -469,6 +469,7 @@ class CCTimeTerminal implements iCustomContent {
 								$F = new Factory("ZETerminalFail");
 								$F->sA("ZETerminalFailTime", time());
 								$F->sA("ZETerminalFailData", json_encode($args));
+								$F->sA("ZETerminalFailZETerminalID", $args["P1"]);
 								$F->store();
 							} catch(Exception $e){ }
 							
@@ -515,6 +516,7 @@ class CCTimeTerminal implements iCustomContent {
 								$F = new Factory("ZETerminalFail");
 								$F->sA("ZETerminalFailTime", time());
 								$F->sA("ZETerminalFailData", $e->getMessage());
+								$F->sA("ZETerminalFailZETerminalID", $args["P1"]);
 								$F->store();
 							} catch(Exception $e){ }
 							

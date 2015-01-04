@@ -42,9 +42,17 @@ class KalenderEntry {
 	protected $remind = -1;
 	protected $reminded = 0;
 	protected $callbackOnShow;
+	protected $object;
 	
 	function __construct() {
 		$this->onClick = OnEvent::popup("Event", "mKalender", -1, "getInfo", array("'%%CLASSNAME%%'", "'%%CLASSID%%'", "'%%TIME%%'"), "", "Kalender.popupOptions");
+	}
+	
+	function object($object = null){
+		if($object != null)
+			$this->object = $object;
+		
+		return $this->object;
 	}
 	
 	function ownerClass(){

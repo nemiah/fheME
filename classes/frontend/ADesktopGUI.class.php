@@ -52,16 +52,20 @@ class ADesktopGUI extends UnpersistentClass implements iGUIHTML2 {
 		if(Environment::getS("blogShow", "1") == "0")
 			return "";
 		
-		$data = file_get_contents(Environment::getS("blogRSSURL", "http://blog.furtmeier.it/feed/"));
+		$ctx = stream_context_create(array('http' => array('timeout' => 5)));
+		$data = file_get_contents(Environment::getS("blogRSSURL", "http://blog.furtmeier.it/feed/"), 0, $ctx);
 		
-		if($data === false)
-			return "";
 		
 		$html = "
 			<div style=\"border-bottom:1px solid #DDD;position:relative;\" class=\"desktopButton\" onclick=\"window.open('".Environment::getS("blogURL", "http://blog.furtmeier.it/")."', '_blank');\">
 				<h1 style=\"font-size:2.0em;color:#999999;position:absolute;bottom:5px;\">".Environment::getS("blogName", "Furtmeier.<span style=\"color:#A0C100;\">IT</span> blog")."</h1>
 			</div>
 			<div id=\"blogContainer\" style=\"padding-left:30px;padding-right:30px;overflow:auto;\">";
+		
+		
+		if($data === false)
+			return "$html<p style=\"color:grey;\">Blog nicht erreichbar. ☹</p>";
+		
 		try {
 			$XML = new SimpleXMLElement($data);
 

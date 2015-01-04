@@ -41,6 +41,9 @@ class InstallationGUI extends Installation implements iGUIHTML2 {
 		$gui->setLabel("password","Passwort");
 		$gui->setLabel("httpHost","Domain");
 		
+		$gui->setInputJSEvent("password", "onkeyup", "\$j('#maxLength').css('color', 'inherit'); if(\$j(this).val().length >  20) \$j('#maxLength').css('color', 'red');");
+		
+		$gui->setFieldDescription("password","<span id=\"maxLength\">Die maximale Passwortlänge beträgt 20 Zeichen.</span>");
 		$gui->setFieldDescription("host","Der Rechner, auf dem die Datenbank liegt. Das kann 'localhost' sein, oder eine IP wie '192.168.8.243' oder ein Hostname wie 'rdbms.strato.de'.");
 		$gui->setFieldDescription("httpHost","unter der phynx erreichbar ist oder * für alle Domains");
 		#$this->loadGUITranslation($gui);

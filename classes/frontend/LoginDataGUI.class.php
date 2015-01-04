@@ -88,9 +88,10 @@ class LoginDataGUI extends LoginData implements iGUIHTML2 {
 
 		$gui->displayMode("popup");
 		$gui->label("server", "Server");
-
+		$gui->label("passwort", "Passwort");
+		
 		$html = "";
-		$html2 = "";
+		#$html2 = "";
 		if($bps != -1 AND isset($bps["preset"]) AND $bps["preset"] == "mailServer"){
 			$BAbort = new Button("Abbrechen", "stop");
 			$BAbort->onclick("Popup.close('LoginData', 'edit');");
@@ -104,7 +105,7 @@ class LoginDataGUI extends LoginData implements iGUIHTML2 {
 			$gui->type("name", "hidden");
 			$this->changeA("name", "MailServerUserPass");
 
-			$gui->descriptionField("server", "Für eine verschlüsselte Verbindung tragen Sie ein: Protokoll://server.de:Port<br />Also zum Beispiel tls://smtp.1und1.de:465");
+			$gui->descriptionField("server", "Für eine verschlüsselte Verbindung tragen Sie ein: Protokoll://server.de:Port<br />Also zum Beispiel tls://smtp.1und1.de:465 oder tls://smtp.strato.de:465");
 			
 			$gui->type("optionen", "hidden");
 		}
@@ -123,6 +124,24 @@ class LoginDataGUI extends LoginData implements iGUIHTML2 {
 			$this->changeA("name", "JabberServerUserPass");
 
 			$gui->type("optionen", "hidden");
+		}
+		
+		if($bps != -1 AND isset($bps["preset"]) AND $bps["preset"] == "AWS"){
+			$BAbort = new Button("Abbrechen", "stop");
+			$BAbort->onclick("Popup.close('LoginData', 'edit');");
+			$BAbort->style("float:right;");
+			
+			$gui->type("UserID", "hidden");
+			$this->changeA("UserID", "-1");
+
+			$gui->type("name", "hidden");
+			$this->changeA("name", "AWSUserPass");
+
+			$gui->label("benutzername", "Access key");
+			$gui->label("passwort", "Secret key");
+			
+			$gui->type("optionen", "hidden");
+			$gui->type("server", "hidden");
 		}
 		
 		if($bps != -1 AND isset($bps["preset"]) AND $bps["preset"] == "regID"){
@@ -242,7 +261,7 @@ class LoginDataGUI extends LoginData implements iGUIHTML2 {
 		}
 
 		#$gui->label("benutzername", "Benutzername");
-		$gui->label("passwort", "Passwort");
+		
 		
 		$gui->addToEvent("onSave", $onSave);
 		

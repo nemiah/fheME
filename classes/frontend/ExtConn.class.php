@@ -59,6 +59,7 @@ class ExtConn {
 			$this->paths[] = $this->absolutePath."classes/backend/PluginV2.class.php";
 			$this->paths[] = $this->absolutePath."classes/backend/XMLPlugin.class.php";
 			$this->paths[] = $this->absolutePath."classes/backend/FileStorage.class.php";
+			$this->paths[] = $this->absolutePath."classes/backend/SpeedCache.class.php";
 
 			$this->paths[] = $this->absolutePath."classes/exceptions/o3AException.class.php";
 			$this->paths[] = $this->absolutePath."classes/exceptions/StorageException.class.php";
@@ -80,7 +81,7 @@ class ExtConn {
 
 			$this->paths[] = $this->absolutePath."classes/interfaces/iFileBrowser.class.php";
 			$this->paths[] = $this->absolutePath."classes/interfaces/iLDAPExport.class.php";
-			$this->paths[] = $this->absolutePath."classes/interfaces/iDesktopLink.class.php";
+			#$this->paths[] = $this->absolutePath."classes/interfaces/iDesktopLink.class.php";
 			$this->paths[] = $this->absolutePath."classes/interfaces/icontextMenu.class.php";
 			$this->paths[] = $this->absolutePath."classes/interfaces/iCloneable.class.php";
 			$this->paths[] = $this->absolutePath."classes/interfaces/iDeletable.class.php";

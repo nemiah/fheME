@@ -208,7 +208,7 @@ class CCLieferung implements iCustomContent {
 		$AC->addAssocV3("status", "=", "delivered");
 		#$AC->addOrderV3("datum", "DESC");
 		$AC->addOrderV3("nummer", "DESC");
-		$AC->setLimitV3(100);
+		#$AC->setLimitV3(100);
 		#$AC->addJoinV3("Adresse", "t2.AdresseID", "=", "AdresseID");
 		$i = 0;
 		while($B = $AC->n()){

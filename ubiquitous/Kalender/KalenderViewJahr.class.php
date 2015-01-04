@@ -37,6 +37,90 @@ class KalenderViewJahr extends KalenderViewMonat {
 		$cols = $this->cols;
 		$rows = $this->rows;
 		
+			
+		$html = "<div style=\"border-top:1px solid #DDD;width:".($cols * 65 + 80)."px;\">";
+		$D = clone $this->date;
+		for($i = 0; $i < $rows; $i++){
+			#if($i == 0){
+				$html .= "<div style=\"width:".($cols * 65 + 80)."px;\">".
+					"<div class=\"backgroundColor3\" style=\"vertical-align:top;display:inline-block;width:76px;padding:2px;\">".Util::CLMonthName($i + 1)."</div>";
+				for($j = 0; $j < $cols; $j++){
+					
+					$Max = $D->getMaxDaysOfMonth();
+
+					$day = "&nbsp;";
+					if($j < $Max)
+						$day = $j + 1;
+					
+					$html .= "<div class=\"MonthDay MonthDayHeader backgroundColor3\" style=\"vertical-align:top;display:inline-block;width:60px;padding:2px;text-align:right;color:grey;\"><small>$day</small></div>";
+				}
+				$html .= "</div>";
+			#}
+			
+			$html .= "<div style=\"width:".($cols * 65 + 80)."px;height:300px;min-height:70px;border-bottom:0px;\" class=\"Month\">".
+				"<div style=\"vertical-align:top;display:inline-block;width:80px;\"></div>";
+			
+			$DM = clone $D;
+			$monthFirst = $DM->time();
+			$DM->setToMonthLast();
+			$monthLast = $DM->time();
+			
+			$K->getEventsOnDay(date("dmY", $DM->time())); //initializes data
+			#echo Util::CLDateParser($monthFirst)."-".Util::CLDateParser($monthLast).":";
+			$hasMultiDay = $K->hasMultiDayEvents($monthFirst, $monthLast);
+			
+			for($j = 0; $j < $cols; $j++){
+				
+				$bgColor = "none";
+				if(date("w", $D->time()) == 6)
+						$bgColor = $this->colorBgSaturday;
+				
+				if(date("w", $D->time()) == 0)
+						$bgColor = $this->colorBgSunday;
+				
+				if($j >= $D->getMaxDaysOfMonth())
+					$bgColor = "none";
+				
+				$html .= "<div class=\"MonthDay\" style=\"background-Color:$bgColor;position:relative;min-height:70px;display:inline-block;width:64px;vertical-align:top;\">";
+				
+				if($j < $D->getMaxDaysOfMonth()){
+					$entry = "";
+
+					$events = $K->getEventsOnDay(date("dmY", $D->time()));
+					$holidays = $K->getHolidaysOnDay(date("dmY", $D->time()));
+
+					$entry .= "<div class=\"MonthMultiDay backgroundColor4\" style=\"min-height:".($hasMultiDay * 17)."px;\">";
+					if($events != null)
+						foreach($events AS $ev){
+							foreach($ev AS $v)
+								$entry .= $v->getMinimal($D->time());
+						}
+					$entry .= "</div>";
+						
+					if($holidays != null)
+						foreach($holidays AS $ev)
+							foreach($ev AS $v)
+								$entry .= $v->getMinimal($D->time());
+
+				
+					$html .= $entry;
+				}
+				
+				$html .= "</div>";
+				
+				if($D->d() >= $D->getMaxDaysOfMonth())
+					continue;
+				
+				$D->addDay();
+			}
+			$D->addDay();
+			$html .= "</div>";
+		}
+		
+		$html .= "</div>";
+		
+		return $html.OnEvent::script("\$j('.Month').each(function(k, v){ var max = 0; max += \$j(this).find('.MonthMultiDay').outerHeight(); \$j(this).find('.MonthDay').each(function(k, v){ var l =\$j(this).find('div').each(function(){ var mt = parseInt(\$j(this).css('margin-top')); if(mt > max) max = mt + \$j(this).outerHeight(); }); }); \$j(this).css('height', max + \$j('.MonthDayHeader').outerHeight()).find('.MonthDay').css('height', max + \$j('.MonthDayHeader').outerHeight()); })");
+		
 		#"<table id=\"KalenderHeader\" style=\"position:absolute;margin-left:10px;border-spacing: 0px;width:auto;\" class=\"backgroundColor0\">
 		$tableHeader = "
 			<thead>
@@ -68,8 +152,6 @@ class KalenderViewJahr extends KalenderViewMonat {
 				<col style=\"width:".(100 / $cols)."%;\" />";
 			
 		
-		$html .= "";
-
 		$html .= "
 		$tableHeader
 		<tbody>";

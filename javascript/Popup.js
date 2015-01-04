@@ -23,6 +23,7 @@ var Popup = {
 	
 	lastPopups: Array(),
 	lastSidePanels: Array(),
+	linked: Array(),
 	
 	presets: {
 		large: {hPosition: "center", width:1000},
@@ -141,17 +142,35 @@ var Popup = {
 	},
 
 	create: function(ID, type, name, options){
-		if($(type+'Details'+ID)) return;
+		if($(type+'Details'+ID))
+			return;
+		
 		var size = Overlay.getPageSize(true);
 		var width = 400;
 		var hasX = true;
 		var persistent = false;
 		var targetContainer = "windows";
 		
+		
+		if(Touch.use){
+			if(typeof options != "object")
+				options = {};
+			options.remember = false;
+			options.top = 0;
+			options.fullscreen = true;
+			//options.width = "100%";
+			options.height = $j(window).height();
+			options.hPosition = "center";
+			options.absolute = true;
+			options.hasMinimize = false;
+		}
+		
 		var top = null;
 		var right = null;
 		var left = null;
 		var hasMinimize = false;
+		var fullscreen = false;
+		var absolute = false;
 		if(typeof options == "object"){
 			if(options.width)
 				width = options.width;
@@ -175,7 +194,7 @@ var Popup = {
 				}
 			}
 
-			if(options.top)
+			if(typeof options.top != "undefined")
 				top = options.top;
 
 			if(options.left)
@@ -183,6 +202,9 @@ var Popup = {
 
 			if(options.right)
 				right = options.right;
+			
+			if(options.absolute)
+				absolute = options.absolute;
 			
 			if(options.persistent)
 				persistent = options.persistent;
@@ -192,6 +214,15 @@ var Popup = {
 			
 			if(typeof options.hasMinimize == "boolean")
 				hasMinimize = options.hasMinimize;
+			
+			if(options.fullscreen)
+				fullscreen = options.fullscreen;
+			
+			if(options.height)
+				height = options.height;
+			
+			if(options.linkTo)
+				Popup.linked.push([options.linkTo, ID, type]);
 		}
 		
 		if(persistent)
@@ -221,7 +252,7 @@ var Popup = {
 			if(top < 0)
 				top = 0;
 		}
-		
+
 		/*var element = Builder.node(
 			"div",
 			{
@@ -239,13 +270,18 @@ var Popup = {
 			]);*/
 
 
-		var element = "<div id=\""+type+'Details'+ID+"\" style=\""+'display:none;top:'+top+'px;'+(right != null ? 'right:'+right : 'left:'+left)+'px;width:'+width+'px;z-index:'+Popup.zIndex+"\" class=\"popup\">\n\
-			<div class=\"backgroundColor1 cMHeader\" id=\""+type+'DetailsHandler'+ID+"\">\n\
+		var element = "<div id=\""+type+'Details'+ID+"\" style=\""+(absolute ? "position:absolute;" : "")+'display:none;top:'+top+'px;'+(right != null ? 'right:'+right : 'left:'+left)+'px;width:'+width+(width.toString().indexOf("%") > -1 ? "" : "px")+';z-index:'+Popup.zIndex+"\" class=\"popup\">\n\
+			<div class=\"backgroundColor1 cMHeader popupHeader\" id=\""+type+'DetailsHandler'+ID+"\">\n\
 				<span id=\""+type+"DetailsCloseWindow"+ID+"\" style=\"cursor:pointer;"+(hasX ? "" : "display:none;")+"\" class=\"closeContextMenu iconic x\"></span>\n\
 				"+(hasMinimize ? "<span id=\""+type+"DetailsMinimizeWindow"+ID+"\" style=\"cursor:pointer;"+(hasX ? "" : "display:none;")+"\" class=\"minimizeContextMenu iconic upload\"></span><span id=\""+type+"DetailsRestoreWindow"+ID+"\" style=\"display:none;cursor:pointer;margin-right:40px;"+(hasX ? "" : "display:none;")+"\" class=\"minimizeContextMenu iconic download\"></span>" : "")+name+"\n\
 			</div>\n\
-			<div class=\"backgroundColor0\" style=\"clear:both;\" id=\""+type+'DetailsContentWrapper'+ID+"\"><div id=\""+type+'DetailsContent'+ID+"\"></div></div>\n\
+			<div class=\"backgroundColor0\" style=\"clear:both;\" id=\""+type+'DetailsContentWrapper'+ID+"\">\n\
+			<div id=\""+type+'DetailsContent'+ID+"\" class=\"popupContent\"></div></div>\n\
 		</div>";
+
+		if(fullscreen){
+			element = "<div class=\"FSWrapper\" style=\"background-color:#888;\">"+element+"</div>";
+		}
 
 		$j("#"+targetContainer).append(element);
 		
@@ -278,17 +314,51 @@ var Popup = {
 			Event.observe(type+'DetailsMinimizeWindow'+ID, 'click', function() {Popup.minimize(ID, type);});
 			Event.observe(type+'DetailsRestoreWindow'+ID, 'click', function() {Popup.restore(ID, type);});
 		}
+		
+		if(fullscreen){
+			var elem = $j('#'+type+'Details'+ID).parent()[0];
+			if (elem.requestFullscreen) {
+				elem.requestFullscreen();
+			} else if (elem.msRequestFullscreen) {
+				elem.msRequestFullscreen();
+			} else if (elem.mozRequestFullScreen) {
+				elem.mozRequestFullScreen();
+			} else if (elem.webkitRequestFullscreen) {
+				elem.webkitRequestFullscreen();
+			}
+		}
 		//Event.observe(type+'Details'+ID, 'click', function(event) {Popup.updateZ(event.target);});
 
 	},
 
+	closeLinked: function(toFrame){
+		Popup.linked.forEach(function(entry, index) {
+			if(entry == null)
+				return true;
+			
+			if(entry[0] != toFrame)
+				return true;
+			
+			Popup.linked[index] = null;
+			
+			Popup.close(entry[1], entry[2]);
+		});
+		
+		Popup.linked = Popup.linked.filter(function(element){
+			if(element == null)
+				return false;
+			
+			return true;
+		});
+	},
+
 	close: function(ID, type){
-		//new Effect.Fade(type+'Details'+ID,{duration: 0.4});
-		var hasTinyMCE = $j("#"+type+'Details'+ID+" textarea[name=tinyMCEEditor]");
-		if(hasTinyMCE.length){
-			tinyMCE.execCommand("mceFocus", false, hasTinyMCE.attr("id"));                    
-			tinyMCE.execCommand("mceRemoveControl", false, hasTinyMCE.attr("id"));
-		}
+		if(!$j("#"+type+'Details'+ID).length)
+			return;
+		
+		var hasTinyMCE = $j("#"+type+'Details'+ID+" textarea[name=tinyMCEEditor], #"+type+'Details'+ID+" .tinyMCEEditor");
+		if(hasTinyMCE.length)
+			tinymce.EditorManager.execCommand('mceRemoveEditor',true, hasTinyMCE.attr("id"));
 		
 		var hasNicEdit = $j("#"+type+'Details'+ID+" textarea[name=nicEdit]");
 		if(hasNicEdit.length)
@@ -300,6 +370,8 @@ var Popup = {
 		//Popup.windowsOpen--;
 		if($j("#"+type+'Details'+ID).length)
 			$j("#"+type+'Details'+ID).fadeOut(400, function(){
+				if($j(this).parent().hasClass("FSWrapper"))
+					$j(this).parent().remove();
 				$j(this).remove();
 			});//$('windows').removeChild($(type+'Details'+ID));
 		Overlay.hideDark(0.1);
@@ -322,19 +394,50 @@ var Popup = {
 	},
 
 	update: function(transport, ID, type){
-		if(!$(type+'Details'+ID)) Popup.create(ID, type);
-		if(!checkResponse(transport)) return;
-
-		$(type+'DetailsContent'+ID).update(transport.responseText);
-		if($j("#"+type+'Details'+ID).outerHeight() > $j(window).height()){
-			$j("#"+type+'Details'+ID).css("top", 10);
-			//console.log($j(window).height());
-			//console.log($j("#"+type+'Details'+ID).offset().top);
-			$j("#"+type+'DetailsContent'+ID).css("max-height", $j(window).height() - 25 - 20).css("overflow", "auto");
+		var exists = $j('#'+type+'Details'+ID).length;
+		
+		if(!exists)
+			Popup.create(ID, type);
+		
+		if(!checkResponse(transport))
+			return;
+		
+		if(exists){
+			var hasTinyMCE = $j("#"+type+'Details'+ID+" textarea[name=tinyMCEEditor], #"+type+'Details'+ID+" .tinyMCEEditor");
+			if(hasTinyMCE.length)
+				tinymce.EditorManager.execCommand('mceRemoveEditor',true, hasTinyMCE.attr("id"));
 		}
+		
+		$(type+'DetailsContent'+ID).update(transport.responseText);
+		Popup.fixHeight();
+		window.setTimeout(Popup.fixHeight, 400);
+		
 			
 		Popup.show(ID, type);
-		//Popup.windowsOpen++;
+	},
+	
+	fixHeight: function(){
+		$j('.popup').each(function(k, v){
+			var top = parseInt($j(v).css("top"));
+			
+			$j(v).find('.popupContent').css("max-height", $j(window).height() - 25 - 20).css("overflow", "auto");
+			
+			if($j(v).outerHeight() + top <= $j(window).height())
+				return true;
+			
+			if(top > 10)
+				$j(v).css("top", 10);
+			
+			//console.log(v);
+		});
+		/*if($j("#"+type+'Details'+ID).outerHeight() > $j(window).height()){
+			if(parseInt($j("#"+type+'Details'+ID).css("top")) > 10)
+				$j("#"+type+'Details'+ID).css("top", 10);
+			
+			$j("#"+container).css("max-height", $j(window).height() - 25 - 20).css("overflow", "auto");
+			
+		}*/
+		
 	},
 
 	show: function(ID, type){
@@ -357,3 +460,9 @@ var Popup = {
 		});
 	}
 }
+
+$j(window).on("resize orientationChanged", function(){
+	//alert("resize!");
+	//$j('.FSWrapper').css('height', $j(window).height());
+	Popup.fixHeight();
+});

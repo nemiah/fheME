@@ -511,7 +511,7 @@ class KalenderEvent extends KalenderEntry {
 			<div class=\"weekEventEntry\" onclick=\"$this->onClick\" style=\"background-color:".($grey ? "#DDD" : $bgColor).";padding:0px;cursor:pointer;height:".$height."px;overflow:hidden;position:absolute;margin-top:{$top}px;width:137px;\">
 				<div style=\"padding:5px;background-color:$titleColor;\">
 					<div style=\"overflow:hidden;\">
-					".(!$this->allDay ? "<b>".$this->formatTime($this->time)."</b>&nbsp;" : "")."".str_replace(" ", "&nbsp;", $this->title)."
+					<small>".(!$this->allDay ? "<b>".$this->formatTime($this->time)."</b>&nbsp;" : "")."".str_replace(" ", "&nbsp;", $this->title)."</small>
 					</div>
 				</div>
 			</div>";
@@ -707,8 +707,8 @@ class KalenderEvent extends KalenderEntry {
 			$zeit = "";
 		
 		return "
-			<div onclick=\"$onClick\" style=\"".($this->status == 2 ? "color:grey;" : "")."clear:left;padding:2px;padding-left:4px;cursor:pointer;".($grey ? "color:grey;" : "")."\">
-				".(($grey AND isset(mKalenderGUI::$colors[$this->owner])) ? "<div style=\"display:inline-block;margin-right:3px;width:5px;background-color:".mKalenderGUI::$colors[$this->owner].";\">&nbsp;</div>" : "")."$zeit $this->title
+			<div onclick=\"$onClick\" style=\"".($this->status == 2 ? "color:grey;" : "")."white-space:nowrap;overflow:hidden;height:13px;/*width:60px;*/clear:left;padding:2px;padding-left:4px;cursor:pointer;".($grey ? "color:grey;" : "")."\">
+				<small>".(($grey AND isset(mKalenderGUI::$colors[$this->owner])) ? "<div style=\"display:inline-block;margin-right:3px;width:5px;background-color:".mKalenderGUI::$colors[$this->owner].";\">&nbsp;</div>" : "")."$zeit $this->title</small>
 			</div>";
 	}
 	

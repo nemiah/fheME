@@ -22,6 +22,21 @@ class Util {
 		return trim(strtolower(pathinfo($filename, PATHINFO_EXTENSION)));
 	}
 	
+	/**
+	 * From http://bavotasan.com/2011/convert-hex-color-to-rgb-using-php/
+	 * 
+	 * @param array $rgb
+	 * @return string
+	 */
+	public static function rgb2hex($rgb) {
+		$hex = "#";
+		$hex .= str_pad(dechex($rgb[0]), 2, "0", STR_PAD_LEFT);
+		$hex .= str_pad(dechex($rgb[1]), 2, "0", STR_PAD_LEFT);
+		$hex .= str_pad(dechex($rgb[2]), 2, "0", STR_PAD_LEFT);
+
+		return $hex; // returns the hex value including the number sign (#)
+	}
+
 	public static function filesTree($files){
 
 		$zipDirectories = array();
@@ -62,7 +77,7 @@ class Util {
 			return null;
 		
 		$h = "CloudHost".str_replace(array(":", "-"), "_", implode("", array_map("ucfirst", explode(".", $host))));
-		
+
 		if(defined("PHYNX_VIA_INTERFACE")){
 			if(file_exists(Util::getRootPath()."specifics/$h.class.php"))
 				require_once(Util::getRootPath()."specifics/$h.class.php");
@@ -331,6 +346,7 @@ class Util {
 				$r .= "{abteilung}\n";
 				$r .= "{position}{titelPrefix}{vorname}{nachname}{titelSuffix}\n";
 				$r .= "{strasse}{nr}\n";
+				$r .= "{zusatz2}\n";
 				$r .= "{plz}{ort}\n";
 				$r .= "{land}";
 			break;
@@ -445,6 +461,10 @@ class Util {
 	public static function isWindowsHost(){
 		return stripos(getenv("OS"), "Windows") !== false;
 	}
+	
+	public static function isLinuxHost(){
+		return stripos(PHP_OS, "Linux") !== false;
+	}
 
 	/**
 	 * Formatiert eine Zahl $number nach Sprache $language
@@ -488,6 +508,24 @@ class Util {
 	
 	public static function CLFormatNumber($number, $digits = "default", $showZero = true, $endingZeroes = true, $thousandSeparator = true){
 		return Util::formatNumber($_SESSION["S"]->getUserLanguage(), $number * 1, $digits, $showZero, $endingZeroes, $thousandSeparator);
+	}
+	
+	public static function formatByCurrency($currency, $number, $useSymbol = false, $dezimalstellen = null){
+		$format = Util::getCurrencyFormat($currency, $useSymbol);
+
+		$float = $number * 1;
+		
+		$negative = false;
+		if($float < 0) $negative = true;
+		$float = abs($float);
+
+		if($dezimalstellen != null)
+			$format[4] = $dezimalstellen;
+
+		$stringCurrency = number_format(Util::kRound($float, $format[4]), $format[4], $format[3], $format[5]);
+		$stringCurrency = str_replace("n", $stringCurrency, $negative ? $format[2] : $format[1]);
+		
+		return $stringCurrency;
 	}
 	
 	/**
@@ -535,7 +573,7 @@ class Util {
 	}*/
 	
 	public static function CLFormatCurrency($number, $withSymbol = false){
-		return Util::formatCurrency($_SESSION["S"]->getUserLanguage(), $number, $withSymbol);
+		return Util::formatCurrency($_SESSION["S"]->getUserLanguage(), $number * 1, $withSymbol);
 	}
 	
 	public static function CLNumberParser($number, $l = "load"){
@@ -688,6 +726,7 @@ class Util {
 	}
 
 	public static function CLDateParserE($date, $l = "load"){
+		if($date == null AND $l == "load") return "";
 		if($date == "0" AND $l == "load") return "";
 		if($date == "" AND $l == "store") return "0";
 		if($l == "load") return Util::formatDate($_SESSION["S"]->getUserLanguage(), $date);
@@ -746,6 +785,10 @@ class Util {
 		if($byte > 1024){
 			$byte /= 1024;
 			$unit = "GB";
+		}
+		if($byte > 1024){
+			$byte /= 1024;
+			$unit = "TB";
 		}
 		if($byte > 1024){
 			$byte /= 1024;
@@ -882,6 +925,58 @@ class Util {
 		}
 	}
 	
+	public static function getCurrencyFormat($currency, $useSymbol = true){
+		switch($currency) {
+			case "EUR":
+				if($useSymbol)
+					return array("€", "n €", "-n €", ",", 2, ".");
+				
+				return array("EUR", "n EUR", "-n EUR", ",", 2, ".");
+		
+			case "CHF":
+				if($useSymbol)
+					return array("SFr.", "SFr. n", "SFr. -n", ".", 2, "'");
+				
+				return array("CHF", "CHF n", "CHF -n", ".", 2, "'");
+		
+			case "USD":
+				if($useSymbol)
+					return array("$", "\$n", "\$(n)", ".", 2, ",");
+				
+				return array("USD", "n USD", "-n USD", ",", 2, ".");
+		
+			case "GBP":
+				if($useSymbol)
+					return array("£", "£ n", "-£ n", ".", 2, ",");
+				
+				return array("GBP", "GBP n", "-GBP n", ".", 2, ",");
+		
+			case "NOK":
+				if($useSymbol)
+					return array("kr", "kr n", "kr -n", ",", 2, " ");
+				
+				return array("NOK", "n NOK", "-n NOK", ",", 2, " ");
+		
+			case "DKK":
+				if($useSymbol)
+					return array("kr.", "kr. n", "kr. -n", ",", 2, ".");
+				
+				return array("DKK", "n DKK", "-n DKK", ",", 2, ".");
+		
+			case "SEK":
+				if($useSymbol)
+					return array("kr", "n kr", "-n kr", ",", 2, ".");
+				
+				return array("SEK", "n SEK", "-n SEK", ",", 2, ".");
+		
+			default:
+				if($useSymbol)
+					return array("€", "n €", "-n €", ",", 2, ".");
+				
+				return array("EUR", "n EUR", "-n EUR", ",", 2, ".");
+		}
+	}
+	
 	public static function getLangCurrencyFormat($languageTag = null){
 		if($languageTag == null)
 			$languageTag = Session::getLanguage();
@@ -895,7 +990,6 @@ class Util {
 		// </editor-fold>
 		
 		$languageTag = substr($languageTag, strpos($languageTag, "_") + 1);
-
 		/* array(
 		 * Currency symbol, 
 		 * positive number Format,
@@ -906,55 +1000,60 @@ class Util {
 		 */
 		switch($languageTag) {
 			case "DE":
-				return array("€", "n €", "-n €", ",", 2, ".");
+				return self::getCurrencyFormat("EUR", true);
 			break;
 		
 			case "DE_EUR":
-				return array("EUR", "n EUR", "-n EUR", ",", 2, ".");
+			case "US_EUR":
+				return self::getCurrencyFormat("EUR", false);
 			break;
 		
 			case "CH":
-				return array("SFr.", "SFr. n", "SFr. -n", ".", 2, "'");
+				return self::getCurrencyFormat("CHF", true);
 			break;
 		
 			case "CH_CHF":
-				return array("CHF", "CHF n", "CHF -n", ".", 2, "'");
+				return self::getCurrencyFormat("CHF", false);
 			break;
 		
 			case "US":
-				return array("$", "\$n", "\$(n)", ".", 2, ",");
+				return self::getCurrencyFormat("USD", true);
 			break;
 		
 			case "GB":
-				return array("£", "£ n", "-£ n", ".", 2, ",");
+				return self::getCurrencyFormat("GBP", true);
+			break;
+		
+			case "GB_GBP":
+				return self::getCurrencyFormat("GBP", false);
 			break;
 		
 			case "NO":
-				return array("kr", "kr n", "kr -n", ",", 2, " ");
+				return self::getCurrencyFormat("NOK", true);
 			break;
 		
 			case "NO_NOK":
-				return array("NOK", "n NOK", "-n NOK", ",", 2, " ");
+				return self::getCurrencyFormat("NOK", false);
 			break;
 		
 			case "DK":
-				return array("kr.", "kr. n", "kr. -n", ",", 2, ".");
+				return self::getCurrencyFormat("DKK", true);
 			break;
 		
 			case "DK_DKK":
-				return array("DKK", "n DKK", "-n DKK", ",", 2, ".");
+				return self::getCurrencyFormat("DKK", false);
 			break;
 		
 			case "SE":
-				return array("kr", "n kr", "-n kr", ",", 2, ".");
+				return self::getCurrencyFormat("SEK", true);
 			break;
 		
 			case "SE_SEK":
-				return array("SEK", "n SEK", "-n SEK", ",", 2, ".");
+				return self::getCurrencyFormat("SEK", false);
 			break;
 		
 			default:
-				return array("€", "n €", "-n €", ",", 2, ".");
+				return self::getCurrencyFormat("EUR", true);
 			break;
 		}
 	}
@@ -1205,7 +1304,7 @@ class Util {
 		$filename = str_replace(array("Ç","ç","É","È","Ê","é","è","ê", "ë", "Č"), array("C","c","E","E","E","e","e","e", "e", "C"), $filename);
 		$filename = str_replace(array("Í","Ì","í","ì", "ï","Õ","Ô","Ó"), array("I","I","i","i", "i","O","O","O"), $filename);
 		$filename = str_replace(array("õ","ô","ó","Ú","ú"), array("o","o","o","U","u"), $filename);
-    	$filename = str_replace(array(":", "–", "\n", "'", "?", "(", ")", ";", "\"", "+", "<", ">", ",", "´", "`"), array("_", "-", "", "", "", "", "", "", "", "", "", "", "", "", ""), $filename);
+    	$filename = str_replace(array(":", "–", "\n", "'", "?", "(", ")", ";", "\"", "+", "<", ">", ",", "´", "`", "|"), array("_", "-", "", "", "", "", "", "", "", "", "", "", "", "", "", "_"), $filename);
 		$filename = str_replace(array("__"), array("_"), $filename);
 
 		return $filename;
@@ -1298,15 +1397,26 @@ class Util {
 		
 		$subdir = (isset($_SESSION["S"]) AND $_SESSION["S"]->getCurrentUser() != null) ? $_SESSION["S"]->getCurrentUser()->getID() : "info";
 		
+		$CH = Util::getCloudHost();
+		if(false AND $CH !== null){
+			$dirtouse = "/tmp";
+			Environment::load();
+			$subdir = Environment::$currentEnvironment->cloudUser()."/$subdir";
+		}
+		
 		$dirtouse .= ($dirtouse[strlen($dirtouse) -1] != "/" ? "/" : "").$subdir."/";
+			
 		if(!is_dir($dirtouse)) {
-			mkdir($dirtouse, 0777);
+			mkdir($dirtouse, 0777, true);
 			chmod($dirtouse, 0777);
 		}
 		
-		if(strpos($dirtouse, Util::getRootPath()) !== false /*AND !file_exists($dirtouse.".htaccess")*/ AND is_writable($dirtouse))
-			file_put_contents($dirtouse.".htaccess", "allow from ".$_SERVER["REMOTE_ADDR"]."\ndeny from all\nallow from ".$_SERVER["REMOTE_ADDR"]."");
-		
+		if(strpos($dirtouse, Util::getRootPath()) !== false /*AND !file_exists($dirtouse.".htaccess")*/ AND is_writable($dirtouse)){
+			if(strstr($_SERVER["REMOTE_ADDR"], ".")) //USE ONLY WHEN ON IPV6 due to APACHE BUG https://issues.apache.org/bugzilla/show_bug.cgi?id=49737
+				file_put_contents($dirtouse.".htaccess", "allow from ".$_SERVER["REMOTE_ADDR"]."\ndeny from all\nallow from ".$_SERVER["REMOTE_ADDR"]."");
+			elseif(file_exists($dirtouse.".htaccess"))
+				unlink($dirtouse.".htaccess");
+		}
 		return $dirtouse;
 	}
 	
@@ -1686,7 +1796,11 @@ class Util {
 		
 		<link rel="stylesheet" type="text/css" href="../styles/'.(isset($_COOKIE["phynx_color"])? $_COOKIE["phynx_color"] : "standard").'/colors.css"></link>
 		<link rel="stylesheet" type="text/css" href="../styles/standard/general.css"></link>
-		
+		<style type="text/css">
+			p {
+				padding:5px;
+			}
+		</style>
 	</head>
 	<body>
 		'.$content.'

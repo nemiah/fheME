@@ -55,6 +55,13 @@ class mInstallationGUI extends mInstallation implements iGUIHTML2 {
 			$g .= $writable->getHTML();
 		}
 		
+		$hide = false;
+		if(isset($_SESSION["DBData"]["external"]) AND $_SESSION["DBData"]["external"] == true){
+			$writable->addRow("<img src=\"./images/navi/notice.png\" style=\"float:left;margin-right:10px;\"/>Die Zugangsdaten werden durch eine externe Datei konfiguriert!");
+			$g .= $writable->getHTML();
+			$hide = true;
+		}
+		
 		$gui = new HTMLGUI();
 		$gui->setName("Datenbank-Zugangsdaten");
 		if($this->collector != null) $gui->setAttributes($this->collector);
@@ -63,7 +70,7 @@ class mInstallationGUI extends mInstallation implements iGUIHTML2 {
 		$gui->hideAttribute("password");
 		$gui->hideAttribute("httpHost");
 		$gui->hideAttribute("InstallationID");
-
+		
 		if(strstr($_SERVER["SCRIPT_FILENAME"],"demo")) {
 			$UA = $_SESSION["S"]->getCurrentUser()->getA();
 			if($UA->name != "Installations-Benutzer"){
@@ -77,6 +84,7 @@ class mInstallationGUI extends mInstallation implements iGUIHTML2 {
 			$gui->setEditInDisplayMode(true, "contentLeft");
 		}
 		#try {
+		if(!$hide)
 			$g .= $gui->getBrowserHTML($id);
 		#} catch (Exception $e){
 		#	$t->addRow(array("Etwas stimmt nicht, eine ".get_class($e)." wurde abgefangen!"));
@@ -113,72 +121,7 @@ class mInstallationGUI extends mInstallation implements iGUIHTML2 {
 			$BackupButton->onclick("contentManager.loadFrame('contentLeft','BackupManager');");
 		} catch(Exception $e){}
 		
-		return $ST.$g;#.$t->getHTML();
-			
-			
-		$t = new HTMLTable(1);
-		try {
-			$user = new User(1);
-			$user->loadMe();
-		}
-		catch (DatabaseNotSelectedException $e) {
-			if(BPS::getProperty("mInstallationGUI", "showErrorText", false)){
-				$t->addRow(isset($text["noDatabase"]) ? $text["noDatabase"] : "Es wurde kein korrekter Datenbankname angegeben.<br /><br />Bitte geben Sie eine existierende Datenbank an, sie wird nicht automatisch erzeugt.");
-				$t->addRowClass("backgroundColor0");
-				$t->addRowStyle("color:red;");
-			}
-			
-			return $g.$t->getHTML();#.$help;
-		}
-		catch (NoDBUserDataException $e) { 
-			if(BPS::getProperty("mInstallationGUI", "showErrorText", false)){
-				$t->addRow(isset($text["wrongData"]) ? $text["wrongData"] : "Mit den angegebenen Datenbank-Zugangsdaten kann keine Verbindung aufgebaut werden.<br /><br />Wenn sie korrekt sind, werden hier weitere Möglichkeiten angezeigt angezeigt.");
-				$t->addRowClass("backgroundColor0");
-				$t->addRowStyle("color:red;");
-			}
-			
-			if(PHYNX_MAIN_STORAGE == "MySQL") {
-				try {
-					$DB1 = new DBStorageU();
-					
-					$B = new Button("Hinweis", "notice", "icon");
-					$B->style("float:left;margin-right:10px;");
-					
-					$File = new File(Util::getRootPath()."system/connect.php");
-					
-					$BR = new Button("DB-Verbindung\numstellen", "lieferschein");
-					$BR->style("float:right;margin-left:10px;");
-					$BR->rmePCR("mInstallation", "-1", "switchDBToMySQLo", "", "Installation.reloadApp();");
-					
-					$BR = "Verwenden Sie den nebenstehenden Knopf, um die Verbindungsart auf die ältere Version umzustellen.<br />$BR Sie müssen sich anschließend erneut anmelden.";
-					
-					$BReload = new Button("Ansicht\naktualisieren","refresh");
-					$BReload->onclick("contentManager.emptyFrame('contentLeft'); contentManager.loadFrame('contentRight', 'mInstallation', -1, 0, 'mInstallationGUI;-');Popup.closeNonPersistent();");
-					$BReload->style("float:right;margin:10px;");
-					
-					if(!$File->A("FileIsWritable"))
-						$BR = "Bitte machen Sie die Datei /system/connect.php für den Webserver beschreibbar, damit phynx auf die ältere Verbindungsart umstellen kann.<br /><br />Verwenden Sie dazu Ihr FTP-Programm. Klicken Sie mit der rechten Maustaste auf die Datei auf dem Server, wählen Sie \"Eigenschaften\", und geben Sie den Modus 666 an, damit sie durch den Besitzer, die Gruppe und alle Anderen les- und schreibbar ist.$BReload";
-					$t->addRow(array("$B <b>Möglicherweise ist die MySQLi-Erweiterung auf Ihrem Server nicht korrekt konfiguriert.</b><br /><br />$BR"));
-					$t->addRowClass("backgroundColor0");
-					
-				} catch (Exception $e){
-					#echo "MySQL geht auch nicht!";
-				}
-			}
-			
-			return $g.$t->getHTML();#.$help;
-		}
-		
-		catch (TableDoesNotExistException $e) {}
-		catch (StorageException $e) {}
-
-			/*$help = "
-	<script type=\"text/javascript\">
-		rme('mInstallation','','getHelp','false','if(checkResponse(transport)) { Popup.create(\'123\', \'Installation\', \'Hilfe\'); Popup.update(transport, \'123\', \'Installation\'); }');
-	</script>";*/
-
-			
-		/*if(false AND $id == -1) {
+		/*if($id == -1) {
 			$BackupTab = new HTMLTable(1);
 
 			$BackupButton = new Button("Backup-\nManager","disk");
@@ -239,19 +182,84 @@ class mInstallationGUI extends mInstallation implements iGUIHTML2 {
 				$g .= "
 		<tr>
 			<td style=\"font-weight:bold;text-align:right;\">".($value != -1 ? $value : $key )."</td>
-			<td>".(!$c->checkIfMyTableExists() ? ($c->checkIfMyDBFileExists() ? "<input type=\"button\" value=\"".(isset($text["Tabelle anlegen"]) ? $text["Tabelle anlegen"] : "Tabelle anlegen")."\" onclick=\"installTable('$key');\" />" : "keine DB-Info-Datei" ) : ($c->checkIfMyDBFileExists() ? "<input type=\"button\" onclick=\"checkFields('$key');\" value=\"Tabellenupdate\" style=\"float:right;width:140px;\" />".(isset($text["Tabelle existiert"]) ? $text["Tabelle existiert"] : "Tabelle existiert") : (isset($text["keine DB-Info-Datei"]) ? $text["keine DB-Info-Datei"] : "keine DB-Info-Datei"))."")."</td>
+			<td>".(!$c->checkIfMyTableExists() ? ($c->checkIfMyDBFileExists() ? "<input type=\"button\" value=\"".(isset($text["Tabelle anlegen"]) ? $text["Tabelle anlegen"] : "Tabelle anlegen")."\" onclick=\"".OnEvent::rme($key, "createMyTable", "", "function(t){ \$j('#contentLeft').html(t.responseText); }")."installTable('$key');\" />" : "keine DB-Info-Datei" ) : ($c->checkIfMyDBFileExists() ? "<input type=\"button\" onclick=\"checkFields('$key');\" value=\"Tabellenupdate\" style=\"float:right;width:140px;\" />".(isset($text["Tabelle existiert"]) ? $text["Tabelle existiert"] : "Tabelle existiert") : (isset($text["keine DB-Info-Datei"]) ? $text["keine DB-Info-Datei"] : "keine DB-Info-Datei"))."")."</td>
 		</tr>";
 			}
 
 			$g .= "
 	</table>";
 		}*/
+		
+		return $ST.$g;#.$t->getHTML();
+			
+			
+		$t = new HTMLTable(1);
+		try {
+			$user = new User(1);
+			$user->loadMe();
+		}
+		catch (DatabaseNotSelectedException $e) {
+			if(BPS::getProperty("mInstallationGUI", "showErrorText", false)){
+				$t->addRow(isset($text["noDatabase"]) ? $text["noDatabase"] : "Es wurde kein korrekter Datenbankname angegeben.<br /><br />Bitte geben Sie eine existierende Datenbank an, sie wird nicht automatisch erzeugt.");
+				$t->addRowClass("backgroundColor0");
+				$t->addRowStyle("color:red;");
+			}
+			
+			return $g.$t->getHTML();
+		}
+		catch (NoDBUserDataException $e) { 
+			if(BPS::getProperty("mInstallationGUI", "showErrorText", false)){
+				$t->addRow(isset($text["wrongData"]) ? $text["wrongData"] : "Mit den angegebenen Datenbank-Zugangsdaten kann keine Verbindung aufgebaut werden.<br /><br />Wenn sie korrekt sind, werden hier weitere Möglichkeiten angezeigt angezeigt.");
+				$t->addRowClass("backgroundColor0");
+				$t->addRowStyle("color:red;");
+			}
+			
+			if(PHYNX_MAIN_STORAGE == "MySQL") {
+				try {
+					$DB1 = new DBStorageU();
+					
+					$B = new Button("Hinweis", "notice", "icon");
+					$B->style("float:left;margin-right:10px;");
+					
+					$File = new File(Util::getRootPath()."system/connect.php");
+					
+					$BR = new Button("DB-Verbindung\numstellen", "lieferschein");
+					$BR->style("float:right;margin-left:10px;");
+					$BR->rmePCR("mInstallation", "-1", "switchDBToMySQLo", "", "Installation.reloadApp();");
+					
+					$BR = "Verwenden Sie den nebenstehenden Knopf, um die Verbindungsart auf die ältere Version umzustellen.<br />$BR Sie müssen sich anschließend erneut anmelden.";
+					
+					$BReload = new Button("Ansicht\naktualisieren","refresh");
+					$BReload->onclick("contentManager.emptyFrame('contentLeft'); contentManager.loadFrame('contentRight', 'mInstallation', -1, 0, 'mInstallationGUI;-');Popup.closeNonPersistent();");
+					$BReload->style("float:right;margin:10px;");
+					
+					if(!$File->A("FileIsWritable"))
+						$BR = "Bitte machen Sie die Datei /system/connect.php für den Webserver beschreibbar, damit phynx auf die ältere Verbindungsart umstellen kann.<br /><br />Verwenden Sie dazu Ihr FTP-Programm. Klicken Sie mit der rechten Maustaste auf die Datei auf dem Server, wählen Sie \"Eigenschaften\", und geben Sie den Modus 666 an, damit sie durch den Besitzer, die Gruppe und alle Anderen les- und schreibbar ist.$BReload";
+					$t->addRow(array("$B <b>Möglicherweise ist die MySQLi-Erweiterung auf Ihrem Server nicht korrekt konfiguriert.</b><br /><br />$BR"));
+					$t->addRowClass("backgroundColor0");
+					
+				} catch (Exception $e){
+					#echo "MySQL geht auch nicht!";
+				}
+			}
+			
+			return $g.$t->getHTML();
+		}
+		
+		catch (TableDoesNotExistException $e) {}
+		catch (StorageException $e) {}
+
+			/*$help = "
+	<script type=\"text/javascript\">
+		rme('mInstallation','','getHelp','false','if(checkResponse(transport)) { Popup.create(\'123\', \'Installation\', \'Hilfe\'); Popup.update(transport, \'123\', \'Installation\'); }');
+	</script>";*/
+
 		#$showHelp = false;
 		#if(!$showHelp)
 		#	$help = OnEvent::script(OnEvent::closePopup("123", "Installation"));
 
 
-		return $ST.$g;#.$help;
+		#return $ST.$g;#.$help;
 	}
 	
 	public function manageMailservers(){

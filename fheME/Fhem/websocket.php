@@ -29,7 +29,8 @@ session_name("ExtConnFhem");
 
 require_once realpath(dirname(__FILE__)."/../../system/connect.php");
 
-
+$lastCommand = null;
+$lastCommandC = 0;
 $fp = stream_socket_client("tcp://localhost:7072", $errno, $errstr, 30);
 if (!$fp) {
     echo "$errstr ($errno)<br />\n";
@@ -40,6 +41,19 @@ if (!$fp) {
 		
 		if($line === false)
 			continue;
+		
+		
+		if($line == $lastCommand)
+			$lastCommandC++;
+		else
+			$lastCommandC = 0;
+		
+		if($line == $lastCommand AND $lastCommandC > 3)
+			continue;
+		
+		$lastCommand = $line;
+		
+		#echo $line."\n";
 		
 		$ex = explode(" ", $line);
 		$type = $ex[0];

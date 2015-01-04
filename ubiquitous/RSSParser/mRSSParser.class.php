@@ -1,13 +1,13 @@
-/*
- *
- *  This file is part of phynx.
+<?php
+/**
+ *  This file is part of ubiquitous.
 
- *  phynx is free software; you can redistribute it and/or modify
+ *  ubiquitous is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 3 of the License, or
  *  (at your option) any later version.
 
- *  phynx is distributed in the hope that it will be useful,
+ *  ubiquitous is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
@@ -15,15 +15,14 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
- var Observer = {
-	lastMouseX: 0,
-	lastMouseY: 0
+class mRSSParser extends anyC {
+	public static function update(){
+		$AC = anyC::get("RSSParser", "RSSParserUseCache", "1");
+		while($R = $AC->n())
+			$R->download();
+	}
 }
-
-$j(document).mousemove(function(event){
-	Observer.lastMouseX = event.pageX;
-	Observer.lastMouseY = event.pageY;
-});
+?>

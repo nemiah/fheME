@@ -23,6 +23,7 @@ class HTMLColGUI {
 	private $object;
 	private $cols = 3;
 	private $resize = "";
+	private $widths;
 	
 	function __construct($object) {
 		$this->object = $object;
@@ -30,6 +31,10 @@ class HTMLColGUI {
 	
 	function cols($count){
 		$this->cols = $count;
+	}
+	
+	function widths(array $cols){
+		$this->widths = $cols;
 	}
 	
 	function content($col, $content, $id = -1){
@@ -83,13 +88,13 @@ class HTMLColGUI {
 		
 		if($this->cols == 3){
 			$html = "
-		<div style=\"-webkit-box-sizing:border-box;-moz-box-sizing:border-box;-ms-box-sizing:border-box;box-sizing:border-box;display:inline-block;vertical-align:top;width:33%;margin:0px;padding:0px;min-height:500px;\" id=\"contentScreenLeft\">
+		<div style=\"-webkit-box-sizing:border-box;-moz-box-sizing:border-box;-ms-box-sizing:border-box;box-sizing:border-box;display:inline-block;overflow:auto;vertical-align:top;width:".($this->widths != null ? $this->widths["left"] : "33%").";margin:0px;padding:0px;min-height:500px;\" id=\"contentScreenLeft\">
 			
 				".$this->content["left"]."
 			
-		</div><div style=\"-webkit-box-sizing:border-box;-moz-box-sizing:border-box;-ms-box-sizing:border-box;box-sizing:border-box;overflow:auto;display:inline-block;width:33%;vertical-align:top;border-left-style:solid;border-left-width:1px;margin:0px;padding:0px;min-height:400px;\" id=\"contentScreenCenter\" class=\"borderColor1\">
+		</div><div style=\"-webkit-box-sizing:border-box;-moz-box-sizing:border-box;-ms-box-sizing:border-box;box-sizing:border-box;overflow:auto;display:inline-block;width:".($this->widths != null ? $this->widths["center"] : "33%").";vertical-align:top;border-left-style:solid;border-left-width:1px;margin:0px;padding:0px;min-height:400px;\" id=\"contentScreenCenter\" class=\"borderColor1\">
 			".$this->content["center"]."
-		</div><div style=\"-webkit-box-sizing:border-box;-moz-box-sizing:border-box;-ms-box-sizing:border-box;box-sizing:border-box;overflow:auto;display:inline-block;width:33%;vertical-align:top;border-left-style:solid;border-left-width:1px;margin:0px;min-height:400px;\" id=\"contentScreenRight\" class=\"borderColor1\">
+		</div><div style=\"-webkit-box-sizing:border-box;-moz-box-sizing:border-box;-ms-box-sizing:border-box;box-sizing:border-box;overflow:auto;display:inline-block;width:".($this->widths != null ? $this->widths["right"] : "33%").";vertical-align:top;border-left-style:solid;border-left-width:1px;margin:0px;min-height:400px;\" id=\"contentScreenRight\" class=\"borderColor1\">
 			".$this->content["right"]."
 		</div>";
 		

@@ -139,13 +139,29 @@ if($sephy AND isset($sephy[3]) AND $sephy[3])
 <html>
 	<head>
 		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
-		<meta name="revisit-after" content="14 days" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
 		<title><?php echo $title ?></title>
 
 		<link rel="shortcut icon" href="<?php echo $favico ?>" /> 
 		
 		<!--<script src="https://login.persona.org/include.js"></script>-->
+		<script type="text/javascript">
+			window.paceOptions = {
+				ajax: {
+					trackMethods: ['POST'],
+					trackWebSockets: false,
+					ignoreURLs: []
+				},
+				elements: false//,
+				//document: false,
+				//eventLag: false,
+				
+				//restartOnRequestAfter: 500,
+				//restartOnPushState: true
+			};
+		</script>
+		<script type="text/javascript" src="./libraries/pace/pace.min.js"></script>
+		<link href="./libraries/pace/pace-theme-minimal.css" rel="stylesheet" />
 		
 		<script type="text/javascript" src="./libraries/jquery/jquery-1.9.1.min.js"></script>
 		<script type="text/javascript" src="./libraries/jquery/jquery-ui-1.10.1.custom.min.js"></script>
@@ -170,13 +186,13 @@ if($sephy AND isset($sephy[3]) AND $sephy[3])
 		<script type="text/javascript" src="./libraries/iconic/iconic.min.js"></script>
 		<script type="text/javascript" src="./libraries/tinymce/tinymce.min.js?r=<?php echo $build; ?>"></script>
 		<script type="text/javascript" src="./libraries/tinymce/jquery.tinymce.min.js?r=<?php echo $build; ?>"></script>
-
+		
 		
 		<script type="text/javascript" src="./javascript/P2J.js?r=<?php echo $build; ?>"></script>
 		<script type="text/javascript" src="./javascript/Registry.js?r=<?php echo $build; ?>"></script>
 
 		<script type="text/javascript" src="./javascript/Aspect.js?r=<?php echo $build; ?>"></script>
-		<script type="text/javascript" src="./javascript/Observer.js?r=<?php echo $build; ?>"></script>
+		<!--<script type="text/javascript" src="./javascript/Observer.js?r=<?php echo $build; ?>"></script>-->
 		<script type="text/javascript" src="./javascript/Overlay.js?r=<?php echo $build; ?>"></script>
 		<script type="text/javascript" src="./javascript/Menu.js?r=<?php echo $build; ?>"></script>
 		<script type="text/javascript" src="./javascript/autoComplete.js?r=<?php echo $build; ?>"></script>
@@ -185,7 +201,7 @@ if($sephy AND isset($sephy[3]) AND $sephy[3])
 		<script type="text/javascript" src="./javascript/Interface.js?r=<?php echo $build; ?>"></script>
 		<script type="text/javascript" src="./javascript/Popup.js?r=<?php echo $build; ?>"></script>
 		<script type="text/javascript" src="./javascript/contentManager.js?r=<?php echo $build; ?>"></script>
-		<script type="text/javascript" src="./javascript/DesktopLink.js?r=<?php echo $build; ?>"></script>
+		<!--<script type="text/javascript" src="./javascript/DesktopLink.js?r=<?php echo $build; ?>"></script>-->
 		<script type="text/javascript" src="./javascript/notificationArea.js?r=<?php echo $build; ?>"></script>
 		<script type="text/javascript" src="./javascript/handler.js?r=<?php echo $build; ?>"></script>
 		<script type="text/javascript" src="./javascript/Util.js?r=<?php echo $build; ?>"></script>
@@ -706,10 +722,12 @@ if($sephy AND isset($sephy[3]) AND $sephy[3])
 				if(!$updateTitle)
 					echo "
 				contentManager.updateTitle = false;";
+				
+
+				echo "contentManager.init('".(isset($_COOKIE["phynx_layout"]) ? $_COOKIE["phynx_layout"] : "horizontal")."');";
+				
 				?>
-
-				contentManager.init();
-
+				
 				$j('#altLogins').hover(function(){
 					$j(this).fadeTo('fast', 1);
 				}, function(){
@@ -741,7 +759,7 @@ if($sephy AND isset($sephy[3]) AND $sephy[3])
 		</script>
 		
 		<div style="display:none;" id="messageSetup" title="Ersteinrichtung">
-			<?php echo T::_("Bitte verwenden Sie '<b>Admin</b>' als Benutzername und Passwort, um mit der Ersteinrichtung dieser Anwendung fortzufahren."); ?>
+			<?php echo T::_("Bitte verwenden Sie '<b>Admin</b>' als Benutzername und als Passwort, um mit der Ersteinrichtung dieser Anwendung fortzufahren."); ?>
 		</div>
 		
 		<div style="display:none;" id="messageTouch" title="Touch-Eingabe">

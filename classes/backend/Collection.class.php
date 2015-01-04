@@ -470,8 +470,10 @@ abstract class Collection {
 	 */
 	function getNextEntry(){
 		if($this->collector === null) $this->lCV3();
-		if(isset($this->collector[$this->i])) return $this->collector[$this->i++];
-		else return null;
+		if(isset($this->collector[$this->i]))
+			return $this->collector[$this->i++];
+		
+		return null;
 	}
 	
 	/**
@@ -753,6 +755,26 @@ abstract class Collection {
 	
 	public function getCategoryFieldLabel(array $KIDs){
 		return null;
+	}
+	
+	/**
+	 * Returns the next entry of the associated Collector.
+	 * 
+	 * @return persistentObject Next entry of Collector
+	 */
+	function n(){
+		return $this->getNextEntry();
+	}
+	
+	public function setTableLock(string $table, boolean $lock){
+		if($this->Adapter == null)
+			$this->loadAdapter();
+		
+		if($lock)
+			$this->Adapter->lockTable($table);
+		
+		if(!$lock)
+			$this->Adapter->unlockTable($table);
 	}
 }
 ?>

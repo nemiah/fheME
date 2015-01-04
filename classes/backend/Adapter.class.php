@@ -62,6 +62,7 @@ class Adapter {
 	    if($this->storage == "File") $this->DBS = new FileStorage();
 	    if($this->storage == "MSSQL") $this->DBS = new MSSQLStorage();
 	    if($this->storage == "Cloud") $this->DBS = new CloudStorage();
+	    if($this->storage == "DBPDO") $this->DBS = new DBPDOStorage();
 
 	    return $this->DBS;
 	}
@@ -203,6 +204,16 @@ class Adapter {
 	function alterTable($CIA){
 		if($this->DBS == null) $this->getConnection();
 		return $this->DBS->alterTable($CIA);
+	}
+	
+	public function lockTable($table){
+		if($this->DBS == null) $this->getConnection();
+		return $this->DBS->lockTable($table);
+	}
+	
+	public function unlockTable($table){
+		if($this->DBS == null) $this->getConnection();
+		return $this->DBS->unlockTable($table);
 	}
 	
 	/**

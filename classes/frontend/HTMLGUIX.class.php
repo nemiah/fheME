@@ -85,12 +85,17 @@ class HTMLGUIX {
 	protected $useScreenHeight = false;
 	protected $hiddenJS = "";
 	protected $tableWeight;
+	protected $placeholders = array();
 	
 	public function __construct($object = null, $collectionName = null){
 		if($object != null)
 			$this->object($object, $collectionName);
 
 		$this->languageClass = $this->loadLanguageClass("HTML");
+	}
+	
+	public function placeholder($fieldName, $value){
+		$this->placeholders[$fieldName] = $value;
 	}
 	
 	public function tableWeight($weight){
@@ -106,6 +111,9 @@ class HTMLGUIX {
 	}
 
 	public function tip(){
+		if(Environment::getS("hideTooltips", "0") == "1")
+			return "";
+		
 		$targetClass = $this->object->getClearClass();
 		
 		$this->tip = self::tipJS($targetClass);
@@ -223,9 +231,17 @@ class HTMLGUIX {
 		else
 			$B = $labelOrButton;
 		
+		if($this->object instanceof PersistentObject)
+			$B->link("contentLeft");
+		
+		
 		$this->sideButtons[] = $B;
 
 		return $B;
+	}
+	
+	public function addSideRow($content){
+		$this->sideButtons[] = $content;
 	}
 
 	/**
@@ -387,7 +403,7 @@ class HTMLGUIX {
 
 		if($DM == "popupN")
 			$this->addToEvent("onSave", "/*ADD*/ Popup.close('".$this->object->getClearClass("GUI")."', 'edit');");
-		
+				
 		if($DM == "popupS")
 			$this->addToEvent("onSave", "/*ADD*/ contentManager.reloadFrame('contentScreen'); Popup.close('".$this->object->getClearClass("GUI")."', 'edit');");
 
@@ -586,6 +602,9 @@ class HTMLGUIX {
 		foreach($this->labels AS $n => $l)
 			$F->setLabel($n, T::_($l));
 
+		foreach($this->placeholders AS $n => $l)
+			$F->setPlaceholder($n, $l);
+		
 		foreach($this->descriptionsField AS $n => $l)
 			$F->setDescriptionField($n, T::_($l));
 
@@ -758,11 +777,11 @@ class HTMLGUIX {
 		foreach ($this->appended AS $PE)
 			$appended .= $PE;
 		
-		return "<div class=\"browserContainer\">".$prepend.$this->topButtons($bps).$this->sideButtons($bps).$GUIF->getContainer($Tab, $this->caption)."$appended</div>".str_replace("%CLASSNAME", $this->className, $this->sortable).$this->tip;
+		return "<div class=\"browserContainer\">".$prepend.$this->topButtons($bps).$this->sideButtons($bps).$GUIF->getContainer($Tab, $this->caption, $appended)."</div>".str_replace("%CLASSNAME", $this->className, $this->sortable).$this->tip;
 	}
 	// </editor-fold>
 
-	public function sortable($handleClass = null){
+	public function sortable($handleClass = null, $targetID = null){
 		$this->sortable = "<script type=\"text/javascript\">
 			\$j('#Browserm%CLASSNAME tbody').sortable({
 				helper: function(e, ui) {
@@ -774,7 +793,7 @@ class HTMLGUIX {
 				},
 				update: function(){
 					var newOrder = \$j(this).sortable('serialize', {expression: /([a-zA-Z]+)([0-9]+)/}).replace(/\[\]=/g, '').replace(/&/g, ';').replace(/[a-zA-Z]*/g, '');
-					contentManager.rmePCR('m%CLASSNAME', '-1', 'saveOrder', newOrder);
+					contentManager.rmePCR('m%CLASSNAME', '-1', 'saveOrder', [newOrder".($targetID !== null ? ", $targetID" : "")."]);
 				},
 				axis: 'y'".($handleClass != null ? ",
 				handle: \$j('.$handleClass')" : "")."

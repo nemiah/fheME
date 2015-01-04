@@ -240,7 +240,7 @@ END:VCALENDAR";
 		$T = new TodoGUI($id);
 		$T->GUI = new HTMLGUIX($T);
 		$T->GUI->displayMode("popupS");
-		$T->GUI->requestFocus("TodoKunde", "TodoName");
+		$T->GUI->requestFocus("TodoName");
 		#if($id == -1)
 		$T->GUI->addToEvent("onSave", OnEvent::popup("Event", "mKalender", "-1", "getInfo", array("'mTodoGUI'", "transport.responseText", "'$date'")));
 		
@@ -252,10 +252,10 @@ END:VCALENDAR";
 		
 		$T->getHTML($id);
 
-		if($T->A("TodoClass") == "Kalender" OR $T->A("TodoClass") == "DBMail")
+		#if($T->A("TodoClass") == "Kalender" OR $T->A("TodoClass") == "DBMail")
 			$T->GUI->insertAttribute("after", "TodoClassID", "TodoName");
 
-		echo $T->GUI->getEditHTML().OnEvent::script("\$j('#editTodoGUI input[name=TodoName]').trigger('focus');");
+		echo $T->GUI->getEditHTML();#.OnEvent::script("\$j('#editTodoGUI input[name=TodoName]').trigger('focus');");
 	}
 
 	function deleteFromCalendar($todoID, $makeException = false){
@@ -399,6 +399,7 @@ END:VCALENDAR";
 		
 		
 		$ACS = anyC::get("Userdata", "name", "shareCalendarTo".Session::currentUser()->getID());
+		$ACS->addAssocV3("name", "=", "shareCalendarTo0", "OR");
 		while($Share = $ACS->getNextEntry()){
 			
 			$U = new User($Share->A("UserID"));

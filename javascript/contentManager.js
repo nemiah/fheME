@@ -39,10 +39,14 @@ var contentManager = {
 	currentPlugin: null,
 	historyLeft: [],
 	historyRight: [],
+	layout: "",
 	
 	maxHeight: function(){
-		if($j('#desktopWrapper').length > 0)
+		if(contentManager.layout == "desktop")
 			return $j('#wrapper').height() - $j('#wrapperTable').height() - 20; // 20 px padding on contentLeft and contentRight
+		
+		if(contentManager.layout == "vertical")
+			return $j(window).height() - $j('#footer').height() - 30; // 20 px padding on contentLeft and contentRight
 		
 		return ($j(window).height() - $j('#navTabsWrapper').outerHeight() - $j('#footer').height() - 30);
 	},
@@ -51,6 +55,10 @@ var contentManager = {
 		if(!getWindow && $j('#desktopWrapper').length > 0)
 			return $j('#wrapper').width();
 		
+		
+		if(contentManager.layout == "vertical")
+			return ($j(window).width() -$j('#navigation').outerWidth() - 1 - $j('#phim:visible').outerWidth());
+	
 		return ($j(window).width() - $j('#phim:visible').outerWidth());
 	},
 			
@@ -95,14 +103,16 @@ var contentManager = {
 			$j('#contentLeft').append("<div style=\"height:"+contentManager.maxHeight()+"px\"></div>");
 	},
 	
-	init: function(){
+	init: function(layout){
 		Interface.init();
 		Overlay.init();
+		contentManager.layout = layout;
+		
 		loadMenu();
 		$('contentLeft').update();
 		//if (document.cookie == "") document.cookie = "CookieTest = Erfolgreich"
 		if (!navigator.cookieEnabled) alert("In Ihrem Browser sind Cookies deaktiviert.\nBitte aktivieren Sie Cookies, damit diese Anwendung funktioniert.");
-		DesktopLink.init();
+		//DesktopLink.init();
 		
 		if($j.jStorage.get('phynxHideNavigation', false))
 			$j('#navigation').hide();
@@ -257,7 +267,7 @@ var contentManager = {
 				if(historyPlugin == "ObjekteL")
 					historyPlugin = "mObjektL";
 
-				if(contentManager.historyLeft[historyPlugin]){
+				if(contentManager.historyLeft[historyPlugin] && contentManager.historyLeft[historyPlugin][1] != -1){
 					var found = false;
 					if($j('#Browser'+historyPlugin+contentManager.historyLeft[historyPlugin][1]).length)
 						found = true;
@@ -481,6 +491,8 @@ var contentManager = {
 	},
 
 	emptyFrame: function(targetFrame){
+		Popup.closeLinked(targetFrame);
+		
 		if(targetFrame == "contentLeft"){
 			lastLoadedLeft        = -1;
 			lastLoadedLeftPlugin  = "";
@@ -555,11 +567,16 @@ var contentManager = {
 	},
 
 	editInPopup: function(plugin, withId, title, bps, options){
-		contentManager.loadContent(plugin, withId, 0, bps, function(transport) {Popup.create(plugin, 'edit', title, options);Popup.update(transport, plugin, 'edit');});
+		contentManager.loadContent(plugin, withId, 0, bps, function(transport) { 
+			Popup.create(plugin, 'edit', title, options);
+			Popup.update(transport, plugin, 'edit');
+		});
 	},
 
 	loadInPopup: function(title, plugin, withId, page, bps){
-		contentManager.loadContent(plugin, withId, page, bps, function(transport) {Popup.displayNamed(plugin, title, transport);});
+		contentManager.loadContent(plugin, withId, page, bps, function(transport) { 
+			Popup.displayNamed(plugin, title, transport);
+		});
 	},
 
 	loadContent: function(plugin, withId, page, bps, onSuccessFunction, hideError){
@@ -578,6 +595,8 @@ var contentManager = {
 		if(typeof page == "undefined") page = 0;
 		var arg = arguments;
 
+		Popup.closeLinked(target);
+		
 		if(target == "contentRight"){
 			lastLoadedRightPlugin = plugin;
 			lastLoadedRightPage = page;

@@ -34,7 +34,7 @@ class Button {
 	private $js = "";
 	private $before = "";
 	private $loading = false;
-	
+	private $link = null;
 	/**
 	 * Use this class to display a button
 	 * You may omitt the whole path to the $image and only give the image name e.g. "new", if the image is in the folder ./images/navi/.
@@ -48,13 +48,21 @@ class Button {
 		$this->type($type);
 	}
 
+	function link($toFrame = null){
+		$this->link = $toFrame;
+	}
+	
 	function loading(){
 		$this->loading = true;
 	}
 	
 	function getAction(){
+		if($this->before != "")
+			$this->rme = str_replace("%AFTER", $this->rme, $this->before);
+		
 		$rme = $this->rme;
 		$this->rme = null;
+		$this->before = null;
 		
 		return $rme;
 	}
@@ -82,6 +90,7 @@ class Button {
 				
 			case "bigButton":
 			case "LPBig":
+			case "MPBig":
 				$this->type = $type;
 				$this->class = "backgroundColor3";
 			break;
@@ -157,6 +166,10 @@ class Button {
 		$this->rme = "contentManager.backupFrame('contentRight','selectionOverlay'); contentManager.rightSelection(".($isMultiSelection ? "true" : "false").", '$selectPlugin','$callingPlugin','$callingPluginID','$callingPluginFunction');";
 
 	}
+	
+	function sidePanel($targetClass, $targetClassId, $targetMethod, $targetMethodParameters = "", $popupName = "edit"){
+		$this->onclick(OnEvent::popupSidePanel($targetClass, $targetClassId, $targetMethod, $targetMethodParameters, $popupName));
+	}
 
 	function leftSelect($isMultiSelection, $selectPlugin, $callingPlugin, $callingPluginID, $callingPluginFunction){
 		$this->rme = " contentManager.backupFrame('contentLeft','selectionOverlay'); contentManager.leftSelection(".($isMultiSelection ? "true" : "false").", '$selectPlugin','$callingPlugin','$callingPluginID','$callingPluginFunction');";
@@ -166,11 +179,17 @@ class Button {
 		$this->rme = " contentManager.backupFrame('$targtFrame','selectionOverlay'); contentManager.customSelection('$targtFrame', '$callingPluginID', '$selectPlugin', '$selectJSFunction', '$addBPS', ".($options == "" ? "{}" : $options).");";
 	}
 	
+	/**
+	 * @deprecated since version 20140623
+	 */
 	function rme($targetClass, $targetClassId, $targetMethod, $targetMethodParameters = "", $onSuccessFunction = "", $bps = ""){
 		if(is_object($targetClass)) $targetClass = str_replace("GUI","",get_class($targetClass));
 		$this->rme = "contentManager.rmePCR('$targetClass', '$targetClassId', '$targetMethod', Array(".(is_array($targetMethodParameters) ? implode(",",$targetMethodParameters) : "'".$targetMethodParameters."'")."), '$onSuccessFunction', '$bps');";
 	}
 	
+	/**
+	 * @deprecated since version 20140623
+	 */
 	function rmeP($targetClass, $targetClassId, $targetMethod, $targetMethodParameters = "", $onSuccessFunction = "", $bps = ""){
 		$this->rme = "rmeP('$targetClass', '$targetClassId', '$targetMethod', Array(".(is_array($targetMethodParameters) ? implode(",",$targetMethodParameters) : "'".$targetMethodParameters."'")."), '$onSuccessFunction', '$bps');";
 	}
@@ -199,14 +218,14 @@ class Button {
 		$this->rme = "contentManager.rmePCR('$targetClass', '$targetClassId', '$targetMethod', [".(is_array($targetMethodParameters) ? implode(",",$targetMethodParameters) : "'".$targetMethodParameters."'")."], $onSuccessFunction, '$bps', ".($doResponseCheck ? "true" : "false")." ".($onFailureFunction != "" ? ", $onFailureFunction" : "").");";
 	}
 
-	function settings($plugin, $identifier = ""){
+	function settings($plugin, $identifier = "", $leftOrRight = "right"){
 		$this->settings = $B = new Button("Einstellungen", "wrench", "iconic");
 
 		if(strpos($this->style, "float:right;") !== false)
 			$B->style("float:right;margin-right:-22px;");
 		else
 			$B->style("margin-left:4px;margin-bottom:15px;");
-		$B->contextMenu($plugin, $identifier, "Einstellungen:");
+		$B->contextMenu($plugin, $identifier, "Einstellungen:", $leftOrRight);
 		
 		$B->className("buttonSettings iconicG");
 		
@@ -245,6 +264,13 @@ class Button {
 	}
 	
 	function popup($name, $title, $targetClass, $targetClassId, $targetMethod, $targetMethodParameters = "", $bps = "", $popupOptions = null){
+		if($this->link){
+			if($popupOptions != null)
+				$popupOptions = str_replace("}", ", linkTo: '$this->link'}", $popupOptions);
+			else
+				$popupOptions = "{linkTo: '$this->link'}";
+		}
+
 		#$this->rme = "contentManager.rmePCR('$targetClass', '$targetClassId', '$targetMethod', Array(".(is_array($targetMethodParameters) ? implode(",",$targetMethodParameters) : "'".$targetMethodParameters."'")."), 'Popup.displayNamed(\'edit\', \'$title\', transport, \'$name\');', '$bps');";
 		$this->rme = "Popup.load('".T::_($title)."', '$targetClass', '$targetClassId', '$targetMethod', [".(is_array($targetMethodParameters) ? implode(",",$targetMethodParameters) : "'".$targetMethodParameters."'")."], '$bps'".($name != "" ? ", '$name'" : ", 'edit'")."".($popupOptions != null ? ", '".addslashes($popupOptions)."'" : "").");";
 	}
@@ -272,8 +298,9 @@ class Button {
 
 		$onclick = $this->onclick != null ? $this->onclick : "";
 		#if($this->pluginRight != null) $onclick .= ;
-		if($this->rme != null) $onclick .= " { ".($this->loading ? "\$j(this).addClass('loading');" : "")." ".$this->rme." }";
-		if($this->type == "bigButton" OR $this->type == "LPBig") return (strpos($this->style, "float:right;") !== false ? $this->settings : "")."<button".($this->name != null ? " name=\"$this->name\"" : "")." ".($this->disabled ? "disabled=\"disabled\"" : "")." ".($this->id ? "id=\"$this->id\" " : "")."onclick=\"$onclick\" type=\"button\" class=\"$this->class ".($this->type == "bigButton" ? "bigButton" : "LPBigButton")."\" style=\"{$this->style}".($this->image != "" ? "background-image:url(".$this->image.");" : "")."\" ".($this->type == "bigButton" ? "" : "title=\"$this->label\"").">".($this->type == "bigButton" ? nl2br($this->label) : "")."</button>".(strpos($this->style, "float:right;") === false ? $this->settings : "")."$this->js";
+		if($this->rme != null OR $onclick != "") $onclick .= (mb_substr($onclick, -1) != ";" ? ";" : "")." { ".($this->loading ? "\$j(this).addClass('loading');" : "")." ".$this->rme." }";
+		if($this->type == "bigButton" OR $this->type == "LPBig" OR $this->type == "MPBig")
+			return (strpos($this->style, "float:right;") !== false ? $this->settings : "")."<button".($this->name != null ? " name=\"$this->name\"" : "")." ".($this->disabled ? "disabled=\"disabled\"" : "")." ".($this->id ? "id=\"$this->id\" " : "")."onclick=\"$onclick\" type=\"button\" class=\"$this->class ".($this->type == "bigButton" ? "bigButton" : ($this->type == "LPBig" ? "bigButton LPBigButton" : "bigButton MPBigButton"))."\" style=\"{$this->style}".($this->image != "" ? "background-image:url(".$this->image.");" : "")."\" title=\"$this->label\">".(($this->type == "bigButton" OR $this->type == "MPBig") ? nl2br($this->label) : "")."</button>".(strpos($this->style, "float:right;") === false ? $this->settings : "")."$this->js";
 		
 		if($this->type == "icon") return "<img ".($this->id ? "id=\"$this->id\" " : "")." ".($onclick != "" ? "onclick=\"$onclick\"" : "")." class=\"".($this->mouseOverEffect ? "mouseoverFade" : "")." $this->class\" style=\"{$this->style}\" src=\"".$this->image."\" title=\"$this->label\" alt=\"$this->label\" />$this->js";
 		

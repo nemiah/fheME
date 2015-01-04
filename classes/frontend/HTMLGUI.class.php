@@ -119,6 +119,9 @@ class HTMLGUI implements icontextMenu {
 	}
 	
 	public function tip(){
+		if(Environment::getS("hideTooltips", "0") == "1")
+			return "";
+		
 		$targetClass = $this->object->getClearClass();
 		
 		$this->tip = HTMLGUIX::tipJS($targetClass);
@@ -935,13 +938,13 @@ class HTMLGUI implements icontextMenu {
 			return "An Error was caught. Please check the system log for additional information.";
 		}
 
-		$DesktopLinkButton = $this->getDesktopLinkButton();
+		#$DesktopLinkButton = $this->getDesktopLinkButton();
 			
 
 		$html .= "
 			<form id=\"$this->FormID\">
 				<div class=\"backgroundColor1 Tab\">
-					<p>".$this->getOperationsHTML($pluginName, $this->editedID).$DesktopLinkButton."".($this->labelCaption == null ? $this->name." editieren:" : $this->labelCaption)."</p>
+					<p>".$this->getOperationsHTML($pluginName, $this->editedID)."".($this->labelCaption == null ? $this->name." editieren:" : $this->labelCaption)."</p>
 				</div>
 				<div>
 				<table>
@@ -1108,6 +1111,10 @@ class HTMLGUI implements icontextMenu {
 	function getBrowserHTML($lineWithId = -1){
 		$string = "";
 		$top = "";
+		
+		if($lineWithId == -1 and count($this->prependedElements) > 0) 
+			foreach($this->prependedElements AS $E)
+				$top .= $E;
 		
 		$this->texts = $this->languageClass->getBrowserTexts();
 		$singularLanguageClass = $this->loadLanguageClass($this->singularClass);
@@ -1402,9 +1409,9 @@ class HTMLGUI implements icontextMenu {
 	 * @param string $mode
 	 * @return string
 	 */
-	public function getACHTMLBrowser($mode = "", $showHeader = true, $title = null, $idAttribute = null){
-		if($this->rand == null)
-			$this->rand = rand();
+	public function getACHTMLBrowser($mode = "", $showHeader = true, $title = null, $idAttribute = null, $maxNo = 10){
+		#if($this->rand == null)
+		$this->rand = rand();
 		$random = $this->rand;
 		$_SESSION["BPS"]->setActualClass(get_class($this));
 		$bps = $_SESSION["BPS"]->getAllProperties();
@@ -1448,6 +1455,7 @@ class HTMLGUI implements icontextMenu {
 						$modeFunction = "<input type=\"hidden\" id=\"doACJS%attributeNameId$l"."_$random\" value=\"$actionEditButton\" />";
 
 					break;
+					
 					case "quickSearchSelectionMode":
 						$html .= "<td class=\"ACCell\" style=\"width:20px;\"><img class=\"mouseoverFade\" src=\"./images/i2/cart.png\" /></td>";
 						$modeFunction = "<input type=\"hidden\" id=\"doACJS%attributeNameId$l"."_$random\" value=\"".str_replace("%%VALUE%%",$aid,$this->selectionFunctions)."\" />";
@@ -1483,7 +1491,7 @@ class HTMLGUI implements icontextMenu {
 					else $t = $sc->$value;
 					
 					$html .= "
-					<td class=\"ACCell\">".$t."<input type=\"hidden\" value=\"".htmlspecialchars(strip_tags($t))."\" id=\"autoComplete".$value."Id$l"."_$random\" />".str_replace("%attributeName",$value,$modeFunction)."</td>";		
+					<td class=\"ACCell\">".$t."<input type=\"hidden\" value=\"".htmlspecialchars(strip_tags($t))."\" id=\"autoComplete".$value."Id$l"."_$random\" />".str_replace("%attributeName",$value, $modeFunction)."</td>";		
 				}
 			$l++;
 		}
@@ -1492,6 +1500,9 @@ class HTMLGUI implements icontextMenu {
 		}
 		$html .= "
 		</table>";
+		
+		if($maxNo)
+			$html .= "<p style=\"padding:3px;color:grey;\"><small>Es werden maximal 10 Ergebnisse angezeigt.</small></p>";
 		
 		return $html;
 	}
@@ -1508,7 +1519,8 @@ class HTMLGUI implements icontextMenu {
 			if(strpos($v,"\$sc->") !== false OR strpos($v,"\$") !== false ){
 				$v = str_replace("\$sc->","",$v);
 				$v = str_replace("\$","",$v);
-				$array[$k] = $sc->$v;
+				
+				$array[$k] = isset($sc->$v) ? $sc->$v : null;
 			} else
 				$array[$k] = $v;
 		}
@@ -2069,7 +2081,7 @@ class HTMLGUI implements icontextMenu {
 	// </editor-fold>
 
 	// <editor-fold defaultstate="collapsed" desc="getDesktopLinkSymbol">
-	public function getDesktopLinkButton(){
+	/*public function getDesktopLinkButton(){
 		try {
 		if(!PMReflector::implementsInterface(get_class($this->object), "iDesktopLink")) return "";
 		} catch(ReflectionException $e){
@@ -2081,7 +2093,7 @@ class HTMLGUI implements icontextMenu {
 		$B->onclick("DesktopLink.createNew('".$this->object->getClearClass()."','".$this->object->getID()."','contentLeft','".$_SESSION["applications"]->getActiveApplication()."');");
 
 		return $B;
-	}
+	}*/
 	// </editor-fold>
 
 }

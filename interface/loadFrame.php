@@ -64,6 +64,12 @@ try {
 	$timers = Timer::getLogged();
 	if(count($timers) > 0)
 		header("X-Timers: ".json_encode($timers));
+	
+	if(isset($_SESSION["phynx_Achievements"]) AND is_array($_SESSION["phynx_Achievements"]) AND count($_SESSION["phynx_Achievements"]) > 0){
+		header("X-Achievements: ".json_encode($_SESSION["phynx_Achievements"]));
+		$_SESSION["phynx_Achievements"] = array();
+	}
+	
 	ob_end_flush();
 } catch (TableDoesNotExistException $e) {
 	Red::errorD("Die Datenbank-Tabelle (".$e->getTable().") dieses Plugins wurde noch nicht angelegt. Bitte verwenden Sie das Installations-Plugin im Administrationsbereich.");

@@ -110,4 +110,8 @@ if(Util::phpVersionGEThen("5.1.0")){
 } else
 	eval("\$d->".$met."($par);");
 
+if(isset($_SESSION["phynx_Achievements"]) AND is_array($_SESSION["phynx_Achievements"]) AND count($_SESSION["phynx_Achievements"]) > 0){
+	header("X-Achievements: ".json_encode($_SESSION["phynx_Achievements"]));
+	$_SESSION["phynx_Achievements"] = array();
+}
 ?>

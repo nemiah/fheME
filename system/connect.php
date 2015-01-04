@@ -141,6 +141,9 @@ function log_error($errno, $errmsg, $filename, $linenum) {
 		$_SESSION["phynx_errors"] = array();
 	
 	$_SESSION["phynx_errors"][] = array($errortype[$errno], $errmsg, $filename, $linenum);
+	
+	#@file_put_contents(realpath(__DIR__."/../")."/log_".date("Y_m_d").".log", date("Y d m H:i:s")." ".$errortype[$errno].": ".$errmsg." in $filename:$linenum\n", FILE_APPEND);
+	
 	try {
 		SysMessages::log($errortype[$errno].": ".$errmsg."\n$filename:$linenum", "PHP");
 	} catch(Exception $e){}

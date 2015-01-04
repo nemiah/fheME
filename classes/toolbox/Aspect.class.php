@@ -27,6 +27,9 @@ class Aspect {
 	public static function joinPoint($mode, $class, $method, $args = null, $defaultValue = null){
 		$value = Aspect::findPointCut($mode, $class, $method, $args);
 
+		if(Session::isPluginLoaded("mAchievement") AND $mode == "after")
+			Achievement::findPointCut($class, $method, $args);
+		
 		if($value === null)
 			return $defaultValue;
 
@@ -55,7 +58,10 @@ class Aspect {
 					unset(Aspect::$pointCuts[$mode][$method][$k]);
 				}
 			}
-			if(count($values) > 1 AND $mode != "after") return $values;
+			
+			if(count($values) > 1 AND $mode != "after") 
+				return $values;
+			
 			return $values[0];
 		}
 

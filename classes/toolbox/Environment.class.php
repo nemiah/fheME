@@ -75,13 +75,14 @@ class Environment {
 		return $CD;
 	}
 
-	public static function getS($value, $default){
-		Environment::load();
+	public static function getS($value, $default, $forceReload = false){
+		Environment::load($forceReload);
 		
 		$return = Environment::$currentEnvironment->get($value, $default);
 
 		switch($value){
 			case "onLogout":
+			case "onTimeout":
 				return str_replace("%CLOUDUSER", Environment::$currentEnvironment->cloudUser(), $return);
 			break;
 			
@@ -153,8 +154,8 @@ class Environment {
 		Environment::$currentEnvironment = null;
 	}
 	
-	public static function load(){
-		if(Environment::$currentEnvironment != null) return;
+	public static function load($forceReload = false){
+		if(Environment::$currentEnvironment != null AND !$forceReload) return;
 
 		if(file_exists(Util::getRootPath()."plugins/Cloud/Cloud.class.php")/* AND !defined("PHYNX_VIA_INTERFACE")*/){ //!defined("PHYNX_VIA_INTERFACE") removed because of ZPush/lightCRM 03.07.2013
 			require_once Util::getRootPath()."plugins/Cloud/Cloud.class.php";

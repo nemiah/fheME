@@ -111,6 +111,9 @@ class Applications {
 	}
 
 	public static function activeApplication(){
+		if(!isset($_SESSION[self::$sessionVariable]))
+			return null;
+		
 		return $_SESSION[self::$sessionVariable]->getActiveApplication();
 	}
 	

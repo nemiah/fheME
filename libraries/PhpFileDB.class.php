@@ -691,7 +691,7 @@ class PhpFileDB {
 	    	$this->line++;
 	    }
 	    
-	    while(trim($b) == "") {
+	    while(!feof($this->openFile) AND trim($b) == "") {
 	    	$b = fgets($this->openFile);
 	    	$this->line++;
 	    }

@@ -170,13 +170,15 @@ class FormattedTextPDF extends FPDI {
 
 	private function endTag($xml){
 		if($xml->getName() == "br"){
-			$this->ln(5);
+			#print_r($this->heightStack);
+			#die($this->heightStack[count($this->heightStack) - 1] * 0.5);
+			$this->ln($this->heightStack[count($this->heightStack) - 1] * 0.5);
 			return;
 		}
 		
 		if($xml->getName() == "p"){
+			$this->ln($this->heightStack[count($this->heightStack) - 1] * 0.4);
 			array_pop($this->heightStack);
-			$this->ln(5);
 		}
 
 		if($xml->getName() == "strong")

@@ -53,7 +53,11 @@ setTimeout(function(){
 	}
 	
 	public function openInPopup($className, $classID, $fieldName){
-		$C = new $className($classID);
+		$T = new tinyMCEGUI();
+		return $T->openInPopup($className, $classID, $fieldName);
+		
+		
+		/*$C = new $className($classID);
 		
 		$ITA = new HTMLInput("nicEditor", "textarea");
 		$ITA->id("nicEditor");
@@ -78,7 +82,7 @@ setTimeout(function(){
 
 			".OnEvent::closePopup("nicEdit")."
 		}
-	}).panelInstance('nicEditor');}, 100);");
+	}).panelInstance('nicEditor');}, 100);");*/
 	}
 }#nicEditors.findEditor('nicEditor').nicCommand('insertHTML', 'test' );
 ?>

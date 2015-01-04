@@ -57,11 +57,17 @@ class Session {
 	}
 	
 	public function getDBData($newFolder = null){
-		if(file_exists(Util::getRootPath()."../../phynxConfig"))
-			$newFolder = Util::getRootPath()."../../phynxConfig/";
+		$external = false;
 		
-		if(file_exists(Util::getRootPath()."../phynxConfig"))
+		if(file_exists(Util::getRootPath()."../../phynxConfig")){
+			$newFolder = Util::getRootPath()."../../phynxConfig/";
+			$external = true;
+		}
+		
+		if(file_exists(Util::getRootPath()."../phynxConfig")){
 			$newFolder = Util::getRootPath()."../phynxConfig/";
+			$external = true;
+		}
 		
 		if($newFolder == null)
 			$newFolder = Util::getRootPath()."system/DBData/";
@@ -104,6 +110,8 @@ class Session {
 			foreach($s as $key => $value)
 				$t[$value] = $d->$value;
 		
+		$t["external"] = $external;
+		
 		$rt = Environment::getS("databaseData", $t);
 		
 		return $rt;
@@ -130,7 +138,7 @@ class Session {
 		if($plugin == "Printers") return true;
 		if($plugin == "Credits") return true;
 		if($plugin == "Desktop") return true;
-		if($plugin == "DesktopLink") return true;
+		#if($plugin == "DesktopLink") return true;
 		if($plugin == "Userdata" AND $this->isUserAdmin()) return true;
 		if($plugin == "BackupManager" AND $this->isUserAdmin()) return true;
 		if($plugin == "LoginData" AND $this->isUserAdmin()) return true;
@@ -213,6 +221,9 @@ class Session {
 		#return in_array($pluginName,$_SESSION["CurrentAppPlugins"]->getAllPlugins());
 	}
 
+	/**
+	 * @return User
+	 */
 	public static function currentUser(){
 		return $_SESSION["S"]->getCurrentUser();
 	}

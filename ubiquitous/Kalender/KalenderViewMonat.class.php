@@ -26,7 +26,7 @@ class KalenderViewMonat {
 	protected $date;
 	protected $cols;
 	protected $rows;
-	protected $colorBgSaturday = "#F4F4F4";
+	protected $colorBgSaturday = "#EBEBEB";
 	protected $colorBgSunday = "#EBEBEB";
 	
 	function __construct() {
@@ -334,7 +334,7 @@ class KalenderViewMonat {
 							".($ansicht != "tag" ? date("d",$D->time()) : "&nbsp;")."
 						</span>
 					</div>
-					<div style=\"font-size:10px;overflow:auto;".($ansicht == "monat" ? "margin-top:0px;width:100%;" : "")."\" class=\"".($ansicht == "monat" ? "innerCellHeight" : "")."\">$entry</div>
+					<div style=\"overflow:auto;".($ansicht == "monat" ? "margin-top:0px;width:100%;" : "")."\" class=\"".($ansicht == "monat" ? "innerCellHeight" : "")."\">$entry</div>
 				</td>";
 				$D->addDay();
 			}

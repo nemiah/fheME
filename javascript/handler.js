@@ -63,7 +63,7 @@ function checkResponse(transport, hideError) {
 
 	if(response == "SESSION EXPIRED"){
 		alert("Ihre Sitzung ist abgelaufen, bitte loggen Sie sich erneut ein.");
-		window.location.reload();
+		Menu.onTimeout();
 		return false;
 	}
 	
@@ -94,7 +94,7 @@ function checkResponse(transport, hideError) {
 		if(!hideError) {
 			//alert(response.replace(/<br \/>/g,"\n").replace(/<b>/g,"").replace(/<\/b>/g,"").replace(/&gt;/g,">").replace(/^\s+/, '').replace(/\s+$/, ''));
 			
-			Popup.load("Fehler", "Support", -1, "fatalError", [response+""], "", "edit", "{width: 600, blackout: true, hPosition: 'center', top:30}");
+			Popup.load("Fehler", "Support", -1, "fatalError", [response+"", Ajax.lastRequest+""], "", "edit", "{width: 600, blackout: true, hPosition: 'center', top:30}");
 			/*contentManager.rmePCR("Util", "-1", "fatalError", response, function(transport){
 				Popup.load();
 				Popup.create("error", "display", "Es ist ein Fehler aufgetreten", );
@@ -239,34 +239,6 @@ function joinFormFieldsToString(formID){
 	get = get.replace(/&/g,";-;;und;;-;").replace(/=/g,";-;;istgleich;;-;").replace(/#/g,";-;;raute;;-;").replace(/\?/g,";-;;frage;;-;").replace(/%/g,";-;;prozent;;-;");
 	
 	return get;
-}
-
-/**
- * @deprecated
- **/
-function reloadLeftFrame(bps){
-	alert("JS function reloadLeftFrame() deprecated, use contentManager.reloadFrame instead!");
-
-	if(lastLoadedLeft == -1) {
-		alert("Can't reload! lastLoadedLeft = -1");
-		return;
-	}
-	new Ajax.Request('./interface/loadFrame.php?p='+lastLoadedLeftPlugin+'&id='+lastLoadedLeft+((bps != "" && typeof bps != "undefined") ? "&bps="+bps : ""), {onSuccess: function(transport){
-		if(checkResponse(transport)) $('contentLeft').update(transport.responseText);
-	}});
-}
-
-/**
- * @deprecated
- **/
-function reloadRightFrame(bps){
-	alert("JS function reloadRightFrame() deprecated, use contentManager.reloadFrame instead!");
-
-	if(lastLoadedRightPlugin == "") {
-		alert("Can't reload! lastLoadedRightPlugin = ''");
-		return;
-	}
-	contentManager.loadFrame('contentRight', lastLoadedRightPlugin, -1, lastLoadedRightPage, bps);
 }
 
 /**

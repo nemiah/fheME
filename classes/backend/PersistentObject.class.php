@@ -23,6 +23,9 @@ class PersistentObject {
 	protected $AA = null;
 	protected $Adapter = null;
 	protected $storage = PHYNX_MAIN_STORAGE;#"MySQL";
+	/**
+	 * @deprecated since version 20141218
+	 */
 	protected $noDeleteHideOnly = false;
 
 	protected $languageClass;
@@ -58,6 +61,10 @@ class PersistentObject {
 		return $id;
 	}
 	
+	/**
+	 * @deprecated since version 20141218
+	 * @return boolean
+	 */
 	public function isNoDelete(){
 		return $this->noDeleteHideOnly;
 	}
@@ -94,13 +101,17 @@ class PersistentObject {
 	}
 
 	function setParser($a,$f){
-		if($this->Adapter == null) $this->loadAdapter();
+		if($this->Adapter == null)
+			$this->loadAdapter();
+		
 		$this->Adapter->addParser($a,$f);
 		$this->hasParsers = true;
 	}
 
 	function resetParsers(){
-		if($this->Adapter == null) $this->loadAdapter();
+		if($this->Adapter == null)
+			$this->loadAdapter();
+		
 		$this->Adapter->resetParsers();
 		$this->hasParsers = false;
 	}
@@ -112,6 +123,17 @@ class PersistentObject {
 		if($n == "PersistentObject") $n = str_replace("GUI","",get_class($this));
 		elseif(strstr($n,"GUI")) $n = get_parent_class(get_parent_class($this));
 		return $n;
+	}
+	
+	public function setTableLock(string $table, boolean $lock){
+		if($this->Adapter == null)
+			$this->loadAdapter();
+		
+		if($lock)
+			$this->Adapter->lockTable($table);
+		
+		if(!$lock)
+			$this->Adapter->unlockTable($table);
 	}
 
 	/*function loadMe(){
@@ -142,6 +164,8 @@ class PersistentObject {
 			$this->A->isDeleted = 1;
 			$this->saveMe();
 		}
+		
+		Aspect::joinPoint("after", $this, get_class($this)."::deleteMe", $this->A);
 	}
 
 	function loadTranslation($forClass = null){
@@ -207,7 +231,7 @@ class PersistentObject {
 	public function customize(){
 		if(defined("PHYNX_FORBID_CUSTOMIZERS"))
 			return;
-		
+
 		try {
 			$active = mUserdata::getGlobalSettingValue("activeCustomizer");
 
@@ -315,13 +339,16 @@ class PersistentObject {
 
 		$this->loadAdapter();
 		$this->Adapter->saveSingle2($this->getClearClass(get_class($this)), clone $this->A);
+		
+		Aspect::joinPoint("after", $this, get_class($this)."::saveMe", $this->A);
+		
 	    if($output) Red::messageSaved();
 	}
 
 	protected function getJSON(){
 		$this->loadMe();
 
-		return json_encode($this->A);
+		return json_encode($this->A, defined("JSON_UNESCAPED_UNICODE") ? JSON_UNESCAPED_UNICODE : 0);
 	}
 }
 

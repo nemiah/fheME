@@ -24,6 +24,11 @@ class File extends PersistentObject {
 		parent::__construct($ID);
 	}
 	
+	public function newMe($checkUserData = true, $output = false) {
+		
+		return parent::newMe($checkUserData, false);
+	}
+	
 	public function newAttributes(){
 		$A = new stdClass();
 		$A->FileDir = "";

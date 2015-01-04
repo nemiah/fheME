@@ -209,8 +209,9 @@ class mUPnPGUI extends anyC implements iGUIHTMLMP2 {
 					if($service->serviceId[0] == $S)
 						$services[$k] = $service;
 			}
-			
-			
+			echo "<pre>";
+			print_r($xml->device->UDN);
+			echo "</pre>";
 			$F = new Factory("UPnP");
 			$F->sA("UPnPUDN", $xml->device->UDN);
 			$L->addItem($xml->device->friendlyName);

@@ -48,6 +48,12 @@ class TodoGUI extends Todo implements iGUIHTML2 {
 		$this->loadMeOrEmpty();
 		$bps = $this->getMyBPSData();
 		
+		$allowed = array();
+		$ACS = anyC::get("Userdata", "name", "shareCalendarTo".Session::currentUser()->getID());
+		$ACS->addAssocV3("name", "=", "shareCalendarTo0", "OR");
+		while($Share = $ACS->getNextEntry())
+			$allowed[$Share->A("UserID")] = $Share->A("wert");
+		
 		if($id == -1) {
 			$this->A->TodoTillDay = Util::CLDateParser(time() + 7 * 24 * 3600);
 			$this->A->TodoTillTime = Util::CLTimeParser(10*3600);
@@ -86,8 +92,12 @@ class TodoGUI extends Todo implements iGUIHTML2 {
 				
 				BPS::unsetProperty("TodoGUI", "TodoName");
 			}
-
-			$this->A->TodoUserID = Session::currentUser()->getID();#"-1";
+			
+			$for = BPS::getProperty("mKalenderGUI", "KID", Session::currentUser()->getID());
+			if($for != Session::currentUser()->getID() AND strpos($allowed[$for], "create") === false)
+				$for = Session::currentUser()->getID();
+			
+			$this->A->TodoUserID = $for;
 			$this->A->TodoClass = BPS::getProperty("mTodoGUI", "ownerClass");
 			$this->A->TodoClassID = BPS::getProperty("mTodoGUI", "ownerClassID");
 		}
@@ -154,13 +164,20 @@ class TodoGUI extends Todo implements iGUIHTML2 {
 		$gui->parser("TodoFromDay", "TodoGUI::dayFromParser");
 		$gui->parser("TodoTillDay", "TodoGUI::dayTillParser");
 
-		$allowed = array();
-		$ACS = anyC::get("Userdata", "name", "shareCalendarTo".Session::currentUser()->getID());
-		while($Share = $ACS->getNextEntry())
-			$allowed[$Share->A("UserID")] = $Share->A("wert");
 		
 		$ac = Users::getUsers();
 		$users = array();
+		while($u = $ac->getNextEntry()){
+			if(!isset($allowed[$u->getID()]) AND $u->getID() != Session::currentUser()->getID())
+				continue;
+			
+			if(isset($allowed[$u->getID()]) AND strpos($allowed[$u->getID()], "create") === false)
+				continue;
+			
+			$users[$u->getID()] = $u->A("name");			
+		}
+		
+		$ac = Users::getUsers(1);
 		while($u = $ac->getNextEntry()){
 			if(!isset($allowed[$u->getID()]) AND $u->getID() != Session::currentUser()->getID())
 				continue;
@@ -269,7 +286,7 @@ class TodoGUI extends Todo implements iGUIHTML2 {
 			$T = $A->getShortAddress();
 		}
 		$IK = new HTMLInput("TodoKunde", "text", $T);
-		$IK->autocomplete("mWAdresse", "function(selection){ $('editTodoGUI').TodoClass.value = 'WAdresse'; $('editTodoGUI').TodoClassID.value = selection.value; $('editTodoGUI').TodoKunde.value = selection.label; if($('editTodoGUI').TodoName) contentManager.toggleFormFields('hide', ['TodoName'], 'editTodoGUI'); return false; }");
+		$IK->autocomplete("mWAdresse", "function(selection){ $('editTodoGUI').TodoClass.value = 'WAdresse'; $('editTodoGUI').TodoClassID.value = selection.value; $('editTodoGUI').TodoKunde.value = selection.label; /*if($('editTodoGUI').TodoName) contentManager.toggleFormFields('hide', ['TodoName'], 'editTodoGUI');*/ return false; }");
 		return $I.$IK;
 	}
 	

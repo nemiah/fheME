@@ -103,7 +103,7 @@ class mUserdata extends anyC {
 		
 		while(($sUD = $UD->getNextEntry())){
 			$A = $sUD->getA();
-			$s = split(":",$A->name);
+			$s = explode(":",$A->name);
 			$labels[$s[1]] = $A->wert;
 		}
 		return $labels;
@@ -198,14 +198,26 @@ class mUserdata extends anyC {
 	}
 
 	public static function getGlobalSettingValue($name, $defaultValue = null){
+		$useCache = false;
+		#echo $name."\n";
+		if($name == "activeCustomizer")
+			$useCache = true;
+		
+		if($useCache AND SpeedCache::inStaticCache("mUserdata::getGlobalSettingValue".$name))
+			return SpeedCache::getStaticCache("mUserdata::getGlobalSettingValue".$name);
+		
 		$UD = new mUserdata();
 		$UD->addAssocV3("UserID", "=", "-1");
 		$UD->addAssocV3("name", "=", $name);
 
 		$e = $UD->getNextEntry();
-		if($e == null) return $defaultValue;
+		if($e == null){
+			SpeedCache::setStaticCache("mUserdata::getGlobalSettingValue".$name, $defaultValue);
+			return $defaultValue;
+		}
 		
-		return $e->getA()->wert;
+		SpeedCache::setStaticCache("mUserdata::getGlobalSettingValue".$name, $e->A("wert"));
+		return $e->A("wert");
 		
 	}
 
@@ -253,10 +265,17 @@ class mUserdata extends anyC {
 		if($_SESSION["S"]->getCurrentUser() == null) return;#throw new Exception("No user authenticated with the system!");
 		if($_SESSION["S"]->isUserAdmin()) return;
 		
-		$UD = new mUserdata();
-		$UD->addAssocV3("wert","=",$restriction);
-		$UD->addAssocV3("UserID","=",$_SESSION["S"]->getCurrentUser()->getID());
-		$sUD = $UD->getNextEntry();
+		if(SpeedCache::inStaticCache("checkRestrictionOrDie$restriction"))
+			$sUD = SpeedCache::getStaticCache("checkRestrictionOrDie$restriction", true);
+		else {
+			$UD = new mUserdata();
+			$UD->addAssocV3("wert", "=", $restriction);
+			$UD->addAssocV3("UserID", "=", Session::currentUser()->getID());
+			$sUD = $UD->getNextEntry();
+			
+			SpeedCache::setStaticCache("checkRestrictionOrDie$restriction", $sUD);
+		}
+		
 		if($sUD != null)
 			Red::errorD("Diese Aktion ist nicht erlaubt!");
 	}

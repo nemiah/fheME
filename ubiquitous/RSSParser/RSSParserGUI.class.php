@@ -27,20 +27,73 @@ class RSSParserGUI extends RSSParser implements iGUIHTML2 {
 		
 		$P = array_merge(array("" => "kein Parser"), array_flip($FB->getAsLabeledArray("iRSSParser", ".class.php")));
 		
+		$FB = new FileBrowser();
+		$FB->addDir(dirname(__FILE__));
+		
+		$PD = array_merge(array("" => "kein Parser"), array_flip($FB->getAsLabeledArray("iRSSDataParser", ".class.php")));
+		
+		$fields = array(
+			"RSSParserName",
+			"RSSParserURL",
+			"RSSParserPOST",
+			"RSSParserDataParserClass",
+			"RSSParserUseCache",
+			"RSSParserLastUpdate",
+			"RSSParserCache"
+		);
+		
+		if(Applications::activeApplication() == "fheME"){
+			$fields[] = "RSSParserParserClass";
+			$fields[] = "RSSParserOnCall";
+			$fields[] = "RSSParserCount";
+		}
+		
+		$gui->attributes($fields);
+		
 		$gui->type("RSSParserParserClass", "select", $P);
+		$gui->type("RSSParserDataParserClass", "select", $PD);
+		$gui->type("RSSParserUseCache", "checkbox");
+		$gui->type("RSSParserPOST", "textarea");
 		
 		$gui->label("RSSParserParserClass", "Parser");
 		$gui->label("RSSParserOnCall", "Button");
 		$gui->label("RSSParserCount", "Anzahl");
+		$gui->label("RSSParserDataParserClass", "Data-Parser");
+		
+		$gui->descriptionField("RSSParserUseCache", "Der Cache funktioniert nur zusammen mit dem cronjob");
+		$gui->descriptionField("RSSParserPOST", "Format: Jeweils ein Name:Wert pro Zeile<br>Variablen: \$timestampToday");
+		
+		$gui->parser("RSSParserLastUpdate", "parserLastUpdate");
+		$gui->parser("RSSParserCache", "parserCache");
 		
 		$gui->descriptionField("RSSParserParserClass", "Der Parser kann die Anzeige des Feeds anpassen");
+		$gui->descriptionField("RSSParserDataParserClass", "Der Parser kann die Daten des Feeds anpassen");
 		$gui->descriptionField("RSSParserOnCall", "Der Feed wird mit einem eigenen Button geöffnet");
 		$gui->descriptionField("RSSParserCount", "Die maximale Anzahl der angezeigten Einträge. 0 zeigt alle");
 		
-		$gui->type("RSSParserLastUpdate", "hidden");
+		#$gui->type("RSSParserLastUpdate", "hidden");
 		$gui->type("RSSParserOnCall", "checkbox");
 		
+		$B = $gui->addSideButton("Update", "down");
+		$B->rmePCR("RSSParser", $this->getID(), "download","", OnEvent::reload("Left"));
+		
 		return $gui->getEditHTML();
+	}
+	
+	public function showCache(){
+		echo "<pre style=\"font-size:10px;padding:5px;max-height:400px;overflow:auto;\">".htmlentities($this->A("RSSParserCache"))."</pre>";
+	}
+	
+	public static function parserCache($w, $l, $E){
+		$B = new Button("Cache anzeigen", "./images/i2/details.png", "icon");
+		$B->style("float:right;");
+		$B->popup("", "Cache anzeigen", "RSSParser", $E->getID(), "showCache", "", "", "{width:600}");
+		
+		return $B.Util::formatByte(strlen($w));
+	}
+	
+	public static function parserLastUpdate($w){
+		return Util::CLDateTimeParser($w);
 	}
 	
 	public function showFeed(){
@@ -72,6 +125,13 @@ class RSSParserGUI extends RSSParser implements iGUIHTML2 {
 		}
 		
 		echo $list;
+	}
+	
+	public function ACLabel(){
+		if($this->getID() == "0")
+			return "";
+		
+		return $this->A("RSSParserName");
 	}
 }
 ?>

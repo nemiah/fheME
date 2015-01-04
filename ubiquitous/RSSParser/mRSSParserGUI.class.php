@@ -101,5 +101,18 @@ class mRSSParserGUI extends anyC implements iGUIHTMLMP2 {
 		return $P;
 	}
 
+	
+	public function getACData($attributeName, $query){
+		$this->setSearchStringV3($query);
+		$this->setSearchFieldsV3(array("RSSParserName"));
+		
+		$this->setFieldsV3(array("RSSParserName AS label", "RSSParserID AS value"));
+		
+		$this->setLimitV3("10");
+		
+		Aspect::joinPoint("query", $this, __METHOD__, $this);
+		
+		echo $this->asJSON();
+	}
 }
 ?>

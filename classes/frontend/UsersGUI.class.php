@@ -21,6 +21,7 @@ class UsersGUI extends Users implements iGUIHTML2{
 	public function getHTML($id){
 		$allowedUsers = Environment::getS("allowedUsers", null);
 		
+		#$this->addAssocV3("UserType", "=", "0");
 		$this->addOrderV3("name");
 		if($this->A == null) $this->lCV3($id);
 		

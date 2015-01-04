@@ -22,6 +22,8 @@ mouseIsOver = new Array();
 lastHighLight = null;
 
 var Menu = {
+	onTimeout: function(){ window.location.reload(); },
+	
 	refresh: function(onSuccessFunction){
 		contentManager.loadFrame("navigation", "Menu", -1, 0, "bps", function(){
 			

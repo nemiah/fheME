@@ -44,9 +44,10 @@ class mUserdataGUI extends mUserdata implements iGUIHTML2, icontextMenu {
 		</table>";
 		$gui->addRowAfter("1","addRestriction");
 		$gui->setParser("addRestriction","mUserdataGUI::addRestrictionParser");
-		$gui->setJSEvent("onDelete","function(){contentManager.reloadFrameLeft();}");
+		$gui->setJSEvent("onDelete","function(){ contentManager.reloadFrame('contentLeft'); }");
+		
 		try {
-			return $gui->getBrowserHTML($id).($this->numLoaded() == 0 ? $html : "");
+			return "<div class=\"prettyTitle\">Einschränkungen</div>".$gui->getBrowserHTML($id).($this->numLoaded() == 0 ? $html : "");
 		} catch (Exception $e){ echo $e; }
 	}
 	
@@ -59,6 +60,18 @@ class mUserdataGUI extends mUserdata implements iGUIHTML2, icontextMenu {
 		
 		$html = "";
 		$isRestricted = false;
+		if(stristr($w,"loginTo")) {
+			$B = new Button("Kann nicht anmelden", "./plugins/Userdata/login18.png", "icon");
+			$B->style("float:left;margin-left:10px;margin-right:5px;");
+			
+			$html .= $B;
+			
+			$w = str_replace("loginTo","",$w);
+			#$isRestricted = true;
+			$w = "Kann sich nicht an Anwendung '$w' anmelden";
+			#if($w == "") $w = "Plugin ".str_replace("loginTo","",$p)." nicht geladen<br /><small style=\"color:grey;\">Dieses Plugin steht in der aktiven Anwendung nicht zur Verfügung.</small>";
+		}
+		
 		if(stristr($w,"antDelete")) {
 			$html .= "<img title=\"".(isset($text["kann nicht löschen"]) ? $text["kann nicht löschen"] : "kann nicht löschen")."\" style=\"float:left;margin-left:10px;margin-right:5px;\" src=\"./images/i2/delete.gif\" />";
 			$w = str_replace("cantDelete","",$w);
@@ -66,6 +79,7 @@ class mUserdataGUI extends mUserdata implements iGUIHTML2, icontextMenu {
 			$w = array_search($w,$ps);
 			if($w == "") $w = "Plugin ".str_replace("cantDelete","",$p)." nicht geladen<br /><small style=\"color:grey;\">Dieses Plugin steht in der aktiven Anwendung nicht zur Verfügung.</small>";
 		}
+		
 		if(stristr($w,"antCreate")) {
 			$html .= "<img title=\"".(isset($text["kann nicht erstellen"]) ? $text["kann nicht erstellen"] : "kann nicht erstellen")."\" style=\"float:left;margin-left:10px;margin-right:5px;\" src=\"./images/i2/new.gif\" />";
 			$w = str_replace("cantCreate","",$w);
@@ -134,14 +148,30 @@ class mUserdataGUI extends mUserdata implements iGUIHTML2, icontextMenu {
 		$singularLanguageClass = $ac->loadLanguageClass("Userdata");
 		$text = $singularLanguageClass != null ? $singularLanguageClass->getText() : $deText;
 		
+		$BA = new Button("Anmeldung", "./plugins/Userdata/login.png");
+		$BA->contextMenu("mUserdata", "login", "Anmeldung", "right", "up");
+		$BA->style("float:right;");
+		
+		$BN = new Button("Einschränkung\nhinzufügen", "restrictions");
+		$BN->contextMenu("mUserdata", "1", "Einschränkung", "right", "up");
+		
+		$BS = new Button("Plugin-\nspezifisch", "lieferschein");
+		$BS->contextMenu("mUserdata", "4", "Plugin-spezifisch", "right", "up");
+		$BS->style("float:right;");
+		
+		$BP = new Button("Plugin\nausblenden", "tab");
+		$BP->contextMenu("mUserdata", "5", "Plugin ausblenden", "right", "up");
+		
+		
 		return "
-		<input type=\"button\" class=\"bigButton backgroundColor2\" value=\"".(isset($text["Feld\numbenennen"]) ? $text["Feld\numbenennen"] : "Feld\numbenennen")."\" onclick=\"phynxContextMenu.start(this, 'mUserdata','2','".$text["Umbenennung"].":');\" style=\"float:right;background-image:url(./images/navi/relabel.png);\" />
-		<input type=\"button\" class=\"bigButton backgroundColor2\" value=\"".(isset($text["Einschränkung\nhinzufügen"]) ? $text["Einschränkung\nhinzufügen"] : "Einschränkung\nhinzufügen")."\" onclick=\"phynxContextMenu.start(this, 'mUserdata','1','".$text["Einschränkung"].":');\" style=\"margin-bottom:10px;background-image:url(./images/navi/restrictions.png);\" /><br />
-		
-		<input type=\"button\" class=\"bigButton backgroundColor2\" value=\"".(isset($text["Feld\nausblenden"]) ? $text["Feld\nausblenden"] : "Feld\nausblenden")."\" onclick=\"phynxContextMenu.start(this, 'mUserdata','3','".$text["Ausblenden"].":');\" style=\"float:right;background-image:url(./images/navi/clear.png);\" />
-		<input type=\"button\" class=\"bigButton backgroundColor2\" value=\"".(isset($text["Plugin-\nspezifisch"]) ? $text["Plugin-\nspezifisch"] : "Plugin-\nspezifisch")."\" onclick=\"phynxContextMenu.start(this, 'mUserdata','4','".$text["Plugin"].":');\" style=\"margin-bottom:10px;background-image:url(./images/navi/lieferschein.png);\" />
-		
-		<input type=\"button\" class=\"bigButton backgroundColor2\" value=\"".(isset($text["Plugin\nausblenden"]) ? $text["Plugin\nausblenden"] : "Plugin\nausblenden")."\" onclick=\"phynxContextMenu.start(this, 'mUserdata','5','".$text["Plugin"].":');\" style=\"background-image:url(./images/navi/tab.png);\" />";
+		<!--<input type=\"button\" class=\"bigButton backgroundColor3\" title=\"".(isset($text["Feld\numbenennen"]) ? $text["Feld\numbenennen"] : "Feld\numbenennen")."\" onclick=\"phynxContextMenu.start(this, 'mUserdata','2','".$text["Umbenennung"].":');\" style=\"float:right;background-image:url(./images/navi/relabel.png);\" />
+		<button class=\"bigButton backgroundColor3\" value=\"".(isset($text["Einschränkung\nhinzufügen"]) ? $text["Einschränkung\nhinzufügen"] : "")."\" onclick=\"phynxContextMenu.start(this, 'mUserdata','1','".$text["Einschränkung"].":');\" style=\"margin-bottom:10px;background-image:url(./images/navi/restrictions.png);\" /><br />-->
+		$BN$BS<br><br>
+		<!--<input type=\"button\" class=\"bigButton backgroundColor3\" title=\"".(isset($text["Feld\nausblenden"]) ? $text["Feld\nausblenden"] : "Feld\nausblenden")."\" onclick=\"phynxContextMenu.start(this, 'mUserdata','3','".$text["Ausblenden"].":');\" style=\"float:right;background-image:url(./images/navi/clear.png);\" />
+		<button class=\"bigButton backgroundColor3\" title=\"".(isset($text["Plugin-\nspezifisch"]) ? $text["Plugin-\nspezifisch"] : "Plugin-\nspezifisch")."\" onclick=\"phynxContextMenu.start(this, 'mUserdata','4','".$text["Plugin"].":');\" style=\"margin-bottom:10px;background-image:url(./images/navi/lieferschein.png);\" />-->
+		$BP
+		$BA
+		<!--<button class=\"bigButton backgroundColor3\" title=\"".(isset($text["Plugin\nausblenden"]) ? $text["Plugin\nausblenden"] : "Plugin\nausblenden")."\" onclick=\"phynxContextMenu.start(this, 'mUserdata','5','".$text["Plugin"].":');\" style=\"background-image:url(./images/navi/tab.png);\" />-->";
 	}
 	
 	public function getContextMenuHTML($identifier){
@@ -300,31 +330,40 @@ class mUserdataGUI extends mUserdata implements iGUIHTML2, icontextMenu {
 			break;
 			
 			case "copyFromUser":
-				echo "
-				<table>
-					<colgroup>
-						<col style=\"width:20px;\" />
-						<col class=\"backgroundColor2\" />
-					</colgroup>";
+				$T = new HTMLTable(2);
+				$T->useForSelection();
+				$T->setColWidth(1, 20);
+				$T->maxHeight(200);
+				
 				$G = new Users();
 				$G->addAssocV3("isAdmin","=","0");
-				#$G->addAssocV3("UserID","!=",$this->ID);
-				#$G->addJoinV3("Auftrag","AuftragID","=","AuftragID");
-				#$G->setAssocV3("is$identifier","=","1");
-				#if($bps != -1) $G->addAssocV3("GRLBMID","!=",$bps["loadGRLBMID"]);
-				#$G->addOrderV3("nummer","DESC");
+				
 				$G->setLimitV3("10");
 				$G->lCV3();
 				while(($t = $G->getNextEntry())){
-
-					echo "
-					<tr onclick=\"copyFromOtherUser('".$t->getID()."');\" class=\"\" onmouseout=\"this.className='';\" style=\"cursor:pointer;\" onmouseover=\"this.className = 'backgroundColor0';\">
-						<td><img src=\"./images/i2/copy.png\" class=\"mouseoverFade\" /></td>
-						<td>".$t->getA()->username."</td>
-					</tr>";
+					$T->addRow(array(new Button("", "./images/i2/copy.png", "icon"), $t->A("username")));
+					$T->addRowEvent("click", "copyFromOtherUser('".$t->getID()."');");
 				}
-				echo "
-				</table>";
+				
+				echo $T;
+			break;
+			
+			case "login":
+				$T = new HTMLTable(2);
+				$T->useForSelection();
+				$T->setColWidth(1, 20);
+				$T->maxHeight(200);
+				
+				$apps = Applications::getList();
+				foreach($apps AS $app){
+					#rme("mUserdata","-1","setUserdata",new Array("hidePlugin"+$('relabelPlugin').value.split(":")[0],$('relabelPlugin').value.split(":")[0], "pHide", lastLoadedLeft),"contentManager.reloadFrameLeft()");
+					
+					$T->addRow(array(new Button("", "./plugins/Userdata/login18.png", "icon"), "Kann sich nicht an '$app' anmelden"));
+					$T->addRowEvent("click", OnEvent::rme(new mUserdata(-1), "setUserdata", array("'loginTo$app'", "'0'", "'loginTo'", "lastLoadedLeft"), OnEvent::closeContext().OnEvent::reload("Left")));
+					#$T->addRowEvent("click", "copyFromOtherUser('".$t->getID()."');");
+				}
+				
+				echo $T;
 			break;
 		}
 	}

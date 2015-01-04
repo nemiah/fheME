@@ -131,6 +131,17 @@ class HTMLTable extends UnifiedTable implements iUnifiedTable  {
 	function setColWidth($colNumber, $width){
 		$this->colWidth[$colNumber] = $width.((strpos($width, "px") === false AND strpos($width, "%") === false) ? "px": "");
 	}
+	
+	function addColWidth($colNumber, $width){
+		if(!isset($this->colWidth[$colNumber]))
+			$this->colWidth[$colNumber] = 0;
+		
+		$oldWidth = str_replace(array("px", "%"), "", $this->colWidth[$colNumber]);
+		
+		$width += $oldWidth;
+		
+		$this->colWidth[$colNumber] = $width.((strpos($width, "px") === false AND strpos($width, "%") === false) ? "px": "");
+	}
 
 	function setColClass($colNumber, $class){
 		$this->colClass[$colNumber] = $class;
@@ -285,6 +296,13 @@ class HTMLTable extends UnifiedTable implements iUnifiedTable  {
 			if($addTR) $rows .= "
 			<tr $events $data ".(isset($this->rowIDs[$K]) ? "id=\"".$this->rowIDs[$K]."\" " : "")."".(isset($this->rowStyles[$K]) ? "style=\"".$this->rowStyles[$K]."\"" : "")." ".(isset($this->rowClasses[$K]) ? "class=\"".$this->rowClasses[$K]."\"" : "").">";
 
+			#foreach($V AS $l => $inhalt){
+				#print_r($this->rowColspan[$K]);
+				#if(isset($this->rowColspan[$K]) AND $this->rowColspan[$K][0] == $j+1 AND $this->rowColspan[$K][1] > 0)
+				#	continue;#$l += $this->rowColspan[$K][1] - 1;
+				
+				#if($l > $this->numCols - 1)
+				#	break;
 			for($l = 0; $l < $this->numCols; $l++){
 				
 				if($this->colOrder != null AND isset($this->colOrder[$l]))

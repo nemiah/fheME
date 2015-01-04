@@ -68,7 +68,7 @@ var userControl = {
 					$j.jStorage.deleteKey('phynxUserData');
 			   
 				loadMenu();
-				DesktopLink.loadContent();
+				//DesktopLink.loadContent();
 				contentManager.clearHistory();
 			//$('loginPassword').value = "";
 			}
@@ -131,7 +131,7 @@ var userControl = {
 			}
 			
 			loadMenu();
-			DesktopLink.loadContent();
+			//DesktopLink.loadContent();
 		}, "", true, function(){
 			$j('#loginCertOptions').toggle();
 		});
@@ -148,7 +148,7 @@ var userControl = {
 				return;
 			
 			loadMenu();
-			DesktopLink.loadContent();
+			//DesktopLink.loadContent();
 		});
 	},
 	

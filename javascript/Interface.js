@@ -90,29 +90,27 @@ var Interface = {
 	},
 
 	startLoading: function(){
-		if(Overlay.dark) return;
+		/*if(Overlay.dark) return;
 		
 		if(Interface.isLoading) return;
 
 		Interface.isLoading = true;
-		Interface.showLoading();
+		Interface.showLoading();*/
 	},
 
 	endLoading: function(){
-		Interface.isLoading = false;
+		//Interface.isLoading = false;
 	},
 
 	showLoading: function(){
-		if(!$('busyBox') || !Interface.isLoading) return;
+		/*if(!$('busyBox') || !Interface.isLoading) return;
 
-		//if(P2J)
-		//	$j('busyBox').fadeTo(300, 0.3);//.delay(100).fadeTo(300, 1);
 		else {
 			Effect.Fade('busyBox', {duration: 0.3, from: 1, to: 0.3});
 			Effect.Fade('busyBox', {duration: 0.3, from: 0.3, to: 1, delay: 0.1});
 		}
 		
-		window.setTimeout("Interface.showLoading()", 800);
+		window.setTimeout("Interface.showLoading()", 800);*/
 	},
 	
 	notifyPermission: function(){

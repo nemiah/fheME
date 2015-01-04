@@ -167,6 +167,8 @@ END:VCALENDAR";
 		while($return = Registry::callNext("Kalender", "events", array($firstDay, $lastDay, $UserID), $skip))
 			$K->merge($return);
 
+		Registry::reset("Kalender");
+		
 		while($return = Registry::callNext("Kalender", "holidays", array($firstDay, $lastDay, $UserID), $skip))
 			$K->merge($return);
 		

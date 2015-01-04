@@ -74,6 +74,7 @@ class HTMLForm {
 	private $autocomplete = array();
 	private $printColon = true;
 	private $callbacks = "";
+	private $placeholders = array();
 	
 	public function printColon($b){
 		$this->printColon = $b;
@@ -83,22 +84,30 @@ class HTMLForm {
 		switch($event){
 			case "onChange":
 			case "onchange":
-				if(!isset($this->onChange[$fieldName])) $this->onChange[$fieldName] = "";
+				if(!isset($this->onChange[$fieldName]))
+					$this->onChange[$fieldName] = "";
+				
 				$this->onChange[$fieldName] .= $function;
 			break;
 			case "onBlur":
 			case "onblur":
-				if(!isset($this->onBlur[$fieldName])) $this->onBlur[$fieldName] = "";
+				if(!isset($this->onBlur[$fieldName]))
+					$this->onBlur[$fieldName] = "";
+				
 				$this->onBlur[$fieldName] .= $function;
 			break;
 			case "onFocus":
 			case "onfocus":
-				if(!isset($this->onFocus[$fieldName])) $this->onFocus[$fieldName] = "";
+				if(!isset($this->onFocus[$fieldName]))
+					$this->onFocus[$fieldName] = "";
+				
 				$this->onFocus[$fieldName] .= $function;
 			break;
 			case "onKeyup":
 			case "onkeyup":
-				if(!isset($this->onKeyup[$fieldName])) $this->onKeyup[$fieldName] = "";
+				if(!isset($this->onKeyup[$fieldName]))
+					$this->onKeyup[$fieldName] = "";
+				
 				$this->onKeyup[$fieldName] .= $function;
 			break;
 		}
@@ -182,7 +191,11 @@ class HTMLForm {
 		$this->inputStyle[$fieldName] = $style;
 	}
 
-	public function __construct($formID, $fields, $title = null){
+	public function setPlaceholder($fieldName, $style){
+		$this->placeholders[$fieldName] = $style;
+	}
+
+	public function __construct($formID, $fields, $title = null, $virtualFields = array()){
 		$this->id = $formID;
 
 		if(is_array($fields))
@@ -192,6 +205,7 @@ class HTMLForm {
 			$this->fields = PMReflector::getAttributesArrayAnyObject($fields->getA());
 		}
 
+		$this->virtualFields = $virtualFields;
 		$this->types = array();
 		$this->labels = array();
 		$this->options = array();
@@ -285,9 +299,9 @@ class HTMLForm {
 		$this->saveMode = "rmeP";
 		$this->saveButtonLabel = $saveButtonLabel;
 		$this->saveButtonBGIcon = $saveButtonBGIcon;
-		$this->saveButtonSubmit = ($checkIfValid ? "if($('#$this->id').valid()) " : "")."CustomerPage.rme('handleForm', $('#$this->id').serialize(), $onSuccessFunction)";
+		$this->saveButtonSubmit = ($checkIfValid ? "if($('#$this->id').valid()) " : "")."CustomerPage.rme('handleForm', $('#$this->id').serialize(), $onSuccessFunction);";
 		
-		#$this->onSubmit = $this->saveButtonSubmit." return false;";
+		$this->onSubmit = $this->saveButtonSubmit." return false;";
 	}
 	
 	public function setSaveCustom($saveButtonLabel, $saveButtonBGIcon = null, $onClick = ""){
@@ -345,6 +359,14 @@ class HTMLForm {
 			else
 				$values .= ($values != "" ? ", " : "")."\$('$this->id').$f.checked ? '1' : '0'";
 		}
+		
+		foreach($this->virtualFields AS $f){
+			if(!isset($this->types[$f]) OR $this->types[$f] != "checkbox")
+				$values .= ($values != "" ? ", " : "")."\$('$this->id').$f.value";
+			else
+				$values .= ($values != "" ? ", " : "")."\$('$this->id').$f.checked ? '1' : '0'";
+		}
+		
 		$this->saveButtonSubmit = "contentManager.rmePCR('$targetClass', '$targetClassId', '$targetMethod', [$values]".($onSuccessFunction != "" ? ", $onSuccessFunction" : "").");";
 		$this->onSubmit = $this->saveButtonSubmit."return false;";
 	}
@@ -461,6 +483,27 @@ class HTMLForm {
 		$this->spaceLines[$fieldName] = $label;
 	}
 
+
+	public function insertField($where, $fieldName, $insertedFieldName){
+		if($where == "after")
+			$add = 1;
+
+		if($where == "before")
+			$add = 0;
+
+		$resetKeys = array();
+		foreach($this->fields AS $v)
+			$resetKeys[] = $v;
+		
+		$this->fields = $resetKeys;
+		
+		$first = array_splice($this->fields, 0, array_search($fieldName, $this->fields) + $add);
+		$last = array_splice($this->fields, array_search($fieldName, $this->fields));
+
+		$this->fields = array_merge($first, array($insertedFieldName), $last);
+		
+	}
+	
 	public function setDescriptionField($fieldName, $description){
 		$this->descriptionField[$fieldName] = $description;
 	}
@@ -511,6 +554,9 @@ class HTMLForm {
 
 			if(isset($this->autocomplete[$v]))
 				$Input->autocomplete($this->autocomplete[$v][0], $this->autocomplete[$v][1]);
+			
+			if(isset($this->placeholders[$v]))
+				$Input->placeholder($this->placeholders[$v]);
 			
 			$Input->isDisplayMode(!$this->editable);
 		} else {
@@ -605,7 +651,7 @@ class HTMLForm {
 
 					if($this->cols == 1) {
 						$this->table->addRow(
-						"<label>".(isset($this->labels[$v]) ? $this->labels[$v] : ucfirst($v)).":</label>");
+						"<label ".($this->cols == 1 ? "style=\"width:100%;\"" : "").">".(isset($this->labels[$v]) ? $this->labels[$v] : ucfirst($v)).":</label>");
 						$this->table->addRowClass("backgroundColor3");
 
 						$this->table->addRow(

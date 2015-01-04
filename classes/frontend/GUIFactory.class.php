@@ -357,7 +357,7 @@ class GUIFactory {
 		}
 	}
 
-	public function getContainer($Table, $caption){
+	public function getContainer($Table, $caption, $appended = ""){
 		$widths = Aspect::joinPoint("changeWidths", $this, __METHOD__);
 		if($widths == null) $widths = array(700);
 
@@ -383,6 +383,7 @@ class GUIFactory {
 					$Table
 					</div>
 				".Aspect::joinPoint("belowList", $this, __METHOD__)."</div>
+				$appended
 			</div>";
 		}
 
@@ -391,7 +392,7 @@ class GUIFactory {
 			if($this->isSelection)
 				$abort = $this->getAbortButton();
 
-			return $abort.Aspect::joinPoint("aboveList", $this, __METHOD__).$Table;
+			return $abort.Aspect::joinPoint("aboveList", $this, __METHOD__).$Table.$appended;
 		}
 	}
 
