@@ -418,9 +418,12 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 	public function getOverviewContent($echo = true){
 		$time = mktime(0, 0, 1);
 		$Datum = new Datum($time);
-		$Datum->addMonth();
-		$lastTime = $Datum->time();
-		$Datum->subMonth();
+		$Datum->normalize();
+		#$Datum->printer();
+		$DC = clone $Datum;
+		$DC->addMonth();
+		$lastTime = $DC->time();
+		#$Datum->subMonth();
 		$Woche = date("W");
 		$K = $this->getData($time, $lastTime, null, array("mxCalGUI"));
 		
