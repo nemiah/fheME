@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class CRMHTMLGUI extends HTMLGUIX {
 	#private $types = array();
@@ -98,6 +98,18 @@ class CRMHTMLGUI extends HTMLGUIX {
 	public function type($fieldName, $type, $options = null, $labelField = null, $zeroEntry = null){
 		$this->types[$fieldName] = $type;
 		
+		if(is_object($options) AND $options instanceof Collection){
+			$opt = array();
+
+			if($zeroEntry != null)
+				$opt[0] = $zeroEntry;
+
+			while($O = $options->getNextEntry())
+				$opt[$O->getID()] = $O->A($labelField);
+
+			$options = $opt;
+		}
+		
 		if($type == "HTMLEditor")
 			$options = array($this->object->getClearClass(), $this->object->getID(), $fieldName);
 
@@ -117,7 +129,15 @@ class CRMHTMLGUI extends HTMLGUIX {
 		if(isset($this->features["CRMEditAbove"]))
 			$BA->style("float:left;margin-left:10px;margin-top:10px;");
 		
-		$abort = "<div>$BA</div><div style=\"clear:left;height:10px;\"></div>";
+		$Buttons = "";
+		foreach($this->sideButtons AS $B){
+			if(isset($this->features["CRMEditAbove"]))
+				$B->style("float:left;margin-left:10px;margin-top:10px;");
+			
+			$Buttons .= $B;
+		}
+		
+		$abort = "<div>$BA$Buttons</div><div style=\"clear:left;height:10px;\"></div>";
 
 		
 		$tab = new HTMLForm($this->className."Form", $this->attributes, $this->name." editieren:");
@@ -239,8 +259,10 @@ class CRMHTMLGUI extends HTMLGUIX {
 					$B->style("float:right;");
 				}
 				
-				$TC->addLV($this->labels($v).":", $B.nl2br($A->$v));
-				$TC->addRowStyle("vertical-align:top;");
+				if($TC instanceof HTMLTable){
+					$TC->addLV($this->labels($v).":", $B.nl2br($A->$v));
+					$TC->addRowStyle("vertical-align:top;");
+				}
 			}
 			/*
 			$label = isset($this->labels[$v]) ? $this->labels[$v] : $v;
@@ -276,6 +298,12 @@ class CRMHTMLGUI extends HTMLGUIX {
 		$BD->onclick(str_replace(array("%CLASSNAME","%CLASSID"), array($this->className, $this->object->getID()), $this->functionDelete));
 		$BD->style("float:left;margin-left:10px;");
 
+		if(!mUserdata::isDisallowedTo("cantDelete".$this->className))
+			$BD = "";
+		
+		if(!mUserdata::isDisallowedTo("cantEdit".$this->className))
+			$BE = "";
+		
 		$options = "<div style=\"width:$widths[0]px;\">".$BE.$BD.implode("", $this->topButtons)."</div><div style=\"clear:left;height:10px;width:$widths[0]px;\"></div>";
 
 		$appended = "";
@@ -317,8 +345,10 @@ class CRMHTMLGUI extends HTMLGUIX {
 				$this->features["CRMEditAbove"] = "";
 
 				$this->functionAbort = "\$j('#subFrameEditm%CLASSNAME').hide(); \$j('#subFramem%CLASSNAME').show();/* new Effect.BlindUp('subFrameEditm%CLASSNAME', {duration: 0.5});*/";
-				$this->functionSave = "function() { \$j('#subFrameEditm%CLASSNAME').hide(); \$j('#subFramem%CLASSNAME').show(); /*new Effect.BlindUp('subFrameEditm%CLASSNAME', {duration: 0.5});*/ contentManager.updateLine('%CLASSNAMEForm', %CLASSID, 'm%CLASSNAME'); }";
+				$this->functionSave = "function() { \$j('#subFrameEditm%CLASSNAME').hide(); \$j('#subFramem%CLASSNAME').show(); contentManager.updateLine('%CLASSNAMEForm', %CLASSID, 'm%CLASSNAME'); }";
 				$this->functionSaveNew = "function() { contentManager.reloadFrame('contentLeft'); }";
+				if($par1 == true)
+					$this->functionSave = $this->functionSaveNew;
 			break;
 			/*case "reloadOnNew":
 				if($class instanceof PersistentObject AND $class->getID() == -1)

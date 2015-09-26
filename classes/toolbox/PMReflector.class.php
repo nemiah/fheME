@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class PMReflector {
 
@@ -46,25 +46,6 @@ class PMReflector {
 	}
 	
 	public static function getAttributesArrayAnyObject($O){
-		/*$t = array();
-		$v = var_export($O, true);
-		
-		$s = explode("::__set_state(",$v);
-		if(count($s) >= 2){
-			$s[1]{strlen($s[1])-1} = ";";
-			eval("\$c = ".$s[1]."");
-			return array_keys($c);
-		}
-		*/
-		#$s = var_export($O, true);
-		
-		#$s2 = "";
-		#$mode = "copy";
-		#$subMode = "none";
-		
-		#$newword = "";
-		#$lastword = "";
-		
 		$vars = array();
 		if($O == null) return $vars;
 		foreach($O as $key => $value)

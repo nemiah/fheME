@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class propertyC extends anyC {
 	#public $viewOnly = false;
@@ -29,6 +29,8 @@ class propertyC extends anyC {
 	protected $buttonLabel;
 	protected $buttonIcon;
 	protected $buttonOnclick;
+	
+	protected $SelectionJoin = "AND";
 	
 	protected $showAttributes = null;
 
@@ -115,7 +117,7 @@ class propertyC extends anyC {
 
 	public function getHTML($id, $page){
 		if(!$this->singleOwner){
-			$this->addAssocV3($this->collectionOf."OwnerClass", "=", $this->ownerClassName);
+			$this->addAssocV3($this->collectionOf."OwnerClass", "=", $this->ownerClassName, $this->SelectionJoin);
 			$this->addAssocV3($this->collectionOf."OwnerClassID", "=", $this->ownerClassID);
 		} else
 			$this->addAssocV3($this->collectionOf.$this->ownerClassName."ID", "=", $this->ownerClassID);

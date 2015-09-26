@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class RSSDPNotdienstPortalDe implements iFileBrowser, iRSSDataParser {
 	public function getLabel() {
@@ -53,7 +53,9 @@ class RSSDPNotdienstPortalDe implements iFileBrowser, iRSSDataParser {
 			
 			#print_r();
 			#print_r($row->attributes()->$lon);
-				
+			
+			$von = "";
+			$bis = "";
 			$title = "";
 			$content = "";
 			$i = 0;
@@ -73,11 +75,14 @@ class RSSDPNotdienstPortalDe implements iFileBrowser, iRSSDataParser {
 				}
 				
 				foreach($ex AS $k => $l){
-					if(stripos($l, "von") === 0)
+					if(stripos($l, "von") === 0){
+						$von = $ex[$k];
 						unset($ex[$k]);
-					
-					if(stripos($l, "bis") === 0)
+					}
+					if(stripos($l, "bis") === 0){
+						$bis = $ex[$k];
 						unset($ex[$k]);
+					}
 				}
 				
 				$content .= implode("\n", $ex)."\n";
@@ -93,15 +98,18 @@ class RSSDPNotdienstPortalDe implements iFileBrowser, iRSSDataParser {
 			<link></link>
 			<author></author>
 			<guid></guid>
+			<valid>$von $bis</valid>
 			<lat>".$row->attributes()->$lat."</lat>
 			<lon>".$row->attributes()->$lon."</lon>
 			<pubDate>".date("r")."</pubDate>
 		</item>";
+			
 			#print_r($content);
 		}
 		#$X = $XML->xpath("//tr");
 		#var_dump($X);
 		// Output
+		
 		
 		$rss .= "
 	</channel>

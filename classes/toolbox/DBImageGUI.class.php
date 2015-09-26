@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
 class DBImageGUI implements iGUIHTML2  {
@@ -44,6 +44,11 @@ class DBImageGUI implements iGUIHTML2  {
 		   $height = floor($width/$ratio_orig);
 		
 		$tempimg = imagecreatetruecolor($width, $height);
+		imagealphablending($tempimg, false);
+		imagesavealpha($tempimg, true);
+		$transparent = imagecolorallocatealpha($tempimg, 255, 255, 255, 127);
+		imagefilledrectangle($tempimg, 0, 0, $width, $height, $transparent);
+		
 		imagecopyresampled($tempimg, $image, 0, 0, 0, 0, $width, $height, $width_orig, $height_orig);
 		
 		ob_start();
@@ -88,6 +93,12 @@ class DBImageGUI implements iGUIHTML2  {
 		$data = explode(":::",$imageString);
 		
 		return stripslashes(base64_decode($data[2]));
+	}
+	
+	public static function dataURL($imageString){
+		$data = explode(":::",$imageString);
+		
+		return "data:$data[0];base64,".base64_encode(stripslashes(base64_decode($data[2])));
 	}
 	
 	public function loadMe(){

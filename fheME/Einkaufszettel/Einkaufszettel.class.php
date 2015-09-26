@@ -34,5 +34,10 @@ class Einkaufszettel extends PersistentObject {
 		$this->changeA("EinkaufszettelBought", "1");
 		$this->saveMe();
 	}
+	
+	public function setUnBought(){
+		$this->changeA("EinkaufszettelBought", "0");
+		$this->saveMe();
+	}
 }
 ?>

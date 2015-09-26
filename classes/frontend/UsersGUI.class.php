@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class UsersGUI extends Users implements iGUIHTML2{
 	public function getHTML($id){
@@ -47,17 +47,17 @@ class UsersGUI extends Users implements iGUIHTML2{
 		if($allowedUsers === null)
 			$T->addRow($I."<br /><small>Wenn Sie einen Application Server betreiben, tragen Sie hier bitte die URL ein, um die Benutzer mit diesem Server zu authentifizieren.</small>");
 
-		$gui = new HTMLGUI();
-		$gui->setObject($this);
-		$gui->setName("Benutzer");
-		$gui->setCollectionOf($this->collectionOf,"Benutzer");
+		$gui = new HTMLGUIX($this);
+		$gui->screenHeight();
+		$gui->name("Benutzer");
+		#$gui->setCollectionOf($this->collectionOf,"Benutzer");
 
-		$gui->setParser("isAdmin","UsersGUI::isAdminParser");
-		$gui->setColWidth("isAdmin","20px");
+		$gui->parser("isAdmin","UsersGUI::isAdminParser");
+		$gui->colWidth("isAdmin","20px");
 		
-		$gui->setShowAttributes(array("name","username","isAdmin"));
+		$gui->attributes(array("name","username","isAdmin"));
 		
-		$g = "";
+		/*$g = "";
 		
 		if(strstr($_SERVER["SCRIPT_FILENAME"],"demo")) {
 			$UA = $_SESSION["S"]->getCurrentUser()->getA();
@@ -65,7 +65,7 @@ class UsersGUI extends Users implements iGUIHTML2{
 				$g = "In der Demo können keine Benutzer geändert werden!";
 				$gui->setIsDisplayMode(true);
 			}
-		}
+		}*/
 		
 		$TR = new HTMLTable(1);
 		if($allowedUsers !== null AND $id == -1){
@@ -73,10 +73,11 @@ class UsersGUI extends Users implements iGUIHTML2{
 			$B->style("float:left;margin-right:10px;");
 			$TR->addRow(array($B."Bitte beachten Sie: Sie können insgesamt $allowedUsers Benutzer ohne Admin-Rechte anlegen."));
 		}
-		
+		$gui->prepend($T);
+		$gui->prepend($TR);
 		$gui->customize($this->customizer);
 		
-		return $TR.$g.$gui->getBrowserHTML($id).($id == -1 ? $T : "");
+		return $gui->getBrowserHTML($id);
 	}
 	
 	function doCertificateLogin($application, $sprache, $cert) {

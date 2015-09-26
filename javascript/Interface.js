@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
 var Interface = {
@@ -28,12 +28,31 @@ var Interface = {
 		if($('wrapperHandler')){
 			Interface.isDesktop = true;
 			Interface.resizeWrapper();
-			Event.observe(window, 'resize', function() {
+			$j(window).on('resize', function() {
 				Interface.resizeWrapper();
 			});
 		}
+		
+		$j(window).on("online", function(){
+			Interface.online();
+		});
+		
+		$j(window).on("offline", function(){
+			Interface.offline();
+		});
 	},
 	
+	offline: function(){
+		Overlay.showDark();
+		$j('body').append("<div id='offlineMessage' style='z-index:100000;color:white;font-size:40px;width:400px;position:absolute;'>Sie sind offline</div>");
+		$j('#offlineMessage').css("top", ($j(window).height() - $j('#offlineMessage').outerHeight()) / 2);
+		$j('#offlineMessage').css("left", ($j(window).width() - 400) / 2);
+	},
+	
+	online: function(){
+		Overlay.hideDark();
+		$j('#offlineMessage').remove();
+	},
 	
 	/**
 	 * @deprecated text

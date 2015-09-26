@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
 ini_set('session.gc_maxlifetime', 24 * 60 * 60);
@@ -24,7 +24,7 @@ require_once __DIR__.'/CCAuftrag.class.php';
 class CCService extends CCAuftrag implements iCustomContent {
 	function __construct() {
 		parent::__construct();
-		
+		$this->loadPlugin("open3A", "Niederlassungen", true);
 		#$this->showPosten = false;
 		$this->showPrices = false;
 	}
@@ -56,11 +56,11 @@ class CCService extends CCAuftrag implements iCustomContent {
 		return "
 		<div style=\"max-width:1200px;\">
 			<div id=\"frameEdit\" style=\"display:none;\">
-				<div style=\"display:inline-block;width:100%;vertical-align:top;margin-right:3%;\" id=\"contentLeft\">
+				<div style=\"display:inline-block;width:61%;vertical-align:top;margin-right:3%;\" id=\"contentLeft\">
 						".$this->getAuftrag(array("GRLBMID" => 0))."
 				</div>
-				<div style=\"display:inline-block;width:48%;vertical-align:top;\" id=\"contentRight\">
-				
+				<div style=\"display:inline-block;width:35%;vertical-align:top;\" id=\"contentRight\">
+					
 				</div>
 			</div>
 			<div id=\"frameSelect\">
@@ -99,7 +99,7 @@ class CCService extends CCAuftrag implements iCustomContent {
 		$buttons = "undo redo | pastetext | styleselect fontsizeselect fontselect | bold italic underline forecolor | hr";
 		
 		
-		return $T.OnEvent::script(tinyMCEGUI::editorDokument($tinyMCEID, "function(content){}", $buttons));
+		return $T.parent::getPosten($Beleg).OnEvent::script("if(CCAuftrag.lastTextbausteinUnten != null) \$('[name=textbausteinUnten]').val(CCAuftrag.lastTextbausteinUnten); CCAuftrag.lastTextbausteinUnten = null;".tinyMCEGUI::editorDokument($tinyMCEID, "function(content){}", $buttons, "../../styles/tinymce/email.css"));
 	}#".OnEvent::rme($args[1], "setTextbaustein", array("'textbausteinUnten'", "content.getContent()"))."
 	
 	public function getService($data){
@@ -109,19 +109,28 @@ class CCService extends CCAuftrag implements iCustomContent {
 		$html = "";
 		
 		
-		$T = new HTMLTable(3);#, "Bitte wählen Sie einen Lieferschein");
+		$T = new HTMLTable(4);#, "Bitte wählen Sie einen Lieferschein");
 		$T->setTableStyle("width:100%;margin-top:10px;");
 		$T->setColWidth(1, 200);
-		$T->setColWidth(3, 200);
+		$T->setColWidth(4, 200);
 		$T->useForSelection(false);
 		$T->maxHeight(400);
 		
 		$AC = anyC::get("GRLBM", "isWhat", "S");
 		$AC->addJoinV3("Auftrag", "AuftragID", "=", "AuftragID");
-		$AC->addAssocV3("UserID", "=", Session::currentUser()->getID());
+		#$AC->addAssocV3("UserID", "=", Session::currentUser()->getID());
+		$AC->addAssocV3("isPrinted", "=", "0");
+		$AC->addAssocV3("isEMailed", "=", "0");
+		$AC->addAssocV3("isPixelLetteredTime", "=", "0");
+		
+		
 		#$AC->addAssocV3("status", "=", "delivered");
-		#$AC->addOrderV3("datum", "DESC");
-		$AC->addOrderV3("nummer", "DESC");
+		$AC->addAssocV3("GRLBMServiceMitarbeiter", "=", Session::currentUser()->getID(), "AND", "2");
+		$AC->addAssocV3("GRLBMServiceMitarbeiter2", "=", Session::currentUser()->getID(), "OR", "2");
+		$AC->addAssocV3("GRLBMServiceMitarbeiter3", "=", Session::currentUser()->getID(), "OR", "2");
+		$AC->addAssocV3("GRLBMServiceMitarbeiter4", "=", Session::currentUser()->getID(), "OR", "2");
+		$AC->addOrderV3("datum", "DESC");
+		#$AC->addOrderV3("nummer", "DESC");
 		#$AC->setLimitV3(100);
 		#$AC->addJoinV3("Adresse", "t2.AdresseID", "=", "AdresseID");
 		$i = 0;
@@ -131,21 +140,28 @@ class CCService extends CCAuftrag implements iCustomContent {
 			$BPDF->style("background-color:#DDD;color:grey;float:right;");
 			$BPDF->onclick("CustomerPage.popup('Service PDF', 'getPDFViewer', {GRLBMID: '".$B->getID()."'}, {width:'800px'});");
 
+			$BOK = "";
+			if($B->A("GRLBMServiceSigAG") != "" AND $B->A("GRLBMServiceSigAG") != "[]"){
+				$BOK = new Button("Kunde hat unterschrieben", "check", "iconic");
+				$BOK->style("font-size:55px;");
+			}
 			
 			$Adresse = new Adresse($B->A("AdresseID"));
 			$T->addRow(array(
 				"<span style=\"font-size:20px;font-weight:bold;\">".$B->A("prefix").$B->A("nummer")."</span><br><span style=\"color:grey;\">".Util::CLDateParser($B->A("datum"))."</span>", 
 				$Adresse->getHTMLFormattedAddress(),
+				$BOK,
 				$BPDF));
 			$T->addCellStyle(1, "vertical-align:top;");
 			
-			$T->addRowStyle("cursor:pointer;border-bottom:1px solid #ccc;");
+			$T->addRowStyle("border-bottom:1px solid #ccc;");
 			
 			#if($i % 2 == 1)
 			#	$T->addRowStyle ("background-color:#eee;");
 			
 			$event = "
 				$(this).addClass('selected');
+				CCAuftrag.lastTextbausteinUnten = null;
 				
 				CustomerPage.rme('getAuftrag', {GRLBMID: ".$B->getID()."}, function(transport){ 
 						if(transport == 'TIMEOUT') { document.location.reload(); return; } 
@@ -155,16 +171,20 @@ class CCService extends CCAuftrag implements iCustomContent {
 					function(){},
 					'POST');
 					
-				/*CustomerPage.rme('getArtikel', {GRLBMID: ".$B->getID().", query : '', KategorieID: ''}, function(transport){ 
+				CustomerPage.rme('getArtikel', {GRLBMID: ".$B->getID().", query : '', KategorieID: ''}, function(transport){ 
 						if(transport == 'TIMEOUT') { document.location.reload(); return; } 
 						$('#contentRight').html(transport); 
 						$('.selected').removeClass('selected');
 					}, 
 					function(){},
-					'POST');*/";
+					'POST');";
 			
-			$T->addCellEvent(1, "click", $event);
-			$T->addCellEvent(2, "click", $event);
+			if($B->A("GRLBMServiceSigAG") == "" OR $B->A("GRLBMServiceSigAG") == "[]"){
+				$T->addCellEvent(1, "click", $event);
+				$T->addCellEvent(2, "click", $event);
+				$T->addRowStyle("cursor:pointer;");
+			} else
+				$T->addRowStyle("cursor:default;");
 			
 			$i++;
 		}
@@ -177,6 +197,12 @@ class CCService extends CCAuftrag implements iCustomContent {
 	public function getBottom($Beleg){
 		$IV = new HTMLInput("GRLBMServiceVon", "text", Util::CLTimeParserE($Beleg->A("GRLBMServiceVon")));
 		$IB = new HTMLInput("GRLBMServiceBis", "text", Util::CLTimeParserE($Beleg->A("GRLBMServiceBis")));
+		$IS = new HTMLInput("GRLBMServiceStunden", "text", Util::CLTimeParserE($Beleg->A("GRLBMServiceStunden")));
+		
+		$IG = new HTMLInput("GRLBMServiceIsGarantie", "checkbox", $Beleg->A("GRLBMServiceIsGarantie"));
+		$IA = new HTMLInput("GRLBMServiceIsAbgeschlossen", "checkbox", $Beleg->A("GRLBMServiceIsAbgeschlossen"));
+		$IE = new HTMLInput("GRLBMServiceIsBerechnung", "checkbox", $Beleg->A("GRLBMServiceIsBerechnung"));
+		
 		$IID = new HTMLInput("GRLBMID", "hidden", $Beleg->getID());
 		
 		$I = new Button("Arbeitszeit", "info", "iconic");
@@ -184,6 +210,11 @@ class CCService extends CCAuftrag implements iCustomContent {
 		$T = new HTMLTable(3, "Details");
 		$T->addRow(array($I, "<label>Anfang der Arbeitszeit:</label>", $IV));
 		$T->addRow(array("", "<label>Ende der Arbeitszeit:</label>", $IB));
+		$T->addRow(array("", "<label>Stunden ges:</label>", $IS));
+		
+		$T->addRow(array("", "<label>Garantie?:</label>", $IG));
+		$T->addRow(array("", "<label>Abgeschlossen?:</label>", $IA));
+		$T->addRow(array("", "<label>Berechnung:</label>", $IE));
 		
 		$TA = new HTMLTable(1, "Unterschrift Auftragnehmer");
 		$TA->setTableStyle("width:100%;");
@@ -193,7 +224,7 @@ class CCService extends CCAuftrag implements iCustomContent {
 		
 		$padAN = $P.'
 	<div class="sigPadAN" style="margin-left:30px;">
-		<canvas class="pad" width="400" height="150" style="border:1px solid grey;"></canvas>
+		<canvas class="pad" width="300" height="150" style="border:1px solid grey;"></canvas>
 		<input type="hidden" id="sigAN" name="sigAN" class="output">
 		<br>
 		<span class="clearButton"><a href="#" onclick="return false;">Nochmal</a></span>
@@ -207,7 +238,7 @@ class CCService extends CCAuftrag implements iCustomContent {
 		
 		$padKunde = $P.'
 	<div class="sigPadKunde" style="margin-left:30px;">
-		<canvas class="pad" width="400" height="150" style="border:1px solid grey;"></canvas>
+		<canvas class="pad" width="300" height="150" style="border:1px solid grey;"></canvas>
 		<input type="hidden" id="sigKunde" name="sigKunde" class="output">
 		<br>
 		<span class="clearButton"><a href="#" onclick="return false;">Nochmal</a></span>
@@ -230,6 +261,15 @@ class CCService extends CCAuftrag implements iCustomContent {
 		$T = new HTMLTable(3, "Details");
 		
 		$I = new Button("Details", "info", "iconic");
+		
+		if(Session::isPluginLoaded("mAdresseNiederlassung") AND strpos($Beleg->A("GRLBMServiceArbeitsort"), "AdresseNiederlassungID:") === 0){
+			$N = new AdresseNiederlassung(str_replace("AdresseNiederlassungID:", "", $Beleg->A("GRLBMServiceArbeitsort")));
+			AdresseNiederlassung::fill($N);
+			
+			$new = $N->A("AdresseNiederlassungStrasse")." ".$N->A("AdresseNiederlassungNr").", ".$N->A("AdresseNiederlassungPLZ")." ".$N->A("AdresseNiederlassungOrt");
+			
+			$Beleg->changeA("GRLBMServiceArbeitsort", $new);
+		}
 		
 		$T->addRow(array($I, "<label>Auftraggeber:</label>", $Beleg->A("GRLBMServiceAuftraggeber")));
 		$T->addRow(array("", "<label>Ansprechpartner:</label>", $Beleg->A("GRLBMServiceAnsprechpartner")));
@@ -259,7 +299,16 @@ class CCService extends CCAuftrag implements iCustomContent {
 		$G->changeA("textbausteinUnten", $data["textbausteinUnten"]);
 		$G->changeA("GRLBMServiceVon", Util::CLTimeParserE($data["GRLBMServiceVon"], "store"));
 		$G->changeA("GRLBMServiceBis", Util::CLTimeParserE($data["GRLBMServiceBis"], "store"));
+		$G->changeA("GRLBMServiceStunden", Util::CLTimeParserE($data["GRLBMServiceStunden"], "store"));
+		
+		$G->changeA("GRLBMServiceIsGarantie", $data["GRLBMServiceIsGarantie"] == "on" ? 1 : 0);
+		$G->changeA("GRLBMServiceIsAbgeschlossen", $data["GRLBMServiceIsAbgeschlossen"] == "on" ? 1 : 0);
+		$G->changeA("GRLBMServiceIsBerechnung", $data["GRLBMServiceIsBerechnung"] == "on" ? 1 : 0);
+		
 		$G->changeA("GRLBMServiceSigAN", $data["sigAN"]);
+		if($data["sigAN"])
+			$G->changeA ("GRLBMServiceSigANDate", time());
+		
 		$G->changeA("GRLBMServiceSigAG", $data["sigKunde"]);
 		$G->saveMe();
 	}
@@ -289,7 +338,7 @@ class CCService extends CCAuftrag implements iCustomContent {
 	public function buttonDone($data){
 		$IOK = new Button("Belegdaten speichern");
 		$IOK->className("submitFormButton");
-		$IOK->onclick("CustomerPage.rme('saveService', $('#contentLeft :input').serialize(), function(){ $('#frameSelect').show(); $('#frameEdit').hide(); }, function(){}, 'POST');");
+		$IOK->onclick("CustomerPage.rme('saveService', $('#contentLeft :input').serialize(), function(){ document.location.reload();/*$('#frameSelect').show(); $('#frameEdit').hide();*/ }, function(){}, 'POST');");
 		
 		return $IOK;
 	}

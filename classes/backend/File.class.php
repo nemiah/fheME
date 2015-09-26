@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
 class File extends PersistentObject {
@@ -116,8 +116,12 @@ class File extends PersistentObject {
 		if(!isset($_FILES['qqfile'])){ //XHR upload for good browsers
 			if($_SERVER["CONTENT_LENGTH"] > $maxSize)
 				die("{\"error\":\"Die angegebene Datei ist zu groß\"}");
-
-			$A->FileContent = addslashes(file_get_contents("php://input"));
+			
+			$content = file_get_contents("php://input");
+			if(strlen($content) != $_SERVER["CONTENT_LENGTH"])
+				die("{\"error\":\"Der Upload ist fehlgeschlagen!\"}");
+				
+			$A->FileContent = addslashes($content);
 			$A->FileName = (isset($_GET["targetFilename"]) AND $_GET["targetFilename"] != "") ? $_GET["targetFilename"].".".Util::ext($_GET['qqfile']) : $_GET['qqfile'];
 			$A->FileDir = preg_replace("/^([A-Z])%/", "\\1:", $_GET["path"]);
 			$A->FileSize = (int) $_SERVER["CONTENT_LENGTH"];
@@ -131,6 +135,9 @@ class File extends PersistentObject {
 			$A->FileDir = preg_replace("/^([A-Z])%/", "\\1:", $_GET["path"]);
 			$A->FileSize = $_FILES['qqfile']['size'];
 		}
+		
+		if(Util::ext($A->FileName) == "php")
+			die("{\"error\":\"Ungültiges Dateiformat!\"}");
 		
 		echo "{\"success\":true}";
 	}

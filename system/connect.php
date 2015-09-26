@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
 /**
@@ -33,6 +33,14 @@
  */
 #define("PHYNX_QUERY_PARSER", true);
 
+define("PHYNX_USE_TEMP_HTACCESS", true);
+define("PHYNX_USE_SVG", false);
+
+if(isset($_SERVER["HTTP_HOST"]) AND $_SERVER["HTTP_HOST"] == "cloud.furtmeier.it"){
+	define("PHYNX_USE_SYSLOG", true);
+	openlog('phynx', LOG_CONS | LOG_PID, LOG_USER);
+} else 
+	define("PHYNX_USE_SYSLOG", false);
 
 header('P3P:CP="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT"');
 require_once dirname(__FILE__)."/basics.php";
@@ -140,9 +148,43 @@ function log_error($errno, $errmsg, $filename, $linenum) {
 	if(!isset($_SESSION["phynx_errors"]))
 		$_SESSION["phynx_errors"] = array();
 	
-	$_SESSION["phynx_errors"][] = array($errortype[$errno], $errmsg, $filename, $linenum);
-	
-	#@file_put_contents(realpath(__DIR__."/../")."/log_".date("Y_m_d").".log", date("Y d m H:i:s")." ".$errortype[$errno].": ".$errmsg." in $filename:$linenum\n", FILE_APPEND);
+	if(!PHYNX_USE_SYSLOG)
+		$_SESSION["phynx_errors"][] = array($errortype[$errno], $errmsg, $filename, $linenum);
+	else {
+		$type = LOG_INFO;
+		switch($errno) {
+			case E_DEPRECATED:
+			case E_STRICT:
+				$type = LOG_DEBUG;
+			break;
+		
+			case E_WARNING:
+			case E_CORE_WARNING:
+			case E_USER_WARNING:
+			case E_COMPILE_WARNING:
+				$type = LOG_WARNING;
+			break;
+		
+			case E_PARSE:
+			case E_ERROR:
+			case E_CORE_ERROR:
+			case E_USER_ERROR:
+			case E_COMPILE_ERROR:
+			case E_RECOVERABLE_ERROR:
+				$type = LOG_ERR;
+			break;
+		
+			case E_NOTICE:
+			case E_USER_NOTICE:
+				$type = LOG_NOTICE;
+			break;
+		}
+		
+		syslog($type, $errortype[$errno].": ".$errmsg." in $filename:$linenum");
+	}
+	#$logfile = realpath(__DIR__."/../")."/log_".date("Y_m_d").".log";
+	#@file_put_contents($logfile, date("Y d m H:i:s")." ".$errortype[$errno].": ".$errmsg." in $filename:$linenum\n", FILE_APPEND);
+	#chmod($logfile, 0777);
 	
 	try {
 		SysMessages::log($errortype[$errno].": ".$errmsg."\n$filename:$linenum", "PHP");

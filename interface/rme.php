@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 $par = "";
 
@@ -40,6 +40,14 @@ if(isset($_GET["target"])){
 	$con = "";
 }
 
+
+$par = str_replace(";-r-;","#",$par);
+$par = str_replace(";-u-;","&",$par);
+$par = str_replace(";-p-;","%",$par);
+$par = str_replace(";-i-;","=",$par);
+$par = str_replace(";-f-;","?",$par);
+
+//Still required for some extensions, e.g. Zentrale
 $par = str_replace(";-;;raute;;-;","#",$par);
 $par = str_replace(";-;;und;;-;","&",$par);
 $par = str_replace(";-;;prozent;;-;","%",$par);
@@ -88,30 +96,38 @@ $d = new $c($con);
 $par = (get_magic_quotes_gpc() ? stripslashes($par) : $par);
 
 #$phpversion = str_replace(".","",phpversion())*1;
-if(Util::phpVersionGEThen("5.1.0")){
-	$pars = explode("','",$par);
-	$pars[0] = substr($pars[0],1);
-	$pars[count($pars) - 1] = substr($pars[count($pars) - 1],0,strlen($pars[count($pars) - 1])-1);
 
-	if(!method_exists($d, $met)){
-		if(!method_exists($d, "__call")) 
-			Red::errorD("Die Methode $c::$met existiert nicht");
-		else {
-			array_unshift($pars, $met);
-			$met = "__call";
-		}
+Timer::now("init", __FILE__, __LINE__);
+$pars = explode("','",$par);
+$pars[0] = substr($pars[0],1);
+$pars[count($pars) - 1] = substr($pars[count($pars) - 1],0,strlen($pars[count($pars) - 1])-1);
+
+if(!method_exists($d, $met)){
+	if(!method_exists($d, "__call")) 
+		Red::errorD("Die Methode $c::$met existiert nicht");
+	else {
+		array_unshift($pars, $met);
+		$met = "__call";
 	}
-	$method = new ReflectionMethod($c, $met);
-	try {
-		$method->invokeArgs($d, $pars);
-	} catch (FieldDoesNotExistException $e) {
-		Red::errorUpdate($e);
-	}
-} else
-	eval("\$d->".$met."($par);");
+}
+ob_start();
+$method = new ReflectionMethod($c, $met);
+try {
+	$method->invokeArgs($d, $pars);
+} catch (FieldDoesNotExistException $e) {
+	ob_end_flush();
+	Red::errorUpdate($e);
+}
+
+Timer::now("done", __FILE__, __LINE__);
+
+$timers = Timer::getLogged();
+if(count($timers) > 0)
+	header("X-Timers: ".json_encode($timers));
 
 if(isset($_SESSION["phynx_Achievements"]) AND is_array($_SESSION["phynx_Achievements"]) AND count($_SESSION["phynx_Achievements"]) > 0){
 	header("X-Achievements: ".json_encode($_SESSION["phynx_Achievements"]));
 	$_SESSION["phynx_Achievements"] = array();
 }
+ob_end_flush();
 ?>

@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class mKalenderGUI extends mKalender implements iGUIHTML2 {
 	function  __construct() {
@@ -207,7 +207,7 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 		
 		$newWindow = new Button("Kalender in neuem Fenster öffnen", "new_window", "iconicL");
 		$newWindow->style("margin-right:10px;");
-		$newWindow->newSession("Mail", Applications::activeApplication(), "mKalender", "Kalender");
+		$newWindow->newSession("Kalender", Applications::activeApplication(), "mKalender", "Kalender");
 		if(Session::physion())
 			$newWindow = "";
 		
@@ -532,7 +532,7 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 		echo $C->$targetClassMethod($targetClassID);
 	}
 	
-	public function getInviteForm($targetClass, $targetClassId, $targetClassMethod) {
+	public function getInvitees($targetClass, $targetClassId, $targetClassMethod) {
 		$class = new $targetClass($targetClassId);
 		echo $class->$targetClassMethod($targetClassId);
 	}

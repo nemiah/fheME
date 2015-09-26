@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
 class T {
@@ -32,6 +32,9 @@ class T {
 	
 	public static function _($text){
 		if(!function_exists("bindtextdomain"))
+			return $text;
+		
+		if(!function_exists("bind_textdomain_codeset"))
 			return $text;
 		
 		if(trim($text) == "" OR trim($text) == "&nbsp;")
@@ -69,6 +72,9 @@ class T {
 	
 	public static function load($pluginPath, $domain = ""){
 		if(!function_exists("bindtextdomain") OR strpos($_SERVER["SERVER_SOFTWARE"], "BitWebServer") !== false)
+			return;
+		
+		if(!function_exists("bind_textdomain_codeset"))
 			return;
 		
 		self::$domainPaths[$domain] = $pluginPath."/locale";

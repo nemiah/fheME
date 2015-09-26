@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class HTMLInput {
 	private $type;
@@ -50,7 +50,12 @@ class HTMLInput {
 	private $autocorrect = true;
 	private $spellcheck = true;
 	private $title;
+	private $parentValue;
 	private $data = array();
+	
+	public function parentValue($PV){
+		$this->parentValue = $PV;
+	}
 	
 	public function __construct($name, $type = "text", $value = null, $options = null){
 		$this->name = $name;
@@ -93,6 +98,10 @@ class HTMLInput {
 	
 	public function setType($type){
 		$this->type = $type;
+	}
+	
+	public function getType(){
+		return $this->type;
 	}
 	
 	public function placeholder($text){
@@ -305,13 +314,15 @@ class HTMLInput {
 			break;
 		
 			case "tinyMCE":
-
 				$BO = array("'{$this->options[0]}'", "'{$this->options[1]}'");
 				if(isset($this->options[2]))
 					$BO[] = "'{$this->options[2]}'";
+				if(isset($this->options[3]))
+					$BO[] = "'{$this->options[3]}'";
 					
 				$B = new Button("in Editor\nbearbeiten","editor");
 				#$B->windowRme("Wysiwyg","","getEditor","","WysiwygGUI;FieldClass:{$this->options[0]};FieldClassID:{$this->options[1]};FieldName:{$this->options[2]}");
+				$B->doBefore("Overlay.showDark(); %AFTER");
 				$B->popup("", "Editor", "tinyMCE", "-1", "editInPopup", $BO, "", "Popup.presets.large");
 				$B->className("backgroundColor2");
 
@@ -369,6 +380,7 @@ class HTMLInput {
 					".($this->onblur != null ? "onblur=\"$this->onblur\"" : "")."
 					".($this->onfocus != null ? "onfocus=\"$this->onfocus\"" : "")."
 					".($this->onkeyup != null ? "onkeyup=\"$this->onkeyup\"" : "")."
+					".($this->isDisabled ? "disabled=\"disabled\"" : "")."
 					".($this->hasFocusEvent ? "onfocus=\"focusMe(this);\" onblur=\"blurMe(this);\"" : "")."
 					".($this->id != null ? "id=\"$this->id\"" : "").">$this->value</textarea>";
 			break;
@@ -540,7 +552,8 @@ class HTMLInput {
 							 ".OnEvent::rme($this->autocomplete[0], "getACData", array("'$this->name'", "request.term", $this->autocomplete[3]), "function(transport){ response(jQuery.parseJSON(transport.responseText)); }")."
 							 
 						},
-						select: function(event, ui) { var r = OnSelectCallback$this->id(ui.item); ".($this->autocomplete[2] ? "$('$this->id').style.display = 'none';" : "")." return r; }
+						select: function(event, ui) { var r = OnSelectCallback$this->id(ui.item); ".($this->autocomplete[2] ? "$('$this->id').style.display = 'none';" : "")." return r; },
+						change: function(event, ui) { var r = OnSelectCallback$this->id(ui.item); ".($this->autocomplete[2] ? "$('$this->id').style.display = 'none';" : "")." return r; }
 					}).data(\"ui-autocomplete\")._renderItem = function( ul, item ) {
 						return \$j( \"<li>\" )
 							.data( \"item.ui-autocomplete\", item )
@@ -575,14 +588,24 @@ class HTMLInput {
 			break;
 
 			case "option":
-				return "<option".($this->style != null ? " style=\"$this->style\"" : "")." ".($this->isDisabled ? "disabled=\"disabled\"" : "")." ".($this->isSelected ? "selected=\"selected\"" : "")." value=\"$this->value\">$this->name</option>";
+				$data = "";
+				foreach($this->data AS $k => $v)
+					$data .= " data-$k=\"$v\"";
+				
+				return "<option".($this->style != null ? " style=\"$this->style\"" : "")." $data ".($this->isDisabled ? "disabled=\"disabled\"" : "")." ".($this->isSelected ? "selected=\"selected\"" : "")." value=\"$this->value\">$this->name</option>";
 			break;
 
 			case "optgroup":
 				$html = "<optgroup label=\"".htmlentities($this->name)."\">";
 				
-				foreach($this->options AS $k => $v)
+				foreach($this->options AS $k => $v){
+					if(is_object($v)){
+						$v->isSelected(false);
+						if($this->parentValue == $k OR $v->getValue() == $this->parentValue)
+							$v->isSelected(true);
+					}
 					$html .= $v;
+				}
 				
 				$html .= "</optgroup>";
 				
@@ -619,12 +642,20 @@ class HTMLInput {
 				if($this->options != null AND is_array($this->options))
 					foreach($this->options AS $k => $v)
 						if(!is_object($v)) {
-							if($this->type == "select") $isThisIt = ($this->value == $k);
-							else $isThisIt = in_array($k, $values);
+							if($this->type == "select"){
+								$isThisIt = ($this->value == $k);
+								if($this->value."" === "" AND $k."" === "0")
+									$isThisIt = false;
+							} else
+								$isThisIt = in_array($k, $values);
 
 							$html .= "<option ".($isThisIt ? "selected=\"selected\"" : "")." value=\"$k\">$v</option>";
 						}
 						else {
+							if($v->getType() == "optgroup")
+								$v->parentValue($this->value);
+							
+							$v->isSelected(false);
 							if($this->value == $k OR $v->getValue() == $this->value)
 								$v->isSelected(true);
 							$html .= $v;

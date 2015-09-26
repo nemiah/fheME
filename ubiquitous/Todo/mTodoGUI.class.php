@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class mTodoGUI extends mTodo implements iGUIHTMLMP2, iKalender {
 	public function  __construct() {
@@ -61,7 +61,121 @@ class mTodoGUI extends mTodo implements iGUIHTMLMP2, iKalender {
 		return $gui->getBrowserHTML($id);
 	}
 
-	public function getInviteForm($id) {
+	public function getInvitees($TodoID){
+		$AC = anyC::get("TodoInvitation", "TodoInvitationTodoID", $TodoID);
+		$AC->addOrderV3("TodoInvitationID", "DESC");
+		
+		$T = new HTMLTable(3, "Teilnehmer");
+		$T->setColWidth(1, 20);
+		$T->setColWidth(3, 20);
+		$T->maxHeight(200);
+		
+		while($I = $AC->n()){
+			$IH = new HTMLInput("TodoInvitationIsHead", "checkbox", $I->A("TodoInvitationIsHead"));
+			$IH->activateMultiEdit("TodoInvitation", $I->getID());
+			$IH->title("Moderator?");
+			
+			$BD = new Button("Teilnehmer entfernen", "trash_stroke", "iconic");
+			$BD->rmePCR("mTodo", "-1", "removeInvitee", array($TodoID, $I->getID()), "function(t){ \$j('#eventSideContent').html(t.responseText); }");
+			$T->addRow(array($IH, $I->A("TodoInvitationName")."<br><small style=\"color:grey;\">&lt;".$I->A("TodoInvitationUserEmail")."&gt;</small>", $BD));
+		}
+		
+		if($AC->numLoaded() == 0){
+			$T->addRow(array("Keine Teilnehmer"));
+			$T->addRowColspan(1, 2);
+		}
+		#$T->addRow(array("HI", "HO"));
+		
+		echo $T;
+		
+		$Todo = new Todo($TodoID);
+		
+		$BN = new Button("Neuer Teilnehmer", "new", "icon");
+		$BN->className("highlight");
+		$BN->style("padding:10px;");
+		$BN->onclick("\$j('#containerButtons .highlight').removeClass('highlight'); \$j(this).addClass('highlight'); \$j('.teilnehmerContainer').hide(); \$j('#containerNew').show(); ");
+		
+		$BS = new Button("Systembenutzer", "users", "icon");
+		$BS->style("padding:10px;");
+		$BS->onclick("\$j('#containerButtons .highlight').removeClass('highlight'); \$j(this).addClass('highlight'); \$j('.teilnehmerContainer').hide(); \$j('#containerSystem').show(); ");
+		
+		$BA = "";
+		if(Session::isPluginLoaded("mAnsprechpartner") AND $Todo->A("TodoClass") == "WAdresse"){
+			$BA = new Button("Ansprechpartner", "./ubiquitous/Ansprechpartner/Ansprechpartner.png", "icon");
+			$BA->style("padding:10px;");
+			$BA->onclick("\$j('#containerButtons .highlight').removeClass('highlight'); \$j(this).addClass('highlight'); \$j('.teilnehmerContainer').hide(); \$j('#containerAnsprech').show(); ");
+		}
+		
+		echo "<div style=\"height:30px;\"></div><div id=\"containerButtons\">$BN$BS$BA</div>";
+		
+		
+		$F = new HTMLForm("neuerTeilnehmer", array("TodoID", "name", "email"), " Neuer Teilnehmer");
+		$F->getTable()->setColWidth(1, 120);
+		
+		$F->setValue("TodoID", $TodoID);
+		$F->setLabel("email", "E-Mail");
+		$F->setType("TodoID", "hidden");
+		
+		$F->setSaveRMEPCR("Hinzufügen", "", "mTodo", -1, "addInvitee", "function(t){ \$j('#eventSideContent').html(t.responseText); }");
+		
+		echo "<div id=\"containerNew\" class=\"teilnehmerContainer\" style=\"padding-bottom:10px;\">".$F."</div>";
+		
+		
+		$S = new HTMLList();
+		
+		$AC = Users::getUsers();
+		while($U = $AC->n()){
+			$S->addItem("<a href=\"#\" onclick=\"".OnEvent::rme(new mTodoGUI(-1), "addInvitee", array($TodoID, "'".$U->A("name")."'", "'".$U->A("UserEmail")."'"), "function(t){ \$j('#eventSideContent').html(t.responseText); }")." return false;\">".$U->A("name")."</a>");
+			if($U->getID() == Session::currentUser()->getID()){
+				$S->addItemClass("confirm");
+				$S->addItemStyle("padding-top:5px;padding-bottom:5px;");
+			}
+		}
+		
+		echo "<div id=\"containerSystem\" class=\"teilnehmerContainer\" style=\"display:none;padding-bottom:10px;\">".$S."</div>";
+		
+		$T = new HTMLTable(1);
+		
+		if($Todo->A("TodoClass") == "WAdresse" AND Session::isPluginLoaded("mAnsprechpartner")){
+			
+			$S = new HTMLList();
+
+			$AC = Ansprechpartner::getAllAnsprechpartnerToAdresse($Todo->A("TodoClassID"));
+			while($U = $AC->n()){
+				$S->addItem("<a href=\"#\" onclick=\"".OnEvent::rme(new mTodoGUI(-1), "addInvitee", array($TodoID, "'".$U->A("AnsprechpartnerVorname")." ".$U->A("AnsprechpartnerNachname")."'", "'".$U->A("AnsprechpartnerEmail")."'"), "function(t){ \$j('#eventSideContent').html(t.responseText); }")." return false;\">".$U->A("AnsprechpartnerVorname")." ".$U->A("AnsprechpartnerNachname")."</a>");
+			}
+			
+			if($AC->numLoaded() == 0)
+				$S->addItem ("Keine Ansprechpartner");
+		
+			echo "<div id=\"containerAnsprech\" class=\"teilnehmerContainer\" style=\"display:none;padding-bottom:10px;\">$S</div>";
+		}
+	}
+	
+	public function removeInvitee($TodoID, $TodoInvitationID){
+		$I = new TodoInvitation($TodoInvitationID);
+		$I->deleteMe();
+		
+		$this->getInvitees($TodoID);
+	}
+	
+	public function addInvitee($TodoID, $name, $email){
+		$F = new Factory("TodoInvitation");
+		$F->sA("TodoInvitationTodoID", $TodoID);
+		$F->sA("TodoInvitationName", $name);
+		$F->sA("TodoInvitationUserEmail", $email);
+		#$F->sA("TodoInvitationStatus", 0);
+		if($F->exists()){
+			$this->getInvitees($TodoID);
+			return;
+		}
+		
+		$F->store();
+		
+		$this->getInvitees($TodoID);
+	}
+	
+	/*public function getInviteForm($id) {
 		$gui = new HTMLForm("inviteForm", array("todoid", "adress_0"));
 		$gui->setType("todoid", "hidden", $id);
 		$gui->setAutoComplete("adress_0", "mTodo", "function(selection) { (typeof selection.email != 'undefined')? \$j('input[name=adress_0]').val(selection.email) : \$j('input[name=adress_0]').val(selection.value); return false; }");
@@ -72,7 +186,7 @@ class mTodoGUI extends mTodo implements iGUIHTMLMP2, iKalender {
 		
 		$gui->getAllFields();
 		echo $gui->getHTML();
-	}
+	}*/
 	
 	public function newInput($number) {
 		$htmlTable = new HTMLTable(2);
@@ -129,7 +243,7 @@ class mTodoGUI extends mTodo implements iGUIHTMLMP2, iKalender {
 	 * @return String
 	 * @throws Exception
 	 */
-	public static function getRandomId($length) {
+	/*public static function getRandomId($length) {
 		// TODO: Diese Methode möglicherweise in Util übernehmen?!
 		$length = (int) $length;
 		if ($length == null || $length == 0)
@@ -222,7 +336,7 @@ END:VCALENDAR";
 //			$htmlMimeMail->addAttachment(new stringAttachment($attachment, "invite.ics", "application/ics"));
 			$htmlMimeMail->send(array($participant->value));
 		}
-	}
+	}*/
 
 	function editInPopup($id, $date = null, $targetClass = null, $targetClassID = null, $time = null, $description = null, $location = null){
 		if($date != null)
@@ -299,7 +413,7 @@ END:VCALENDAR";
 			$T = new Todo($classID);
 
 		$name = "";
-		if($T->A("TodoClass") == "WAdresse" OR $T->A("TodoClass") == "Projekt" OR $T->A("TodoClass") == "GRLBM"){
+		if(/*$T->A("TodoClass") == "WAdresse" OR*/ $T->A("TodoClass") == "Projekt" OR $T->A("TodoClass") == "GRLBM"){
 			$O = $T->getOwnerObject();
 			$name = $O->getCalendarTitle();
 		} else
@@ -315,6 +429,10 @@ END:VCALENDAR";
 		
 		$KE = new KalenderEvent($className, $classID, $K->formatDay($day), $K->formatTime($time), $name);
 		#echo $T->A("TodoOrt");
+		if($T->A("TodoClass") == "WAdresse"){
+			$O = $T->getOwnerObject();
+			$KE->value("Kunde", $O->getHTMLFormattedAddress());
+		}
 		$KE->value("Typ", TodoGUI::types($T->A("TodoType")));
 		$KE->value("Ort", $T->A("TodoLocation"));
 		#$KE->value("Status", TodoGUI::getStatus($T->A("TodoStatus")));

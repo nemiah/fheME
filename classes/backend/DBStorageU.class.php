@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class DBStorageU {
 	protected $instance;
@@ -311,7 +311,10 @@ class DBStorageU {
 			$currentWhereValue = $statement->whereValues[$key];
 			if($currentWhereValue != "NULL" 
 				AND $currentWhereValue != "NOT NULL"
-				AND substr($currentWhereValue, 0, 3) != "t1.") 
+				AND $statement->whereOperators[$key] != "IN"
+				AND $statement->whereOperators[$key] != "NOT IN"
+				AND substr($currentWhereValue, 0, 3) != "t1."
+				AND substr($currentWhereValue, 0, 3) != "t2.") 
 				$currentWhereValue = "'".mysql_real_escape_string($currentWhereValue)."'";
 				
 			$where .= ($where != "(" ? " ".$statement->whereLogOp[$key]." ".($addOpenBracket ? "(" : "") : "")./*(in_array($statement->whereFields[$key], $nJAs) ? "t1." : "").*/"".$statement->whereFields[$key]." ".$statement->whereOperators[$key]." ".$currentWhereValue."";

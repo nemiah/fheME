@@ -904,6 +904,8 @@ input[type=button][name=currentSaveButton], input[type=button][name=submitForm] 
 	background-color:#ddd !important;
 }
 
+.mce-i-phynximage:before{content:"\e014"}
+
 .achievementMessage {
 	position:fixed;
 	bottom:35px;

@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
 class TempFile {
@@ -82,89 +82,73 @@ class TempFile {
 		return tempnam("/tmp/","TempFile_".rand()."_");
 	}*/
 	
-	function parse($newLine, $textSep, $sep, $codepage){
-		
-		#echo "Speicher start 1: ".Util::formatByte(memory_get_usage(true),2)."<br />";
-		
-		/*$win = false;
-		if($newLine == "Windows") {
-			$newLine = "\r\n";
-			$win = true;
-		}
-		if($newLine == "Unix")
-			$newLine = "\n";*/
-		
+	private $handle;
+	function parse($null, $textSep, $sep, $codepage, $startLine = null, $endLine = null){
 		ini_set("auto_detect_line_endings", true);
 		
 		$makeUTF = false;
 		if($codepage != "UTF-8")
 			$makeUTF = true;
 
-		$handle = fopen($this->Attributes->filename, "r");
-		#$bugger = "";
-
-		#while (!feof($handle))
-		 #   $bugger .= fgets($handle, 4096);
-		    
-		#fclose ($handle);
-		#echo "Speicher start 3: ".Util::formatByte(memory_get_usage(true),2)."<br />";
-		#$bugger = trim($bugger);
-		
-		/*if(strpos($bugger, $newLine) === false AND $win){
-			echo "Keine Windows-Zeilenumbrüche gefunden, verwende Unix!";
-			$newLine = "\n";
-			$win = false;
-		}*/
+		if(!$this->handle)
+			$this->handle = fopen($this->Attributes->filename, "r");
 		   
 		$line = array();
-		#$row = 1;
 		
-		while(($data = fgetcsv($handle, 0, $sep, $textSep)) !== FALSE) {
+		$i = 0;
+		while($data = fgetcsv($this->handle, 0, $sep, $textSep)) {
+			if($i < $startLine){
+				$i++;
+				continue;
+			}
+			
+			if($i >= $endLine)
+				break;
 			
 			if($makeUTF)
 				foreach($data AS $k => $v)
-					$data[$k] = utf8_encode ($v);
+					$data[$k] = utf8_encode($v);
 					
 			$line[] = $data;
+			
+			$i++;
 		}
-		fclose($handle);
+		fclose($this->handle);
 		
 		return $line;
-		/*$line = array();
-		$line[0] = array();
-		$line[0][0] = "";
-		$mode = "outside";
-		for($i=0;$i < strlen($bugger);$i++){
-			#if($i % 10000 == 0) echo "Speicher $i: ".Util::formatByte(memory_get_usage(true),2)."<br />";
+	}
+	
+	public function getLine($textSep, $sep, $codepage){
+		ini_set("auto_detect_line_endings", true);
+		
+		$makeUTF = false;
+		if($codepage != "UTF-8")
+			$makeUTF = true;
+
+		if(!$this->handle)
+			$this->handle = fopen($this->Attributes->filename, "r");
+		   
+		$line = array();
+		
+		$data = fgetcsv($this->handle, 0, $sep, $textSep);
+		
+		if($data === false)
+			return false;
+		
+		if($makeUTF)
+			foreach($data AS $k => $v)
+				$data[$k] = utf8_encode($v);
+		
+		return $data;
+		
+		#while(() !== FALSE) {
 			
-			if($i < strlen($bugger)-1)
-				$winLine = $bugger[$i].$bugger[$i+1];
-			else $winLine = "";
-			
-			if($mode == "outside" AND $bugger[$i] == $textSep){
-				$mode = "inside";
-				continue;
-			}
-			if($mode == "outside" AND ($bugger[$i] == $newLine OR $winLine == $newLine)){
-				$line[] = array();
-				$line[count($line) - 1][0] = "";
-				continue;
-			}
-			if($mode == "outside" AND $bugger[$i] == $sep){
-				$line[count($line) - 1][] = "";
-				continue;
-			}
-			if($mode == "inside" AND $bugger[$i] == $textSep AND $bugger[$i-1] != "\\"){
-				$mode = "outside";
-				continue;
-			}
-			if($mode == "inside"){
-				$current = count($line) - 1;
-				$line[$current][count($line[$current]) - 1] .= $makeUTF ? utf8_encode($bugger[$i]) : $bugger[$i];
-			}
-		}
-		#echo "Speicher ende: ".Util::formatByte(memory_get_usage(true),2)."<br />";
-		return $line;*/
+					
+		#	$line[] = $data;
+		#}
+		#fclose($this->handle);
+		
+		return $line;
 	}
 
 	public function makeUpload($A, $quiet = false){

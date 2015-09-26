@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
 ini_set('session.gc_maxlifetime', 24 * 60 * 60);
@@ -276,6 +276,14 @@ class CCAuftrag extends CCPage implements iCustomContent {
 		return $TAdresse;
 	}
 	
+	public function getScript(){
+		return "var CCAuftrag = {
+			lastValue: null,
+			allowSave: false,
+			lastTextbausteinUnten: null
+		};";
+	}
+	
 	public function getPosten(GRLBM $Beleg){
 		$TPosten = new HTMLTable(8, "Auftragspositionen");
 		$TPosten->setTableStyle("width:100%;");
@@ -304,7 +312,8 @@ class CCAuftrag extends CCPage implements iCustomContent {
 			$I = new HTMLInput("mwst", "text", Util::CLNumberParserZ($P->A("menge")));
 			$I->style("text-align:right;width:80px;");
 			$I->onEnter("\$j(this).trigger('blur');");
-			$I->onblur("CustomerPage.rme('setMenge', {PostenID: '".$P->getID()."', menge: this.value}, function(){ CustomerPage.rme('getAuftrag', {GRLBMID: ".$Beleg->getID()."}, function(transport){ $('#contentLeft').html(transport); }); });");
+			$I->onfocus("CCAuftrag.lastValue = this.value; CCAuftrag.allowSave = true;");
+			$I->onblur("if(CCAuftrag.lastValue != this.value && CCAuftrag.allowSave) CustomerPage.rme('setMenge', {PostenID: '".$P->getID()."', menge: this.value}, function(){ CustomerPage.rme('getAuftrag', {GRLBMID: ".$Beleg->getID()."}, function(transport){ $('#contentLeft').html(transport); }); }); CCAuftrag.allowSave = false;");
 			
 			$name = Aspect::joinPoint("alterName", $this, __METHOD__, array($P, $P->A("name")), $P->A("name"));
 			$buttons = Aspect::joinPoint("alterButtons", $this, __METHOD__, array($P, $B), $B);
@@ -398,10 +407,13 @@ class CCAuftrag extends CCPage implements iCustomContent {
 		
 		$I = new HTMLInput("query", "text", $data["query"]);
 		$I->placeholder("Suche nach Name, Nummer oder Beschreibung");
-		$I->style("width:100%;");
+		$I->style("width:90%;");
 		$I->onEnter("CustomerPage.rme('getArtikel', {KategorieID: '$data[KategorieID]', query : this.value, GRLBMID: $data[GRLBMID]}, function(transport){ $('#contentRight').html(transport); });");
 		
-		$TArtikel->addRow(array($BQ, $I));
+		$BS = new Button("Los", "arrow_right", "iconic");
+		$BS->onclick("CustomerPage.rme('getArtikel', {KategorieID: '$data[KategorieID]', query : \$j('[name=query]').val(), GRLBMID: $data[GRLBMID]}, function(transport){ $('#contentRight').html(transport); });");
+		
+		$TArtikel->addRow(array($BQ, $I." ".$BS));
 		$TArtikel->addRowColspan(2, 3);
 		
 		$AC = anyC::get("Artikel");
@@ -427,7 +439,7 @@ class CCAuftrag extends CCPage implements iCustomContent {
 				$this->showPrices ? Util::CLFormatCurrency($A->getGesamtBruttoVK() * 1, true)."<br /><small style=\"color:grey;\">".Util::CLFormatCurrency($A->getGesamtNettoVK() * 1, true)."</small>" : ""
 			));
 			$TArtikel->addRowClass("selectable");
-			$TArtikel->addRowEvent("click", "CustomerPage.rme('addArtikel', {ArtikelID: '".$A->getID()."', GRLBMID: $data[GRLBMID]}, function(transport){ CustomerPage.rme('getAuftrag', {GRLBMID: $data[GRLBMID]}, function(transport){ $('#contentLeft').html(transport); }); });");
+			$TArtikel->addRowEvent("click", "CCAuftrag.lastTextbausteinUnten = \$('[name=textbausteinUnten]').val(); CustomerPage.rme('addArtikel', {ArtikelID: '".$A->getID()."', GRLBMID: $data[GRLBMID]}, function(transport){ CustomerPage.rme('getAuftrag', {GRLBMID: $data[GRLBMID]}, function(transport){ $('#contentLeft').html(transport); }); });");
 			
 		}
 		

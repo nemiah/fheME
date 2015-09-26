@@ -15,8 +15,9 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
+ini_set('default_socket_timeout', 7);
 
 if(file_exists("/var/www/status/cron_".gethostname())){
 	$status = file_get_contents("/var/www/status/cron_".gethostname());
@@ -24,12 +25,29 @@ if(file_exists("/var/www/status/cron_".gethostname())){
 		die();
 }
 
+
+openlog('ubiquitous/RSSParser', LOG_CONS | LOG_PID, LOG_USER);
+syslog(LOG_INFO, "Started");
+
+
 session_name("ExtConnGlobalRSSParser");
 
 if(isset($argv[1]))
 	$_SERVER["HTTP_HOST"] = $argv[1];
 
 require_once realpath(dirname(__FILE__)."/../../system/connect.php");
+
+
+$fp = fopen("/home/nemiah/globalCronRSSParser.lock", "a");
+if(!$fp){
+	syslog(LOG_ERR, "Could not create lock file /home/nemiah/globalCronRSSParser.lock! Exiting.");
+	throw new Exception ("Could not create lock file /home/nemiah/globalCronRSSParser.lock");
+}
+if (!flock($fp, LOCK_EX | LOCK_NB)){
+	syslog(LOG_WARNING, "Could not acquire lock! Exiting.");
+	throw new Exception ("Could not acquire lock!");
+}
+syslog(LOG_INFO, "Lock acquired.");
 
 $e = new ExtConn(Util::getRootPath());
 $e->loadPlugin("plugins", "Cloud");
@@ -50,12 +68,9 @@ $zugaenge = array();
 while($C = $ACC->getNextEntry())
 	$zugaenge[] = $C->A("CloudUser");
 
-$fp = fopen("/home/nemiah/globalCronRSSParser.lock", "a");
-if(!$fp)
-	throw new Exception ("Could not create lock file /home/nemiah/globalCronRSSParser.lock");
 
-if (!flock($fp, LOCK_EX | LOCK_NB))
-	throw new Exception ("Could not acquire lock!");
+syslog(LOG_INFO, "Checked accounts: ".  implode(", ", $zugaenge));
+
 
 $e->loadPlugin("ubiquitous", "RSSParser");
 $lastUser = null;
@@ -79,15 +94,20 @@ foreach($zugaenge AS $zugang){
 	}
 	
 	$ek = Util::eK();
-	if($lastUser == $ek)
+	if($lastUser == $ek){
+		syslog(LOG_ERR, "Changing cloud failed! Test 1");
 		throw new Exception("Changing cloud failed 1 ($lastZugang > $zugang)!");
+	}
 	
-	if($lastDir == FileStorage::getFilesDir())
+	if($lastDir == FileStorage::getFilesDir()){
+		syslog(LOG_ERR, "Changing cloud failed! Test 2");
 		throw new Exception("Changing cloud failed 2 ($lastZugang > $zugang)!");
+	}
 	
 	$e->addClassPath(FileStorage::getFilesDir());
 
 	try {
+		syslog(LOG_INFO, "$zugang updating...");
 		mRSSParser::update();
 	}
 	catch(FieldDoesNotExistException $ex){
@@ -95,6 +115,9 @@ foreach($zugaenge AS $zugang){
 	} catch(Exception $ex){
 		echo $zugang." ".get_class($ex).": ".$ex->getMessage()."\n";
 	}
+	
+	syslog(LOG_INFO, "$zugang finished");
+	
 	$lastZugang = $zugang;
 	$lastUser = $ek;
 	$lastDir = FileStorage::getFilesDir();
@@ -106,4 +129,6 @@ $e->cleanUp();
 
 flock($fp, LOCK_UN);
 fclose($fp);
+syslog(LOG_INFO, "Done.");
+closelog();
 ?>

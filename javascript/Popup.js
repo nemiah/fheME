@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 var Popup = {
 	windowsOpen: 0,
@@ -24,6 +24,7 @@ var Popup = {
 	lastPopups: Array(),
 	lastSidePanels: Array(),
 	linked: Array(),
+	attached: Array(),
 	
 	presets: {
 		large: {hPosition: "center", width:1000},
@@ -67,7 +68,7 @@ var Popup = {
 		if(values[5] != null)
 			arrayCopy[0] = values[5];
 		//Popup.lastPopups[targetPlugin] = [title, targetPlugin, targetPluginID, targetPluginMethod, targetPluginMethodParameters];
-		contentManager.rmePCR(targetPlugin, values[2], values[3], arrayCopy, 'Popup.displayNamed(\'edit\', \''+values[0]+'\', transport, \''+targetPlugin+'\');', bps);
+		contentManager.rmePCR(targetPlugin, values[2], values[3], arrayCopy, 'Popup.displayNamed(\'edit\', \''+values[0]+'\', transport, \''+targetPlugin+'\', {}, true);', bps);
 	},
 
 	display: function(name, transport){
@@ -77,12 +78,18 @@ var Popup = {
 		Popup.update(transport, ID, "rand");
 	},
 
-	displayNamed: function(name, title, transport, type, options){
+	displayNamed: function(name, title, transport, type, options, ignoreWidth){
+		if(typeof ignoreWidth == "undefined")
+			ignoreWidth = false;
+		
+		if(options && typeof options.ignoreWidth != "undefined")
+			ignoreWidth = options.ignoreWidth;
+		
 		if(typeof type == "undefined")
 			type = "";
 		
-		Popup.create(type,name,title, options);
-		Popup.update(transport, type, name);
+		Popup.create(type,name,title, options, ignoreWidth);
+		Popup.update(transport, type, name, options);
 	},
 
 	sidePanel: function(targetPlugin, targetPluginID, targetPluginMethod, targetPluginMethodParameters, popupName){
@@ -141,10 +148,7 @@ var Popup = {
 		contentManager.rmePCR(targetPlugin, values[1], values[2], values[3].slice(0, values[3].length), function(transport){$j('#'+popupName+'Details'+targetPlugin+'SidePanel').html(transport.responseText)});
 	},
 
-	create: function(ID, type, name, options){
-		if($(type+'Details'+ID))
-			return;
-		
+	create: function(ID, type, name, options, ignoreWidth){
 		var size = Overlay.getPageSize(true);
 		var width = 400;
 		var hasX = true;
@@ -223,6 +227,37 @@ var Popup = {
 			
 			if(options.linkTo)
 				Popup.linked.push([options.linkTo, ID, type]);
+			
+			if(options.attach){
+				if($j('#'+type+'Details'+ID).length)
+					return;
+				
+				Popup.attached.push([options.attach, ID, type]);
+				
+				var parentLeft = $j('#editDetails'+options.attach).position().left;
+				if($j('#editDetails'+options.attach).position().left > width / 2) {
+					var newLeft = $j('#editDetails'+options.attach).position().left - (width / 2);
+					
+					$j('#editDetails'+options.attach).animate({'left' : newLeft});
+					parentLeft = newLeft;
+				}
+				
+				top = $j('#editDetails'+options.attach).position().top;
+				left = parentLeft + $j('#editDetails'+options.attach).outerWidth() + 20;
+			}
+				
+		}
+		
+		if($(type+'Details'+ID)){
+			if(typeof ignoreWidth == "undefined" || !ignoreWidth){
+				$j('#'+type+'DetailsContent'+ID).css("width", width+"px");
+				$j("#"+type+'Details'+ID).animate({"width": width+"px"}, 200, function(){ $j('#'+type+'DetailsContent'+ID).css("width", ''); });
+			}
+			
+			if(name != "")
+				$j("#"+type+'Details'+ID).find('.popupTitle').html(name);
+			
+			return;
 		}
 		
 		if(persistent)
@@ -273,7 +308,7 @@ var Popup = {
 		var element = "<div id=\""+type+'Details'+ID+"\" style=\""+(absolute ? "position:absolute;" : "")+'display:none;top:'+top+'px;'+(right != null ? 'right:'+right : 'left:'+left)+'px;width:'+width+(width.toString().indexOf("%") > -1 ? "" : "px")+';z-index:'+Popup.zIndex+"\" class=\"popup\">\n\
 			<div class=\"backgroundColor1 cMHeader popupHeader\" id=\""+type+'DetailsHandler'+ID+"\">\n\
 				<span id=\""+type+"DetailsCloseWindow"+ID+"\" style=\"cursor:pointer;"+(hasX ? "" : "display:none;")+"\" class=\"closeContextMenu iconic x\"></span>\n\
-				"+(hasMinimize ? "<span id=\""+type+"DetailsMinimizeWindow"+ID+"\" style=\"cursor:pointer;"+(hasX ? "" : "display:none;")+"\" class=\"minimizeContextMenu iconic upload\"></span><span id=\""+type+"DetailsRestoreWindow"+ID+"\" style=\"display:none;cursor:pointer;margin-right:40px;"+(hasX ? "" : "display:none;")+"\" class=\"minimizeContextMenu iconic download\"></span>" : "")+name+"\n\
+				"+(hasMinimize ? "<span id=\""+type+"DetailsMinimizeWindow"+ID+"\" style=\"cursor:pointer;"+(hasX ? "" : "display:none;")+"\" class=\"minimizeContextMenu iconic upload\"></span><span id=\""+type+"DetailsRestoreWindow"+ID+"\" style=\"display:none;cursor:pointer;margin-right:40px;"+(hasX ? "" : "display:none;")+"\" class=\"minimizeContextMenu iconic download\"></span>" : "")+"<span class=\"popupTitle\">"+name+"</span>\n\
 			</div>\n\
 			<div class=\"backgroundColor0\" style=\"clear:both;\" id=\""+type+'DetailsContentWrapper'+ID+"\">\n\
 			<div id=\""+type+'DetailsContent'+ID+"\" class=\"popupContent\"></div></div>\n\
@@ -356,6 +391,9 @@ var Popup = {
 		if(!$j("#"+type+'Details'+ID).length)
 			return;
 		
+		if($j("#"+type+'Details'+ID).find(":focus").length)
+			$j("#"+type+'Details'+ID).find(":focus").trigger("blur");
+		
 		var hasTinyMCE = $j("#"+type+'Details'+ID+" textarea[name=tinyMCEEditor], #"+type+'Details'+ID+" .tinyMCEEditor");
 		if(hasTinyMCE.length)
 			tinymce.EditorManager.execCommand('mceRemoveEditor',true, hasTinyMCE.attr("id"));
@@ -375,6 +413,25 @@ var Popup = {
 				$j(this).remove();
 			});//$('windows').removeChild($(type+'Details'+ID));
 		Overlay.hideDark(0.1);
+		
+		Popup.attached.forEach(function(entry, index) {
+			if(entry == null)
+				return true;
+			
+			if(entry[0] != ID)
+				return true;
+			
+			Popup.attached[index] = null;
+			
+			Popup.close(entry[1], entry[2]);
+		});
+		
+		Popup.attached = Popup.attached.filter(function(element){
+			if(element == null)
+				return false;
+			
+			return true;
+		});
 	},
 
 	minimize: function(ID, type){
@@ -393,7 +450,7 @@ var Popup = {
 		$j('#'+type+'DetailsHandler'+ID).data("minimized", false);
 	},
 
-	update: function(transport, ID, type){
+	update: function(transport, ID, type, options){
 		var exists = $j('#'+type+'Details'+ID).length;
 		
 		if(!exists)

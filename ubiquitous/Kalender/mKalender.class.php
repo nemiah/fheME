@@ -16,7 +16,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class mKalender extends UnpersistentClass {
 	public function getEMailData($parameters){
@@ -30,16 +30,23 @@ class mKalender extends UnpersistentClass {
 		$adresse = $data->getAdresse();
 		$emailData = $adresse->getEMailData();
 		
-		$emailData["body"] = "{Anrede},
+		
+		$sum = $data->summary();
+		if(strpos($sum, "<p") !== false)
+			$sum = "</p>$sum<p>";
+		else
+			$sum = nl2br ($sum);
+		
+		$emailData["body"] = "<p>{Anrede},<br>
+<br>
+hiermit bestätige ich Ihnen unseren Termin:<br>
+<br>
+Start: ".Util::CLDateParser(Kalender::parseDay($data->getDay()))." um ".Util::CLTimeParser(Kalender::parseTime($data->getTime()))." Uhr".($data->getEndDay() > 0 ? "<br>
+Ende:  ".Util::CLDateParser(Kalender::parseDay($data->getEndDay()))." um ".Util::CLTimeParser(Kalender::parseTime($data->getEndTime()))." Uhr" :"")."<br>
+<br>
+Beschreibung: ".$sum."
 
-hiermit bestätige ich Ihnen unseren Termin:
-
-Start: ".Util::CLDateParser(Kalender::parseDay($data->getDay()))." um ".Util::CLTimeParser(Kalender::parseTime($data->getTime()))." Uhr".($data->getEndDay() > 0 ? "
-Ende:  ".Util::CLDateParser(Kalender::parseDay($data->getEndDay()))." um ".Util::CLTimeParser(Kalender::parseTime($data->getEndTime()))." Uhr" :"")."
-
-Beschreibung: ".str_replace("<br />\n", "\n", $data->summary())."
-
-Freundliche Grüße
+Freundliche Grüße<br>
 ".Session::currentUser()->A("name");
 		
 		$emailData["subject"] = "Termininformation";

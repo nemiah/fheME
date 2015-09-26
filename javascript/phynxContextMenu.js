@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
 var phynxContextMenu = {
@@ -53,7 +53,11 @@ var phynxContextMenu = {
 		$('cMDiv').style.position = "absolute";
 		fakecMDiv.style.position = "absolute";
 		
-		new Draggable($('cMDiv'), {handler: $('cMHeader')});
+		$j("#cMDiv").draggable({
+			handle: $j('#cMHeader')
+		});
+		
+		//new Draggable($('cMDiv'), {handler: $('cMHeader')});
 		$('cMHeader').innerHTML = phynxContextMenu.headerText+"contextMenu";
 	},
 	

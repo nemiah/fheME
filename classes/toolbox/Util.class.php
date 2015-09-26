@@ -15,12 +15,25 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class Util {
 	public static function ext($filename){
 		return trim(strtolower(pathinfo($filename, PATHINFO_EXTENSION)));
 	}
+	
+	public static function isDirEmpty($dir) {
+		if (!is_readable($dir))
+			return null; 
+		
+		$handle = opendir($dir);
+		while (false !== ($entry = readdir($handle))) {
+			if ($entry != "." && $entry != "..") {
+				return false;
+			}
+		}
+		return true;
+	  }
 	
 	/**
 	 * From http://bavotasan.com/2011/convert-hex-color-to-rgb-using-php/
@@ -259,6 +272,7 @@ class Util {
 				$r .= "{position}{titelPrefix}{vorname}{nachname}{titelSuffix}\n";
 				$r .= "{zusatz1}\n";
 				$r .= "{nr}{strasse}\n";
+				$r .= "{zusatz2}\n";
 				$r .= "{ort}\n";
 				$r .= "{plz}\n";
 				$r .= "{land}";
@@ -593,6 +607,11 @@ class Util {
 		return self::CLTimeParser($time, $l);
 	}
 	
+	public static function CLHoursParser($time, $l = "load"){
+		if($l == "load") return Util::formatSeconds($time, false, $_SESSION["S"]->getUserLanguage());
+		if($l == "store") return Util::parseTime($_SESSION["S"]->getUserLanguage(), $time);
+	}
+	
 	public static function CLNumberParserZ($number, $l = "load"){
 		if($l == "load") {
 			$n = Util::formatNumber($_SESSION["S"]->getUserLanguage(), $number * 1, 3, true, true);
@@ -689,8 +708,8 @@ class Util {
 		if(!$long) $format = $format[0];
 		else $format = $format[2];
 		
-		$weekdayNames = util::getLangWeekdayNames($language);
-		$monthNames = util::getLangMonthNames($language);
+		$weekdayNames = Util::getLangWeekdayNames($language);
+		$monthNames = Util::getLangMonthNames($language);
 
 		$date = date($format, $timeStamp);
 		$date = str_replace(date("l", $timeStamp), $weekdayNames[date("w", $timeStamp)], $date);
@@ -700,12 +719,12 @@ class Util {
 	}
 	
 	public static function CLMonthName($number){
-		$monthNames = util::getLangMonthNames($_SESSION["S"]->getUserLanguage());
+		$monthNames = Util::getLangMonthNames($_SESSION["S"]->getUserLanguage());
 		return $monthNames[$number*1];
 	}
 	
 	public static function CLWeekdayName($number){
-		$weekdayNames = util::getLangWeekdayNames($_SESSION["S"]->getUserLanguage());
+		$weekdayNames = Util::getLangWeekdayNames($_SESSION["S"]->getUserLanguage());
 		return $weekdayNames[$number*1];
 	}
 
@@ -938,12 +957,18 @@ class Util {
 					return array("SFr.", "SFr. n", "SFr. -n", ".", 2, "'");
 				
 				return array("CHF", "CHF n", "CHF -n", ".", 2, "'");
+				
+			case "AED":
+				if($useSymbol)
+					return array("?", "n ?", "-n ?", ".", 2, ",");
+				
+				return array("AED", "AED n", "AED -n", ".", 2, ",");
 		
 			case "USD":
 				if($useSymbol)
 					return array("$", "\$n", "\$(n)", ".", 2, ",");
 				
-				return array("USD", "n USD", "-n USD", ",", 2, ".");
+				return array("USD", "n USD", "-n USD", ".", 2, ",");
 		
 			case "GBP":
 				if($useSymbol)
@@ -1206,7 +1231,9 @@ class Util {
 		return $us;
 	}
 
-	public static function formatSeconds($seconds, $showSeconds = true){
+	public static function formatSeconds($seconds, $showSeconds = true, $language = "de_DE"){
+		$format = Util::getLangTimeFormat($language);
+		
 		$h = ($seconds / 3600);
 		$hours = floor($h);
 		$minutes = floor(($seconds - $hours * 3600) / 60);
@@ -1214,7 +1241,7 @@ class Util {
 		if($sec < 10) $sec = "0".$sec;
 		
 		$minutes  = ($minutes < 10 ? "0" : "").$minutes;
-		return $hours.":".$minutes.($showSeconds ? ":".$sec : "");
+		return $hours.$format[2].$minutes.($showSeconds ? $format[2].$sec : "");
 	}
 	
 	public static function formatSecondsSigned($seconds, $showSeconds = true){
@@ -1398,7 +1425,7 @@ class Util {
 		$subdir = (isset($_SESSION["S"]) AND $_SESSION["S"]->getCurrentUser() != null) ? $_SESSION["S"]->getCurrentUser()->getID() : "info";
 		
 		$CH = Util::getCloudHost();
-		if(false AND $CH !== null){
+		if($CH !== null){
 			$dirtouse = "/tmp";
 			Environment::load();
 			$subdir = Environment::$currentEnvironment->cloudUser()."/$subdir";
@@ -1410,13 +1437,17 @@ class Util {
 			mkdir($dirtouse, 0777, true);
 			chmod($dirtouse, 0777);
 		}
-		
-		if(strpos($dirtouse, Util::getRootPath()) !== false /*AND !file_exists($dirtouse.".htaccess")*/ AND is_writable($dirtouse)){
+
+		if(PHYNX_USE_TEMP_HTACCESS AND strpos($dirtouse, Util::getRootPath()) !== false /*AND !file_exists($dirtouse.".htaccess")*/ AND is_writable($dirtouse)){
 			if(strstr($_SERVER["REMOTE_ADDR"], ".")) //USE ONLY WHEN ON IPV6 due to APACHE BUG https://issues.apache.org/bugzilla/show_bug.cgi?id=49737
 				file_put_contents($dirtouse.".htaccess", "allow from ".$_SERVER["REMOTE_ADDR"]."\ndeny from all\nallow from ".$_SERVER["REMOTE_ADDR"]."");
 			elseif(file_exists($dirtouse.".htaccess"))
 				unlink($dirtouse.".htaccess");
 		}
+		
+		if(!PHYNX_USE_TEMP_HTACCESS AND file_exists($dirtouse.".htaccess"))
+			unlink($dirtouse.".htaccess");
+		
 		return $dirtouse;
 	}
 	
@@ -1586,7 +1617,7 @@ class Util {
 	 */
 	public static function lang_getfrombrowser($allowed_languages, $default_language, $lang_variable = null, $strict_mode = true) {
         // $_SERVER['HTTP_ACCEPT_LANGUAGE'] verwenden, wenn keine Sprachvariable mitgegeben wurde
-        if ($lang_variable === null) {
+        if ($lang_variable === null AND isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
                 $lang_variable = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
         }
 
@@ -1787,13 +1818,17 @@ class Util {
 		'.($js ? '
 		<script type="text/javascript" src="../libraries/jquery/jquery-1.9.1.min.js"></script>
 		<script type="text/javascript" src="../libraries/jquery/jquery-ui-1.10.1.custom.min.js"></script>
+		<script type="text/javascript" src="../libraries/iconic/iconic.min.js"></script>
+		<script type="text/javascript" src="../libraries/jquery/jquery.qtip.min.js"></script>
 		<script type="text/javascript" src="../javascript/P2J.js"></script>
+		<script type="text/javascript" src="../javascript/Aspect.js"></script>
 		<script type="text/javascript" src="../javascript/handler.js"></script>
 		<script type="text/javascript" src="../javascript/contentManager.js"></script>
 		<script type="text/javascript" src="../javascript/Interface.js"></script>
 		<script type="text/javascript" src="../javascript/Overlay.js"></script>
 		<script type="text/javascript" src="../libraries/webtoolkit.base64.js"></script>' : "").'
 		
+		<link rel="stylesheet" type="text/css" href="../libraries/jquery/jquery.qtip.min.css" />
 		<link rel="stylesheet" type="text/css" href="../styles/'.(isset($_COOKIE["phynx_color"])? $_COOKIE["phynx_color"] : "standard").'/colors.css"></link>
 		<link rel="stylesheet" type="text/css" href="../styles/standard/general.css"></link>
 		<style type="text/css">

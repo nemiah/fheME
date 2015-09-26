@@ -86,15 +86,15 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 	}
 	
 	public function addItem($name, $overviewList = false){
-		if(preg_match("/[0-9]+/", $name)){
-			$this->addEAN($name, false);
-		} elseif(trim($name) != ""){
+		#if(preg_match("/[0-9]+/", $name)){
+		#	$this->addEAN($name, false);
+		#} elseif(trim($name) != ""){
 			$F = new Factory("Einkaufszettel");
 			$F->sA("EinkaufszettelName", $name);
 			$F->sA("EinkaufszettelTime", time());
 			$F->sA("EinkaufszettelMenge", "1");
 			$F->store();
-		}
+		#}
 		
 		if(!$overviewList)
 			echo $this->getListTable();
@@ -168,7 +168,7 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 		
 		
 		$B = new Button("Einkaufsliste anzeigen", "list", "touch");
-		$B->popup("", "Einkaufsliste", "mEinkaufszettel", "-1", "showCurrentList", "", "", "{top:20, width:800, hPosition:'center', blackout:true}");
+		$B->popup("", "Einkaufsliste", "mEinkaufszettel", "-1", "showCurrentList", "", "", "{top:20, width:1000, hPosition:'center', blackout:true}");
 		
 		
 		$html .= "<div id=\"EinkaufslisteNewEntryContainer\">$B</div>
@@ -208,16 +208,15 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 		
 		#<div id=\"EinkaufslisteNewEntryAC\" style=\"width:390px;height:35px;padding:5px;font-size:20px;margin-top:3px;font-family:monospace;color:grey;float:left;\"></div>
 		echo "
-		<div style=\"width:400px;float:right;\">
+		<div style=\"width:600px;display:inline-block;vertical-align:top;\" id=\"reAddList\">
+			".$this->getListReAddTable()."
+		</div><div style=\"width:400px;display:inline-block;vertical-align:top;\">
 			$B$BM
 			$I
 			<div style=\"clear:both;\"></div>
 			<div id=\"currentList\">".$this->getListTable()."</div>
-		</div><div style=\"width:400px;\" id=\"reAddList\">
-			".$this->getListReAddTable()."
 		</div>
-		<div style=\"clear:both;\"></div>
-			".OnEvent::script("setTimeout(function(){ \$j('input[name=EinkaufslisteNewEntry]').focus(); }, 200);");
+			".OnEvent::script("\$j('#editDetailsContentmEinkaufszettel').css('overflow', ''); setTimeout(function(){ \$j('input[name=EinkaufslisteNewEntry]').focus(); }, 200);");
 	}
 	
 	private function getListReAddTable(){
@@ -236,7 +235,7 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 		
 		$L = new HTMLList();
 		$L->noDots();
-		$L->addListStyle("padding-top:10px;width:380px;padding-left:0px;");
+		$L->addListStyle("padding-top:10px;padding-left:0px;");
 		
 		while($B = $AC->getNextEntry()){
 			#$BT = new Button("Eintrag löschen", "trash_stroke", "iconicL");
@@ -244,9 +243,10 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 			#$BT->style("float:left;margin-right:10px;margin-top:-4px;");
 			
 			$L->addItem($B->A("EinkaufszettelName").($B->A("EinkaufszettelNameDetails") != "" ? "<br /><small style=\"color:grey;\">".$B->A("EinkaufszettelNameDetails")."</small>" : ""));
-			$L->addItemStyle("margin-left:5px;height:24px;white-space:nowrap;font-size:20px;padding-left:10px;padding-top:10px;padding-bottom:10px;margin-top:0px;cursor:move;-webkit-touch-callout: none;-webkit-user-select: none;-khtml-user-select: none;-moz-user-select: none;-ms-user-select: none;user-select: none;");
-			$L->addItemClass("swipe");
+			$L->addItemStyle("padding:10px;margin-bottom:10px;background-color:#eee;display:inline-block;margin-left:5px;height:24px;white-space:nowrap;font-size:20px;cursor:pointer;user-select: none;");
+			#$L->addItemClass("swipe");
 			$L->addItemData("maxid", $B->A("maxID"));
+			$L->addItemEvent("onclick", OnEvent::rme($this, "reAddItem", array("\$j(this).data('maxid')"), "function(transport){ \$j('#currentList').html(transport.responseText); }"));
 			#$TB->addRow(array($BT, ));
 			#$TB->addRowStyle("font-size:20px;");
 			#$TB->addCellClass(2, "swipe");
@@ -254,7 +254,8 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 			#$TB->addCellEvent(2, "click", OnEvent::rme($this, "reAddItem", $B->A("maxID"), "function(transport){ \$j('#currentList').html(transport.responseText); }"));
 		}
 		
-		return $L.OnEvent::script("
+		return $L.OnEvent::script("\$j('#reAddList').css('height', contentManager.maxHeight()).css('overflow', 'auto');");
+		/*.OnEvent::script("
 			\$j('#reAddList ul').parent().css('height', contentManager.maxHeight()).css('overflow', 'auto');
 
 			\$j('.swipe').hammer().on('touch release dragright', function(event){
@@ -270,7 +271,7 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 					event.gesture.preventDefault();
 					
 					if(event.gesture.deltaX > 150)
-						".OnEvent::rme($this, "reAddItem", array("\$j(this).data('maxid')"), "function(transport){ \$j('#currentList').html(transport.responseText); }")."
+						
 					
 					\$j(this).removeClass('confirm');
 					\$j(this).removeClass('highlight');
@@ -293,7 +294,7 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 						
 					\$j(this).css('margin-left', margin);
 				}
-			});");
+			});");*/
 	}
 	
 	public function getACData($query){
@@ -319,10 +320,11 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 		
 		while($E = $AC->getNextEntry()){
 			$BT = new Button("Löschen", "trash_stroke", "iconicL");
-			$BT->onclick(OnEvent::rme($E, "deleteMe", "", OnEvent::reloadPopup("mEinkaufszettel")));
+			#$BT->onclick();
 			
 			$T->addRow(array(($E->A("EinkaufszettelMenge") > 1 ? $E->A("EinkaufszettelMenge")." x " : "").$E->A("EinkaufszettelName").($E->A("EinkaufszettelNameDetails") != "" ? "<br /><small style=\"color:grey;\">".$E->A("EinkaufszettelNameDetails")."</small>" : ""), $BT));
 			$T->addRowStyle("font-size:20px;");
+			$T->addRowEvent("click", OnEvent::rme($E, "deleteMe", "", OnEvent::reloadPopup("mEinkaufszettel")));
 			#$T->addCellEvent(1, "click", OnEvent::rme($this, "boughtItem", $E->getID(), "function(transport){ \$j('#currentList').html(transport.responseText); }"));
 			
 		}

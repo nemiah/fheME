@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class CCShopping implements iCustomContent {
 	function getLabel(){
@@ -66,26 +66,70 @@ class CCShopping implements iCustomContent {
 					user-select: none;
 				}
 				
+				.entryRestore {
+					border-top-width:1px;
+					border-top-style:solid;
+					border-bottom-width:1px;
+					border-bottom-style:solid;
+					padding:10px;
+					font-size:2em;
+					margin-bottom:10px;
+					cursor:pointer;
+					-webkit-touch-callout: none;
+					-webkit-user-select: none;
+					-khtml-user-select: none;
+					-moz-user-select: none;
+					-ms-user-select: none;
+					user-select: none;
+					color:#444;
+				}
+				
 				.entryTouch {
 					background-color: #c5d674;
+				}
+				
+				.backgroundColor4 {
+					background-color: #eee;
+				}
+				
+				.borderColor0 {
+					border-color:white;
 				}
 			</style>
 			<div id=\"einkaufsliste\">";
 		
+		$B = new Button("Wiederherstellen", "undo", "iconicL");
+		
 		while($E = $AC->getNextEntry()){
-			$html .= "<div id=\"entry".$E->getID()."\" onclick=\"CustomerPage.rme('setBought', [".$E->getID()."], function(){ $('#entry".$E->getID()."').remove(); if($('#einkaufsliste .nonEmpty').length == 0) $('#emptyEntry').show(); });\" class=\"nonEmpty entry backgroundColor1 borderColor1\">".($E->A("EinkaufszettelMenge") > 1 ? $E->A("EinkaufszettelMenge")." x " : "").$E->A("EinkaufszettelName").($E->A("EinkaufszettelNameDetails") != "" ? "<br /><small style=\"color:grey;\">".$E->A("EinkaufszettelNameDetails")."</small>" : "")."</div>";
+			$html .= "
+				<div
+					id=\"entry".$E->getID()."\"
+					onclick=\"CustomerPage.rme('setBought', [".$E->getID()."], function(){ $('#entry".$E->getID()."').hide(); $('#restoreEntry".$E->getID()."').show(); $('#emptyEntry').hide(); if($('#einkaufsliste .nonEmpty').length == 0) $('#emptyEntry').show(); });\"
+					class=\"nonEmpty entry backgroundColor1 borderColor1\">
+					
+					".($E->A("EinkaufszettelMenge") > 1 ? $E->A("EinkaufszettelMenge")." x " : "").$E->A("EinkaufszettelName").($E->A("EinkaufszettelNameDetails") != "" ? "<br /><small style=\"color:grey;\">".$E->A("EinkaufszettelNameDetails")."</small>" : "")."
+				</div>
+				<div 
+					class=\"nonEmpty entryRestore backgroundColor4 borderColor0\"
+					onclick=\"CustomerPage.rme('setUnBought', [".$E->getID()."], function(){ $('#entry".$E->getID()."').show(); $('#restoreEntry".$E->getID()."').hide(); $('#emptyEntry').hide(); if($('#einkaufsliste .nonEmpty').length == 0) $('#emptyEntry').show(); });\"
+					id=\"restoreEntry".$E->getID()."\" style=\"display:none;\">".$E->A("EinkaufszettelName")." $B</div>";
 		}
 		
 		$html .= "<div style=\"".($AC->numLoaded() == 0 ? "" : "display:none;")."\" class=\"entry backgroundColor1 borderColor1\" id=\"emptyEntry\">Die Einkaufsliste enthält keine Einträge.<br /><small style=\"color:grey;\">".Util::CLDateParser(time())."</small></div>";
 		
 		$html .= "</div>";
 		
-		return $html.OnEvent::script("$('.entry').hammer().on('touch', function(){ $(this).addClass('entryTouch'); }); $('.entry').hammer().on('release', function(){ $(this).removeClass('entryTouch'); });");
+		return $html.OnEvent::script("$('.entry .entryRestore').hammer().on('touch', function(){ $(this).addClass('entryTouch'); }); $('.entry').hammer().on('release', function(){ $(this).removeClass('entryTouch'); });");
 	}
 	
 	public static function setBought($args){
 		$E = new Einkaufszettel($args["P0"]);
 		$E->setBought();
+	}
+	
+	public static function setUnBought($args){
+		$E = new Einkaufszettel($args["P0"]);
+		$E->setUnBought();
 	}
 	
 }

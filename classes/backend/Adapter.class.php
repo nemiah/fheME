@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
 class Adapter {
@@ -116,6 +116,8 @@ class Adapter {
 	function addSelectStatement($command, $value){
 		$c = array();
 		$c[] = $value;
+		if(!is_array($this->selectStatement->$command))
+			$this->selectStatement->$command = array();
 		$this->selectStatement->$command = array_merge($this->selectStatement->$command, $c);
 	}
 	
@@ -255,7 +257,6 @@ class Adapter {
 				$method = new ReflectionMethod($s[0], $s[1]);
 				$A->$key = $method->invoke(null, $A->$key, "load");
 			}
-			#if(isset($A->$key)) eval("\$A->\$key = ".$value."(\"".$A->$key."\",\"load\");");
 
 		return $A;
 	}
@@ -348,6 +349,16 @@ class Adapter {
 				}
 			}
 				
+		}
+		
+		if(!isset($this->selectStatement->searchCustom))
+			return;
+		
+		foreach($this->selectStatement->searchCustom AS $v){
+			$this->addSelectStatement("whereFields",$v[0]);
+			$this->addSelectStatement("whereOperators", $v[1]);
+			$this->addSelectStatement("whereValues",$v[2]);
+			$this->addSelectStatement("whereLogOp",$v[3]);
 		}
 	}
 

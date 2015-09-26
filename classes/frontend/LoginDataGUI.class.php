@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class LoginDataGUI extends LoginData implements iGUIHTML2 {
 	function getHTML($id){
@@ -211,6 +211,24 @@ class LoginDataGUI extends LoginData implements iGUIHTML2 {
 
 			$gui->type("name", "hidden");
 			$this->changeA("name", "BackupFTPServerUserPass");
+
+			$gui->descriptionField("optionen", "Bitte geben Sie hier das Unterverzeichnis an, in das die Datei hochgeladen werden soll");
+			$gui->label("optionen", "Verzeichnis");
+			#$gui->type("optionen", "hidden");
+		}
+		
+		if($bps != -1 AND isset($bps["preset"]) AND $bps["preset"] == "backupSFTPServer"){
+			$BAbort = new Button("Abbrechen", "stop");
+			$BAbort->onclick("Popup.close('LoginData', 'edit');");
+			$BAbort->style("float:right;");
+			
+			$html = "<p style=\"padding:5px;\">{$BAbort}<small>Sie müssen hier nur Einstellungen vornehmen, wenn Sie die Backups automatisch auf einen SFTP-Server hochladen möchten.</small></p>";
+
+			$gui->type("UserID", "hidden");
+			$this->changeA("UserID", "-1");
+
+			$gui->type("name", "hidden");
+			$this->changeA("name", "BackupSFTPServerUserPass");
 
 			$gui->descriptionField("optionen", "Bitte geben Sie hier das Unterverzeichnis an, in das die Datei hochgeladen werden soll");
 			$gui->label("optionen", "Verzeichnis");

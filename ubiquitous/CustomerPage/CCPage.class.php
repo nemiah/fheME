@@ -15,13 +15,15 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class CCPage {
 	protected $loggedIn = false;
 	
 	function __construct() {
 		$_SESSION["viaInterface"] = true;
+		if(isset($_GET["cloud"]) AND !isset($_SESSION["phynx_customer"]))
+			$_SESSION["phynx_customer"] = $_GET["cloud"];
 		
 		$this->loggedIn = Session::currentUser() != null;
 	}
@@ -32,7 +34,7 @@ class CCPage {
 	
 	public function loadPlugin($app, $folder, $optional = false){
 		if(!file_exists(Util::getRootPath()."$app/$folder/plugin.xml") AND !$optional)
-			throw new Exception("Required plugin $app/$folder not available");
+			throw new Exception("Required plugin $app/$folder not available (1)");
 			
 		if(!file_exists(Util::getRootPath()."$app/$folder/plugin.xml"))
 			return false;
@@ -50,7 +52,7 @@ class CCPage {
 		
 		if($allowedPlugins !== false AND !$allow){
 			if(!$optional)
-				throw new Exception("Required plugin $app/$folder not available");
+				throw new Exception("Required plugin $app/$folder not available (2)");
 
 			return false;
 		}

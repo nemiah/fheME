@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class Users extends anyC {
 	function __construct(){
@@ -34,6 +34,20 @@ class Users extends anyC {
 			$U->addAssocV3("UserType", "=", $type);
 		}
 
+		return $U;
+	}
+	
+	public static function getUsersArray($zeroEntry = null){
+		$AC = self::getUsers(0);
+		$AC->addOrderV3("name");
+		
+		$U = array();
+		if($zeroEntry)
+			$U[0] = $zeroEntry;
+		
+		while($R = $AC->n())
+			$U[$R->getID()] = $R->A("name");
+		
 		return $U;
 	}
 
@@ -227,7 +241,9 @@ class Users extends anyC {
 				$UA->name = "Installations-Benutzer";
 				$UA->username = "Admin";
 				$UA->password = "Admin";
-				if($p["loginSprache"] != "default") $UA->language = $p["loginSprache"];
+				if($p["loginSprache"] != "default")
+					$UA->language = $p["loginSprache"];
+				
 				$UA->isAdmin = 1;
 				$U = new User(-1);
 				$U->setA($UA);

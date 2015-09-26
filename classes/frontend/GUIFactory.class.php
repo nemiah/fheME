@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class GUIFactory {
 
@@ -309,7 +309,7 @@ class GUIFactory {
 		if($showSF){
 			$B = new Button("Suche als Filter anwenden","./images/i2/searchFilter.png", "icon");
 			$B->style("float:right;");
-			$B->rme("HTML","","saveContextMenu", array("'searchFilter'","'$this->collectionName;:;'+$('quickSearch$this->collectionName').value"),"if(checkResponse(transport)) contentManager.reloadFrameRight();");
+			$B->rmePCR("HTML","","saveContextMenu", array("'searchFilter'","'$this->collectionName;:;'+$('quickSearch$this->collectionName').value"),"if(checkResponse(transport)) contentManager.reloadFrame('contentRight', '', 0);");
 
 			$mU = new mUserdata();
 			$K = $mU->getUDValue("searchFilterInHTMLGUI".$this->collectionName);
@@ -542,7 +542,7 @@ class GUIFactory {
 				$wholeLine1 = array($this->getSettingsButton(), "".$this->multiPageDetails["total"]." ".($this->multiPageDetails["total"] != 1 ? "Einträge" : "Eintrag").", $wholeLine2");
 
 				$this->table->addRow($wholeLine1);
-				$this->table->addRowColspan(2, count($this->referenceLine) -1);
+				$this->table->addRowColspan(2, count($this->referenceLine) -1 == 1 ? 2 : count($this->referenceLine) -1); //or it will look quite bad with no entries
 				$this->table->addRowClass("backgroundColorHeader");
 				$this->table->setRowPart($where == "top" ? "thead" : "tfoot");
 			}
@@ -558,7 +558,7 @@ class GUIFactory {
 					$wholeLine1[] = "";
 				
 				$this->table->addRow($wholeLine1);
-				$this->table->addRowColspan(1, count($this->referenceLine) -1);
+				$this->table->addRowColspan(1, count($this->referenceLine) -1 == 1 ? 2 : count($this->referenceLine) -1); //or it will look quite bad with no entries
 				$this->table->addRowClass("backgroundColorHeader");
 				$this->table->addCellStyle(count($wholeLine1), "text-align:right;");
 				$this->table->setRowPart($where == "top" ? "thead" : "tfoot");

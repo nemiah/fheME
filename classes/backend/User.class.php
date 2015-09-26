@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class User extends PersistentObject {
 	
@@ -54,8 +54,10 @@ class User extends PersistentObject {
 		$U = new User($this->ID);
 		$U->loadMe(false);
 		if(mUserdata::getGlobalSettingValue("encryptionKey") == null AND Session::isUserAdminS()) mUserdata::setUserdataS("encryptionKey", Util::getEncryptionKey(), "eK", -1);
-		if($this->A->SHApassword != "") $this->A->SHApassword = sha1($this->A->SHApassword);
-		else $this->A->SHApassword = $U->A("SHApassword");
+		if($this->A->SHApassword != "")
+			$this->A->SHApassword = sha1($this->A->SHApassword);
+		else
+			$this->A->SHApassword = $U->A("SHApassword");
 
 		if($checkUserData) mUserdata::checkRestrictionOrDie("cantEdit".str_replace("GUI","",get_class($this)));
 

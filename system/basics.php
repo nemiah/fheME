@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
 function addClassPath($path){
@@ -73,6 +73,7 @@ function findClass($class_name){
 	$standardPaths[] = $root."libraries/";
 	$standardPaths[] = $root."libraries/fpdf/";
 	$standardPaths[] = $root."libraries/iban/";
+	$standardPaths[] = $root."customizer/"; //first look here for customizers!
 	$standardPaths[] = $root."specifics/";
 	$standardPaths[] = $root."classes/exceptions/";
 	$standardPaths[] = $root."libraries/geshi/";

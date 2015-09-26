@@ -15,10 +15,10 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
-var cookieManager = {
+/**var cookieManager = {
 	getCookie: function(cookieName) {
 		var cs = document.cookie.split("; ");
 		for(var i = 0;i<cs.length;i++){
@@ -28,7 +28,7 @@ var cookieManager = {
 		
 		return -1;
 	}
-}
+}*/
 
 Ajax.Responders.register({
 	onCreate: function(){
@@ -157,7 +157,67 @@ function rmeP(targetClass, targetClassId, targetMethod, targetMethodParameters, 
 	}});
  }
  
- 
+
+function windowWithRmeP(targetClass, targetClassId, targetMethod, targetMethodParameters, bps, target){
+	if(typeof target == "undefined")
+		target = "window";
+
+	var win = window.open("",'Druckansicht','height=650,width=875,left=20,top=20,scrollbars=yes,resizable=yes');
+	
+ 	if(typeof targetMethodParameters != "string"){
+ 		for(var i=0;i<targetMethodParameters.length;i++)
+ 			targetMethodParameters[i] = "'"+targetMethodParameters[i]+"'";
+ 			
+ 		targetMethodParameters = targetMethodParameters.join(",");
+ 	}
+ 	else targetMethodParameters = "'"+targetMethodParameters+"'";
+	
+	var form = document.createElement("form");
+	form.action = contentManager.getRoot()+'interface/rme.php';
+	form.method = "POST";
+	form.target = "Druckansicht";
+	
+	var input = document.createElement("input");
+	input.name = "class";
+	input.value = targetClass;
+	form.appendChild(input);
+	
+	input = document.createElement("input");
+	input.name = "constructor";
+	input.value = targetClassId;
+	form.appendChild(input);
+	
+	input = document.createElement("input");
+	input.name = "method";
+	input.value = targetMethod;
+	form.appendChild(input);
+		
+	input = document.createElement("textarea");
+	input.name = "parameters";
+	input.value = targetMethodParameters;
+	form.appendChild(input);
+	
+	if(bps != "" && typeof bps != "undefined"){
+		input = document.createElement("input");
+		input.name = "bps";
+		input.value = targetMethodParameters;
+		form.appendChild(input);
+	}
+	
+	if(Ajax.physion != "default"){
+		input = document.createElement("input");
+		input.name = "physion";
+		input.value = Ajax.physion;
+		form.appendChild(input);
+	}
+	
+	form.style.display = 'none';
+	document.body.appendChild(form);
+	form.submit();
+	document.body.removeChild(form);
+	win.focus();
+}
+
 function windowWithRme(targetClass, targetClassId, targetMethod, targetMethodParameters, bps, target){
 	if(typeof target == "undefined")
 		target = "window";
@@ -236,7 +296,7 @@ function joinFormFields(formID){
 function joinFormFieldsToString(formID){
 	var get = joinFormFields(formID);
 	
-	get = get.replace(/&/g,";-;;und;;-;").replace(/=/g,";-;;istgleich;;-;").replace(/#/g,";-;;raute;;-;").replace(/\?/g,";-;;frage;;-;").replace(/%/g,";-;;prozent;;-;");
+	get = get.replace(/&/g,";-u-;").replace(/=/g,";-i-;").replace(/#/g,";-r-;").replace(/\?/g,";-f-;").replace(/%/g,";-p-;");
 	
 	return get;
 }
@@ -287,8 +347,13 @@ function saveMultiEditInput(classe, eid, feld, onsuccessFunction){
 	onSuccess: function(transport) {
 		if(checkResponse(transport)){
 			//if(transport.responseText.search(/^message:/) == -1) showMessage(transport.responseText);
+
+			if(transport.responseText.charAt(0) == "{" && transport.responseText.charAt(transport.responseText.length - 1) == "}")
+				transport.responseData = jQuery.parseJSON(transport.responseText);
 			
-			if(typeof onsuccessFunction != "undefined" && onsuccessFunction != "") onsuccessFunction(transport);
+	
+			if(typeof onsuccessFunction != "undefined" && onsuccessFunction != "")
+				onsuccessFunction(transport);
 		}
 	}});
 }

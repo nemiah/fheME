@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class XMLPlugin extends PluginV2 {
 	private $file;
@@ -49,7 +49,7 @@ class XMLPlugin extends PluginV2 {
 		xml_parse_into_struct($p, $content, $vals, $index);
 		if(xml_get_error_code($p)) echo xml_error_string(xml_get_error_code($p))." at line ".xml_get_current_line_number($p);
 		xml_parser_free($p);
-
+		
 		if(isset($index["genericCollection"]) AND isset($vals[$index["genericCollection"][0]])) $this->genericCollection = $vals[$index["genericCollection"][0]]["value"] == "true";
 		else $this->genericCollection = false;
 		

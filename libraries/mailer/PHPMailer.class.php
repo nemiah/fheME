@@ -381,7 +381,6 @@ class PHPMailer {
 				
 				$this->Host = $MailServer->A("server");
 				
-				
 				$this->SMTPAuth = $MailServer->A("benutzername") != "";
 				$this->Username = $MailServer->A("benutzername");
 				$this->Password = $MailServer->A("passwort");

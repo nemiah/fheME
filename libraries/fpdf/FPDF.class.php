@@ -319,6 +319,9 @@ class FPDF {
 
 	function Error($msg) {
 		//Fatal error
+		if(defined("PHYNX_VIA_INTERFACE"))
+			throw new Exception('FPDF error:' . $msg);
+		
 		die('FPDF error:' . $msg);
 	}
 

@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class Red {
 
@@ -66,7 +66,7 @@ class Red {
 				$value[$k] = $v;
 			
 			if(defined("JSON_UNESCAPED_UNICODE"))
-				die(json_encode($value, JSON_UNESCAPED_UNICODE));;
+				die(json_encode($value, JSON_UNESCAPED_UNICODE));
 
 			die(json_encode($value));
 		}
@@ -74,7 +74,18 @@ class Red {
 		die("message:'".addslashes($message)."'");
 	}
 	
-	public static function messageSaved(){
+	public static function messageSaved(array $data = null){
+		if($data != null){
+			$value = array("type" => "message", "message" => "Daten gespeichert");
+			foreach($data AS $k => $v)
+				$value[$k] = $v;
+			
+			if(defined("JSON_UNESCAPED_UNICODE"))
+				die(json_encode($value, JSON_UNESCAPED_UNICODE));
+
+			die(json_encode($value));
+		}
+		
 		die("message:'Daten gespeichert'");
 	}
 	

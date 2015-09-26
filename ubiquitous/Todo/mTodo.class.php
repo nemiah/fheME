@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class mTodo extends anyC {
 	public static function getHistorieData($ownerClass, $ownerClassID, HistorieTable $Tab){
@@ -28,7 +28,7 @@ class mTodo extends anyC {
 			$B = new Button("Aktivität anzeigen", "./ubiquitous/Todo/Todo.png", "icon");
 			$B->popup("", "Event", "mKalender", "-1", "getInfo", array("'mTodoGUI'", $D->getID(), $D->A("TodoFromDay")));
 
-			$Tab->addHistorie("Aktivität", "./ubiquitous/Todo/Todo.png", $D->A("TodoFromDay"), $D->getOwnerObject()->getCalendarTitle(), $B, $D->A("TodoDescription"));
+			$Tab->addHistorie("Aktivität", "./ubiquitous/Todo/Todo.png", $D->A("TodoFromDay"), $D->getOwnerObject()->getCalendarTitle(), $B, $D->A("TodoDescription"), $D->A("TodoCreatorUserID"));
 		}
 		return true;
 	}

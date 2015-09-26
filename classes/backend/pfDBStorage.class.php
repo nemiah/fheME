@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class pfDBStorage {
 	static $instance;
@@ -93,7 +93,7 @@ class pfDBStorage {
 		$c = new stdClass();
 		
 		foreach($t as $key => $value)
-			$c->$key = $mf->unescapeString($value);
+			$c->$key = $mf->unescapeString(stripslashes($value));
 		
 		$n = $table."ID";
 		$c->$n = $t["ID"];
@@ -191,7 +191,7 @@ class pfDBStorage {
 			$t[$table."ID"] = $t["ID"];
 			unset($t["ID"]);
 			foreach($t as $key => $value)
-				$t[$key] = $mf->unescapeString($value);
+				$t[$key] = $mf->unescapeString(stripslashes($value));
 			
 			if(count($this->parsers) > 0) foreach($this->parsers as $key => $value)
 				eval("\$t[\$key] = ".$value."(\"".$t[$key]."\",\"load\");");

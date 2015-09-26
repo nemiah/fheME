@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class KalenderEvent extends KalenderEntry {
 	private $day;
@@ -648,7 +648,7 @@ class KalenderEvent extends KalenderEntry {
 		$BN = "";
 		if($this->canNotify){
 			// TODO: Entfernen sobald Einladungen funktionieren
-			$BN = new Button("Termin-\nbestätigung", "mail".($this->notified ? "ed" : ""), "icon");
+			$BN = new Button("Terminbestätigung", "mail".($this->notified ? "ed" : ""), "icon");
 			$BN->style("margin-top:10px;margin-left:10px;");
 			$BN->popup("", "Terminbestätigung", "Util", "-1", "EMailPopup", array("'mKalender'", "-1", "'notification::$this->className::$this->classID::$time'", "'function(){ Kalender.refreshInfoPopup(); }'"));
 		}
@@ -657,14 +657,13 @@ class KalenderEvent extends KalenderEntry {
 		if($this->isRepeatable AND $this->getException() === false){
 			$BR = new Button("Wiederholungen", "refresh", "icon");
 			$BR->style("margin:10px;float:right;");
-			$BR->rmePCR("mKalender", "-1", "getRepeatable", array("'$this->className'", "'$this->classID'", "'$this->isRepeatable'"), "function(transport){ \$j('#eventAdditionalContent').html(transport.responseText).slideDown(); }");
+			$BR->rmePCR("mKalender", "-1", "getRepeatable", array("'$this->className'", "'$this->classID'", "'$this->isRepeatable'"), "function(transport){ \$j('#eventSideContent').html(''); \$j('#editDetailsmKalender').animate({'width':'400px'}, 200, 'swing'); \$j('#eventAdditionalContent').html(transport.responseText).slideDown(); }");
 		}
 		
-		// TODO: Flag für Teilnehmer erstellen
-		// nur anzeigen, wenn es sich um eine ToDo handelt
-//		$buttonInvite = new Button("Teilnehmer einladen", "refresh", "icon");
-//		$buttonInvite->style("margin: 10px; float: right;");
-//		$buttonInvite->rmePCR("mKalender", "-1", "getInviteForm", array("'$this->className'", "'$this->classID'", "'getInviteForm'"), "function(transport){ \$j('#eventAdditionalContent').html(transport.responseText).slideDown(); }");
+		$BI = new Button("Teilnehmer", "./ubiquitous/Kalender/einladungen.png", "icon");
+		$BI->style("margin: 10px; float: right;");
+		$BI->rmePCR("mKalender", "-1", "getInvitees", array("'$this->className'", "'$this->classID'", "'getInvitees'"), "function(t){ \$j('#eventAdditionalContent').html(''); \$j('#editDetailsmKalender').animate({'width':'800px'}, 200, 'swing', function(){ \$j('#eventSideContent').html(t.responseText).fadeIn(); }); }");
+		
 		
 		$topButtons = "";
 		foreach($this->topButtons AS $B){
@@ -673,7 +672,7 @@ class KalenderEvent extends KalenderEntry {
 			$topButtons .= $B;
 		}
 		
-		return $BDS.$BD.$BE.$BN.$topButtons.$BR.$buttonInvite."<div style=\"clear:both;\"></div><div style=\"display:none;\" id=\"eventAdditionalContent\"></div>".$T;
+		return "<div style=\"width:400px;\">".$BDS.$BD.$BE.$BN.$topButtons.$BR.$BI."</div><div style=\"clear:both;\"></div><div style=\"display:none;\" id=\"eventAdditionalContent\"></div><div style=\"display:none;width:400px;float:right;\" id=\"eventSideContent\"></div><div style=\"width:400px;float:left;\" id=\"eventDefaultContent\"$T</div>";
 	}
 	
 	public function getInviteForm() {

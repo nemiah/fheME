@@ -15,37 +15,52 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
-#if(!class_exists("TemporaryPDFClass", false))
-#	eval("class TemporaryPDFClass extends FPDF {}");
-
-
 class FormattedTextPDF extends FPDI {
+	private $addedFonts = array();
 	function __construct($orientation='P', $unit='mm', $format='A4', $unicode=true, $encoding='UTF-8', $diskcache=false, $pdfa=false){
 		if(file_exists(Util::getRootPath()."ubiquitous/Fonts/")){# AND !defined("FPDF_FONTPATH")) {
 			#define('FPDF_FONTPATH', Util::getRootPath()."ubiquitous/Fonts/");
-			
-			$this->AddFont("Ubuntu", "", "5e01bde68449bff64cefe374f81b7847_ubuntu-regular.php");
-			$this->AddFont("Ubuntu", "B", "70fed3593f0725ddea7da8f1c62577c1_ubuntu-bold.php");
-			$this->AddFont("Ubuntu", "I", "cfa4d284ee1dc737cb0fe903fbab1844_ubuntu-italic.php");
-			$this->AddFont("Ubuntu", "BI", "c409dbcbee5b5ac6bf7b101817c7416a_ubuntu-bolditalic.php");
-
-			$this->AddFont("Orbitron", "", "667a54623e1b9927fdf078125bbbf49b_orbitron-regular.php");
-			$this->AddFont("Orbitron", "B", "c4c6025fc06df62e82ebf42b2709e6ae_orbitron-bold.php");
-			$this->AddFont("Orbitron", "I", "c4c6025fc06df62e82ebf42b2709e6ae_orbitron-fakeItalic.php");
-			$this->AddFont("Orbitron", "BI", "c4c6025fc06df62e82ebf42b2709e6ae_orbitron-fakeBoldItalic.php");
-
-			$this->AddFont("Raleway", "", "ed7ad2408e498cae8fab623a755883f6_raleway-thin.php");
-			$this->AddFont("Raleway", "B", "ed7ad2408e498cae8fab623a755883f6_raleway-thin-fakeBold.php");
-			$this->AddFont("Raleway", "I", "ed7ad2408e498cae8fab623a755883f6_raleway-thin-fakeItalic.php");
-			$this->AddFont("Raleway", "BI", "ed7ad2408e498cae8fab623a755883f6_raleway-thin-fakeBoldItalic.php");
+			foreach($this AS $k => $v){
+				if(strpos($k, "font") !== 0 OR !is_array($v))
+					continue;
+						
+				if(strtolower($v[0]) == "raleway" AND !isset($this->addedFonts["raleway"])){
+					$this->AddFont("Raleway", "", "ed7ad2408e498cae8fab623a755883f6_raleway-thin.php");
+					$this->AddFont("Raleway", "B", "ed7ad2408e498cae8fab623a755883f6_raleway-thin-fakeBold.php");
+					$this->AddFont("Raleway", "I", "ed7ad2408e498cae8fab623a755883f6_raleway-thin-fakeItalic.php");
+					$this->AddFont("Raleway", "BI", "ed7ad2408e498cae8fab623a755883f6_raleway-thin-fakeBoldItalic.php");
+					
+					$this->addedFonts["raleway"] = true;
+				}
+				
+				if(strtolower($v[0]) == "orbitron" AND !isset($this->addedFonts["orbitron"])){
+					$this->AddFont("Orbitron", "", "667a54623e1b9927fdf078125bbbf49b_orbitron-regular.php");
+					$this->AddFont("Orbitron", "B", "c4c6025fc06df62e82ebf42b2709e6ae_orbitron-bold.php");
+					$this->AddFont("Orbitron", "I", "c4c6025fc06df62e82ebf42b2709e6ae_orbitron-fakeItalic.php");
+					$this->AddFont("Orbitron", "BI", "c4c6025fc06df62e82ebf42b2709e6ae_orbitron-fakeBoldItalic.php");
+					
+					$this->addedFonts["orbitron"] = true;
+				}
+				
+				if(strtolower($v[0]) == "ubuntu" AND !isset($this->addedFonts["ubuntu"])){
+					$this->AddFont("Ubuntu", "", "5e01bde68449bff64cefe374f81b7847_ubuntu-regular.php");
+					$this->AddFont("Ubuntu", "B", "70fed3593f0725ddea7da8f1c62577c1_ubuntu-bold.php");
+					$this->AddFont("Ubuntu", "I", "cfa4d284ee1dc737cb0fe903fbab1844_ubuntu-italic.php");
+					$this->AddFont("Ubuntu", "BI", "c409dbcbee5b5ac6bf7b101817c7416a_ubuntu-bolditalic.php");
+					
+					$this->addedFonts["ubuntu"] = true;
+				}
+			}
 		}
+		
 		
 		parent::__construct($orientation, $unit, $format, $unicode, $encoding, $diskcache, $pdfa);
 
 	}
+	
 
 	private $FontSizeH = array("h1" => 15, "h2" => 13, "h3" => 12, "h4" => 10, "h5" => 10, "h6" => 10);
 	private $FontDecoH = array("h1" => "B", "h2" => "B", "h3" => "B", "h4" => "B", "h5" => "B", "h6" => "B");

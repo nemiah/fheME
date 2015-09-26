@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class CCTimeTerminal2 implements iCustomContent {
 	protected $switch = false;
@@ -32,9 +32,14 @@ class CCTimeTerminal2 implements iCustomContent {
 		if(!isset($_GET["terminalID"]))
 			return "<p>Keine Terminal-ID per GET übergeben! (terminalID)</p>";
 		
-		if(!isset($_GET["done"])){
-			return "<p style=\"font-size:30px;\">Terminal IP: ".$_SERVER['REMOTE_ADDR']."<br />Server IP: ".$_SERVER['SERVER_ADDR']."</p>".OnEvent::script("window.setTimeout(function(){ document.location.href=\"?".$_SERVER['QUERY_STRING']."&done=true\"; }, 3000);");
-		}
+		if(!isset($_GET["done"]))
+			return "<p style=\"font-size:30px;\">
+				Terminal IP: ".$_SERVER['REMOTE_ADDR']."<br>
+				Server IP: ".$_SERVER['SERVER_ADDR']."</p>
+				<p>
+				<a href=\"#\" onclick=\"$.jStorage.set('pKTransferStack', []); $.jStorage.set('pKTimeStack', []); return false;\">Datenspeicher löschen</a>
+				</p>".OnEvent::script("window.setTimeout(function(){ document.location.href=\"?".$_SERVER['QUERY_STRING']."&done=true\"; }, 3000);");
+		
 		
 		self::loadClasses();
 		
@@ -287,8 +292,7 @@ class CCTimeTerminal2 implements iCustomContent {
 
 			}
 			
-			moep();
-
+			
 			$('html').focus(function() {
 				if(inOverlay)
 					return;
@@ -297,8 +301,10 @@ class CCTimeTerminal2 implements iCustomContent {
 			}); 
 
 			$(function(){
+				moep();
 				counter();
 				alive();
+				transfer();
 				
 				$('.touchField').css('height', $(window).height() - $('#displayTime').outerHeight() - 60 - 130);
 				$('.touchField').hammer().on('touch release', function(ev){
@@ -344,8 +350,7 @@ class CCTimeTerminal2 implements iCustomContent {
 			<div>
 				<div data-action=\"K\" class=\"touchField\" style=\"width:48%;display:inline-block;margin-right:4%;vertical-align:top;\">
 					<p style=\"padding:30px;font-size:60px;\">Kommen<br />$BG</p>
-				</div>
-				<div data-action=\"G\" class=\"touchField currentAction\" style=\"width:48%;display:inline-block;vertical-align:top;\">
+				</div><div data-action=\"G\" class=\"touchField currentAction\" style=\"width:48%;display:inline-block;vertical-align:top;\">
 					<p style=\"padding:30px;font-size:60px;text-align:right;\">Gehen<br />$BK</p>
 				</div>
 			</div>";

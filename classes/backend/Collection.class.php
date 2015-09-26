@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 abstract class Collection {
 	protected $A = null;
@@ -428,6 +428,11 @@ abstract class Collection {
 	function setSearchFieldsV3($fields){
 		if($this->Adapter == null) $this->loadAdapter();
 		$this->Adapter->setSelectStatement("searchFields",$fields);
+	}
+	
+	function addSearchCustom($field, $op, $value, $bracketGroup){
+		if($this->Adapter == null) $this->loadAdapter();
+		$this->Adapter->addSelectStatement("searchCustom", array($field, $op, $value, $bracketGroup));
 	}
 	
 	/**

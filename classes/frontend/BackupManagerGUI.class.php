@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 function BackupManagerGUIFatalErrorShutdownHandler() {
 	$last_error = error_get_last();
@@ -69,11 +69,24 @@ class BackupManagerGUI implements iGUIHTML2 {
 		} catch(TableDoesNotExistException $e){
 			
 		}
+		
+		$SFTPServer = null;
+		try {
+			$SFTPServer = LoginData::get("BackupSFTPServerUserPass");
+		} catch(TableDoesNotExistException $e){
+			
+		}
 		$ST = new HTMLSideTable("right");
 		
 		$FTPServerID = $FTPServer == null ? -1 : $FTPServer->getID();
 		$BFTP = $ST->addButton("FTP-Server\neintragen", "./plugins/Installation/serverMail.png");
 		$BFTP->popup("edit", "FTP-Server", "LoginData", $FTPServerID, "getPopup", "", "LoginDataGUI;preset:backupFTPServer");
+		
+		if(extension_loaded("ssh2")){
+			$SFTPServerID = $SFTPServer == null ? -1 : $SFTPServer->getID();
+			$BSFTP = $ST->addButton("SFTP-Server\neintragen", "./plugins/Installation/serverMail.png");
+			$BSFTP->popup("edit", "SFTP-Server", "LoginData", $SFTPServerID, "getPopup", "", "LoginDataGUI;preset:backupSFTPServer");
+		}
 		
 		$B = $ST->addButton("Einstellungen\nzurücksetzen", "clear");
 		$B->rmePCR("BackupManager", "-1", "clearSettings");
@@ -207,13 +220,21 @@ class BackupManagerGUI implements iGUIHTML2 {
 				
 				try {
 					$ftpUpload = $this->FTPUpload(Util::getRootPath()."system/Backup/$BOK");
-					
 					if($ftpUpload === true){
 						$B = new Button("FTP-Upload erfolgreich","okCatch");
 						$B->type("icon");
 						$B->style("float:left;margin-right:10px;");
 
 						$T->addRow(array($B."Das Backup wurde erfolgreich auf den FTP-Server hochgeladen"));
+					}
+					
+					$sftpUpload = $this->SFTPUpload(Util::getRootPath()."system/Backup/$BOK");
+					if($sftpUpload === true){
+						$B = new Button("SFTP-Upload erfolgreich","okCatch");
+						$B->type("icon");
+						$B->style("float:left;margin-right:10px;");
+
+						$T->addRow(array($B."Das Backup wurde erfolgreich auf den SFTP-Server hochgeladen"));
 					}
 				} catch (Exception $e){
 					$B->image("warning");
@@ -367,11 +388,14 @@ require valid-user
 		$passwort = $FTPServer->A("passwort");
 
 		$connection_id = ftp_connect($ftp_server);
+		
+		if (!$connection_id) 
+			throw new Exception("Verbindung mit FTP-Server $ftp_server nicht möglich!");
 
 		$login_result = ftp_login($connection_id, $benutzername, $passwort);
 
-		if ((!$connection_id) || (!$login_result)) 
-			throw new Exception("Verbindung mit FTP-Server $ftp_server als Benutzer $benutzername nicht möglich!");
+		if (!$login_result) 
+			throw new Exception("Anmeldung als Benutzer $benutzername nicht möglich!");
 		
 		
 		$subDir = $FTPServer->A("optionen");
@@ -391,6 +415,42 @@ require valid-user
 		return true;
 	}
 	
+	public function SFTPUpload($filename){
+		$FTPServer = LoginData::get("BackupSFTPServerUserPass");
+		
+		if($FTPServer == null OR $FTPServer->A("server") == "")
+			return null;
+		
+		$ftp_server = $FTPServer->A("server");
+		$benutzername = $FTPServer->A("benutzername");
+		$passwort = $FTPServer->A("passwort");
+
+		#$connection_id = ftp_connect($ftp_server);
+
+		#$login_result = ftp_login($connection_id, $benutzername, $passwort);
+		
+		#if ((!$connection_id) || (!$login_result)) 
+		#	throw new Exception("Verbindung mit SFTP-Server $ftp_server als Benutzer $benutzername nicht möglich!");
+		
+		
+		$subDir = $FTPServer->A("optionen");
+		if($subDir != "" AND $subDir[strlen($subDir) - 1] != "/")
+			$subDir .= "/";
+		
+		$zieldatei = $subDir.basename($filename);
+		$lokale_datei = $filename;
+
+		#$upload = ftp_put($connection_id, $zieldatei, $lokale_datei, FTP_ASCII);
+		$upload = copy($lokale_datei, "ssh2.sftp://$benutzername:$passwort@$ftp_server/$zieldatei");
+		
+		if (!$upload)
+		  throw new Exception("Beim SFTP-Upload ist ein Fehler aufgetreten");
+		
+		#ftp_quit($connection_id);
+		
+		return true;
+	}
+	
 	public function restoreBackup($name){
 		if($_SESSION["S"]->isUserAdmin() == "0")
 			throw new AccessDeniedException();
@@ -399,7 +459,8 @@ require valid-user
 
 		$DB = new DBStorageU();
 		$con = $DB->getConnection();
-
+		mysql_set_charset("latin1", $con);
+		
 		$file = fopen(Util::getRootPath()."system/Backup/$name", "r");
 
 		$return = PMBP_exec_sql($file, $con);

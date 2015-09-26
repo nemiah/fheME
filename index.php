@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
 if(!function_exists("array_replace")){
@@ -179,7 +179,7 @@ if($sephy AND isset($sephy[3]) AND $sephy[3])
 		<script type="text/javascript" src="./libraries/flot/jquery.flot.pie.js"></script>
 		<script type="text/javascript" src="./libraries/flot/jquery.flot.selection.js"></script>
 		<script type="text/javascript" src="./libraries/flot/jquery.flot.orderBars.js"></script>
-		<script type="text/javascript" src="./libraries/nicEdit/nicEdit.js"></script>
+		<!--<script type="text/javascript" src="./libraries/nicEdit/nicEdit.js"></script>-->
 		<script type="text/javascript" src="./libraries/modernizr.custom.js"></script>
 		<script type="text/javascript" src="./libraries/snap.svg/snap.svg-min.js"></script>
 		<script type="text/javascript" src="./libraries/touchy/Touchy.js"></script>

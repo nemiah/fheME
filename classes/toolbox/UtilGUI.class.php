@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class UtilGUI extends Util {
 	function __construct($nonSense = ""){}
@@ -176,6 +176,170 @@ class UtilGUI extends Util {
 
 	public static function newSession($physion, $application, $plugin, $cloud = "", $title = "", $icon = ""){
 		echo "<p>Bitte haben Sie etwas Geduld, während die neue Sitzung initialisiert wird...</p><iframe onload=\"window.open(contentManager.getRoot()+'?physion=$physion&application=$application&plugin=$plugin".($cloud != "" ? "&cloud=$cloud" : "")."".($title != "" ? "&title=$title" : "")."".($icon != "" ? "&icon=$icon" : "")."');".OnEvent::closePopup("Util")."\" src=\"interface/rme.php?class=Users&construct=&method=doLogin&parameters=%27".Session::currentUser()->A("username")."%27,%27".Session::currentUser()->A("SHApassword")."%27,%27".Applications::activeApplication()."%27,%27".Session::currentUser()->A("language")."%27&physion=$physion".($cloud != "" ? "&cloud=$cloud" : "")."\" style=\"display:none;\"></iframe>";
+	}
+	
+	private function reminderCheck(){
+		try {
+			$R = new Reminder(-1);
+			$K = $R->kalenderData("box", false, Session::currentUser()->getID());
+			$A = $R->aufgabenData("box", false, Session::currentUser()->getID());
+
+			$B = array_merge($K, $A);
+		} catch (ClassNotFoundException $e){
+			$B = array();
+		}
+		return $B;
+	}
+	
+	public function reminderDone($target, $id){
+		switch($target){
+			case "KalenderEvent":
+				$ex = explode("@", $id);
+				if(strpos($ex[0], "TodoID") !== false){
+					$T = new Todo(str_replace("TodoID", "", $ex[0]));
+					
+					$D = new Datum();
+					$D->normalize();
+					
+					$after = $D->time() + $T->A("TodoFromTime") - 60 * 5;
+					
+					$T->changeA("TodoReminded", $after + 60);
+					$T->saveMe(true, false, false);
+				}
+			break;
+			case "Aufgabe":
+				$A = new Aufgabe($id);
+				$A->changeA("AufgabeReminded", time());
+				$A->saveMe();
+			break;
+		}
+	}
+	
+	public function reminderList(){
+		#$T = new HTMLTable(2);
+		#$T->setTableStyle("width:100%;");
+		#$T->setColWidth(1, "30%");
+		$B = $this->reminderCheck();
+
+		$R = array();
+		
+		$Kal = new Kalender();
+		foreach($B AS $E){
+			switch(get_class($E)){
+				case "KalenderEvent":
+					$id = str_replace("@", "", $E->UID());
+					
+					$BD = new Button("Erledigt", "check", "iconic");
+					$BD->style("color:#333;");
+					$BD->doBefore("event.stopPropagation(); %AFTER");
+					$BD->rmePCR("Util", "-1", "reminderDone", array("'KalenderEvent'", "'".$E->UID()."'"), "function(){ \$j('#bottom').html(''); \$j('#$id').hide(); if(!\$j('.event:visible').length) window.close(); }");
+					
+					$R[] = array(
+						$id,
+						"<div class=\"event\" id=\"$id\" style=\"padding:5px;cursor:pointer;\" onclick=\"\$j('.confirm').removeClass('confirm'); \$j(this).addClass('confirm');\$j('#bottom').html('".str_replace("\n", "", addslashes($E->summary()))."');\" onmouseover=\"\$j(this).addClass('highlight');\" onmouseout=\"\$j(this).removeClass('highlight');\">
+							<div style=\"width:15%;display:inline-block;vertical-align:top;\">
+								Kalender
+							</div><div style=\"width:45%;display:inline-block;overflow:hidden;vertical-align:top;\">
+								".$E->title()."
+							</div><div style=\"width:33%;display:inline-block;vertical-align:top;\">
+								".Util::CLTimeParser($Kal->parseTime($E->getTime()))." - ".Util::CLTimeParser($Kal->parseTime($E->getEndTime()))." Uhr"."
+							</div><div style=\"width:7%;display:inline-block;vertical-align:top;\">
+								$BD
+							</div>
+						</div>"
+					);
+				break;
+			
+				case "Aufgabe":
+					$id = "Aufgabe_".$E->getID();
+					
+					$BD = new Button("Erledigt", "check", "iconic");
+					$BD->style("color:#333;");
+					$BD->doBefore("event.stopPropagation(); %AFTER");
+					$BD->rmePCR("Util", "-1", "reminderDone", array("'Aufgabe'", "'".$E->getID()."'"), "function(){ \$j('#bottom').html(''); \$j('#$id').hide(); if(!\$j('.event:visible').length) window.close(); }");
+					
+					$R[] = array(
+						$id,
+						"<div class=\"event\" id=\"$id\" style=\"padding:5px;cursor:pointer;\" onclick=\"\$j('.confirm').removeClass('confirm'); \$j(this).addClass('confirm');\$j('#bottom').html('".str_replace("\n", "", addslashes(nl2br($E->A("AufgabeText"))))."');\" onmouseover=\"\$j(this).addClass('highlight');\" onmouseout=\"\$j(this).removeClass('highlight');\">
+							<div style=\"width:15%;display:inline-block;vertical-align:top;\">
+								Aufgabe
+							</div><div style=\"width:45%;display:inline-block;overflow:hidden;vertical-align:top;\">
+								".mb_substr($E->A("AufgabeText"), 0, 30)."
+							</div><div style=\"width:33%;display:inline-block;vertical-align:top;\">
+								".Util::CLTimeParser($E->A("AufgabeUhrzeitVon"))." Uhr"."
+							</div><div style=\"width:7%;display:inline-block;vertical-align:top;\">
+								$BD
+							</div>
+						</div>"
+					);
+					/*$id = str_replace("@", "", $E->UID());
+					
+					$BD = new Button("Erledigt", "check", "iconic");
+					$BD->style("color:#333;");
+					$BD->doBefore("event.stopPropagation(); %AFTER");
+					$BD->rmePCR("Util", "-1", "reminderDone", array("'KalenderEvent'", "'".$E->UID()."'"), "function(){ \$j('#bottom').html(''); \$j('#$id').hide(); if(!\$j('.event:visible').length) window.close(); }");
+					
+					$R[] = array(
+						$id,
+						"<div class=\"event\" id=\"$id\" style=\"padding:5px;cursor:pointer;\" onclick=\"\$j('.confirm').removeClass('confirm'); \$j(this).addClass('confirm');\$j('#bottom').html('".str_replace("\n", "", addslashes($E->summary()))."');\" onmouseover=\"\$j(this).addClass('highlight');\" onmouseout=\"\$j(this).removeClass('highlight');\">
+							<div style=\"width:15%;display:inline-block;vertical-align:top;\">
+								Kalender
+							</div><div style=\"width:45%;display:inline-block;overflow:hidden;vertical-align:top;\">
+								".$E->title()."
+							</div><div style=\"width:33%;display:inline-block;vertical-align:top;\">
+								".Util::CLTimeParser($Kal->parseTime($E->getTime()))." - ".Util::CLTimeParser($Kal->parseTime($E->getEndTime()))." Uhr"."
+							</div><div style=\"width:7%;display:inline-block;vertical-align:top;\">
+								$BD
+							</div>
+						</div>"
+					);*/
+				break;
+			}
+		}
+
+		echo json_encode($R, JSON_UNESCAPED_UNICODE);
+		
+	}
+	
+	public function reminderContent(){
+		$html = "
+			<div style=\"padding:5px;background-color:white;\">
+				<div style=\"width:15%;display:inline-block;font-weight:bold;\">
+					Quelle
+				</div><div style=\"width:45%;display:inline-block;font-weight:bold;\">
+					Name
+				</div><div style=\"width:33%;display:inline-block;font-weight:bold;\">
+					Zeit
+				</div><div style=\"width:7%;display:inline-block;font-weight:bold;\">
+					
+				</div>
+			</div>
+			<div id=\"top\" style=\"height:124px;overflow:auto;\">
+				
+			</div>
+			<div id=\"bottom\" style=\"padding:5px;height:150px;box-sizing:border-box;background-color:white;overflow:auto;\">
+			
+			</div>";
+		
+		echo self::getBasicHTML($html.OnEvent::script("function reloadList(){
+			".OnEvent::rme(new UtilGUI(), "reminderList", array(), "function(t){
+				var data = jQuery.parseJSON(t.responseText);
+				for(var i = 0; i < data.length; i++){
+					if(\$j('#'+data[i][0]).length)
+						continue;
+						
+					\$j('#top').append(data[i][1]);
+				}
+				//\$j('#top').html(t.responseText);
+			}")."
+		};
+		contentManager.setRoot('../');
+		reloadList();"), "Erinnerungen");
+	}
+	
+	public function reminderProxy(){
+		if(count($this->reminderCheck()))
+			echo "1";
 	}
 }
 

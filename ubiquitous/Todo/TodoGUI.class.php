@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class TodoGUI extends Todo implements iGUIHTML2 {
 	public $GUI;
@@ -104,7 +104,7 @@ class TodoGUI extends Todo implements iGUIHTML2 {
 		
 		$gui = $this->GUI;
 
-		$gui->name("Aktivität");
+		$gui->name("Termin");
 
 		$gui->label("TodoDescription","Details");
 		$gui->label("TodoTillDay","Ende");
@@ -258,7 +258,7 @@ class TodoGUI extends Todo implements iGUIHTML2 {
 		if($f == "TodoFromTime")
 			$values = array($down, $up, $up + 900, $up + 900 * 2, $up + 900 * 3);
 			
-		$T = new HTMLTable(count($values));
+		/*$T = new HTMLTable(count($values));
 		$T->setTableStyle("margin-top:5px;display:none;");
 		$val = array_map("Util::CLTimeParser", $values);
 		$T->addRow($val);
@@ -273,8 +273,8 @@ class TodoGUI extends Todo implements iGUIHTML2 {
 			$T->addCellEvent($i, "mouseout", "this.className = '';");
 			
 			$T->addCellEvent($i, "click", "$('$f').value = '".Util::CLTimeParser($values[$i-1])."'; ".($f == "TodoFromTime" ? "$('$f2').value = '".Util::CLTimeParser($values[$i-1] + 3600)."';" : ""));
-		}
-		return "<span id=\"{$f}Display\" style=\"".($E->A("TodoAllDay") ? "display:none;" : "")."\" ><span style=\"color:grey;margin-left:30px;\">um</span> ".$I.($w != "" ? $T : "")."</span>";
+		}*/
+		return "<span id=\"{$f}Display\" style=\"".($E->A("TodoAllDay") ? "display:none;" : "")."\" ><span style=\"color:grey;margin-left:30px;\">um</span> ".$I."</span>";#.($w != "" ? $T : "")
 	}
 
 	public static function parserKunde($w, $l, $E){
@@ -326,7 +326,7 @@ class TodoGUI extends Todo implements iGUIHTML2 {
 		$types = TodoGUI::types();
 		
 		if($getPath === true)
-			return "./ubiquitous/Todo/".$types[$nr].".png";
+			return "./ubiquitous/Todo/".(isset($types[$nr]) ? $types[$nr] : "Termin").".png";
 
 		return "<img title=\"".$types[$nr]."\" src=\"./ubiquitous/Todo/".$types[$nr].".png\" />";
 	}
@@ -343,7 +343,12 @@ class TodoGUI extends Todo implements iGUIHTML2 {
 		$types = array(1 => "Anruf", 2 => "Termin");
 
 		if($nr == null) return $types;
-		else return $types[$nr];
+		else {
+			if(!isset($types[$nr]))
+				return "Termin";
+			
+			return $types[$nr];
+		}
 	}
 	
 	public function saveMultiEditField($field,$value){
@@ -470,8 +475,8 @@ class TodoGUI extends Todo implements iGUIHTML2 {
 		echo parent::newMe($checkUserData, $output);
 	}
 	
-	public function saveMe($checkUserData = true, $output = false) {
-		parent::saveMe($checkUserData, $output);
+	public function saveMe($checkUserData = true, $output = false, $update = true) {
+		parent::saveMe($checkUserData, $output, $update);
 		echo $this->getID();
 	}
 }

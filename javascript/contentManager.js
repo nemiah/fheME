@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
 var lastLoadedLeft        = -1;
@@ -669,6 +669,9 @@ var contentManager = {
 			var check = checkResponse(transport);
 			if(!responseCheck || check) {
 				
+				if(transport.responseText.charAt(0) == "{" && transport.responseText.charAt(transport.responseText.length - 1) == "}")
+					transport.responseData = jQuery.parseJSON(transport.responseText);
+				
 				if(typeof onSuccessFunction == "string")
 					eval(onSuccessFunction);
 
@@ -762,7 +765,7 @@ var contentManager = {
 
 		if(mode == "hide")
 			for (var f = 0; f < fields.length; f++) {
-				var fieldS = $j(formID+'select[name='+fields[f]+'],'+formID+'input[name='+fields[f]+'],'+formID+'textarea[name='+fields[f]+']').parent().parent();
+				var fieldS = $j(formID+'select[name='+fields[f]+'],'+formID+'input[name='+fields[f]+'],'+formID+'textarea[name='+fields[f]+'],'+formID+'span[name='+fields[f]+']').parent().parent();
 				fieldS.css("display", "none");
 				if(fieldS.prev().hasClass("FormSeparatorWithLabel") || fieldS.prev().hasClass("FormSeparatorWithoutLabel"))
 					fieldS.prev().css("display", "none");
@@ -770,7 +773,7 @@ var contentManager = {
 
 		if(mode == "show")
 			for (var f = 0; f < fields.length; f++) {
-				var fieldS = $j(formID+'select[name='+fields[f]+'],'+formID+'input[name='+fields[f]+'],'+formID+'textarea[name='+fields[f]+']').parent().parent();
+				var fieldS = $j(formID+'select[name='+fields[f]+'],'+formID+'input[name='+fields[f]+'],'+formID+'textarea[name='+fields[f]+'],'+formID+'span[name='+fields[f]+']').parent().parent();
 				fieldS.css("display", "");
 				
 				if(fieldS.prev().hasClass("FormSeparatorWithLabel") || fieldS.prev().hasClass("FormSeparatorWithoutLabel"))
@@ -861,6 +864,10 @@ var contentManager = {
 			minutes = "0"+minutes;
 		
 		$j('#'+timeInput2ID).val(hour+":"+minutes);
+	},
+	
+	tinyMCEAddImage: function(src){
+		tinymce.activeEditor.selection.setContent('<img src="'+src+'">');
 	}
 	/*,
 	tinyMCEFileBrowser: function(field_name, url, type, win) {

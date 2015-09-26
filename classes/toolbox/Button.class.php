@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class Button {
 	
@@ -64,7 +64,14 @@ class Button {
 		$this->rme = null;
 		$this->before = null;
 		
+		if($rme == "")
+			$rme = $this->onclick;
+		
 		return $rme;
+	}
+	
+	function getLabel(){
+		return $this->label;
 	}
 	
 	function label($label){
@@ -250,7 +257,10 @@ class Button {
 	
 	function windowRme($targetClass, $targetClassId, $targetMethod, $targetMethodParameters = "", $bps = "", $target = "window"){
 		$this->rme = "windowWithRme('$targetClass', '$targetClassId', '$targetMethod', Array(".(is_array($targetMethodParameters) ? implode(",",$targetMethodParameters) : "'".$targetMethodParameters."'")."), '$bps', '$target');";
-		
+	}
+	
+	function windowRmeP($targetClass, $targetClassId, $targetMethod, $targetMethodParameters = "", $bps = "", $target = "window"){
+		$this->rme = "windowWithRmeP('$targetClass', '$targetClassId', '$targetMethod', Array(".(is_array($targetMethodParameters) ? implode(",",$targetMethodParameters) : "'".$targetMethodParameters."'")."), '$bps', '$target');";
 	}
 
 	/**
@@ -296,6 +306,14 @@ class Button {
 		if($this->image != "" AND $this->image[0] != "." AND strpos($this->image, ":") === false AND $this->image[0] != "/" AND $this->type != "iconic" AND $this->type != "seamless" AND $this->type != "touch")
 			$this->image = "./images/navi/$this->image.png";# : $this->image );
 
+		if(defined("PHYNX_USE_SVG") AND PHYNX_USE_SVG AND file_exists(Util::getRootPath().str_replace(".png", ".svg", $this->image))){
+			$this->image = str_replace(".png", ".svg", $this->image);
+			if($this->type == "icon")
+				$this->style .= "width:32px;";
+			if($this->type == "bigButton" OR $this->type == "LPBig" OR $this->type == "MPBig")
+				$this->style .= "background-size:32px;";
+		}
+		
 		$onclick = $this->onclick != null ? $this->onclick : "";
 		#if($this->pluginRight != null) $onclick .= ;
 		if($this->rme != null OR $onclick != "") $onclick .= (mb_substr($onclick, -1) != ";" ? ";" : "")." { ".($this->loading ? "\$j(this).addClass('loading');" : "")." ".$this->rme." }";

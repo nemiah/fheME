@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class UnifiedTable implements iUnifiedTable {
 	protected $content = array();
@@ -131,7 +131,13 @@ class UnifiedTable implements iUnifiedTable {
 		$this->caption = $caption;
 	}
 
-	function addRow($content){
+	function addRow($content = null){
+		if($content === null){
+			$content = array();
+			for($i = 0; $i < $this->numCols; $i++)
+				$content[] = "";
+		}
+		
 		if(!is_array($content) AND ($content instanceof stdClass OR $content instanceof Attributes)) {
 			$c = array();
 			foreach($content AS $k => $v)
@@ -140,7 +146,9 @@ class UnifiedTable implements iUnifiedTable {
 			$content = $c;
 		}
 
-		if(!is_array($content)) $content = array($content);
+		if(!is_array($content))
+			$content = array($content);
+		
 		$this->content[] = $content;
 	}
 

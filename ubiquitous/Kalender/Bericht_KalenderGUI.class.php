@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
 class Bericht_KalenderGUI extends Bericht_default implements iBerichtDescriptor {
@@ -41,13 +41,13 @@ class Bericht_KalenderGUI extends Bericht_default implements iBerichtDescriptor 
 	protected function AddPage() {
 		parent::AddPage();
 		
-		$this->pdf->SetFont($this->defaultFont,$this->defaultFontStyle,$this->defaultFontSize);
-		$this->pdf->SetFillColor(200, 200, 200);
+		self::$pdf->SetFont($this->defaultFont,$this->defaultFontStyle,$this->defaultFontSize);
+		self::$pdf->SetFillColor(200, 200, 200);
 		
-		$this->pdf->SetFont("Arial","B",15);
-		$this->pdf->MultiCell(0,7,utf8_decode($this->header), 0);
-		$this->pdf->SetFont($this->defaultFont,$this->defaultFontStyle,$this->defaultFontSize);
-		$this->pdf->ln(4);
+		self::$pdf->SetFont("Arial","B",15);
+		self::$pdf->MultiCell(0,7,utf8_decode($this->header), 0);
+		self::$pdf->SetFont($this->defaultFont,$this->defaultFontStyle,$this->defaultFontSize);
+		self::$pdf->ln(4);
 		
 	}
 	
@@ -68,14 +68,14 @@ class Bericht_KalenderGUI extends Bericht_default implements iBerichtDescriptor 
 		
 		$f->setSaveBericht($this);
  		
- 		return $f.$phtml;
+ 		return $phtml.$f;
  	}
  	
 	public function getPDFContent($save = false) {
 		if($this->userdata == null OR count($this->userdata) == 0)
 			die(Util::getBasicHTMLError("Bitte wählen Sie Monat und Jahr aus", "Fehler"));
 		
-		$this->pdf->SetAutoPageBreak(false);
+		self::$pdf->SetAutoPageBreak(false);
 		$this->AddPage();
 		
 		
@@ -96,53 +96,53 @@ class Bericht_KalenderGUI extends Bericht_default implements iBerichtDescriptor 
 				continue;
 			}
 			
-			if($this->pdf->getY() > $this->pageBreakMargin - 15) {
+			if(self::$pdf->getY() > $this->pageBreakMargin - 15) {
 				$this->AddPage();
 				$i = 0;
 			}
 			
 			if($i > 0)
-				$this->pdf->ln(10);
+				self::$pdf->ln(10);
 			
-			$this->pdf->SetFont($this->defaultFont,"B",$this->defaultFontSize);
-			$this->pdf->Cell(0, $this->defaultCellHeight, "Termine am ".Util::CLWeekdayName(date("w", $day->time())).", ".Util::CLFormatDate($day->time()), 0, 1);
-			$this->pdf->Line(10,$this->pdf->GetY(),200, $this->pdf->GetY());
-			$this->pdf->SetFont($this->defaultFont,$this->defaultFontStyle,$this->defaultFontSize);
+			self::$pdf->SetFont($this->defaultFont,"B",$this->defaultFontSize);
+			self::$pdf->Cell(0, $this->defaultCellHeight, "Termine am ".Util::CLWeekdayName(date("w", $day->time())).", ".Util::CLFormatDate($day->time()), 0, 1);
+			self::$pdf->Line(10,self::$pdf->GetY(),200, self::$pdf->GetY());
+			self::$pdf->SetFont($this->defaultFont,$this->defaultFontStyle,$this->defaultFontSize);
 			
 			foreach($events AS $time)
 				foreach($time AS $event){
-					if($this->pdf->getY() > $this->pageBreakMargin) {
+					if(self::$pdf->getY() > $this->pageBreakMargin) {
 						$this->AddPage();
 						$i = 0;
 						if($this->between){
-							$this->pdf->SetFont($this->defaultFont,"B",$this->defaultFontSize);
-							$this->pdf->Cell(0, $this->defaultCellHeight, "Termine am ".Util::CLWeekdayName(date("w", $day->time())).", ".Util::CLFormatDate($day->time()), 0, 1);
-							$this->pdf->Line(10,$this->pdf->GetY(),200, $this->pdf->GetY());
-							$this->pdf->SetFont($this->defaultFont,$this->defaultFontStyle,$this->defaultFontSize);
+							self::$pdf->SetFont($this->defaultFont,"B",$this->defaultFontSize);
+							self::$pdf->Cell(0, $this->defaultCellHeight, "Termine am ".Util::CLWeekdayName(date("w", $day->time())).", ".Util::CLFormatDate($day->time()), 0, 1);
+							self::$pdf->Line(10,self::$pdf->GetY(),200, self::$pdf->GetY());
+							self::$pdf->SetFont($this->defaultFont,$this->defaultFontStyle,$this->defaultFontSize);
 						}
 							
 					}
 			
 					$this->between = true;
 					
-					$this->pdf->Cell8(isset($this->widths["time"]) ? $this->widths["time"] : 20, $this->defaultCellHeight, Util::CLTimeParser(Kalender::parseTime($event->getTime()))." - ".Util::CLTimeParser(Kalender::parseTime($event->getEndTime())), 0, 0);
-					$this->pdf->Cell8(isset($this->widths["title"]) ? $this->widths["title"] : 20, $this->defaultCellHeight, $event->title(), 0, 0);
-					$this->pdf->Cell8(isset($this->widths["location"]) ? $this->widths["location"] : 20, $this->defaultCellHeight, $event->location(), 0, 1);
+					self::$pdf->Cell8(isset($this->widths["time"]) ? $this->widths["time"] : 20, $this->defaultCellHeight, Util::CLTimeParser(Kalender::parseTime($event->getTime()))." - ".Util::CLTimeParser(Kalender::parseTime($event->getEndTime())), 0, 0);
+					self::$pdf->Cell8(isset($this->widths["title"]) ? $this->widths["title"] : 20, $this->defaultCellHeight, $event->title(), 0, 0);
+					self::$pdf->Cell8(isset($this->widths["location"]) ? $this->widths["location"] : 20, $this->defaultCellHeight, $event->location(), 0, 1);
 					
 					$summary = $event->summary();
 					if($summary != ""){
-						$this->pdf->setTextColor(100, 100, 100);
-						$this->pdf->SetFont($this->defaultFont,$this->defaultFontStyle,$this->defaultFontSize - 1);
-						$this->pdf->MultiCell8(isset($this->widths["summary"]) ? $this->widths["summary"] : 20, $this->defaultCellHeight - 1, trim(str_replace("<br />", "", $summary)), 0, 1);
-						$this->pdf->setTextColor(0, 0, 0);
-						$this->pdf->SetFont($this->defaultFont,$this->defaultFontStyle,$this->defaultFontSize);
+						self::$pdf->setTextColor(100, 100, 100);
+						self::$pdf->SetFont($this->defaultFont,$this->defaultFontStyle,$this->defaultFontSize - 1);
+						self::$pdf->MultiCell8(isset($this->widths["summary"]) ? $this->widths["summary"] : 20, $this->defaultCellHeight - 1, trim(str_replace("<br />", "", $summary)), 0, 1);
+						self::$pdf->setTextColor(0, 0, 0);
+						self::$pdf->SetFont($this->defaultFont,$this->defaultFontStyle,$this->defaultFontSize);
 					}
 					
-					$this->pdf->SetDrawColor(150, 150, 150);
-					$this->pdf->Line(10,$this->pdf->GetY(),200, $this->pdf->GetY());
-					$this->pdf->SetDrawColor(0, 0, 0);
+					self::$pdf->SetDrawColor(150, 150, 150);
+					self::$pdf->Line(10,self::$pdf->GetY(),200, self::$pdf->GetY());
+					self::$pdf->SetDrawColor(0, 0, 0);
 					
-					$this->pdf->ln(5);
+					self::$pdf->ln(5);
 					
 				}
 			
@@ -152,7 +152,7 @@ class Bericht_KalenderGUI extends Bericht_default implements iBerichtDescriptor 
 		}
 		
 		$tmpfname = Util::getTempFilename("Bericht");
-		$this->pdf->Output($tmpfname, ($save ? "F" : "I"));
+		self::$pdf->Output($tmpfname, ($save ? "F" : "I"));
 		if($save) return $tmpfname;
 	}
 	

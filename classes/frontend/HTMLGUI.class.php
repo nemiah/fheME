@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
 class HTMLGUI implements icontextMenu {
@@ -213,10 +213,14 @@ class HTMLGUI implements icontextMenu {
 			
 			case "addSaveDefaultButton":
 				$B = new Button("als Standard-Wert speichern", "./images/i2/save.gif");
-				$B->rme("mUserdata","","setUserdata",array("'DefaultValue".$class->getClearClass()."$par1'","$('$par1').value"),"checkResponse(transport);");
+				if($this->types[$par1] != "checkbox")
+					$B->rme("mUserdata","","setUserdata",array("'DefaultValue".$class->getClearClass()."$par1'","$('$par1').value", "''", "0", "1"),"checkResponse(transport);");
+				else
+					$B->rme("mUserdata","","setUserdata",array("'DefaultValue".$class->getClearClass()."$par1'","$('$par1').checked ? 1 : 0", "''", "0", "1"),"checkResponse(transport);");
 				$B->type("icon");
 				$B->style("float:right;");
-				$this->setInputStyle($par1,"width:90%;");
+				if($this->types[$par1] != "checkbox")
+					$this->setInputStyle($par1,"width:90%;");
 				$this->buttonsNextToFields[$par1] = $B;
 			break;
 			
@@ -229,8 +233,9 @@ class HTMLGUI implements icontextMenu {
 			
 			case "addAnotherLanguageButton":
 				$B = new Button("andere Sprachen", "./images/i2/sprache.png");
-				if($class->getID() != -1) $B->rme("mMultiLanguage","","getPopupHTML",array("'".$class->getClearClass()."'","'".$class->getID()."'","'".$par1."'"),"Popup.create(\'".$class->getID()."\', \'altLang".$class->getClearClass()."\', \'alternative Sprachen\'); Popup.update(transport, \'".$class->getID()."\', \'altLang".$class->getClearClass()."\');");
-				
+				if($class->getID() != -1) 
+					#$B->rme("mMultiLanguage","","getPopupHTML",array("'".$class->getClearClass()."'","'".$class->getID()."'","'".$par1."'"),"Popup.create(\'".$class->getID()."\', \'altLang".$class->getClearClass()."\', \'Alternative Sprachen\'); Popup.update(transport, \'".$class->getID()."\', \'altLang".$class->getClearClass()."\');");
+					$B->popup("", "Alternative Sprachen", "mMultiLanguage", "", "getPopupHTML", array("'".$class->getClearClass()."'","'".$class->getID()."'","'".$par1."'"));
 				else $B->onclick("alert('Sie müssen den Artikel zuerst speichern, bevor Sie Übersetzungen eintragen können')");
 				$B->type("icon");
 				$B->style("float:right;");
@@ -748,7 +753,7 @@ class HTMLGUI implements icontextMenu {
 			$s = "";
 			
 			$s .= "<input ".(isset($this->events[$as]) ? $eve : "")." ".(isset($this->inputStyle[$as]) ? "style=\"".$this->inputStyle[$as]."\"" : "")." type=\"checkbox\" value=\"1\" ".($this->attributes->$as == 1 ? " checked=\"checked\"" : "")." name=\"".$as."\" id=\"".$as."\"> ";
-			return "$s";
+			return (isset($this->buttonsNextToFields[$as]) ? $this->buttonsNextToFields[$as] : "")."$s";
 		}
 
 		if(isset($this->types[$as]) AND $this->types[$as] == "radio") {
@@ -1174,7 +1179,7 @@ class HTMLGUI implements icontextMenu {
 				if($oldValueForDisplayGroup != $sc->$f) if($lineWithId == -1) {
 					$dgf = $sc->$f."";
 					$kTv = (isset($this->displayGroup[$dgf]) ? $this->displayGroup[$dgf] : " ");
-					#if($this->dgParser != "") eval("\$kTv = ".$this->dgParser."(\"".$sc->$f."\",\"load\",\"".implode("%§%",$this->dgParserParameters)."\");");
+					
 					if($this->dgParser != "") $kTv = $this->invokeParser($this->dgParser, $sc->$f, implode("%§%",$this->dgParserParameters));
 					$string .= "
 				<tr class=\"kategorieTeiler\">
@@ -1348,7 +1353,7 @@ class HTMLGUI implements icontextMenu {
 			if($showSF){
 				$B = new Button("Suche als Filter anwenden","./images/i2/searchFilter.png", "icon");
 				$B->style("float:right;");
-				$B->rme("HTML","","saveContextMenu", array("'searchFilter'","'$this->quickSearchPlugin;:;'+$('quickSearch$this->quickSearchPlugin').value"),"if(checkResponse(transport)) contentManager.reloadFrameRight();");
+				$B->rmePCR("HTML","","saveContextMenu", array("'searchFilter'","'$this->quickSearchPlugin;:;'+$('quickSearch$this->quickSearchPlugin').value"),"if(checkResponse(transport)) contentManager.reloadFrame('contentRight', '', 0);");
 				
 				$mU = new mUserdata();
 				$K = $mU->getUDValue("searchFilterInHTMLGUI".$this->quickSearchPlugin);
@@ -1472,7 +1477,7 @@ class HTMLGUI implements icontextMenu {
 					if(isset($this->parsers[$as[$j]])) {
 						$parameters = $this->makeParameterStringFromArray($this->parserParameters[$as[$j]], $sc, $aid);
 						$t = $this->invokeParser($this->parsers[$as[$j]], $sc->$as[$j], $parameters);
-					#eval("\$t = ".$this->parsers[$as[$j]]."(\"".$sc->$as[$j]."\",\"load\",\"".implode("%§%",$this->parserParameters[$as[$j]])."\");");
+					
 					}
 					else $t = $sc->$as[$j];
 					
@@ -1487,7 +1492,7 @@ class HTMLGUI implements icontextMenu {
 						$parameters = $this->makeParameterStringFromArray($this->parserParameters[$value], $sc, $aid);
 						$t = $this->invokeParser($this->parsers[$value], $sc->$value, $parameters);
 					}
-						#eval("\$t = ".$this->parsers[$value]."(\"".$sc->$value."\",\"load\",\"".implode("%§%",$this->parserParameters[$value])."\");");
+						
 					else $t = $sc->$value;
 					
 					$html .= "
@@ -1794,7 +1799,22 @@ class HTMLGUI implements icontextMenu {
 								<tr>
 									<td colspan=\"2\" class=\"backgroundColor3\">".$texts["nach Kategorien filtern"].":</td>
 								</tr>
-								$checks
+							</table>
+							<div style=\"max-height:250px;overflow:auto;\">
+								<table style=\"border:0px;\">
+									<colgroup>
+										<col class=\"backgroundColor2\" style=\"width:20px;\" />
+										<col />
+									</colgroup>
+									$checks
+								</table>
+							</div>
+							
+							<table style=\"border:0px;\">
+								<colgroup>
+									<col class=\"backgroundColor2\" style=\"width:20px;\" />
+									<col />
+								</colgroup>
 								<tr>
 									<td colspan=\"2\" class=\"backgroundColor3\">
 										<input
@@ -2051,7 +2071,7 @@ class HTMLGUI implements icontextMenu {
 				
 				$B = new Button("Suche als Filter anwenden","./images/i2/searchFilter.png", "icon");
 				$B->style("float:right;");
-				$B->rme("HTML","","saveContextMenu", array("'searchFilter'","'$this->quickSearchPlugin;:;'+$('quickSearch$this->quickSearchPlugin').value"),"if(checkResponse(transport)) contentManager.reloadFrameRight();");
+				$B->rmePCR("HTML","","saveContextMenu", array("'searchFilter'","'$this->quickSearchPlugin;:;'+$('quickSearch$this->quickSearchPlugin').value"),"if(checkResponse(transport)) contentManager.reloadFrame('contentRight', '', 0);");
 
 				$mU = new mUserdata();
 				$K = $mU->getUDValue("searchFilterInHTMLGUI".$this->quickSearchPlugin);

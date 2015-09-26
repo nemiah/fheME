@@ -15,11 +15,11 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class CCTimeTerminal implements iCustomContent {
 	protected $switch = false;
-
+	
 	function getLabel(){
 		return "Zeiterfassungs-Terminal";
 	}
@@ -389,7 +389,12 @@ class CCTimeTerminal implements iCustomContent {
 		addClassPath(Util::getRootPath()."personalKartei/Zeiterfassung/");
 		addClassPath(Util::getRootPath()."personalKartei/Personal/");
 		addClassPath(Util::getRootPath()."personalKartei/ObjekteL/");
+		#if(file_exists(Util::getRootPath()."personalKartei/Schichten/"))
+		#	addClassPath(Util::getRootPath()."personalKartei/Schichten/");
 		addClassPath(Util::getRootPath()."open3A/Kategorien/");
+		
+		$CCP = new CCPage();
+		$CCP->loadPlugin("personalKartei", "Schichten", true);
 		
 		$T = anyC::getFirst("ZETerminal", "ZETerminalID", $args["P1"]);
 		if(!$T){
@@ -528,22 +533,39 @@ class CCTimeTerminal implements iCustomContent {
 				}
 			}
 		}
-
+		
 		if($args["P2"] == "G"){
-			$AC = anyC::get("ZEData", "ZEDataChipID", $A->ChipID);
+			$AC = anyC::get("ZEData", "ZEDataPersonalID", $ok["Personal"]->getID());
 			$AC->addAssocV3("ZEDataType", "=", "K");
 			$AC->addAssocV3("ZEDataDate + ZEDataTime", ">", time() - 3600 * 13);
-			$AC->addOrderV3("ZEDataID", "DESC");
+			$AC->addAssocV3("ZEDataDate + ZEDataTime", "<", time());
 			$AC->addAssocV3("ZEDataIsDeleted", "=", "0");
+			$AC->addOrderV3("ZEDataDate + ZEDataTime", "DESC");
 			$AC->setLimitV3("1");
 			
-			$D = $AC->getNextEntry();
-			if($D != null){
-				$pause = ZEAuswertung::calcPause($D, $ok["ZEData"]);
-				if($pause !== null){
-					$DE = $ok["ZEData"];
-					$DE->changeA("ZEDataPause", $pause);
-					$DE->saveMe(false, false);
+			$Kommen = $AC->getNextEntry();
+			if($Kommen != null){
+				$Gehen = $ok["ZEData"];
+				
+				$T = new ZETerminal($args["P1"]);
+				
+				$AC2 = anyC::get("PZuO", "ObjektLID", $T->A("ZETerminalObjektLID"));
+				$AC2->addAssocV3("PersonalID", "=", $Kommen->A("ZEDataPersonalID"));
+				$PZuO = $AC2->n();
+
+				if($PZuO !== null){
+					$worked = ($Gehen->A("ZEDataDate") + $Gehen->A("ZEDataTime")) - ($Kommen->A("ZEDataDate") + $Kommen->A("ZEDataTime"));
+					$AZ = mZEArbeitsZeit::getArbeitszeiten($PZuO->getID(), time());
+					
+					if(isset($AZ[0])){
+						$hasTo = $AZ[0]->A("ZEArbeitsZeitEnde") - $AZ[0]->A("ZEArbeitsZeitStart");
+	
+						if($worked > 0 AND $hasTo / $worked > 0.9){# AND $hasTo / $worked < 1.15){
+							$DE = $ok["ZEData"];
+							$DE->changeA("ZEDataPause", $AZ[0]->A("ZEArbeitsZeitMittag"));
+							$DE->saveMe(false, false);
+						}
+					}
 				}
 			}
 		}#303046a1b7

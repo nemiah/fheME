@@ -15,9 +15,14 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class tinyMCEGUI {
+	private $ID;
+	public function __construct($ID) {
+		$this->ID = $ID;
+	}
+	
 	public static function editorMail($tinyMCEID, $saveCallback = null, $buttons = null, $css = null){
 		if($buttons == null)
 			$buttons = "undo redo | pastetext | styleselect fontsizeselect | bold italic underline | bullist numlist table link | fullscreen code";
@@ -37,16 +42,20 @@ class tinyMCEGUI {
 				browser_spellcheck : true,
 				content_css : "./styles/tinymce/email.css",
 				convert_urls : false,
-				extended_valid_elements : "blockquote[cite|class|dir<ltr?rtl|id|lang|onclick|ondblclick|onkeydown|onkeypress|onkeyup|onmousedown|onmousemove|onmouseout|onmouseover|onmouseup|style|title|type],div[align<center?justify?left?right|class|dir<ltr?rtl|id|lang|onclick|ondblclick|onkeydown|onkeypress|onkeyup|onmousedown|onmousemove|onmouseout|onmouseover|onmouseup|style|title]",
+				extended_valid_elements : "img[class|src|border=0|alt|title|hspace|vspace|width|height|align|onmouseover|onmouseout|name],blockquote[cite|class|dir<ltr?rtl|id|lang|onclick|ondblclick|onkeydown|onkeypress|onkeyup|onmousedown|onmousemove|onmouseout|onmouseover|onmouseup|style|title|type],div[align<center?justify?left?right|class|dir<ltr?rtl|id|lang|onclick|ondblclick|onkeydown|onkeypress|onkeyup|onmousedown|onmousemove|onmouseout|onmouseover|onmouseup|style|title]",
 				language : "de",
+				paste_data_images:true,
 				entity_encoding : "raw"'.($saveCallback != null ? ',
 				save_onsavecallback : '.$saveCallback.'' : "").'
 			});';
 	}
 	
-	public static function editorDokument($tinyMCEID, $saveCallback, $buttons = null, $css = "./styles/tinymce/office.css"){
+	public static function editorDokument($tinyMCEID, $saveCallback, $buttons = null, $css = "./styles/tinymce/office.css", $picturesDir = null){
 		if($buttons == null)
 			$buttons = "save | undo redo | pastetext | styleselect fontsizeselect fontselect | bold italic underline forecolor | hr fullscreen code";
+		
+		$B = new Button("Bilder", "new", "icon");
+		$B->sidePanel("tinyMCE", "-1", "sidePanelAttachments", array("'$picturesDir'"));
 		
 		return '
 			$j("#'.$tinyMCEID.'").tinymce({
@@ -81,12 +90,20 @@ class tinyMCEGUI {
 				extended_valid_elements : "blockquote[cite|class|dir<ltr?rtl|id|lang|onclick|ondblclick|onkeydown|onkeypress|onkeyup|onmousedown|onmousemove|onmouseout|onmouseover|onmouseup|style|title|type],div[align<center?justify?left?right|class|dir<ltr?rtl|id|lang|onclick|ondblclick|onkeydown|onkeypress|onkeyup|onmousedown|onmousemove|onmouseout|onmouseover|onmouseup|style|title]",
 				language : "de",
 				entity_encoding : "raw",
-				save_onsavecallback : '.$saveCallback.'
-
+				save_onsavecallback : '.$saveCallback.',
+					
+				setup : function(ed) {
+					ed.addButton("phynximage", {
+						title : "Bilder",
+						onclick : function() {
+							'.$B->getAction().'
+						}
+					});
+				}
 			});';
 	}
 	
-	public function editInPopup($formID, $fieldName, $variablesCallback = null){
+	public function editInPopup($formID, $fieldName, $variablesCallback = null, $picturesDir = null){
 		$tinyMCEID = "tinyMCEEditor".rand(100, 9000000);
 		
 		$ITA = new HTMLInput("tinyMCEEditor", "textarea");
@@ -100,12 +117,16 @@ class tinyMCEGUI {
 
 		echo "<div style=\"width:".($variablesCallback != null ? "830" : "1000")."px;\">".$ITA."</div>";
 		
-		
 		$buttons = "save | undo redo | pastetext | styleselect fontsizeselect fontselect | bold italic underline forecolor | hr code";
+		if($picturesDir AND Session::isPluginLoaded("mFile")){
+			$buttons .= " table phynximage";
+			$buttons = str_replace("fontselect", "", $buttons);
+		}
+		
 		echo OnEvent::script("
 setTimeout(function(){
 	\$j('#$tinyMCEID').val(\$j('#$formID [name=$fieldName]').val());
-	".$this->editorDokument($tinyMCEID, "function(content){\$j('#$formID [name=$fieldName]').val(content.getContent()).trigger('change'); ".OnEvent::closePopup("nicEdit")."}", $buttons)."
+	".$this->editorDokument($tinyMCEID, "function(content){\$j('#$formID [name=$fieldName]').val(content.getContent()).trigger('change'); ".OnEvent::closePopup("tinyMCE")."}", $buttons, "./styles/tinymce/office.css", $picturesDir)."
 			".($variablesCallback != null ? "$variablesCallback('$fieldName');" : "")."
 		}, 100);");
 	}
@@ -126,9 +147,85 @@ setTimeout(function(){
 		$buttons = "save | undo redo | pastetext | styleselect fontsizeselect fontselect | bold italic underline forecolor | hr code";
 		echo OnEvent::script("
 setTimeout(function(){
-	".$this->editorDokument($tinyMCEID, "function(content){".OnEvent::rme($C, "saveMultiEditField", array("'$fieldName'", "content.getContent()"))."".OnEvent::closePopup("nicEdit")."}", $buttons)."
+	".$this->editorDokument($tinyMCEID, "function(content){".OnEvent::rme($C, "saveMultiEditField", array("'$fieldName'", "content.getContent()"))."".OnEvent::closePopup("tinyMCE")."}", $buttons)."
 			
 		}, 100);");
+	}
+	
+	public function sidePanelAttachments($filesDir){
+		$I = new HTMLInput("TBAttachments", "file");
+		$I->onchange(OnEvent::rme($this, "processAttachmentUpload", array("'$filesDir'", "fileName"), " ".OnEvent::reloadSidePanel("tinyMCE")));
+		echo "<div style=\"padding:5px;height:50px;\">".$I."</div></div>";
+		
+		if(!file_exists(FileStorage::getFilesDir()."$filesDir"))
+			mkdir(FileStorage::getFilesDir()."$filesDir");
+		
+		$T = new HTMLTable(2, "Bilder");
+		$dir = new DirectoryIterator(FileStorage::getFilesDir()."$filesDir");
+		foreach ($dir as $file) {
+			if($file->isDot()) continue;
+			if($file->isDir()) continue;
+			
+			$BI = new Button("Datei löschen", "./images/i2/insert.png", "icon");
+			
+			$BD = new Button("Datei löschen", "./images/i2/delete.gif", "icon");
+			$BD->style("float:right;margin-left:5px;");
+			$BD->rmePCR("tinyMCE", "", "deleteAttachment", array("'$filesDir'", "'".$file->getFilename()."'"), OnEvent::reloadSidePanel("tinyMCE"));
+			
+			$T->addRow(array($BI, "$BD<small style=\"color:grey;float:right;margin-top:4px;\">".Util::formatByte($file->getSize())." </small>".(strlen($file->getFilename()) > 15 ? substr($file->getFilename(), 0, 15)."..." : $file->getFilename())));
+			$T->addRowStyle("cursor:pointer;");
+			
+			$T->addRowEvent("click", "contentManager.tinyMCEAddImage('".DBImageGUI::imageLink("tinyMCEGUI", $filesDir, $file->getFilename(), true)."');");
+		}
+		
+		echo $T;
+	}
+	
+	public function loadMe(){
+		
+	}
+	
+	public function A($name){
+		if($this->ID != "Textbausteine")
+			return;
+		
+		return DBImageGUI::stringifyS("image/".Util::ext($name), FileStorage::getFilesDir().$this->ID."/$name");
+	}
+	
+	public function processAttachmentUpload($filesDir, $fileName){
+		$uloadedFile = Util::getTempDir().$fileName.".tmp";
+		
+		if(copy($uloadedFile, FileStorage::getFilesDir()."$filesDir/$fileName"))
+			unlink($uloadedFile);
+		else
+			Red::errorD("Fehler beim Upload der Datei!");
+	}
+	
+	public function deleteAttachment($filesDir, $fileName){
+		unlink(FileStorage::getFilesDir()."$filesDir/".$fileName);
+	}
+	
+	public static function fixImages($html){
+		preg_match_all("/src\=\"\.\.\/interface\/loadFrame\.php\?p=DBImage&amp;id=tinyMCEGUI:::[a-zA-Z0-9]*:::([a-zA-Z0-9:\.@_-]*)\"/ismU", $html, $matches);
+		if(isset($matches[1]))
+			foreach($matches[1] AS $k => $imageUrl)
+				$html = str_replace($matches[0][$k], "src=\"$imageUrl\"", $html);
+			
+		return $html;
+	}
+	
+	public static function findImages($html){
+		$images = array();
+		
+		preg_match_all("/src\=\"\.\.\/interface\/loadFrame\.php\?p=DBImage&amp;id=tinyMCEGUI:::([a-zA-Z0-9:\.@_-]*)\"/ismU", $html, $matches);
+		if(isset($matches[1]))
+			foreach($matches[1] AS $k => $imageUrl)
+				$images[] = FileStorage::getFilesDir().str_replace(":::", "/", $imageUrl);
+			
+		
+		$images = array_unique($images);
+		
+		return $images;
 	}
 }
 ?>

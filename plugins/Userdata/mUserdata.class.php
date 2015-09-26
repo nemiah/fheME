@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class mUserdata extends anyC {
 	function __construct() {
@@ -109,7 +109,7 @@ class mUserdata extends anyC {
 		return $labels;
 	}
 	
-	public static function getPluginSpecificData($forPlugin){
+	public static function getPluginSpecificData($forPlugin, $value = null){
 		if(Session::currentUser() === null)
 			return array();
 		
@@ -124,6 +124,10 @@ class mUserdata extends anyC {
 			$A = $sUD->getA();
 			$labels[$A->name] = $A->wert;
 		}
+		
+		if($value != null)
+			return isset($labels[$value]);
+		
 		return $labels;
 	}
 	

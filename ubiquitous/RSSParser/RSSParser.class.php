@@ -15,21 +15,50 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
-class RSSParser extends PersistentObject {
+class RSSParser extends PersistentObject implements iCloneable {
 	public function parseFeed(){
 		if($this->A("RSSParserUseCache"))
 			$data = $this->A("RSSParserCache");
 		else
 			$data = file_get_contents($this->A("RSSParserURL"));
 		
+		libxml_use_internal_errors(true);
+		
 		$data = str_replace("<content:encoded>","<contentEncoded>",$data);
         $data = str_replace("</content:encoded>","</contentEncoded>",$data);
+		
 		try {
 			$xml = new SimpleXMLElement($data);
 		} catch(Exception $e){
-			return array();
+			try {
+				$config = array(
+					'indent'     => true,
+					'input-xml'  => true,
+					'output-xml' => true,
+					'wrap'       => false);
+				
+				$tidy = new tidy();
+				$tidy->ParseString($data, $config, "utf8");
+
+				$tidy->cleanRepair();
+				#print_r($tidy."");
+				$xml = new SimpleXMLElement($tidy."");
+			
+			} catch (Exception $e){
+				/*echo "<pre>";
+				echo "Exception: ".$e->getMessage()."\n";
+
+				foreach(libxml_get_errors() as $error){
+					if($error->level == LIBXML_ERR_WARNING) echo "Warning: ".$error->message;
+					if($error->level == LIBXML_ERR_ERROR) echo "Error: ".$error->message;
+					if($error->level == LIBXML_ERR_FATAL) echo "Fatal error: ".$error->message;
+				}
+				echo "</pre>";*/
+			
+				return array();
+			}
 		}
 		
 		$E = array();
@@ -107,6 +136,10 @@ class RSSParser extends PersistentObject {
 		$this->changeA("RSSParserCache", $data);
 		$this->changeA("RSSParserLastUpdate", time());
 		$this->saveMe();
+	}
+
+	public function cloneMe() {
+		echo $this->newMe();
 	}
 }
 ?>

@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
 class OnEvent {
@@ -116,6 +116,29 @@ class OnEvent {
 		\$j('$selector').sortable({
 			".($axis != "" ? "axis: '$axis', " : "")."
 			update: function(){".($saveTo == null ? "" : $saveTo)."},
+			".($connectWith != null ? "connectWith: \$j('$connectWith')," : "")."
+			dropOnEmpty: true,
+			".($placeholder != null ? "placeholder: '$placeholder', " : "")."
+			".($handle != null ? "handle: \$j('$handle')" : "")."
+		});";
+	}
+	
+	/**
+	 * UNTESTED!!!
+	 * 
+	 * @param type $selector
+	 * @param type $handle
+	 * @param type $saveToField
+	 * @param type $axis
+	 * @param type $connectWith
+	 * @param type $placeholder
+	 * @return type
+	 */
+	public static function sortableToField($selector, $handle, $saveToField, $axis = "y", $connectWith = null, $placeholder = null){
+		return "
+		\$j('$selector').sortable({
+			".($axis != "" ? "axis: '$axis', " : "")."
+			update: function(){ \$j('$saveToField').val(Sortable.serialize('$selector').replace(/ID/g, '')); },
 			".($connectWith != null ? "connectWith: \$j('$connectWith')," : "")."
 			dropOnEmpty: true,
 			".($placeholder != null ? "placeholder: '$placeholder', " : "")."

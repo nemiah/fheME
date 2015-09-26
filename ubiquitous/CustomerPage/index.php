@@ -43,7 +43,7 @@ if(isset($_POET["D"])){
 	$ex = explode("/", $_POET["D"]);
 	
 	$C = "CC".$ex[1];
-	
+
 	registerClassPath($C, Util::getRootPath()."$_POET[D]/$C.class.php");
 
 	$I = new $C();
@@ -161,7 +161,7 @@ if(isset($I)){
 					for(var i = 0; i < parameters.length; i++)
 						ps += "&P"+i+"="+encodeURIComponent(parameters[i]);
 				}
-
+				
 				if(typeof parameters == "string")
 					ps = "&"+parameters;
 				

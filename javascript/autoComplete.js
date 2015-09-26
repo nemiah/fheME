@@ -15,11 +15,11 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
  
 function htmlReplaces(string) {
-	return string.replace("\#",";-;;raute;;-;").replace("'","_").replace("&",";-;;und;;-;").replace("%",";-;;prozent;;-;").replace("=",";-;;istgleich;;-;").replace("?",";-;;frage;;-;");
+	return string.replace("\#",";-r-;").replace("'","_").replace("&",";-u-;").replace("%",";-p-;").replace("=",";-i-;").replace("?",";-f-;");
 }
  
 var ACDiv = null;

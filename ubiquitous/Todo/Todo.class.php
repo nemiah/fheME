@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class Todo extends PersistentObject {
 	public static $repeatTypes = array("" => "nicht Wiederholen", "daily" => "Täglich", "weekly" => "Wöchentlich", "monthly" => "Monatlich", "yearly" => "Jährlich");
@@ -100,7 +100,8 @@ class Todo extends PersistentObject {
 
 	public function newMe($checkUserData = true, $output = false) {
 		$this->changeA("TodoLastChange", time());
-		
+		if(Session::currentUser() != null)
+			$this->changeA("TodoCreatorUserID", Session::currentUser()->getID());
 		#if($this->A("TodoGUID") == "")
 		#	$this->changeA("TodoGUID", uniqid()."-".uniqid());
 		

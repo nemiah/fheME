@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2014, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class SupportGUI {
 	
@@ -27,7 +27,7 @@ class SupportGUI {
 	
 	public function fatalError($error, $request = ""){
 		
-		$error = trim($error."\n\nDie letzte Browser-Anfrage an den Server war:\n".htmlentities($request));
+		$error = trim($error."\n\nZeit: ".Util::CLDateTimeParser(time())."\nDie letzte Browser-Anfrage an den Server war:\n".htmlentities($request));
 		
 		$B = new Button("Fehler", "./images/big/sad.png", "icon");
 		$B->style("float:left;margin-right:10px;margin-bottom:20px;");
