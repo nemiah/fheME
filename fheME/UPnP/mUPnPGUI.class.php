@@ -180,8 +180,12 @@ class mUPnPGUI extends anyC implements iGUIHTMLMP2 {
 	public static $desiredServices = array("AVTransport" => "urn:upnp-org:serviceId:AVTransport", "ContentDirectory" => "urn:upnp-org:serviceId:ContentDirectory", "ConnectionManager" => "urn:upnp-org:serviceId:ConnectionManager", "RenderingControl" => "urn:upnp-org:serviceId:RenderingControl");
 	
 	public function discoverNow($reloadWhat = null){
+		$last = mUserdata::getGlobalSettingValue("UPnPLastDiscover", 0);
+		
+		if(time() - $last < 3600 * 2.5)
+			die("<p>Die letzte Suche ist weniger als zweieinhalb Stunden her.</p>");
+		
 		$C = new phpUPnP();
-		#
 		$result = $C->mSearch();
 		
 		#print_r($result);
@@ -209,9 +213,9 @@ class mUPnPGUI extends anyC implements iGUIHTMLMP2 {
 					if($service->serviceId[0] == $S)
 						$services[$k] = $service;
 			}
-			echo "<pre>";
-			print_r($xml->device->UDN);
-			echo "</pre>";
+			#echo "<pre>";
+			#print_r($xml->device->UDN);
+			#echo "</pre>";
 			$F = new Factory("UPnP");
 			$F->sA("UPnPUDN", $xml->device->UDN);
 			$L->addItem($xml->device->friendlyName);
@@ -273,6 +277,8 @@ class mUPnPGUI extends anyC implements iGUIHTMLMP2 {
 		
 		if($reloadWhat)
 			echo $B."<div style=\"clear:both;\"></div>";
+		
+		mUserdata::setUserdataS("UPnPLastDiscover", time(), "", -1);
 		#echo "</pre>";
 	}
 	
