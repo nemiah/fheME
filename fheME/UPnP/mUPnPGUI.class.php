@@ -183,7 +183,7 @@ class mUPnPGUI extends anyC implements iGUIHTMLMP2 {
 		$last = mUserdata::getGlobalSettingValue("UPnPLastDiscover", 0);
 		
 		if(time() - $last < 3600 * 2.5)
-			die("<p>Die letzte Suche ist weniger als zweieinhalb Stunden her.</p>");
+			return;
 		
 		$C = new phpUPnP();
 		$result = $C->mSearch();
