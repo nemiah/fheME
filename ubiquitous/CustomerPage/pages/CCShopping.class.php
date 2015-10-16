@@ -64,6 +64,7 @@ class CCShopping implements iCustomContent {
 					-moz-user-select: none;
 					-ms-user-select: none;
 					user-select: none;
+					-webkit-tap-highlight-color:rgba(255,255,255,0);
 				}
 				
 				.entryRestore {
@@ -82,14 +83,15 @@ class CCShopping implements iCustomContent {
 					-ms-user-select: none;
 					user-select: none;
 					color:#444;
-				}
-				
-				.entryTouch {
-					background-color: #c5d674;
+					-webkit-tap-highlight-color:rgba(255,255,255,0);
 				}
 				
 				.backgroundColor4 {
 					background-color: #eee;
+				}
+				
+				.entryTouch {
+					background-color: #c5d674;
 				}
 				
 				.borderColor0 {
@@ -104,14 +106,14 @@ class CCShopping implements iCustomContent {
 			$html .= "
 				<div
 					id=\"entry".$E->getID()."\"
-					onclick=\"CustomerPage.rme('setBought', [".$E->getID()."], function(){ $('#entry".$E->getID()."').hide(); $('#restoreEntry".$E->getID()."').show(); $('#emptyEntry').hide(); if($('#einkaufsliste .nonEmpty').length == 0) $('#emptyEntry').show(); });\"
+					ontouchend=\"CustomerPage.rme('setBought', [".$E->getID()."], function(){ $('#entry".$E->getID()."').hide(); $('#restoreEntry".$E->getID()."').show(); $('#emptyEntry').hide(); if($('#einkaufsliste .nonEmpty').length == 0) $('#emptyEntry').show(); });\"
 					class=\"nonEmpty entry backgroundColor1 borderColor1\">
 					
 					".($E->A("EinkaufszettelMenge") > 1 ? $E->A("EinkaufszettelMenge")." x " : "").$E->A("EinkaufszettelName").($E->A("EinkaufszettelNameDetails") != "" ? "<br /><small style=\"color:grey;\">".$E->A("EinkaufszettelNameDetails")."</small>" : "")."
 				</div>
 				<div 
 					class=\"nonEmpty entryRestore backgroundColor4 borderColor0\"
-					onclick=\"CustomerPage.rme('setUnBought', [".$E->getID()."], function(){ $('#entry".$E->getID()."').show(); $('#restoreEntry".$E->getID()."').hide(); $('#emptyEntry').hide(); if($('#einkaufsliste .nonEmpty').length == 0) $('#emptyEntry').show(); });\"
+					ontouchend=\"CustomerPage.rme('setUnBought', [".$E->getID()."], function(){ $('#entry".$E->getID()."').show(); $('#restoreEntry".$E->getID()."').hide(); $('#emptyEntry').hide(); if($('#einkaufsliste .nonEmpty').length == 0) $('#emptyEntry').show(); });\"
 					id=\"restoreEntry".$E->getID()."\" style=\"display:none;\">".$E->A("EinkaufszettelName")." $B</div>";
 		}
 		
@@ -119,7 +121,7 @@ class CCShopping implements iCustomContent {
 		
 		$html .= "</div>";
 		
-		return $html.OnEvent::script("$('.entry .entryRestore').hammer().on('touch', function(){ $(this).addClass('entryTouch'); }); $('.entry').hammer().on('release', function(){ $(this).removeClass('entryTouch'); });");
+		return $html.OnEvent::script("$('.entry, .entryRestore').bind('touchstart mousedown', function(){ $(this).addClass('entryTouch'); }); $('.entry, .entryRestore').bind('touchend mouseup', function(){ $(this).removeClass('entryTouch'); });");
 	}
 	
 	public static function setBought($args){
