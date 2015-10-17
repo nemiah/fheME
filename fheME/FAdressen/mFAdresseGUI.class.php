@@ -62,7 +62,7 @@ class mFAdresseGUI extends AdressenGUI {
 		if($T == null)
 			$T = new FAdresseGUI($classID);
 
-		$name = $T->A("vorname")." ".$T->A("nachname");
+		$name = $T->A("vorname")." ".$T->A("nachname")." <span style=\"color:grey;\">".(date("Y") - date("Y", $T->A("geb")))."</span>";
 
 		$day = mktime(8, 0, 0, date("m", $T->A("geb")), date("d", $T->A("geb")), date("Y"));
 		
