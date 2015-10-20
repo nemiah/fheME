@@ -142,7 +142,7 @@ var UPnP = {
 		
 		$j.jStorage.set('phynxUPnPSource', {ID: UPnPID, Name: UPnPName});
 		
-		contentManager.rmePCR("UPnP", UPnP.currentSourceID, "directoryTouch", ["0", UPnP.currentTargetID], function(transport){
+		contentManager.rmePCR("UPnP", UPnP.currentSourceID, "directoryTouch", ["*", UPnP.currentTargetID], function(transport){
 			$j('#UPnPMediaSelection').slideDown(400, function(){
 				$j('#UPnPMediaSelection').html(transport.responseText);
 			});
@@ -150,6 +150,8 @@ var UPnP = {
 			$j('#UPnPSourceSelection').slideUp(400, function(){
 				$j('#UPnPSourceName').html(UPnPName);
 			}); 
+			
+			$j('.UPnPItem, .UPnPSeries').css('display', 'inline-block');
 		});
 	},
 	

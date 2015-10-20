@@ -53,6 +53,7 @@ class UPnPGUI extends UPnP implements iGUIHTML2 {
 			"UPnPHide",
 			"UPnPDefaultDownloadsServer",
 			"UPnPDefaultDownloadsDirectory",
+			"UPnPDefaultMediacenterDirectory",
 			"UPnPContentDirectory",
 			"UPnPContentDirectorySCPDURL",
 			"UPnPContentDirectorycontrolURL",
@@ -77,7 +78,7 @@ class UPnPGUI extends UPnP implements iGUIHTML2 {
 		$gui->label("UPnPConnectionManager", "Verfügbar?");
 		$gui->label("UPnPAVTransport", "Verfügbar?");
 		$gui->label("UPnPContentDirectory", "Verfügbar?");
-		$gui->label("UPnPRenderingControl", "Verfügbar?");
+		$gui->label("UPnPDefaultMediacenterDirectory", "Verzeichnis");
 		
 		$gui->type("UPnPDefaultDownloadsServer", "checkbox");
 		$gui->type("UPnPConnectionManager", "checkbox");
@@ -96,6 +97,7 @@ class UPnPGUI extends UPnP implements iGUIHTML2 {
 		$gui->label("UPnPConnectionManagercontrolURL", "controlURL");
 		$gui->label("UPnPRenderingControlcontrolURL", "controlURL");
 		
+		$gui->space("UPnPDefaultMediacenterDirectory", "Mediencenter");
 		$gui->space("UPnPDefaultDownloadsServer", "Downloads");
 		$gui->space("UPnPConnectionManager", "ConnectionManager");
 		$gui->space("UPnPAVTransport", "AVTransport");
@@ -168,6 +170,13 @@ class UPnPGUI extends UPnP implements iGUIHTML2 {
 	}
 	
 	public function directoryTouch($ObjectID, $UPnPTargetID = null, $isBack = false, $seriesName = null){
+		if($ObjectID == "*"){
+			$ObjectID = "0";
+			
+			if($this->A("UPnPDefaultMediacenterDirectory") != "")
+				$ObjectID = $this->A("UPnPDefaultMediacenterDirectory");
+		}
+		
 		$result = $this->Browse($ObjectID, "BrowseDirectChildren", "");
 		$xml = new SimpleXMLElement($result["Result"]);
 		#print_r($result);
@@ -204,7 +213,7 @@ class UPnPGUI extends UPnP implements iGUIHTML2 {
 			}
 		
 		$L .= "<div style=\"width:100%;display:inline-block;\">&nbsp;</div>";
-		
+
 		$entries = $this->findEntries($xml);
 		
 		$series = $this->findSeries($entries);
@@ -236,7 +245,7 @@ class UPnPGUI extends UPnP implements iGUIHTML2 {
 				<div style=\"font-family:Roboto;font-size:17px;padding:10px;overflow:hidden;\">
 					<span class=\"iconic iconicL check\" style=\"color:#bbb;margin-right:10px;float:right;color:#88cf00;display:none;\"></span>
 					<span class=\"iconic iconicL document_alt_stroke\" style=\"color:#bbb;margin-right:10px;float:left;\"></span><div style=\"white-space: nowrap;margin-left:40px;display:block;overflow:hidden;\">".$newName."</div>
-					<div style=\"font-size:12px;\">".$item->children("http://www.pv.com/pvns/")->extension[0].""."<span style=\"float:right;\">".Util::formatSeconds(Util::parseTime("de_DE", $item->res->attributes()->duration[0].""))."</span></div>
+					<div style=\"font-size:12px;\">".$item->children("http://www.pv.com/pvns/")->extension[0].""."<!--<span style=\"float:right;\">".Util::formatSeconds(Util::parseTime("de_DE", $item->res->attributes()->duration[0].""))."</span>--></div>
 				</div>
 			</div>";
 	}
@@ -275,6 +284,10 @@ class UPnPGUI extends UPnP implements iGUIHTML2 {
 		if(count($ex) == 0)
 			$B = "";
 		
+		$BD = new Button("Als Start-Verzeichn.\nsetzen", "system");
+		$BD->style("margin:10px;");
+		$BD->onclick("\$j('[name=UPnPDefaultMediacenterDirectory]').val('$ObjectID'); saveClass('UPnPGUI', '".$this->getID()."', function(transport){ contentManager.reloadFrame('contentRight'); }, 'editUPnPGUI')");
+		
 		foreach($xml->container AS $container){
 			$L->addItem("<a href=\"#\" onclick=\"".OnEvent::popup("", "UPnP", $this->getID(), "directory", $container->attributes()->id)." return false;\">".$container->children("http://purl.org/dc/elements/1.1/")."</a>");
 		}
@@ -283,7 +296,7 @@ class UPnPGUI extends UPnP implements iGUIHTML2 {
 			$L->addItem("<a href=\"#\" onclick=\"return false;\">".$item->children("http://purl.org/dc/elements/1.1/")."</a>");
 		}
 		
-		echo $B."<div style=\"max-height:450px;overflow:auto;padding:5px;\">".$L."</div>";
+		echo $B.$BD."<div style=\"max-height:450px;overflow:auto;padding:5px;\">".$L."</div>";
 	}
 	
 	public function readSetStart($ObjectID, $targetUPnPID){
@@ -400,7 +413,7 @@ class UPnPGUI extends UPnP implements iGUIHTML2 {
 	public function loadInfo(){
 		$info = file_get_contents($this->A("UPnPLocation"));
 		if($info === false)
-			continue;
+			return;
 		
 		libxml_use_internal_errors(true);
 		try {

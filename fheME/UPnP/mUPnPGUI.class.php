@@ -18,7 +18,7 @@
  *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
-class mUPnPGUI extends anyC implements iGUIHTMLMP2 {
+class mUPnPGUI extends mUPnP implements iGUIHTMLMP2 {
 	
 	public function getHTML($id, $page){
 		$this->loadMultiPageMode($id, $page, 0);
@@ -33,7 +33,7 @@ class mUPnPGUI extends anyC implements iGUIHTMLMP2 {
 		$gui->attributes(array("UPnPName"));
 		
 		$B = $gui->addSideButton("Geräte\nerkennen", "lieferschein");
-		$B->popup("", "UPnP-Geräte", "mUPnP", "-1", "discover");
+		$B->popup("", "UPnP-Geräte", "mUPnP", "-1", "discoverNow", array("''", "1"));
 		
 		$B = $gui->addSideButton("Remote\nanzeigen", "./fheME/UPnP/remote.png");
 		$B->onclick("UPnP.show();");
@@ -96,6 +96,15 @@ class mUPnPGUI extends anyC implements iGUIHTMLMP2 {
 	
 	public function remote(){
 		
+		$BG = new Button("Play", "play", "touch");
+		$BG->rmePCR("UPnP", "'+UPnP.currentTargetID+'", "Play", array("'0'"));
+		
+		$BP = new Button("Pause", "pause", "touch");
+		$BP->rmePCR("UPnP", "'+UPnP.currentTargetID+'", "Pause", array("'0'"));
+		
+		$BS = new Button("Stop", "stop", "touch");
+		$BS->rmePCR("UPnP", "'+UPnP.currentTargetID+'", "Stop", array("'0'"));
+		
 		echo "
 		<div style=\"width:100%;margin-bottom:20px;position:fixed;top:0;left:0;background-color:black;\" id=\"UPnPSelection\">
 			<div style=\"float:right;margin-right:20px;\">
@@ -120,8 +129,17 @@ class mUPnPGUI extends anyC implements iGUIHTMLMP2 {
 			</div>
 			
 			<div style=\"float:right;margin-right:20px;\">
-				<div onclick=\" Popup.load('Steuerung', 'UPnP', UPnP.currentTargetID, 'controls', [''], '', 'edit');\" style=\"cursor:pointer;float:left;font-family:Roboto;font-size:30px;padding:10px;\">
-					<span style=\"margin-left:10px;float:right;margin-top:5px;color:#bbb;\" class=\"iconic iconicL cog\"></span> <span>Steuerung</span>
+			
+				<div onclick=\"".$BG->getAction()."\" style=\"cursor:pointer;float:left;font-family:Roboto;font-size:30px;padding:10px;padding-left:70px;\">
+					<span style=\"margin-left:10px;float:right;margin-top:5px;color:#bbb;\" class=\"iconic iconicL play\"></span> <span>Play</span>
+				</div>
+				
+				<div onclick=\"".$BP->getAction()."\" style=\"cursor:pointer;float:left;font-family:Roboto;font-size:30px;padding:10px;padding-left:70px;\">
+					<span style=\"margin-left:10px;float:right;margin-top:5px;color:#bbb;\" class=\"iconic iconicL pause\"></span> <span>Pause</span>
+				</div>
+				
+				<div onclick=\"".$BS->getAction()."\" style=\"cursor:pointer;float:left;font-family:Roboto;font-size:30px;padding:10px;padding-left:70px;\">
+					<span style=\"margin-left:10px;float:right;margin-top:5px;color:#bbb;\" class=\"iconic iconicL stop\"></span> <span>Stop</span>
 				</div>
 			</div>
 		</div>
@@ -177,110 +195,6 @@ class mUPnPGUI extends anyC implements iGUIHTMLMP2 {
 		echo OnEvent::script(OnEvent::popup("", "mUPnP", "-1", "discoverNow", array("'$reloadWhat'")));
 	}
 	
-	public static $desiredServices = array("AVTransport" => "urn:upnp-org:serviceId:AVTransport", "ContentDirectory" => "urn:upnp-org:serviceId:ContentDirectory", "ConnectionManager" => "urn:upnp-org:serviceId:ConnectionManager", "RenderingControl" => "urn:upnp-org:serviceId:RenderingControl");
-	
-	public function discoverNow($reloadWhat = null){
-		$last = mUserdata::getGlobalSettingValue("UPnPLastDiscover", 0);
-		
-		if(time() - $last < 3600 * 2.5)
-			return;
-		
-		$C = new phpUPnP();
-		$result = $C->mSearch();
-		
-		#print_r($result);
-		echo "<p>Gefundene Geräte:</p>";
-		#$locations = array();
-		$L = new HTMLList();
-		$L->addListStyle("list-style-type:none;");
-		$foundLocations = array();
-		#echo "<pre style=\"padding:5px;font-size:9px;overflow:auto;height:400px;\">";
-		#print_r($result);
-		#echo "</pre>";
-		foreach($result AS $r){
-			if(isset($foundLocations[$r["location"]]))
-				continue;
-			
-			$info = file_get_contents($r["location"]);
-			if($info === false)
-				continue;
-			
-			$xml = new SimpleXMLElement($info);
-			
-			$services = array();
-			foreach ($xml->device->serviceList->service AS $service){
-				foreach(self::$desiredServices AS $k => $S)
-					if($service->serviceId[0] == $S)
-						$services[$k] = $service;
-			}
-			#echo "<pre>";
-			#print_r($xml->device->UDN);
-			#echo "</pre>";
-			$F = new Factory("UPnP");
-			$F->sA("UPnPUDN", $xml->device->UDN);
-			$L->addItem($xml->device->friendlyName);
-			
-			$U = $F->exists(true);
-			if($U !== false){
-				$U->changeA("UPnPLocation", $r["location"]);
-				#$U->changeA("UPnPName", $xml->device->friendlyName);
-				$U->changeA("UPnPModelName", $xml->device->modelName);
-				$U->changeA("UPnPUDN", $xml->device->UDN);
-				
-				foreach(self::$desiredServices AS $S => $nil)
-					$U->changeA("UPnP$S", 0);
-				
-				foreach($services AS $S => $service){
-					$U->changeA("UPnP$S", 1);
-					$U->changeA("UPnP".$S."SCPDURL", $service->SCPDURL[0]."");
-					$U->changeA("UPnP".$S."controlURL", $service->controlURL[0]."");
-				}
-				
-				#echo "save";
-				$U->saveMe();
-			} else {
-				$F->sA("UPnPLocation", $r["location"]);
-				$F->sA("UPnPName", $xml->device->friendlyName);
-				$F->sA("UPnPModelName", $xml->device->modelName);
-				
-				foreach(self::$desiredServices AS $S => $nil)
-					$F->sA("UPnP$S", 0);
-				
-				foreach($services AS $S => $service){
-					$F->sA("UPnP$S", 1);
-					$F->sA("UPnP".$S."SCPDURL", $service->SCPDURL[0]."");
-					$F->sA("UPnP".$S."controlURL", $service->controlURL[0]."");
-				}
-				#echo "store";
-				$F->store();
-			}
-			
-			
-			$foundLocations[$r["location"]] = true;
-		}
-		
-		$AC = anyC::get("UPnP");
-		while($U = $AC->getNextEntry()){
-			if(!isset($foundLocations[$U->A("UPnPLocation")]))
-				$U->deleteMe();
-		}
-		
-		echo $L;
-		
-		$B = new Button("OK", "bestaetigung");
-		$B->style("float:right;margin:10px;");
-		if($reloadWhat == "targets")
-			$B->onclick(OnEvent::closePopup("mUPnP")." UPnP.targetSelection();");
-		
-		if($reloadWhat == "sources")
-			$B->onclick(OnEvent::closePopup("mUPnP")." UPnP.sourceSelection();");
-		
-		if($reloadWhat)
-			echo $B."<div style=\"clear:both;\"></div>";
-		
-		mUserdata::setUserdataS("UPnPLastDiscover", time(), "", -1);
-		#echo "</pre>";
-	}
 	
 	public function getOverviewContent(){
 		$html = "<div class=\"touchHeader\"><span class=\"lastUpdate\" id=\"lastUpdatemUPnPGUI\"></span><p>Multimedia</p></div>
