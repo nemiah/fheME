@@ -190,7 +190,7 @@ class UPnPGUI extends UPnP implements iGUIHTML2 {
 		#$B->popup("", "", "UPnP", $this->getID(), "directory", implode("$", $ex));
 		#$B->style("margin:10px;");
 		$B = "
-		<div class=\"UPnPBackButton\" style=\"width:66%;display:inline-block;cursor:pointer;overflow:hidden;position:fixed;background-color:black;left:0;top:0;\">
+		<div class=\"UPnPBackButton\" style=\"width:33%;display:inline-block;cursor:pointer;overflow:hidden;position:fixed;background-color:black;left:0;top:0;\">
 			<div  onclick=\"".OnEvent::rme($this, "directoryTouch", array("'".implode("$", $ex)."'", $UPnPTargetID, 1), "function(transport){ \$j('.UPnPItem, .UPnPSeries').remove(); \$j('#UPnPMediaSelection').prepend(transport.responseText); \$j('.UPnPDirectory:first').animate({'margin-left': '0'}, 600, function(){ \$j('.UPnPDirectory:last').remove(); \$j('.UPnPItem, .UPnPSeries').css('display', 'inline-block'); }); }")."\">
 				<div style=\"font-family:Roboto;font-size:30px;padding:10px;\"><span class=\"iconic iconicL arrow_left\" style=\"color:#bbb;margin-right:10px;float:left;margin-top:5px;\"></span> Zurück</div>
 			</div>
