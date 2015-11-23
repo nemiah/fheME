@@ -4,6 +4,60 @@ require_once(__DIR__.'/lib/BrickletTemperatureIR.php');
 require_once(__DIR__.'/lib/BrickletAnalogOut.php');
 require_once(__DIR__.'/lib/BrickletIO4.php');
 
+class Colors {
+	private $foreground_colors = array();
+	private $background_colors = array();
+ 
+	public function __construct() {
+		// Set up shell colors
+		$this->foreground_colors['black'] = '0;30';
+		$this->foreground_colors['dark_gray'] = '1;30';
+		$this->foreground_colors['blue'] = '0;34';
+		$this->foreground_colors['light_blue'] = '1;34';
+		$this->foreground_colors['green'] = '0;32';
+		$this->foreground_colors['light_green'] = '1;32';
+		$this->foreground_colors['cyan'] = '0;36';
+		$this->foreground_colors['light_cyan'] = '1;36';
+		$this->foreground_colors['red'] = '0;31';
+		$this->foreground_colors['light_red'] = '1;31';
+		$this->foreground_colors['purple'] = '0;35';
+		$this->foreground_colors['light_purple'] = '1;35';
+		$this->foreground_colors['brown'] = '0;33';
+		$this->foreground_colors['yellow'] = '1;33';
+		$this->foreground_colors['light_gray'] = '0;37';
+		$this->foreground_colors['white'] = '1;37';
+	 
+		$this->background_colors['black'] = '40';
+		$this->background_colors['red'] = '41';
+		$this->background_colors['green'] = '42';
+		$this->background_colors['yellow'] = '43';
+		$this->background_colors['blue'] = '44';
+		$this->background_colors['magenta'] = '45';
+		$this->background_colors['cyan'] = '46';
+		$this->background_colors['light_gray'] = '47';
+	}
+	 
+	// Returns colored string
+	public function getColoredString($string, $foreground_color = null, $background_color = null) {
+		$colored_string = "";
+	 
+		// Check if given foreground color found
+		if (isset($this->foreground_colors[$foreground_color])) {
+			$colored_string .= "\033[" . $this->foreground_colors[$foreground_color] . "m";
+		}
+		
+		// Check if given background color found
+		if (isset($this->background_colors[$background_color])) {
+			$colored_string .= "\033[" . $this->background_colors[$background_color] . "m";
+		}
+	 
+		// Add string and end coloring
+		$colored_string .=  $string . "\033[0m";
+	 
+		return $colored_string;
+	}
+}
+	
 declare(ticks = 1);
 /*pcntl_signal(SIGINT, "signal_handler");
 pcntl_signal(SIGTERM, 'signal_handler');
@@ -31,28 +85,84 @@ function signal_handler($signal) {
 	}
 }*/
 
-function cb_temp($temperature) {
-	#global $BLight;
+function leastSquareFit(array $values) {
+    $x_sum = array_sum(array_keys($values));
+    $y_sum = array_sum($values);
+    $meanX = $x_sum / count($values);
+    $meanY = $y_sum / count($values);
+    // calculate sums
+    $mBase = $mDivisor = 0.0;
+    foreach($values as $i => $value) {
+        $mBase += ($i - $meanX) * ($value - $meanY);
+        $mDivisor += ($i - $meanX) * ($i - $meanX);
+    }
 
-	#$shmid = shmop_open(1, "a", 0644, "1");
-	#$onOff = shmop_read($shmid, 0, 1);
-	#shmop_close($shmid);
+    // calculate slope
+    $slope = $mBase / $mDivisor;
+    return $slope;
+}   //  function leastSquareFit()
+
+
+function cb_temp($temperature) {
+	$temperature /= 10.0;
+	static $temps = array();
+	static $times = array();
+	static $bingsBad = 0;
+	static $bingsGood = 0;
 	
-	echo floor($temperature / 10.0)." °C\n";
-	#if(floor($temperature) / 10 > 80)
-	#	$volt = 0;
-	#else
-	#	$volt = 5000;
+	$temps[] = $temperature;
+	$times[] = time();
+	if(count($temps) > 600){
+		array_shift($temps);
+		array_shift($times);
+	}
+	
+	$maxK = null;
+	$maxV = 0;
+	foreach($temps AS $k => $v){
+		if($v > $maxV){
+			$maxK = $k;
+			$maxV = $v;
+		}
+	}
+	
+	$temperature = floor($temperature);
+	
+	system('clear');
 	
 	
-	#$shmid = shmop_open(0xff3, "w", 0644, 4);
-	#shmop_write($shmid, $volt, 0);
-	#shmop_close($shmid);
+	$trend = "▬";
+	if(count($temps) > 3){
+		$v = leastSquareFit(array_slice($temps, -30));
+		if($v > 0)
+			$trend = "▲";
+		if($v <= 0)
+			$trend = "▼";
+	}
 	
-	#if($onOff == "0")
-	#	$volt = 0;
+	$t = " ".date("H:i:s").": ".str_pad($temperature, 5, " ", STR_PAD_LEFT)." °C $trend ";
 	
-	#$BLight->setVoltage($volt);
+	$C = new Colors();
+	if($temperature < 80){
+		echo $C->getColoredString($t, "white", "red");
+		
+		if($bingsBad < 3)
+			exec('play /usr/share/sounds/KDE-Sys-Log-Out.ogg > /dev/null 2>&1');
+			
+		$bingsGood = 0;
+		$bingsBad++;
+	} else {
+		echo $C->getColoredString($t, "green", "black");
+		
+		if($bingsGood < 1)
+			exec('play /usr/share/sounds/KDE-Sys-App-Positive.ogg > /dev/null 2>&1');
+			
+		$bingsBad = 0;
+		$bingsGood++;
+	}
+	
+	echo "\n Max: ".date("H:i:s", $times[$maxK]).": ".$maxV." °C";
+	
 }
 /*
 function cb_trigger($interruptMask, $valueMask) {
@@ -92,7 +202,7 @@ $ipcon->connect($host, $port);
 
 #$BTemp->setDebouncePeriod(60000);
 
-$BTemp->setObjectTemperatureCallbackPeriod(60000);
+$BTemp->setObjectTemperatureCallbackPeriod(5000);
 #$tir->setAmbientTemperatureCallbackPeriod(1000);
 
 $BTemp->registerCallback(BrickletTemperatureIR::CALLBACK_OBJECT_TEMPERATURE, 'cb_temp');

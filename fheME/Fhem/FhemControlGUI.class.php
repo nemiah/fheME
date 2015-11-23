@@ -477,8 +477,12 @@ class FhemControlGUI implements iGUIHTML2 {
 				$T->fireAndForget($c);
 
 			if($t->A("FhemType") == "FHT" AND !$hasFHT){
-				$T->fireAndForget('define fht_setdate notify fht_setdate { if ( $year gt 2010 && $wday == 1 ) { my @@fhts=devspec2array("TYPE=FHT");; foreach(@@fhts) { my $cmd="set ".$_." date time";;  fhem $cmd;;  Log 4, "sent cmd ".$cmd;;   } } else { Log 1, "error setting date for fhts: year <= 2010 - date invalid?!" } }');
-				$T->fireAndForget("define t_fht_setdate at *04:00:00 trigger fht_setdate");
+				#$T->fireAndForget('define fht_setdate notify fht_setdate { if ( $year gt 2010 && $wday == 1 ) { my @@fhts=devspec2array("TYPE=FHT");; foreach(@@fhts) { my $cmd="set ".$_." date time";;  fhem $cmd;;  Log 4, "sent cmd ".$cmd;;   } } else { Log 1, "error setting date for fhts: year <= 2010 - date invalid?!" } }');
+				#$T->fireAndForget("define t_fht_setdate at *04:00:00 trigger fht_setdate");
+				$T->fireAndForget('define fht_dateupdate at *04:00:01 {if ($wday == 4)  { fhem("set TYPE=FHT date") } }');
+				$T->fireAndForget('define fht_timeupdate at *04:00:01 {if ($wday == 5)  { fhem("set TYPE=FHT time") } }');
+				
+				
 				$hasFHT = true;
 			}
 
