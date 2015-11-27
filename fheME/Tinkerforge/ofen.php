@@ -191,7 +191,7 @@ use Tinkerforge\BrickletTemperatureIR;
 #use Tinkerforge\BrickletAnalogOut;
 #use Tinkerforge\BrickletIO4;
 
-$host = '192.168.7.228';
+$host = '192.168.7.227';
 $port = 4223;
 $uid = '9nA';
 
@@ -202,7 +202,7 @@ $ipcon->connect($host, $port);
 
 #$BTemp->setDebouncePeriod(60000);
 
-$BTemp->setObjectTemperatureCallbackPeriod(5000);
+$BTemp->setObjectTemperatureCallbackPeriod(20000);
 #$tir->setAmbientTemperatureCallbackPeriod(1000);
 
 $BTemp->registerCallback(BrickletTemperatureIR::CALLBACK_OBJECT_TEMPERATURE, 'cb_temp');
