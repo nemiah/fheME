@@ -87,7 +87,7 @@
 }
 
 .highlight {
-	background-color:rgba(255,204,0,0.3);
+	background-color:rgba(255,204,0,0.3) !important;
 }
 
 .confirm {

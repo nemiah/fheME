@@ -211,9 +211,10 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 		<div style=\"width:600px;display:inline-block;vertical-align:top;\" id=\"reAddList\">
 			".$this->getListReAddTable()."
 		</div><div style=\"width:400px;display:inline-block;vertical-align:top;\">
+			<div id=\"headerList\">
 			$B$BM
-			$I
-			<div style=\"clear:both;\"></div>
+			$I<div style=\"clear:both;\"></div></div>
+			
 			<div id=\"currentList\">".$this->getListTable()."</div>
 		</div>
 			".OnEvent::script("\$j('#editDetailsContentmEinkaufszettel').css('overflow', ''); setTimeout(function(){ \$j('input[name=EinkaufslisteNewEntry]').focus(); }, 200);");
@@ -309,7 +310,7 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 	}
 	
 	public function getListTable(){
-		$T = new HTMLTable(2, "Einkaufsliste");
+		$T = new HTMLTable(2);
 		$T->maxHeight(400);
 		$T->setColWidth(2, 30);
 		$T->weight("light");
@@ -334,7 +335,7 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 			$T->addRowColspan(1, 2);
 		}
 		
-		return $T;
+		return $T.OnEvent::script("\$j('#currentList div div').css('max-height', contentManager.maxHeight() - \$j('#headerList').outerHeight());");
 	}
 	
 	public function boughtItem($EinkaufszettelID){
