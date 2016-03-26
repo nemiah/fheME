@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class Session {
 	static $instance;
@@ -222,7 +222,9 @@ class Session {
 		if(isset($_SESSION["viaInterface"]) AND $_SESSION["viaInterface"] == true)
 			return class_exists($pluginName, false);
 
-		if(!isset($_SESSION["CurrentAppPlugins"])) return false;
+		if(!isset($_SESSION["CurrentAppPlugins"])) 
+			return false;
+		
 		return $_SESSION["CurrentAppPlugins"]->isPluginLoaded($pluginName);
 		#return in_array($pluginName,$_SESSION["CurrentAppPlugins"]->getAllPlugins());
 	}

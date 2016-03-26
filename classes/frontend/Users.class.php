@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class Users extends anyC {
 	function __construct(){
@@ -25,9 +25,13 @@ class Users extends anyC {
 	}
 
 	public static function getUsers($type = 0){
+		$LD = LoginData::get("ADServerUserPass");
 		if(mUserdata::getGlobalSettingValue("AppServer", "") != ""){
 			$U = new Users();
 			$U->getAppServerUsers();
+		} elseif($LD != null AND $LD->A("server") != ""){
+			$U = new LoginAD();
+			$U->getUsers();
 		} else {
 			$U = new Users();
 			$U->addAssocV3("isAdmin", "=", "0");
@@ -37,7 +41,7 @@ class Users extends anyC {
 		return $U;
 	}
 	
-	public static function getUsersArray($zeroEntry = null){
+	public static function getUsersArray($zeroEntry = null, $includeDeleted = false){
 		$AC = self::getUsers(0);
 		$AC->addOrderV3("name");
 		
@@ -47,6 +51,15 @@ class Users extends anyC {
 		
 		while($R = $AC->n())
 			$U[$R->getID()] = $R->A("name");
+		
+		if($includeDeleted){
+			$AC = anyC::get("UserOld");
+			$AC->addAssocV3("isAdmin", "=", "0");
+			$AC->addAssocV3("UserType", "=", "0");
+			
+			while($R = $AC->n())
+				$U[$R->A("UserOldUserID")] = $R->A("name");
+		}
 		
 		return $U;
 	}
@@ -64,11 +77,16 @@ class Users extends anyC {
 		if($user != null)
 			return $user;
 
+		$user = LoginAD::getUser($username, $password);
+		if($user != null)
+			return $user;
+		
 		$this->addAssocV3("username","=",$username);
 		if(!$isSHA)
 			$this->addAssocV3("SHApassword","=",sha1($password),"AND","1");
 		else
 			$this->addAssocV3("SHApassword","=",$password,"AND","1");
+		
 		$this->addAssocV3("password","=",$password,"OR","1");
 		$this->addAssocV3("UserType", "=", "0");
 
@@ -92,7 +110,7 @@ class Users extends anyC {
 
 		return null;
 	}
-
+	
 	private function getAppServerUsers(){
 		$S = Util::getAppServerClient();
 		
@@ -161,49 +179,15 @@ class Users extends anyC {
 		return $this->doLogin(array("loginUsername" => $foundU->A("username"), "loginSHAPassword" => $foundU->A("SHApassword"), "anwendung" => $application, "loginSprache" => $sprache));
 	}
 	
-	protected function doPersonaLogin($application, $sprache, $assertion){
-		$ch = curl_init();
-
-		curl_setopt($ch,CURLOPT_URL, "https://verifier.login.persona.org/verify");
-		curl_setopt($ch,CURLOPT_POST, 2);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($ch,CURLOPT_POSTFIELDS, "assertion=$assertion&audience=".$_SERVER["HTTP_HOST"]);
-
-		$result = json_decode(curl_exec($ch));
-		
-		curl_close($ch);
-		
-		if($result->status != "okay")
-			return 0;
-		
-		try {
-			$Users = self::getUsers();
-			$foundU = null;
-			while($U = $Users->getNextEntry())
-				if(strtolower(trim($U->A("UserEmail"))) === strtolower(trim($result->email))) {
-					$foundU = $U;
-					break;
-				}
-
-			if($foundU == null)
-				return 0;
-		} catch (Exception $e){
-			return 2;
-		}
-		
-		if(Session::currentUser() != null AND Session::currentUser()->A("UserEmail") == strtolower(trim($result->email)))
-			return 2;
-		
-		return $this->doLogin(array("loginUsername" => $foundU->A("username"), "loginSHAPassword" => $foundU->A("SHApassword"), "anwendung" => $application, "loginSprache" => $sprache));
-	}
-	
 	public function doLogin($ps){
 		$validUntil = Environment::getS("validUntil", null);
 		if($validUntil != null and $validUntil < time())
 			Red::errorD("Diese Version ist abgelaufen. Bitte wenden Sie sich an den Support.");
 		
-		if(!is_array($ps)) parse_str($ps, $p);
-		else $p = $ps;
+		if(!is_array($ps)) 
+			parse_str($ps, $p);
+		else 
+			$p = $ps;
 		#if($p["loginPassword"] == ";;;-1;;;") return 0;
 
 		$this->doLogout();
@@ -211,7 +195,7 @@ class Users extends anyC {
 		$_SESSION["DBData"] = $_SESSION["S"]->getDBData();
 
 		try {
-			$U = $this->getUser($p["loginUsername"], $p["loginSHAPassword"], true);
+			$U = $this->getUser($p["loginUsername"], $p["loginSHAPassword"], $p["loginPWEncrypted"]);
 			if($U === null) return 0;
 
 			if(get_class($U) == "phynxAltLogin") $p["anwendung"] = $U->A("UserApplication");

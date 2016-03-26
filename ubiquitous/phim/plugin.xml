@@ -20,7 +20,7 @@
 <phynx>
 	<plugin>
 		<name>phim</name>
-		<menuName></menuName>
+		<menuName>phim</menuName>
 		<collection>mphim</collection>
 		
 		<icon>./ubiquitous/phim/phim.png</icon>
@@ -33,6 +33,9 @@
 
 		<deploy>
 			<table name="phim" />
+			<table name="phimGruppe" />
+			<table name="phimUser" />
+			<table name="phimUserHidden" />
 		</deploy>
 	</plugin>
 </phynx>

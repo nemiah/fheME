@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 var TextEditor = {
 	isInit: false,
@@ -139,13 +139,16 @@ var TextEditor = {
 		else
 			field = $j("#"+field);
 		
+		if(!field.length)
+			field = $j("[name="+field+"]")
+		
 		TextEditor.init({'zindex': 3000, "B1": true, "B2" : true, "B3": false});
 		TextEditor.forField = field;
 		TextEditor.isBase64 = true;
 		TextEditor.forForm = form;
 		TextEditor.changed = false;
 		
-		TextEditor.textarea.value = Base64.decode(TextEditor.forField.value);
+		TextEditor.textarea.value = Base64.decode(TextEditor.forField.val());
 		TextEditor.open = true;
 		if(typeof Effect == "object"){
 			new Effect.SlideDown('TextEditor', {duration:0.5});
@@ -164,13 +167,16 @@ var TextEditor = {
 		else
 			field = $j("#"+field);
 		
+		if(!field.length)
+			field = $j("[name="+field+"]");
+		
 		TextEditor.init({'zindex': 3000, "B1": true, "B2" : true, "B3": false});
 		TextEditor.forField = field;
 		TextEditor.isBase64 = false;
 		TextEditor.forForm = form;
 		TextEditor.changed = false;
 		
-		TextEditor.textarea.value = TextEditor.forField.value;
+		TextEditor.textarea.value = TextEditor.forField.val();
 		TextEditor.open = true;
 		
 		if(typeof Effect == "object"){
@@ -183,13 +189,16 @@ var TextEditor = {
 	},
 	
 	showTextarea: function(field, form){
-		if(TextEditor.open) return;
+		if(TextEditor.open) 
+			return;
 		
 		if(typeof field == "object")
 			field = field.get(0);
 		else
 			field = $j("#"+field);
 		
+		if(!field.length)
+			field = $j("[name="+field+"]");
 		
 		
 		TextEditor.init({'zindex': 3000, "B1": true, "B2" : false, "B3": true});
@@ -198,7 +207,7 @@ var TextEditor = {
 		TextEditor.forForm = form;
 		TextEditor.changed = false;
 		
-		TextEditor.textarea.value = TextEditor.forField.value;
+		TextEditor.textarea.value = TextEditor.forField.val();
 		TextEditor.open = true;
 		
 		if(typeof Effect == "object"){
@@ -218,15 +227,20 @@ var TextEditor = {
 	},
 
 	backgroundSave: function(){
-		if(TextEditor.isBase64) TextEditor.forField.value = Base64.encode(TextEditor.textarea.value);
-		else TextEditor.forField.value = TextEditor.textarea.value;
+		if(TextEditor.isBase64)
+			TextEditor.forField.val(Base64.encode(TextEditor.textarea.value));
+		else
+			TextEditor.forField.val(TextEditor.textarea.value);
+		
 		TextEditor.changed = false;
 		$(TextEditor.forForm).currentSaveButton.click();
 	},
 
 	setChanges: function(){
-		if(TextEditor.isBase64) TextEditor.forField.value = Base64.encode(TextEditor.textarea.value);
-		else TextEditor.forField.value = TextEditor.textarea.value;
+		if(TextEditor.isBase64) 
+			TextEditor.forField.val(Base64.encode(TextEditor.textarea.value));
+		else 
+			TextEditor.forField.val(TextEditor.textarea.value).trigger('change');
 		TextEditor.changed = false;
 		TextEditor.hide();
 	},

@@ -126,7 +126,7 @@ class mfheOverviewGUI extends anyC implements iGUIHTMLMP2 {
 		$d = json_decode($O->A("fheOverviewDesktop"));
 		
 		$BM = new Button("Desktop bearbeiten", "pen_alt2", "iconicL");
-		$BM->style("position:absolute;right:0px;");
+		$BM->style("position:absolute;right:0px;z-index:1000;");
 		$BM->popup("", "Desktop bearbeiten", "mfheOverview", "-1", "popupDesktop", array($DeviceID), "", "{hasX: false}");
 		echo "
 			<div id=\"onfheOverviewPage\"></div>
@@ -210,7 +210,11 @@ class mfheOverviewGUI extends anyC implements iGUIHTMLMP2 {
 	}
 	
 	public function pluginShow(Device $Device, $plugin, $isLast = false, $options = null){
+		try {
 		$C = new $plugin();
+		} catch(ClassNotFoundException $e){
+			return "Laden des Plugins fehlgeschlagen!";
+		}
 		
 		$E = $C->getOverviewPlugin();
 
@@ -358,6 +362,8 @@ class mfheOverviewGUI extends anyC implements iGUIHTMLMP2 {
 			
 			foreach($cols[$i] AS $class){
 				$callback = $Plugins[substr($class, 1)];
+				if(!is_object($callback))
+					continue;
 				#if(!in_array("P".$callback->className(), $cols[$i]))
 				#	continue;
 				#$List->addItem($class);

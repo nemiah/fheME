@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class Util {
 	public static function ext($filename){
@@ -81,12 +81,12 @@ class Util {
 	}
 	
 	public static function getCloudHost($host = null){
-		if($host == null)
+		if($host == null AND isset($_SERVER["HTTP_HOST"]))
 			$host = $_SERVER["HTTP_HOST"];
 		
 		$host = Aspect::joinPoint("host", null, __METHOD__, array($host), $host);
 		
-		if($host == "*")
+		if($host == "*" OR $host === null)
 			return null;
 		
 		$h = "CloudHost".str_replace(array(":", "-"), "_", implode("", array_map("ucfirst", explode(".", $host))));
@@ -269,7 +269,7 @@ class Util {
 			case "US":
 				$r .= "{firma}\n";
 				$r .= "{abteilung}\n";
-				$r .= "{position}{titelPrefix}{vorname}{nachname}{titelSuffix}\n";
+				$r .= "{position}{vorname}{nachname}{titelSuffix}\n";
 				$r .= "{zusatz1}\n";
 				$r .= "{nr}{strasse}\n";
 				$r .= "{zusatz2}\n";
@@ -281,7 +281,7 @@ class Util {
 			case "CH":
 				$r .= "{firma}\n";
 				$r .= "{abteilung}\n";
-				$r .= "{position}{titelPrefix}{vorname}{nachname}{titelSuffix}\n";
+				$r .= "{position}{vorname}{nachname}{titelSuffix}\n";
 				$r .= "{zusatz1}\n";
 				$r .= "{strasse}{nr}\n";
 				$r .= "{plz}{ort}\n";
@@ -292,7 +292,7 @@ class Util {
 			case "GR":
 				$r .= "{firma}\n";
 				$r .= "{abteilung}\n";
-				$r .= "{position}{titelPrefix}{vorname}{nachname}{titelSuffix}\n";
+				$r .= "{position}{vorname}{nachname}{titelSuffix}\n";
 				$r .= "{nr}, {strasse}\n";
 				$r .= "{plz}{ort}\n";
 				$r .= "{land}";
@@ -301,7 +301,7 @@ class Util {
 			case "BE":
 				$r .= "{firma}\n";
 				$r .= "{abteilung}\n";
-				$r .= "{position}{titelPrefix}{vorname}{nachname}{titelSuffix}\n";
+				$r .= "{position}{vorname}{nachname}{titelSuffix}\n";
 				$r .= "{strasse}, {nr}\n";
 				$r .= "{plz}{ort}\n";
 				$r .= "{land}";
@@ -310,7 +310,7 @@ class Util {
 			case "DK":
 				$r .= "{firma}\n";
 				$r .= "{abteilung}\n";
-				$r .= "{position}{titelPrefix}{vorname}{nachname}{titelSuffix}\n";
+				$r .= "{position}{vorname}{nachname}{titelSuffix}\n";
 				$r .= "{strasse}{nr}\n";
 				$r .= "{bezirk}\n";
 				$r .= "{plz}{ort}\n";
@@ -320,7 +320,7 @@ class Util {
 			case "HU":
 				$r .= "{firma}\n";
 				$r .= "{abteilung}\n";
-				$r .= "{position}{titelPrefix}{vorname}{nachname}{titelSuffix}\n";
+				$r .= "{position}{vorname}{nachname}{titelSuffix}\n";
 				$r .= "{ort}\n";
 				$r .= "{strasse}{nr}\n";
 				$r .= "{plz}\n";
@@ -331,7 +331,7 @@ class Util {
 			case "HR":
 				$r .= "{firma}\n";
 				$r .= "{abteilung}\n";
-				$r .= "{position}{titelPrefix}{vorname}{nachname}{titelSuffix}\n";
+				$r .= "{position}{vorname}{nachname}{titelSuffix}\n";
 				$r .= "{strasse}{nr}\n";
 				$r .= "$ISOCountry-{plz}{ort}\n";
 				$r .= "{land}";
@@ -340,7 +340,7 @@ class Util {
 			case "ES":
 				$r .= "{firma}\n";
 				$r .= "{abteilung}\n";
-				$r .= "{position}{titelPrefix}{vorname}{nachname}{titelSuffix}\n";
+				$r .= "{position}{vorname}{nachname}{titelSuffix}\n";
 				$r .= "{bezirk}\n";
 				$r .= "{strasse}{nr}\n";
 				$r .= "{plz}{ort}\n";
@@ -358,7 +358,7 @@ class Util {
 			default:
 				$r .= "{firma}\n";
 				$r .= "{abteilung}\n";
-				$r .= "{position}{titelPrefix}{vorname}{nachname}{titelSuffix}\n";
+				$r .= "{position}{vorname}{nachname}{titelSuffix}\n";
 				$r .= "{strasse}{nr}\n";
 				$r .= "{zusatz2}\n";
 				$r .= "{plz}{ort}\n";
@@ -631,9 +631,9 @@ class Util {
 
 		switch($Adresse->A("anrede")){
 			case "2":
-				if($shortmode) $A = $format["maleShort"];
+				if($shortmode) $A = $format["maleShort"].($Adresse->A("titelPrefix") != "" ? " ".$Adresse->A("titelPrefix") : "");
 				else {
-					$A = $format["male"]." ".trim($Adresse->A("nachname"));
+					$A = $format["male"].($Adresse->A("titelPrefix") != "" ? " ".$Adresse->A("titelPrefix") : "")." ".trim($Adresse->A("nachname"));
 					if(trim($Adresse->A("nachname")) == "")
 						$A = $format["unknown"];
 				}
@@ -642,9 +642,9 @@ class Util {
 					$A = "Hallo ".trim($Adresse->A("vorname"));
 			break;
 			case "1":
-				if($shortmode) $A = $format["femaleShort"];
+				if($shortmode) $A = $format["femaleShort"].($Adresse->A("titelPrefix") != "" ? " ".$Adresse->A("titelPrefix") : "");
 				else {
-					$A = $format["female"]." ".trim($Adresse->A("nachname"));
+					$A = $format["female"].($Adresse->A("titelPrefix") != "" ? " ".$Adresse->A("titelPrefix") : "")." ".trim($Adresse->A("nachname"));
 					if(trim($Adresse->A("nachname")) == "")
 						$A = $format["unknown"];
 				}
@@ -1167,9 +1167,10 @@ class Util {
 	public static function fillStdClassWithAssocArray($class, $values){
 	    $a = PMReflector::getAttributesArray($class);
 
-		for($i = 0;$i < count($a);$i++)
-			if(isset($values[$a[$i]])) $class->$a[$i] = str_replace("\$","\\$", $values[$a[$i]]);
-			
+		for($i = 0;$i < count($a);$i++){
+			$f = $a[$i];
+			if(isset($values[$a[$i]])) $class->$f = str_replace("\$","\\$", $values[$a[$i]]);
+		}
 		return $class;
 	}
 	
@@ -1342,7 +1343,11 @@ class Util {
 			$_SESSION["BPS"]->registerClass("showPDF");
 			$_SESSION["BPS"]->setACProperty("filename","$filename");
 			$_SESSION["BPS"]->setACProperty("delete", $delete ? "1" : "0");
-			echo "<!DOCTYPE html><html><script type=\"text/javascript\">document.location='./showPDF.php';</script></html>";
+			$CH = self::getCloudHost();
+			if($CH AND isset($CH->usePreviewRewrite) AND $CH->usePreviewRewrite)
+				echo "<!DOCTYPE html><html><script type=\"text/javascript\">document.location='../preview/".basename($filename)."';</script></html>";
+			else
+				echo "<!DOCTYPE html><html><script type=\"text/javascript\">document.location='./showPDF.php';</script></html>";
 		} else
 			echo "<!DOCTYPE html><html><script type=\"text/javascript\">document.location='../system/IECache/".$_SESSION["S"]->getCurrentUser()->getID()."/".basename($filename)."?rand=".rand(100, 1000000)."';</script></html>";
 	}
@@ -1434,16 +1439,42 @@ class Util {
 		$dirtouse .= ($dirtouse[strlen($dirtouse) -1] != "/" ? "/" : "").$subdir."/";
 			
 		if(!is_dir($dirtouse)) {
-			mkdir($dirtouse, 0777, true);
+			#echo "create $dirtouse...\n";
+			if(!mkdir($dirtouse, 0777, true))
+				throw new Exception("Could not create temp dir ".$dirtouse);
+					
+			chmod($dirtouse."../", 0777);
+			chmod($dirtouse, 0777);
+		} else {
+			chmod($dirtouse."../", 0777);
 			chmod($dirtouse, 0777);
 		}
-
+		
+		if(!is_dir($dirtouse)) 
+			throw new Exception("Did not create temp dir $dirtouse");
+		
+		#echo gethostname().":";
+		#var_dump(is_dir($dirtouse));
+		#print_r($dirtouse);
+		#die();
 		if(PHYNX_USE_TEMP_HTACCESS AND strpos($dirtouse, Util::getRootPath()) !== false /*AND !file_exists($dirtouse.".htaccess")*/ AND is_writable($dirtouse)){
-			if(strstr($_SERVER["REMOTE_ADDR"], ".")) //USE ONLY WHEN ON IPV6 due to APACHE BUG https://issues.apache.org/bugzilla/show_bug.cgi?id=49737
-				file_put_contents($dirtouse.".htaccess", "allow from ".$_SERVER["REMOTE_ADDR"]."\ndeny from all\nallow from ".$_SERVER["REMOTE_ADDR"]."");
-			elseif(file_exists($dirtouse.".htaccess"))
-				unlink($dirtouse.".htaccess");
+			$content = "<IfModule mod_authz_core.c>
+    Require ip ".$_SERVER["REMOTE_ADDR"]."
+</IfModule>";
+			
+			if(strstr($_SERVER["REMOTE_ADDR"], ".")) //USE ONLY WHEN ON IPV4 due to APACHE BUG https://issues.apache.org/bugzilla/show_bug.cgi?id=49737
+				$content .= "
+<IfModule !mod_authz_core.c>
+	allow from ".$_SERVER["REMOTE_ADDR"]."
+	deny from all
+	allow from ".$_SERVER["REMOTE_ADDR"]."
+</IfModule>";
+			
+			file_put_contents($dirtouse.".htaccess", $content);
+					
 		}
+		elseif(file_exists($dirtouse.".htaccess"))
+			unlink($dirtouse.".htaccess");
 		
 		if(!PHYNX_USE_TEMP_HTACCESS AND file_exists($dirtouse.".htaccess"))
 			unlink($dirtouse.".htaccess");
@@ -1566,6 +1597,7 @@ class Util {
 
 		$head .= "X-Application: ".$_SESSION["applications"]->getActiveApplication()."\r\n";
 		$head .= "X-Version: ".$_SESSION["applications"]->getRunningVersion()."\r\n";
+		$head .= "X-PHPVersion: ".phpversion()."\r\n";
 
 		$head .= 'Connection: close'."\r\n"."\r\n";
 		
@@ -1801,7 +1833,7 @@ class Util {
 		<title>'.$title.'</title>
 	</head>
 	<body style="background-color:#efefef;color:#222;">
-		<h1 style="font-family:sans-serif;margin-left:30px;">'.$title.'</h1>
+		'.($title != "" ? '<h1 style="font-family:sans-serif;margin-left:30px;">'.$title.'</h1>' : "").'
 		<div style="font-family:sans-serif;background-color:white;font-size:14px;margin:20px;padding:10px;">
 		'.$content.'
 		</div>
@@ -1810,10 +1842,15 @@ class Util {
 	}
 	
 	public static function getBasicHTML($content, $title, $js = true){
+		$physion = "default";
+		if(isset($_GET["physion"]))
+			$physion = $_GET["physion"];
+
 		#header("Content-Type: text/html; charset=utf-8");
 		return '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
+		<link rel="shortcut icon"type="image/x-icon" href="data:image/x-icon;,">
 		<title>'.$title.'</title>
 		'.($js ? '
 		<script type="text/javascript" src="../libraries/jquery/jquery-1.9.1.min.js"></script>
@@ -1826,7 +1863,12 @@ class Util {
 		<script type="text/javascript" src="../javascript/contentManager.js"></script>
 		<script type="text/javascript" src="../javascript/Interface.js"></script>
 		<script type="text/javascript" src="../javascript/Overlay.js"></script>
-		<script type="text/javascript" src="../libraries/webtoolkit.base64.js"></script>' : "").'
+		<script type="text/javascript" src="../libraries/webtoolkit.base64.js"></script>
+		<script type="text/javascript">
+			$j(document).ready(function() {
+				Ajax.physion = "'.$physion.'";
+			});
+		</script>' : "").'
 		
 		<link rel="stylesheet" type="text/css" href="../libraries/jquery/jquery.qtip.min.css" />
 		<link rel="stylesheet" type="text/css" href="../styles/'.(isset($_COOKIE["phynx_color"])? $_COOKIE["phynx_color"] : "standard").'/colors.css"></link>

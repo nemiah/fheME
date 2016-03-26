@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class LoginData extends Userdata {
 	public function loadMe(){
@@ -94,7 +94,8 @@ class LoginData extends Userdata {
 		$UD->addAssocV3("name", "=", $name);
 
 		$e = $UD->getNextEntry();
-		if($e == null) return null;
+		if($e == null) 
+			return null;
 
 		$LD = new LoginData($e->getID());
 		$LD->loadMe();
@@ -145,6 +146,7 @@ class LoginData extends Userdata {
 			"PLuserAndPass" => "PixelLetter",
 			"SPuserAndPass" => "signaturportal",
 			"LDAPServerUserPass" => "LDAP-Server",
+			"ADServerUserPass" => "ActiveDirectory-Server",
 			"MailServerUserPass" => "Mail-Server",
 			"MailServer2UserPass" => "Mail-Server2",
 			"MailServer3UserPass" => "Mail-Server3",

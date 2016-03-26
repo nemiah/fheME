@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class HTMLGUI2 extends HTMLGUI {
 	private $displaySide = "default";
@@ -154,13 +154,17 @@ class HTMLGUI2 extends HTMLGUI {
 		 */
 	
 		$errorTab = new HTMLTable(1);
-		if(isset($_SESSION["phynx_errors"]) AND $lineWithId == -1 AND ($_SERVER["HTTP_HOST"] == "dev.furtmeier.lan" OR strpos(__FILE__, "nemiah") !== false))
+		if(isset($_SESSION["phynx_errors"]) AND $lineWithId == -1 AND ($_SERVER["HTTP_HOST"] == "dev.furtmeier.lan" OR strpos(__FILE__, "nemiah") !== false)){
+			
+			$B = new Button("", "warning", "icon");
+			$B->style("float:left;margin-right:10px;");
+		
 			$errorTab->addRow("
-					<img style=\"float:left;margin-right:10px;\" src=\"./images/navi/warning.png\" />
+					$B
 					<b>Es ".(count($_SESSION["phynx_errors"]) != 1 ? "liegen" : "liegt")." ".count($_SESSION["phynx_errors"])." PHP-Fehler vor:</b><br />
-					<a href=\"javascript:windowWithRme('Util','','showPHPErrors','');\">Fehler anzeigen</a>,<br />
-					<a href=\"javascript:rme('Util','','deletePHPErrors','','contentManager.reloadFrameRight();');\">Fehler löschen</a>");
-
+					<a href=\"#\" onclick=\"windowWithRme('Util','','showPHPErrors',''); return false;\">Fehler anzeigen</a>,<br />
+					<a href=\"#\" onclick=\"rme('Util','','deletePHPErrors','','contentManager.reloadFrameRight();'); return false;\">Fehler löschen</a>");
+		}
 
 		/**
 		 * RETURN-BUTTON
@@ -368,6 +372,8 @@ class HTMLGUI2 extends HTMLGUI {
 				$valuesTab->addRowColspan(2, $cols-1);
 				$valuesTab->addRowEvent("click", $this->JSOnNew == null ? "contentManager.newClassButton('$this->singularClass','');" : $this->JSOnNew);
 				$valuesTab->addRowStyle("cursor:pointer;");
+				$valuesTab->addRowClass(" backgroundColor0");
+				$valuesTab->addCellStyle(2, "padding-top:10px;padding-bottom:10px;");
 			}
 
 			#$valuesTab->addRowColspan(2, $cols-1);

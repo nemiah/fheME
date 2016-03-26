@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class mInstallation extends anyC {
 	private $folder = "./system/DBData/";
@@ -115,15 +115,18 @@ class mInstallation extends anyC {
 						continue;
 					}
 				}
-
-				if(!$c->checkIfMyDBFileExists())
-					$return[$value] = "Keine DB-Datei!";
-				else {
-					if($c->checkIfMyTableExists())
-						$return[$value] = $c->checkMyTables(true);
-					else
-					#if(!$c->checkIfMyTableExists())
-						$return[$value] = $c->createMyTable(true);
+				try {
+					if(!$c->checkIfMyDBFileExists())
+						$return[$value] = "Keine DB-Datei!";
+					else {
+						if($c->checkIfMyTableExists())
+							$return[$value] = $c->checkMyTables(true);
+						else
+						#if(!$c->checkIfMyTableExists())
+							$return[$value] = $c->createMyTable(true);
+					}
+				} catch (Exception $e){
+					$return[$value] = "Exception: ".$e->getMessage()."; ".print_r(DBStorage::$lastQuery, true);
 				}
 			}
 		}
@@ -141,6 +144,11 @@ class mInstallation extends anyC {
 		parent::loadAdapter();
 		if(is_file($this->folder."Installation.pfdb.php")) $this->Adapter->setDBFolder($this->folder);
 		else $this->Adapter->setDBFolder(".".$this->folder);
+	}
+	
+	public static function getCronjobData(){
+		return array("Installation",
+			array("/plugins/Installation/backup.php", "00 6 * * *", "php", "Führt die Datensicherung aus"));
 	}
 }
 ?>

@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class mKalenderGUI extends mKalender implements iGUIHTML2 {
 	function  __construct() {
@@ -65,6 +65,7 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 			-moz-user-select:none;
 			border-left:1px solid #DDD;
 			border-bottom:1px solid #DDD;
+			overflow:hidden;
 		}
 
 		/*.Day:hover {
@@ -122,6 +123,10 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 			min-width:150px;
 		}
 		
+		#KalenderTable {
+			table-layout: fixed;
+		}
+
 		.cellHeight {
 		}
 		
@@ -358,7 +363,7 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 		</style>";
 
 		$html .= OnEvent::script("\$j(function() {
-		\$j('#calendar2ndMonth').datepicker({ minDate: '".date("d.m.Y",$nextMonth)."'".($TC->getCurrent()->time() >= $nextMonth ? ", defaultDate: '".date("d.m.Y",$TC->getCurrent()->time())."'" : "").", showWeek: true, showOtherMonths: true,  onSelect: function(dateText, inst) { var day = Math.round(+new Date(inst.selectedYear, inst.selectedMonth, inst.selectedDay, 0, 1, 0)/1000); ".OnEvent::rme($this, "setView", array("'tag'", "day"), "function(){ ".OnEvent::reload("Screen")." }")." } });
+		\$j('#calendar2ndMonth').datepicker({ minDate: null ".($TC->getCurrent()->time() >= $nextMonth ? ", defaultDate: '".date("d.m.Y",$TC->getCurrent()->time())."'" : ", defaultDate: '".date("d.m.Y",$nextMonth)."'").", showWeek: true, showOtherMonths: true,  onSelect: function(dateText, inst) { var day = Math.round(+new Date(inst.selectedYear, inst.selectedMonth, inst.selectedDay, 0, 1, 0)/1000); ".OnEvent::rme($this, "setView", array("'tag'", "day"), "function(){ ".OnEvent::reload("Screen")." }")." } });
 	});");
 		
 		return $html;
@@ -532,9 +537,14 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 		echo $C->$targetClassMethod($targetClassID);
 	}
 	
-	public function getInvitees($targetClass, $targetClassId, $targetClassMethod) {
+	public function getInvitees($targetClass, $targetClassId) {
 		$class = new $targetClass($targetClassId);
-		echo $class->$targetClassMethod($targetClassId);
+		echo $class->getInvitees($targetClassId);
+	}
+	
+	public function getClose($targetClass, $targetClassId) {
+		$class = new $targetClass($targetClassId);
+		echo $class->getClose($targetClassId);
 	}
 	
 	public function share(){

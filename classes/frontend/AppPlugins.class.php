@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class AppPlugins {
 	private $folders = array();
@@ -96,7 +96,8 @@ class AppPlugins {
 		if($appFolder == null){
 			$folder = "plugins";
 			if($_SESSION["applications"]->getActiveApplication() != "nil") $folder = $_SESSION["applications"]->getActiveApplication();
-		} else $folder = $appFolder;
+		} else
+			$folder = $appFolder;
 
 		$allowedPlugins = Environment::getS("allowedPlugins", array());
 		$extraPlugins = Environment::getS("pluginsExtra", array());
@@ -130,7 +131,9 @@ class AppPlugins {
 					else
 						continue;
 				}
-				if(stripos($file, "plugin") === false) continue;
+				
+				if(stripos($file, "plugin") === false) 
+					continue;
 				
 				$plugins[] = $file;
 			}

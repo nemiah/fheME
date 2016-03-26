@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!-- 
+<?php
+/*
  *  This file is part of phynx.
 
  *  phynx is free software; you can redistribute it and/or modify
@@ -15,24 +15,9 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2012, Rainer Furtmeier - Rainer@Furtmeier.de
--->
-<phynx>
-	<plugin>
-		<name>Wetter</name>
-		<menuName>Wetter</menuName>
-		<collection>mWetter</collection>
-		
-		<icon>./ubiquitous/Wetter/Wetter.png</icon>
-		<folder>../ubiquitous/Wetter</folder>
-
-		<adminOnly>false</adminOnly>
-		
-		<version>0.6</version>
-		<registry>Overview;mWetterGUI::getOverviewPlugin</registry>
-
-		<deploy>
-			<table name="Wetter" />
-		</deploy>
-	</plugin>
-</phynx>
+ *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
+ */
+class UserOld extends PersistentObject {
+	
+}
+?>

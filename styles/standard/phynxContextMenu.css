@@ -56,3 +56,10 @@
 #windows p {
 	padding:5px;
 }
+
+#windows p.prettySubtitle, #windows p.prettyTitle {
+	padding-left:10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

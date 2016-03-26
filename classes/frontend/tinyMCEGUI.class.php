@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class tinyMCEGUI {
 	private $ID;
@@ -50,12 +50,36 @@ class tinyMCEGUI {
 			});';
 	}
 	
-	public static function editorDokument($tinyMCEID, $saveCallback, $buttons = null, $css = "./styles/tinymce/office.css", $picturesDir = null){
+	public static function editorDokument($tinyMCEID, $saveCallback, $buttons = null, $css = "./styles/tinymce/office.css", $picturesDir = null, $onInit = ""){
 		if($buttons == null)
 			$buttons = "save | undo redo | pastetext | styleselect fontsizeselect fontselect | bold italic underline forecolor | hr fullscreen code";
 		
 		$B = new Button("Bilder", "new", "icon");
 		$B->sidePanel("tinyMCE", "-1", "sidePanelAttachments", array("'$picturesDir'"));
+		
+		$fonts = "";
+		if(file_exists(Util::getRootPath()."ubiquitous/Fonts/"))
+			$fonts .= ";Ubuntu=Ubuntu;Orbitron=Orbitron;Raleway=Raleway";
+		
+		try {
+			$AC = anyC::get("Vorlage");
+			$AC->addAssocV3("VorlageNewFonts", "!=", "");
+			while($V = $AC->n()){
+				$newFonts = json_decode($V->A("VorlageNewFonts"));
+
+				foreach($newFonts AS $f){
+					if(!file_exists(FileStorage::getFilesDir().$f->file))
+						continue;
+
+					if(strpos($fonts, $f->name) !== false)
+						continue;
+
+					$fonts .= ";".$f->name."=".$f->name;
+				}
+			}
+		} catch (ClassNotFoundException $e){
+			
+		}
 		
 		return '
 			$j("#'.$tinyMCEID.'").tinymce({
@@ -81,7 +105,7 @@ class tinyMCEGUI {
 						]
 					}
 				],
-				font_formats: "Helvetica=helvetica;Courier=courier;Times New Roman=times new roman;Ubuntu=Ubuntu;Orbitron=Orbitron;Raleway=Raleway",
+				font_formats: "Helvetica=helvetica;Courier=courier;Times New Roman=times new roman'.$fonts.'",
 				fontsize_formats: "6pt 7pt 8pt 9pt 10pt 11pt 12pt 26pt 36pt",
 				paste_as_text: true,
 				browser_spellcheck : true,
@@ -91,7 +115,7 @@ class tinyMCEGUI {
 				language : "de",
 				entity_encoding : "raw",
 				save_onsavecallback : '.$saveCallback.',
-					
+				init_instance_callback: function(ed){ '.$onInit.' },
 				setup : function(ed) {
 					ed.addButton("phynximage", {
 						title : "Bilder",
@@ -101,6 +125,22 @@ class tinyMCEGUI {
 					});
 				}
 			});';
+	}
+	
+	public function activeTextbausteinFont(){
+		$S = Stammdaten::getActiveStammdaten();
+		if(!$S)
+			die("");
+		
+		$V = $S->A("ownTemplate");
+		$V = new $V($S);
+		
+		header("Content-Type: text/css");
+		
+		
+		echo "body {
+	font-family:".$V->fontTextbausteine[0].";
+}";
 	}
 	
 	public function editInPopup($formID, $fieldName, $variablesCallback = null, $picturesDir = null){
@@ -123,10 +163,14 @@ class tinyMCEGUI {
 			$buttons = str_replace("fontselect", "", $buttons);
 		}
 		
+		$onInit = "";
+		if($fieldName == "textbausteinOben" OR $fieldName == "textbausteinUnten" OR $fieldName == "zahlungsbedingungen")
+			$onInit = 'ed.dom.loadCSS("./interface/rme.php?rand="+Math.random()+"&class=tinyMCE&construct=-1&method=activeTextbausteinFont");';
+		
 		echo OnEvent::script("
 setTimeout(function(){
 	\$j('#$tinyMCEID').val(\$j('#$formID [name=$fieldName]').val());
-	".$this->editorDokument($tinyMCEID, "function(content){\$j('#$formID [name=$fieldName]').val(content.getContent()).trigger('change'); ".OnEvent::closePopup("tinyMCE")."}", $buttons, "./styles/tinymce/office.css", $picturesDir)."
+	".$this->editorDokument($tinyMCEID, "function(content){\$j('#$formID [name=$fieldName]').val(content.getContent()).trigger('change'); ".OnEvent::closePopup("tinyMCE").OnEvent::closePopup("nicEdit")."}", $buttons, "./styles/tinymce/office.css", $picturesDir, $onInit)."
 			".($variablesCallback != null ? "$variablesCallback('$fieldName');" : "")."
 		}, 100);");
 	}
@@ -144,8 +188,9 @@ setTimeout(function(){
 		echo "<div style=\"width:1000px;\">".$ITA."</div>";
 		
 		
-		$buttons = "save | undo redo | pastetext | styleselect fontsizeselect fontselect | bold italic underline forecolor | hr code";
+		$buttons = "save | undo redo | pastetext | styleselect fontsizeselect fontselect | bold italic underline forecolor | hr code fullscreen";
 		echo OnEvent::script("
+			\$j('#$tinyMCEID').css('height', contentManager.maxHeight());
 setTimeout(function(){
 	".$this->editorDokument($tinyMCEID, "function(content){".OnEvent::rme($C, "saveMultiEditField", array("'$fieldName'", "content.getContent()"))."".OnEvent::closePopup("tinyMCE")."}", $buttons)."
 			

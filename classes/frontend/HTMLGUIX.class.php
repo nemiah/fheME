@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class HTMLGUIX {
 
@@ -295,7 +295,7 @@ class HTMLGUIX {
 		$cTest = false;
 		$test = "";
 		foreach ($values AS $v){
-			$test .= ($test != "" ? " OR " : "").((isset($this->types[$fieldName]) AND $this->types[$fieldName] != "checkbox") ? "this.value == '$v'" : "this.checked");
+			$test .= ($test != "" ? " OR " : "").((!isset($this->types[$fieldName]) OR (isset($this->types[$fieldName]) AND $this->types[$fieldName] != "checkbox")) ? "this.value == '$v'" : "this.checked");
 
 			if($this->object->A($fieldName) == $v)
 				$cTest = true;
@@ -309,7 +309,12 @@ class HTMLGUIX {
 		} elseif(!$this->hiddenUseInit)
 			$this->hideLine($showOnTrue);
 		
-		$this->addFieldEvent($fieldName, "onChange", "contentManager.toggleFormFieldsTest((".  str_replace("OR", "||", $test)."), [".(count($showOnTrue) > 0 ? "'".implode("','", $showOnTrue)."'" : "")."], [".($showOnFalse != null ? "'".implode("','", $showOnFalse)."'" : "")."], '".($this->formID ? $this->formID : "edit".get_class($this->object))."', ".($this->hiddenUseInit ? "true" : "false").");");
+		if(isset($this->types[$fieldName]) AND ($this->types[$fieldName] == "select" OR $this->types[$fieldName] == "checkbox"))
+			$this->addFieldEvent($fieldName, "onChange", "contentManager.toggleFormFieldsTest((".  str_replace("OR", "||", $test)."), [".(count($showOnTrue) > 0 ? "'".implode("','", $showOnTrue)."'" : "")."], [".($showOnFalse != null ? "'".implode("','", $showOnFalse)."'" : "")."], '".($this->formID ? $this->formID : "edit".get_class($this->object))."', ".($this->hiddenUseInit ? "true" : "false").");");
+		
+		if(!isset($this->types[$fieldName]))
+			$this->addFieldEvent($fieldName, "onKeyup", "contentManager.toggleFormFieldsTest((".  str_replace("OR", "||", $test)."), [".(count($showOnTrue) > 0 ? "'".implode("','", $showOnTrue)."'" : "")."], [".($showOnFalse != null ? "'".implode("','", $showOnFalse)."'" : "")."], '".($this->formID ? $this->formID : "edit".get_class($this->object))."', ".($this->hiddenUseInit ? "true" : "false").");");
+		
 		
 		$this->hiddenJS .= "\$j('[name=$fieldName]').trigger('change');";
 	}
@@ -663,8 +668,11 @@ class HTMLGUIX {
 		T::load(Util::getRootPath()."libraries");
 		
 		$canDelete = mUserdata::isDisallowedTo("cantDelete".$this->className);
+		#$canEdit = mUserdata::isDisallowedTo("cantEdit".$this->className);
 		if(!$canDelete)
 			$this->showTrash = false;
+		#if(!$canEdit) //KILLS SEARCH-FIELD!!
+		#	$this->showEdit = false;
 		
 		$bps = BPS::getAllProperties("m".$this->className."GUI");
 		if(!$useBPS)
@@ -783,7 +791,7 @@ class HTMLGUIX {
 		foreach ($this->appended AS $PE)
 			$appended .= $PE;
 		
-		return "<div class=\"browserContainer contentBrowser\">".$prepend.$this->topButtons($bps).$this->sideButtons($bps).$GUIF->getContainer($Tab, $this->caption, $appended)."</div>".str_replace("%CLASSNAME", $this->className, $this->sortable).$this->tip;
+		return "<div class=\"browserContainer contentBrowser\">".$prepend.$this->sideButtons($bps).$GUIF->getContainer($Tab, $this->caption, $appended, $this->topButtons($bps))."</div>".str_replace("%CLASSNAME", $this->className, $this->sortable).$this->tip;
 	}
 	// </editor-fold>
 

@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
 class DBPDOStorage {
@@ -277,8 +277,11 @@ class DBPDOStorage {
 		#$q = $this->c->query($sql);
 		$q = $this->c->prepare($sql);
 		#echo $sql;
+		#echo "\n";
 		#var_dump($q);
+		Timer::now("sql start", __FILE__, __LINE__);
 		$q->execute();
+		Timer::now("sql end", __FILE__, __LINE__);
 		#print_r($this->c->errorInfo());
 		DBPDOStorage::$queryCounter++;
 

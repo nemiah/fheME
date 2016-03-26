@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class Todo extends PersistentObject {
 	public static $repeatTypes = array("" => "nicht Wiederholen", "daily" => "Täglich", "weekly" => "Wöchentlich", "monthly" => "Monatlich", "yearly" => "Jährlich");
@@ -62,6 +62,50 @@ class Todo extends PersistentObject {
 		
 		if($this->A("TodoClass") != "" AND $this->A("TodoClass") != "Kalender" AND $this->A("TodoName") == "")
 			$this->changeA("TodoName", $this->getOwnerObject()->getCalendarTitle());
+		
+		
+		if(Session::isPluginLoaded("mAufgabe") AND ($this->A("TodoType") == 3 OR $this->A("TodoType") == 4 OR $this->A("TodoType") == 5) AND $this->A("TodoUserID") > 0){
+			$F = new Factory("Aufgabe");
+			$F->sA("AufgabeByClass", "Todo");
+			$F->sA("AufgabeByClassID", $this->getID());
+			
+			$E = $F->exists(true);
+			if(!$E){
+				$F->sA("AufgabeUserID", $this->A("TodoUserID"));
+				$F->sA("AufgabeText", "Bericht für Termin '".$this->A("TodoName")."' eintragen");
+				$F->sA("AufgabeCreated", time());
+				if($this->A("TodoDoneTime") > 0){
+					$F->sA ("AufgabeStatus", "5");
+					$F->sA("AufgabeDone", time());
+				}
+				
+				if($this->hasParsers){
+					$F->sA("AufgabeUntil", Util::CLDateParser($this->A("TodoFromDay"), "store"));
+					$F->sA("AufgabeUhrzeitVon", Util::CLTimeParser($this->A("TodoTillTime"), "store"));
+				} else {
+					$F->sA("AufgabeUntil", $this->A("TodoFromDay"));
+					$F->sA("AufgabeUhrzeitVon", $this->A("TodoTillTime"));
+				}
+				$F->store();
+			} else {
+				$E->changeA("AufgabeText", "Bericht für Termin '".$this->A("TodoName")."' eintragen");
+				
+				if($this->hasParsers){
+					$E->changeA("AufgabeUntil", Util::CLDateParser($this->A("TodoFromDay"), "store"));
+					$E->changeA("AufgabeUhrzeitVon", Util::CLTimeParser($this->A("TodoTillTime"), "store"));
+				} else {
+					$E->changeA("AufgabeUntil", $this->A("TodoFromDay"));
+					$E->changeA("AufgabeUhrzeitVon", $this->A("TodoTillTime"));
+				}
+				
+				if($this->A("TodoDoneTime") > 0){
+					$E->changeA("AufgabeStatus", "5");
+					$E->changeA("AufgabeDone", time());
+				}
+				$E->saveMe();
+			}
+			
+		}
 		
 		
 		parent::saveMe($checkUserData, false);
@@ -123,6 +167,20 @@ class Todo extends PersistentObject {
 			Mail::assign("Todo", $id, $this->A("TodoClassID"));
 		}
 		
+		if(Session::isPluginLoaded("mAufgabe") AND ($this->A("TodoType") == 3 OR $this->A("TodoType") == 4 OR $this->A("TodoType") == 5) AND $this->A("TodoUserID") > 0){
+			$F = new Factory("Aufgabe");
+			$F->sA("AufgabeByClass", "Todo");
+			$F->sA("AufgabeByClassID", $id);
+			
+			$F->sA("AufgabeUserID", $this->A("TodoUserID"));
+			$F->sA("AufgabeText", "Bericht für Termin eintragen");
+			$F->sA("AufgabeCreated", time());
+			$F->sA("AufgabeUntil", $this->A("TodoFromDay"));
+			$F->sA("AufgabeUhrzeitVon", $this->A("TodoTillTime"));
+			
+			$F->store();
+		}
+		
 			
 		return $id;
 	}
@@ -138,6 +196,13 @@ class Todo extends PersistentObject {
 		if($this->A("TodoClass") == "DBMail" AND Session::isPluginLoaded("mMail"))
 			Mail::assignRevoke("Todo", $this->getID(), $this->A("TodoClassID"));
 		
+		
+		if(Session::isPluginLoaded("mAufgabe") AND ($this->A("TodoType") == 3 OR $this->A("TodoType") == 4 OR $this->A("TodoType") == 5) AND $this->A("TodoUserID") > 0){
+			$AC = anyC::get("Aufgabe", "AufgabeByClass", "Todo");
+			$AC->addAssocV3("AufgabeByClassID", "=", $this->getID());
+			while($A = $AC->n())
+				$A->deleteMe();
+		}
 		
 		parent::deleteMe();
 	}

@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class GUITabFactory {
 
@@ -50,7 +50,8 @@ class GUITabFactory {
 			$widths = array(410);
 
 		$cTab = mUserdata::getUDValueS("TabBarLastTab$this->className", "none");
-
+		$cTab = Aspect::joinPoint("lastTab", $this, __METHOD__, array($this->className, $cTab), $cTab);
+		
 		if(count($this->tabBar) == 0) return "";
 
 		$bar = "";

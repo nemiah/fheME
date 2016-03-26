@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class User extends PersistentObject {
 	
@@ -29,14 +29,47 @@ class User extends PersistentObject {
 		return $this->A;
 	}
 	
+	function deleteMe() {
+		$F = new Factory("UserOld");
+		$F->sA("UserOldUserID", $this->getID());
+		
+		$id = $F->store();
+		
+		$O = new UserOld($id);
+		
+		$this->loadMe();
+		$A = $this->getA();
+		foreach($A AS $k => $v){
+			if($O->A($k) !== null)
+				$O->changeA ($k, $v);
+		}
+		$O->saveMe();
+		
+		parent::deleteMe();
+	}
+	
 	function loadMe($empty = true){
 		if($this->getID() > 20000){
-			$S = Util::getAppServerClient();
-			$this->setA($S->getUserById($this->ID));
-			return;
+			
+			if(mUserdata::getGlobalSettingValue("AppServer", "") != ""){
+				$S = Util::getAppServerClient();
+				$this->setA($S->getUserById($this->ID, $empty));
+				
+				return;
+			} 
+			
+			$LD = LoginData::get("ADServerUserPass");
+			if($LD != null AND $LD->A("server") != ""){
+				$this->setA(LoginAD::getUserById($this->ID));
+				
+				return;
+			}
 		}
+		
 	    parent::loadMe();
-		if($empty AND $this->A != null) $this->A->SHApassword = "";
+		
+		if($empty AND $this->A != null) 
+			$this->A->SHApassword = "";
 	}
 	
 	function saveMe($checkUserData = true, $output = false){

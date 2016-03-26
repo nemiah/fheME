@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class PhpFileDB {
 
@@ -785,15 +785,15 @@ class PhpFileDB {
 	public function escapeString($string){
 		$string = str_replace("\'", "%%&ESCSLASH%%&", $string);
 		$string = str_replace("'","\'",$string);
-		$string = str_replace("\n",$this->newLine,$string);
+		$string = str_replace('\n',$this->newLine,$string);
 		return $string;
 	}
 	
 	### -------------------------------------------- unescapeString
 	public function unescapeString($string){
-		$string = str_replace("\'","'",$string);
+		$string = str_replace("\'", "'", $string);
 		#$string = str_replace("%%&ESCSLASH%%&","\'",$string);
-		$string = str_replace($this->newLine,"\n",$string);
+		$string = str_replace($this->newLine, '\n', $string);
 		return $string;
 	}
 	

@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class RSSParserGUI extends RSSParser implements iGUIHTML2 {
 	function getHTML($id){
@@ -77,7 +77,53 @@ class RSSParserGUI extends RSSParser implements iGUIHTML2 {
 		$B = $gui->addSideButton("Update", "down");
 		$B->rmePCR("RSSParser", $this->getID(), "download","", OnEvent::reload("Left"));
 		
+		#if($this->A("RSSParserCache") != ""){
+		#	$B = $gui->addSideButton("XML\nvalidieren", "new");
+		#	$B->popup("", "XML validieren", "RSSParser", $this->getID(), "validate");
+		#}
+		
 		return $gui->getEditHTML();
+	}
+	
+	public function validate(){
+		$data = $this->A("RSSParserCache");
+		
+		libxml_use_internal_errors(true);
+		
+		$data = str_replace("<content:encoded>","<contentEncoded>",$data);
+        $data = str_replace("</content:encoded>","</contentEncoded>",$data);
+		echo htmlentities($data);
+		try {
+			$xml = new SimpleXMLElement($data);
+		} catch(Exception $e){
+			try {
+				$config = array(
+					'indent'     => true,
+					'input-xml'  => true,
+					'output-xml' => true,
+					'wrap'       => false);
+				
+				$tidy = new tidy();
+				$tidy->ParseString($data, $config, "utf8");
+
+				$tidy->cleanRepair();
+				#print_r($tidy."");
+				$xml = new SimpleXMLElement($tidy."");
+			
+			} catch (Exception $e){
+				echo "<pre>";
+				echo "Exception: ".$e->getMessage()."\n";
+
+				foreach(libxml_get_errors() as $error){
+					if($error->level == LIBXML_ERR_WARNING) echo "Warning: ".$error->message;
+					if($error->level == LIBXML_ERR_ERROR) echo "Error: ".$error->message;
+					if($error->level == LIBXML_ERR_FATAL) echo "Fatal error: ".$error->message;
+				}
+				echo "</pre>";
+			
+				return array();
+			}
+		}
 	}
 	
 	public function showCache(){

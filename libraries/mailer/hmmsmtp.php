@@ -22,7 +22,7 @@
 define('SMTP_STATUS_NOT_CONNECTED', 1, true);
 define('SMTP_STATUS_CONNECTED', 2, true);
 
-class smtp {
+class hmmsmtp {
 
 	private $authenticated;
 	private $connection;
@@ -40,6 +40,8 @@ class smtp {
 	private $user;
 	private $pass;
 	private $dsn;
+	private $useStarttls = false;
+	private $useDSN = false;
 	
 	/**
 	 * Constructor function. Arguments:
@@ -203,6 +205,12 @@ class smtp {
 				AND $this->send_data('EHLO ' . $this->helo)
 				AND substr(trim($error = $this->get_data()), 0, 3) === '250') {
 
+			if(strpos($error, "STARTTLS") > 0)
+				$this->useStarttls = true;
+			
+			if(strpos($error, "250 DSN") > 0 OR strpos($error, "250-DSN") > 0)
+				$this->useDSN = true;
+			
 			return true;
 		} else {
 			$this->errors[] = 'EHLO command failed, output: ' . trim(substr(trim($error), 3));
@@ -246,6 +254,9 @@ class smtp {
 	 * Function to implement AUTH cmd
 	 */
 	private function auth() {
+		if($this->useStarttls)
+			$this->starttls();
+		
 		if (is_resource($this->connection)
 				AND $this->send_data('AUTH LOGIN')
 				AND substr(trim($error = $this->get_data()), 0, 3) === '334'
@@ -262,6 +273,25 @@ class smtp {
 		}
 	}
 
+	private function starttls(){
+		$this->send_data('STARTTLS');
+		
+		$rply = $this->get_data();
+		$code = substr($rply,0,3);
+
+		if($code != 220) {
+			$this->errors[] = 'STARTTLS not accepted from server: ' . trim(substr(trim($rply), 3));
+			return false;
+		}
+
+		if(!stream_socket_enable_crypto($this->connection, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)) 
+		  return false;
+		
+		$this->ehlo();
+
+		return true;
+	}
+	
 	/**
 	 * Function that handles the MAIL FROM: cmd
 	 */
@@ -281,7 +311,7 @@ class smtp {
 	 */
 	private function rcpt($to) {
 		$DSN = "";
-		if($this->dsn !== null){
+		if($this->dsn !== null AND $this->useDSN){
 			if($this->dsn[0])
 				$DSN .= "SUCCESS";
 			

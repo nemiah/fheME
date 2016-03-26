@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class mInstallationGUI extends mInstallation implements iGUIHTML2 {
 
@@ -486,6 +486,8 @@ class mInstallationGUI extends mInstallation implements iGUIHTML2 {
 		
 		if($mailto == "")
 			Red::errorD("Bitte geben Sie einen Empfänger ein!");
+		
+		
 		try {
 			$mail = new htmlMimeMail5(substr($mailfrom, stripos($mailfrom, "@") + 1));
 		} catch(Exception $e){
@@ -502,8 +504,10 @@ class mInstallationGUI extends mInstallation implements iGUIHTML2 {
 			echo "<p style=\"padding:5px;color:green;\">E-Mail erfolgreich übergeben.</p>";
 		else
 			echo "<p style=\"padding:5px;color:red;\">Fehler beim Übergeben der E-Mail. Bitte überprüfen Sie Ihre Server-Einstellungen.<br />Fehler: ".nl2br(print_r($mail->errors, true))."</p>";
-
-		/*$mimeMail2 = new PHPMailer(false, substr($mailfrom, stripos($mailfrom, "@") + 1));
+		
+		/*
+		$mimeMail2 = new PHPMailer(false, substr($mailfrom, stripos($mailfrom, "@") + 1));
+		#$mimeMail2->SMTPSecure = 'tls';
 		$mimeMail2->CharSet = "UTF-8";
 		$mimeMail2->Subject = "phynx Mailtest V2";
 		
@@ -517,7 +521,8 @@ class mInstallationGUI extends mInstallation implements iGUIHTML2 {
 		if($mimeMail2->Send())
 			echo "<p style=\"padding:5px;color:green;\">E-Mail 2 erfolgreich übergeben.</p>";
 		else
-			echo "<p style=\"padding:5px;color:red;\">Fehler beim Übergeben der E-Mail 2. Bitte überprüfen Sie Ihre Server-Einstellungen.<br />Fehler: ".nl2br(print_r($mimeMail2->ErrorInfo, true))."</p>";*/
+			echo "<p style=\"padding:5px;color:red;\">Fehler beim Übergeben der E-Mail 2. Bitte überprüfen Sie Ihre Server-Einstellungen.<br />Fehler: ".nl2br(print_r($mimeMail2->ErrorInfo, true))."</p>";
+		 */
 	}
 
 	public function setupAllTables($echoStatus = false){
@@ -545,6 +550,8 @@ class mInstallationGUI extends mInstallation implements iGUIHTML2 {
 	}
 	
 	public function updateAllTables($echoStatus = false){
+		set_time_limit(0);
+		
 		$return = parent::updateAllTables();
 		if($echoStatus){
 			ksort($return);

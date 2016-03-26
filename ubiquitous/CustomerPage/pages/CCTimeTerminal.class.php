@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class CCTimeTerminal implements iCustomContent {
 	protected $switch = false;
@@ -559,8 +559,8 @@ class CCTimeTerminal implements iCustomContent {
 					
 					if(isset($AZ[0])){
 						$hasTo = $AZ[0]->A("ZEArbeitsZeitEnde") - $AZ[0]->A("ZEArbeitsZeitStart");
-	
-						if($worked > 0 AND $hasTo / $worked > 0.9){# AND $hasTo / $worked < 1.15){
+						
+						if($worked > 0 AND $worked / $hasTo > 0.9){# AND $hasTo / $worked < 1.15){
 							$DE = $ok["ZEData"];
 							$DE->changeA("ZEDataPause", $AZ[0]->A("ZEArbeitsZeitMittag"));
 							$DE->saveMe(false, false);

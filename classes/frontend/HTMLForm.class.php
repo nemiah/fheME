@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class HTMLForm {
 	protected $id;
@@ -28,7 +28,7 @@ class HTMLForm {
 	private $action;
 	private $method;
 	private $enctype;
-
+	private $appendJs = "";
 	private $descriptionField = array();
 
 	private $inputStyle = array();
@@ -46,7 +46,7 @@ class HTMLForm {
 
 	protected $abortButton;
 	
-	protected $onSubmit;
+	protected $onSubmit = "return false;";
 	protected $onChange = array();
 	protected $onBlur = array();
 	protected $onKeyup = array();
@@ -111,6 +111,13 @@ class HTMLForm {
 					$this->onKeyup[$fieldName] = "";
 				
 				$this->onKeyup[$fieldName] .= $function;
+			break;
+			case "onEnter":
+			case "onenter":
+				if(!isset($this->onKeyup[$fieldName]))
+					$this->onKeyup[$fieldName] = "";
+				
+				$this->onKeyup[$fieldName] .= "if(event.keyCode == 13) { ".$function." }";;
 			break;
 		}
 	}
@@ -181,8 +188,11 @@ class HTMLForm {
 		if($this->types[$fieldName] == "checkbox")
 			$this->addJSEvent($fieldName, $event, "if(".($value == "1" ? "" : "!")."this.checked) contentManager.toggleFormFields('hide', ['".implode("','", $fieldsToHide)."'], '$this->id'); else contentManager.toggleFormFields('show', ['".implode("','", $fieldsToHide)."'], '$this->id');");
 
-		if($this->types[$fieldName] == "select")
+		if($this->types[$fieldName] == "select"){
 			$this->addJSEvent($fieldName, $event, "if(\$j(this).val() $operator '$value') contentManager.toggleFormFields('hide', ['".implode("','", $fieldsToHide)."'], '$this->id'); else contentManager.toggleFormFields('show', ['".implode("','", $fieldsToHide)."'], '$this->id');");
+		
+			$this->appendJs .= "\$j('#$this->id [name=$fieldName]').trigger('change');";
+		}
 	}
 
 	public function inputLineStyle($fieldName, $style){
@@ -191,6 +201,10 @@ class HTMLForm {
 
 	public function setInputStyle($fieldName, $style){
 		$this->inputStyle[$fieldName] = $style;
+	}
+	
+	public function setFields(array $fields){
+		$this->fields = $fields;
 	}
 
 	public function setPlaceholder($fieldName, $style){
@@ -220,7 +234,7 @@ class HTMLForm {
 		$this->table->setColClass(2, "backgroundColor2");
 		$this->title = $title;
 		$this->saveMode = null;
-		$this->onSubmit = null;
+		#$this->onSubmit = null;
 		$this->buttons = array();
 	}
 	
@@ -839,7 +853,7 @@ class HTMLForm {
 		if($this->formTag) $html .= "
 	</form>";
 
-		return $html.($this->useRecentlyChanged ? GUIFactory::editFormOnchangeTest($this->id) : "");
+		return $html.($this->appendJs != "" ? OnEvent::script($this->appendJs) : "").($this->useRecentlyChanged ? GUIFactory::editFormOnchangeTest($this->id) : "");
 	}
 
 	public function getHTML(){

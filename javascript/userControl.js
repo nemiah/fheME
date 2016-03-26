@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
  
  
@@ -25,6 +25,7 @@ var userControl = {
 	
 	autoLoginInterval: null,
 	autoLoginCounter: 0,
+	usePWEncryption: true,
 	
 	doLogin: function(){
 		userControl.abortAutoCertificateLogin();
@@ -32,6 +33,9 @@ var userControl = {
 		//"+$('loginUsername').value+","+$('loginPassword').value+","+$('anwendung').value+"
 		if($('loginPassword').value != ";;cookieData;;")
 			$('loginSHAPassword').value = SHA1($j.trim($('loginPassword').value));
+		
+		if(!userControl.usePWEncryption)
+			$('loginSHAPassword').value = $j.trim($('loginPassword').value);
 		
 		$('loginPassword').value = "";
 		contentManager.rmePCR("Users", "", "doLogin", joinFormFieldsToString('loginForm'), function(transport) {
@@ -73,37 +77,6 @@ var userControl = {
 			//$('loginPassword').value = "";
 			}
 		});
-	/*new Ajax.Request("./interface/rme.php", {
-		method: 'post',
-		parameters: "class=Users&construct=&method=doLogin&parameters='"+joinFormFieldsToString('loginForm')+"'",
-		onSuccess: function(transport) {
-			if(!checkResponse(transport))
-				return;
-			
-			if(transport.responseText == "") {
-				alert("Fehler: Der Server antwortet nicht!");
-				return;
-			}
-	    	if(transport.responseText == 0) {
-	    		alert("Benutzername/Passwort falsch!\nBitte beachten Sie beim Passwort Groß-/Kleinschreibung.");
-	    	} else {
-	    		if(transport.responseText != 1 && transport.responseText != -2)
-	    			alert(transport.responseText.replace(/<br \/>/ig,"\n").replace(/<b>/ig,"").replace(/<\/b>/ig,"").replace(/&gt;/ig,">"));
-	    		
-				contentManager.emptyFrame("contentScreen");
-				
-				var a = new Date();
-				a = new Date(a.getTime() +1000*60*60*24*365);
-				if($('saveLoginData').checked)
-					document.cookie = 'userLoginData='+$('loginUsername').value+':'+$('loginSHAPassword').value+'; expires='+a.toGMTString()+';';
-				else 
-					document.cookie = 'userLoginData=--; expires=Thu, 01-Jan-70 00:00:01 GMT;';
-	
-	    		loadMenu();
-	    		DesktopLink.loadContent();
-	    		//$('loginPassword').value = "";
-	    	}
-		}});*/
 	},
 	
 	saveCertificate: function(){
@@ -134,21 +107,6 @@ var userControl = {
 			//DesktopLink.loadContent();
 		}, "", true, function(){
 			$j('#loginCertOptions').toggle();
-		});
-	},
-	
-	doPersonaLogin: function(assertion){
-		contentManager.rmePCR("Users", "-1", "doPersonaLogin", [$('anwendung').value, $('loginSprache').value, assertion], function(transport){
-			if(transport.responseText == 0) {
-				alert("Die Anmeldung ist fehlgeschlagen.");
-				return;
-			}
-			
-			if(transport.responseText == 2) //Benutzer bereits angemeldet
-				return;
-			
-			loadMenu();
-			//DesktopLink.loadContent();
 		});
 	},
 	

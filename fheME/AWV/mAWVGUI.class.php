@@ -101,8 +101,12 @@ class mAWVGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 	}
 	
 	public function downloadTrashData(){
-		$json = file_get_contents("http://awido.cubefour.de/WebServices/Awido.Service.svc/getData/00000000-0000-0000-0000-000000001190?fractions=1,5,2,6,3,4,10&client=awv-nordschwaben");
-		#$json = file_get_contents("http://awido.cubefour.de/WebServices/Awido.Service.svc/getData/00000000-0000-0000-0000-000000000629?fractions=1,5,2,6,3,4,10&client=awv-nordschwaben");
+		$andreas = false;
+		
+		if(!$andreas)
+			$json = file_get_contents("http://awido.cubefour.de/WebServices/Awido.Service.svc/getData/00000000-0000-0000-0000-000000001190?fractions=1,5,2,6,3,4,10&client=awv-nordschwaben");
+		else
+			$json = file_get_contents("http://awido.cubefour.de/WebServices/Awido.Service.svc/getData/00000000-0000-0000-0000-000000000629?fractions=1,5,2,6,3,4,10&client=awv-nordschwaben");
 		
 		echo "<pre style=\"font-size:10px;max-height:400px;overflow:auto;\">";
 		$data = json_decode($json);
@@ -117,7 +121,9 @@ class mAWVGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 			
 			
 			$tag = new Datum(Util::parseDate("de_DE", substr($day->dt, 6).".".substr($day->dt, 4, 2).".".substr($day->dt, 0, 4)));
-			#$tag->subDay();
+			
+			if($andreas)
+				$tag->subDay();
 			
 			$name = "";
 			foreach($day->fr AS $T){
@@ -145,15 +151,18 @@ class mAWVGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 			$F->sA("TodoFromTime", "32400");
 			$F->sA("TodoTillTime", "36000");
 			$F->sA("TodoUserID", "-1");
+			$F->sA("TodoRemind", "-1");
 			
-			#$F->sA("TodoFromTime", Util::parseTime("de_DE", "18:00"));
-			#$F->sA("TodoTillTime", Util::parseTime("de_DE", "18:05"));
-			#$F->sA("TodoUserID", Session::currentUser()->getID());
+			if($andreas){
+				$F->sA("TodoFromTime", Util::parseTime("de_DE", "18:00"));
+				$F->sA("TodoTillTime", Util::parseTime("de_DE", "18:05"));
+				$F->sA("TodoUserID", Session::currentUser()->getID());
+				$F->sA("TodoRemind", 60);
+			}
 			
 			$F->sA("TodoClass", "Kalender");
 			$F->sA("TodoClassID", "-1");
 			$F->sA("TodoType", "2");
-			$F->sA("TodoRemind", "-1");
 			if($F->exists())
 				continue;
 			

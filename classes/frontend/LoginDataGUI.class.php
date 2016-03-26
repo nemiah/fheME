@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class LoginDataGUI extends LoginData implements iGUIHTML2 {
 	function getHTML($id){
@@ -276,6 +276,29 @@ class LoginDataGUI extends LoginData implements iGUIHTML2 {
 			$gui->type("optionen", "hidden");
 			$gui->type("server", "hidden");
 			$gui->type("passwort", "hidden");
+		}
+		
+		if($bps != -1 AND isset($bps["preset"]) AND $bps["preset"] == "adServer"){
+
+			$this->changeA("UserID", "-1");
+			$this->changeA("name", "ADServerUserPass");
+			#$html = "";
+			
+			/*
+			$gui->label("benutzername", "API-Key");
+			$gui->type("optionen", "hidden");
+			$gui->type("server", "hidden");
+			$gui->type("passwort", "hidden");*/
+			$gui->type("name", "hidden");
+			$gui->type("UserID", "hidden");
+			
+			$gui->label("server", "AD-Server");
+			$gui->label("optionen", "Benutzer-Pfad");
+			
+			$gui->descriptionField("benutzername", "Mit Domain-Name. Z.B. Administator@Furtmeier.dom");
+			$gui->descriptionField("optionen", "Bitte geben Sie den LDAP-Pfad zum Benutzer-Verzeichnis ein. Z.B. OU=Benutzer,DC=furtmeier,DC=dom");
+			
+			$onSave = "Popup.close('Users', 'edit');";
 		}
 
 		#$gui->label("benutzername", "Benutzername");

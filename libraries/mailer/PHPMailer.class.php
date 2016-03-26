@@ -933,7 +933,7 @@ class PHPMailer {
 					$hello = ($this->Helo != '' ? $this->Helo : $this->ServerHostname());
 					$this->smtp->Hello($hello);
 
-					if ($tls) {
+					if ($tls OR $this->smtp->useStarttls) {
 						if (!$this->smtp->StartTLS()) {
 							throw new phpmailerException($this->Lang('tls'));
 						}

@@ -74,6 +74,8 @@ class SMTP {
    */
   public $Version         = '5.2.1';
 
+  public $useStarttls = false;
+  
   /////////////////////////////////////////////////
   // PROPERTIES, PRIVATE AND PROTECTED
   /////////////////////////////////////////////////
@@ -498,7 +500,10 @@ class SMTP {
 
     $rply = $this->get_lines();
     $code = substr($rply,0,3);
-
+	
+	if(strpos($rply, "250 STARTTLS") > 0)
+		$this->useStarttls = true;
+	
     if($this->do_debug >= 2) {
       echo "SMTP -> FROM SERVER: " . $rply . $this->CRLF . '<br />';
     }

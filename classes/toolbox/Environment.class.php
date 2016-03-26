@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
 class Environment {
@@ -81,6 +81,18 @@ class Environment {
 		$return = Environment::$currentEnvironment->get($value, $default);
 
 		switch($value){
+			case "usePWEncryption":
+				try {
+					$LD = LoginData::get("ADServerUserPass");
+					if($LD != null AND $LD->A("server") != "")
+						return false;
+				} catch (Exception $e){
+					
+				}
+				
+				return true;
+			break;
+		
 			case "onLogout":
 			case "onTimeout":
 				return str_replace("%CLOUDUSER", Environment::$currentEnvironment->cloudUser(), $return);

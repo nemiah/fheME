@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
 var pWebsocket = {
@@ -28,12 +28,12 @@ var pWebsocket = {
 	onCloseCallbacks: [],
 	isOpen: false,
 	
-	settings: function(topic, data){
+	send: function(topic, data){
 		/*for(var i = 0; i < pWebsocket.setQueue.length; i++)
 			if(pWebsocket.setQueue[i][0] == plugin)
 				return;*/
 		
-		data.mode = "set";
+		//data.mode = "set";
 		
 		pWebsocket.setQueue.push([topic, data]);
 		
@@ -65,7 +65,8 @@ var pWebsocket = {
 	},
 	
 	connection: function(){
-		var conn = new ab.Session('ws://'+pWebsocket.server, function() {
+		/*var conn = new ab.Session('ws://'+pWebsocket.server, function() {
+				console.log('WebSocket connection established');
 				pWebsocket.isOpen = true;
 				pWebsocket.socket = this;
 				
@@ -77,10 +78,11 @@ var pWebsocket = {
 				
 				pWebsocket.retryCounter = 500;
 				
-				//console.log('WebSocket connection established');
 			},
 					
 			function() { // When the connection is closed
+				console.warn('WebSocket connection closed');
+				
 				pWebsocket.isOpen = false;
 				for(var i = 0; i < pWebsocket.onCloseCallbacks.length; i++)
 					pWebsocket.onCloseCallbacks[i]();
@@ -91,7 +93,6 @@ var pWebsocket = {
 					pWebsocket.retryCounter--;
 				}
 					
-				//console.warn('WebSocket connection closed');
 			},
 					
 			{// Additional parameters, we're ignoring the WAMP sub-protocol for older browsers
@@ -99,7 +100,7 @@ var pWebsocket = {
 			}
 		);
 		
-		return conn;
+		return conn;*/
 	},
 	
 	init: function(){
@@ -119,7 +120,6 @@ var pWebsocket = {
 				var callbacks = Registry.list("pWebsocket");
 				for (var i = 0; i < callbacks.length; i++)
 					callbacks[i]();
-				
 
 				return true;
 			} catch(ex) { 

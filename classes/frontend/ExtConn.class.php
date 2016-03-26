@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class ExtConn {
 	protected $absolutePath;
@@ -41,6 +41,7 @@ class ExtConn {
 		$this->absolutePath = $absolutePathToPhynx;
 		
 		$this->paths[] = $this->absolutePath."libraries/PhpFileDB.class.php";
+		$this->paths[] = $this->absolutePath."libraries/Timer.class.php";
 
 		if(!defined("PHYNX_LOW_FOOTPRINT")){
 			$this->paths[] = $this->absolutePath."classes/backend/Collection.class.php";
@@ -79,6 +80,7 @@ class ExtConn {
 			$this->paths[] = $this->absolutePath."classes/toolbox/Aspect.class.php";
 			$this->paths[] = $this->absolutePath."classes/toolbox/EUCountries.class.php";
 			$this->paths[] = $this->absolutePath."classes/toolbox/Registry.class.php";
+			$this->paths[] = $this->absolutePath."classes/toolbox/LoginAD.class.php";
 
 			$this->paths[] = $this->absolutePath."classes/interfaces/iFileBrowser.class.php";
 			$this->paths[] = $this->absolutePath."classes/interfaces/iLDAPExport.class.php";

@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class TodoGUI extends Todo implements iGUIHTML2 {
 	public $GUI;
@@ -340,7 +340,7 @@ class TodoGUI extends Todo implements iGUIHTML2 {
 		Aspect::joinPoint("before", null, __METHOD__, $MArgs);
 		// </editor-fold>
 
-		$types = array(1 => "Anruf", 2 => "Termin");
+		$types = array(1 => "Anruf", 2 => "Termin", 3 => "Termin Kaltaquise", 4 => "Termin Ersttermin", 5 => "Termin Folgetermin");
 
 		if($nr == null) return $types;
 		else {
@@ -478,6 +478,13 @@ class TodoGUI extends Todo implements iGUIHTML2 {
 	public function saveMe($checkUserData = true, $output = false, $update = true) {
 		parent::saveMe($checkUserData, $output, $update);
 		echo $this->getID();
+	}
+	
+	public function close($report){
+		$this->changeA("TodoReport", $report);
+		$this->changeA("TodoDoneTime", time());
+		
+		$this->saveMe();
 	}
 }
 ?>

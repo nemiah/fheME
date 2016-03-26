@@ -143,6 +143,21 @@ input[type=submit], select, textarea, .AJAXUpload {
 	transition: background-color 1s;
 }
 
+.tableWeightLight input[type=text],
+.tableWeightLight input[type=submit],
+.tableWeightLight input[type=password],
+.tableWeightLight input[type=radio],
+.tableWeightLight input[type=checkbox],
+.tableWeightLight input[type=button],
+.tableWeightLight input[type=submit], .tableWeightLight select, .tableWeightLight textarea, .tableWeightLight .AJAXUpload {
+	background-color:white;
+	border-bottom-color:white;
+}
+
+.tableWeightLight input[name=currentSaveButton] {
+	background-color:transparent;
+	border-bottom-color:transparent;
+}	
 /**
   * BECAUSE CHROME HAS ISSUES WITH DROPDOWNS AS OF 20140125
   * MAY BE REMOVED IN THE FUTURE
@@ -161,6 +176,11 @@ select {
 .hasFocus {
 	background-color:white !important;
 	border-bottom-color:#9E9EF0 !important;
+}
+
+.tableWeightLight .hasFocus {
+	background-color:white !important;
+	border-bottom-color:white !important;
 }
 
 .recentlyChanged {

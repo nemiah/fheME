@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 require_once '../libraries/Timer.class.php';
 
@@ -78,7 +78,7 @@ try {
 } catch (NoDBUserDataException $e) {
 	Red::errorD("Die Datenbank-Zugangsdaten sind falsch. Bitte verwenden Sie das Installations-Plugin im Administrationsbereich.");
 } catch (FieldDoesNotExistException $e) {
-	Red::errorUpdate();
+	Red::errorUpdate($e);
 } catch (DatabaseNotFoundException  $e) {
 	Red::errorD("Keine Datenbank ausgewählt. Bitte verwenden Sie das Installations-Plugin im Administrationsbereich.");
 }

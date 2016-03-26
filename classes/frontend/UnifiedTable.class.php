@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class UnifiedTable implements iUnifiedTable {
 	protected $content = array();
@@ -96,7 +96,9 @@ class UnifiedTable implements iUnifiedTable {
 	}
 
 	function addRowColspan($colNumber, $span){
-		if(!isset($this->rowColspan[count($this->content) - 1])) $this->rowColspan[count($this->content) - 1] = array();
+		if(!isset($this->rowColspan[count($this->content) - 1]))
+			$this->rowColspan[count($this->content) - 1] = array();
+		
 		$this->rowColspan[count($this->content) - 1][0] = $colNumber;
 		$this->rowColspan[count($this->content) - 1][1] = $span;
 	}
@@ -200,6 +202,11 @@ class UnifiedTable implements iUnifiedTable {
 			$E->setCSVNewline($this->CSVNewline);
 			return $E;
 		}
+		
+		if($E instanceof PDFExport){
+			$E->setCellStyles($this->cellStyles);
+			return $E;
+		}
 		/*switch($mode){
 			case "ExcelExport":
 				foreach($this->colAlign AS $k => $v)
@@ -221,6 +228,9 @@ class UnifiedTable implements iUnifiedTable {
 		$E = $this->makeTo($mode);
 
 		if($E instanceof ExcelExport)
+			$E->getExport($filename);
+		
+		if($E instanceof PDFExport)
 			$E->getExport($filename);
 		
 		if($E instanceof HTMLTable)

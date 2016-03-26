@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class MenuGUI extends UnpersistentClass implements iGUIHTML2, icontextMenu {
 	function  __construct() {
@@ -359,7 +359,7 @@ class MenuGUI extends UnpersistentClass implements iGUIHTML2, icontextMenu {
 		Aspect::joinPoint("before", $this, __METHOD__, $MArgs);
 		// </editor-fold>
 		$name = Applications::activeApplication();
-		echo Environment::getS("renameApplication:$name", $name);
+		echo Environment::getS("renameApplication:$name", $name." ".Applications::activeVersion());
 	}
 	
 	public function getContextMenuHTML($identifier){

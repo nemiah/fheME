@@ -13,27 +13,22 @@
  *  GNU General Public License for more details.
 
  *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with this program.  If not, see <http://www.gnu.org/licenses></http:>.
  * 
- *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
-class WetterGUI extends Wetter implements iGUIHTML2 {
+class phimUserHiddenGUI extends phimUserHidden implements iGUIHTML2 {
 	function getHTML($id){
 		$gui = new HTMLGUIX($this);
-		$gui->name("Wetter");
+		$gui->name("Ausgeblendeter Benutzer");
 	
-		$B = $gui->addSideButton("Daten\nanzeigen", "empty");
-		$B->popup("", "Wetter-Daten", "Wetter", $this->getID(), "getData");
+		$AC = Users::getUsersArray("Bitte auswählen...");
 		
-		$gui->descriptionField("WetterWOEID", "Siehe <a href=\"http://edg3.co.uk/snippets/weather-location-codes/germany/\" target=\"_blank\">http://edg3.co.uk/snippets/weather-location-codes/germany/</a>");
+		$gui->label("phimUserHiddenUserID", "Benutzer");
+		
+		$gui->type("phimUserHiddenUserID", "select", $AC);
 		
 		return $gui->getEditHTML();
-	}
-	
-	public function getData() {
-		echo "<pre style=\"height:400px;overflow:auto;\">";
-		print_r(parent::getData());
-		echo "</pre>";
 	}
 }
 ?>

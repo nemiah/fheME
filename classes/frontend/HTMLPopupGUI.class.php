@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class HTMLPopupGUI {
 	private $object;
@@ -64,8 +64,9 @@ class HTMLPopupGUI {
 		return $BC."<div style=\"clear:both;\"></div>".$gui->getEditHTML();
 	}
 	
-	public function emptyCheckField($name){
+	public function emptyCheckField($name, $value = null){
 		$this->emptyCheckField = $name;
+		$this->emptyCheckValue = $value;
 	}
 	
 	public function parser($column, $method){
@@ -104,7 +105,7 @@ class HTMLPopupGUI {
 			$BD->onclick("deleteClass('".get_class($A)."','".$A->getID()."', function() { ".OnEvent::reloadPopup($this->object->getClearClass())." },'Eintrag wirklich löschen?');");
 
 			$isEmpty = false;
-			if($this->emptyCheckField != null AND !is_array($this->emptyCheckField) AND $A->A($this->emptyCheckField) == ""){
+			if($this->emptyCheckField != null AND !is_array($this->emptyCheckField) AND $A->A($this->emptyCheckField) == $this->emptyCheckValue){
 				$autoLoad = $action;
 				$isEmpty = true;
 			}

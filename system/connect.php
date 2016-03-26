@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
 /**
@@ -34,7 +34,7 @@
 #define("PHYNX_QUERY_PARSER", true);
 
 define("PHYNX_USE_TEMP_HTACCESS", true);
-define("PHYNX_USE_SVG", false);
+define("PHYNX_USE_SVG", true);
 
 if(isset($_SERVER["HTTP_HOST"]) AND $_SERVER["HTTP_HOST"] == "cloud.furtmeier.it"){
 	define("PHYNX_USE_SYSLOG", true);

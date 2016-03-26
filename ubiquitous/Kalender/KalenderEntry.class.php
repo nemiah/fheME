@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class KalenderEntry {
 	protected $title;
@@ -29,6 +29,8 @@ class KalenderEntry {
 	protected $classID;
 	protected $values = array();
 	protected $editable;
+	protected $closeable = false;
+	protected $closed = array();
 	protected $location;
 	protected $UID;
 	protected $organizer;
@@ -38,7 +40,8 @@ class KalenderEntry {
 	protected $repeatUntil = 0;
 	protected $repeatWeekOfMonth = 0;
 	protected $repeatDayOfWeek = "";
-
+	protected $canInvite = false;
+	
 	protected $remind = -1;
 	protected $reminded = 0;
 	protected $callbackOnShow;
@@ -160,6 +163,15 @@ class KalenderEntry {
 
 	function editable($editMethod, $deleteMethod){
 		$this->editable = array($editMethod, $deleteMethod);
+	}
+	
+	function canInvite(){
+		$this->canInvite = true;
+	}
+	
+	function closeable($closedTime, $report){
+		$this->closeable = true;
+		$this->closed = array($closedTime, $report);
 	}
 
 	function getDayViewHTML(){

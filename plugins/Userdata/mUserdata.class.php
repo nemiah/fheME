@@ -15,16 +15,71 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class mUserdata extends anyC {
 	function __construct() {
 		$this->setCollectionOf("Userdata");
 	}
 	
-	public function loadDataOfUser($UserID = 0){
+	protected function roles($role = null){
+		$roles = array(
+			"Verkäuferin" => array(
+				"Auftraege" => array("pluginSpecificCanOnlyEditOwn"), 
+				#"Adressen" => array("pluginSpecificCanUseProvision"), 
+				"Provisionen" => array("pluginSpecificHideEK"), 
+				"mAkquise" => array("pluginSpecificCanSeeOnlyOwn"),
+				"cantEdit" => array("WAdresse", "Adresse"),
+				"cantDelete" => array("WAdresse", "Adresse")
+			),
+			"Vertriebsleiterin" => array(
+				"Auftraege" => array("pluginSpecificCanOnlyEditOwn"), 
+				"mAkquise" => array("pluginSpecificCanSeeOnlyOwn"),
+				"cantEdit" => array("WAdresse", "Adresse"),
+				"cantDelete" => array("WAdresse", "Adresse")
+			),
+			"Geschäftsführerin" => array(
+				"mStatistik" => array("pluginSpecificCanUseControlling"),
+				"Auftraege" => array("pluginSpecificCanSetPayed", "pluginSpecificCanRemovePayed"),
+				"Provisionen" => array("pluginSpecificCanGiveProvisions")
+			),
+			"Buchhalterin" => array(
+				"Auftraege" => array("pluginSpecificCanSetPayed", "pluginSpecificCanRemovePayed")
+			),
+			"Lagerverwalterin" => array(
+				"mLager" => array("pluginSpecificCanResetLager")
+			)
+		);
+	
+	
+		foreach($roles AS $l => $s)
+			foreach($s AS $plugin => $rule){
+				if($plugin == "cantEdit" OR $plugin == "cantDelete")
+					continue;
+			
+				try {
+					new $plugin();
+					continue;
+				} catch (ClassNotFoundException $e){
+					#unset($roles[$l]);
+					unset($roles[$l][$plugin]);
+				}
+			}
+		
+		$roles = Aspect::joinPoint("roles", $this, __METHOD__, array($roles), $roles);
+		
+		if($role != null)
+			return $roles[$role];
+		
+		
+		return $roles;
+	}
+	
+	public function loadDataOfUser($UserID = 0, $typ = null){
 		if($UserID == 0) $UserID = $_SESSION["S"]->getCurrentUser()->getID();
 		$this->addAssocV3("UserID","=",$UserID);
+		if($typ != null)
+			$this->addAssocV3 ("typ", "=", $typ);
 		$this->lCV3();
 	}
 	
@@ -57,9 +112,9 @@ class mUserdata extends anyC {
 		return $labels;
 	}
 	
-	public static function getHiddenPlugins(){
+	public static function getHiddenPlugins($skipCache = false){
 		$Cache = SpeedCache::getCache("getHiddenPlugins");
-		if($Cache !== null)
+		if(!$skipCache AND $Cache !== null)
 			return $Cache;
 
 		$UD = new mUserdata();
@@ -135,10 +190,10 @@ class mUserdata extends anyC {
 	 * You can get Userdata with this function.
 	 * Returns null if name does not exist
 	 */
-	public function getUserdata($name, $UserID = 0){
+	public function getUserdata($name, $UserID = 0, $typ = null){
 
 		if($this->collector == null) 
-			$this->loadDataOfUser($UserID);
+			$this->loadDataOfUser($UserID, $typ);
 		
 		$r = null;
 		
@@ -244,7 +299,7 @@ class mUserdata extends anyC {
 		if($UserID == 0)
 			$UserID = $_SESSION["S"]->getCurrentUser()->getID();
 			
-		$UD = $this->getUserdata($name, $UserID);
+		$UD = $this->getUserdata($name, $UserID, $typ);
 
 		if($UD == null){
 			$nUD = new Userdata(-1);

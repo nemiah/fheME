@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
 class OnEvent {
@@ -83,7 +83,7 @@ class OnEvent {
 	
 	public static function iframe($targetObject, $targetMethod, $targetMethodParameters = "", $targetFrame, $bps = null){
 		
-		return "contentManager.iframeRme('".str_replace("GUI", "", get_class($targetObject))."', ".$targetObject->getID().", '$targetMethod', ".(is_array($targetMethodParameters) ? "['".implode("','", $targetMethodParameters)."']" : "'$targetMethodParameters'").", '$targetFrame'".($bps != null ? ", '$bps'" : "")."); ";
+		return "contentManager.iframeRme('".str_replace("GUI", "", get_class($targetObject))."', '".$targetObject->getID()."', '$targetMethod', ".(is_array($targetMethodParameters) ? "['".implode("','", $targetMethodParameters)."']" : "'$targetMethodParameters'").", '$targetFrame'".($bps != null ? ", '$bps'" : "")."); ";
 	}
 	
 	public static function popupSidePanel($targetClass, $targetClassId, $targetMethod, $targetMethodParameters = "", $popupName = "edit"){

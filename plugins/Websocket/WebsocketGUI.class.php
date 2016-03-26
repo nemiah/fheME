@@ -15,15 +15,34 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class WebsocketGUI extends Websocket implements iGUIHTML2 {
 	function getHTML($id){
 		$gui = new HTMLGUIX($this);
 		$gui->name("Websocket");
 	
-		$B = $gui->addSideButton("Verbindung\ntesten", "empty");
-		$B->onclick("pWebsocket.test(\$j('#editWebsocketGUI input[name=WebsocketServer]').val()+':'+\$j('#editWebsocketGUI input[name=WebsocketServerPort]').val());");
+		#$B = $gui->addSideButton("Verbindung\ntesten", "empty");
+		#$B->onclick("pWebsocket.test(\$j('#editWebsocketGUI input[name=WebsocketServer]').val()+':'+\$j('#editWebsocketGUI input[name=WebsocketServerPort]').val());");
+		
+		$gui->attributes(array(
+			"WebsocketUseFor",
+			"WebsocketServer",
+			"WebsocketServerPort",
+			"WebsocketSecure",
+			"WebsocketRealm",
+			"WebsocketToken"
+		));
+		
+		$gui->label("WebsocketSecure", "Verschlüsselt?");
+		$gui->label("WebsocketUseFor", "Verwenden für");
+		$gui->label("WebsocketServerPort", "Port");
+		
+		$gui->type("WebsocketSecure", "checkbox");
+		$gui->type("WebsocketUseFor", "select", array("phim" => "phim"));
+		
+		$gui->space("WebsocketServer");
+		$gui->space("WebsocketRealm");
 		
 		return $gui->getEditHTML();
 	}

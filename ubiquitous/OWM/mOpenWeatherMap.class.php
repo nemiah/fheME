@@ -1,5 +1,4 @@
 <?php
-
 /**
  *  This file is part of ubiquitous.
 
@@ -14,13 +13,18 @@
  *  GNU General Public License for more details.
 
  *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with this program.  If not, see <http://www.gnu.org/licenses></http:>.
  * 
- *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
-class MondGUI extends Mond {
 
-
+class mOpenWeatherMap extends anyC {
+	public static function update(){
+		$AC = anyC::get("OpenWeatherMap");
+		$AC->addAssocV3("OpenWeatherMapLastUpdate + (OpenWeatherMapUpdateInterval * 60)", "<=", time());
+		while($O = $AC->n()){
+			$O->download();
+		}
+	}
 }
-
 ?>

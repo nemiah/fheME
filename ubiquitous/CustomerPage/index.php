@@ -67,12 +67,16 @@ $styles = "";
 $script = "";
 $styleFiles = "";
 $scriptFiles = "";
+$meta = "";
 if(isset($I)){
 	if(method_exists($I, "getStyle"))
 		$styles = $I->getStyle();
 	
 	if(method_exists($I, "getScript"))
 		$script = $I->getScript();
+	
+	if(method_exists($I, "getMeta"))
+		$meta = $I->getMeta()."\n";
 	
 	if(method_exists($I, "getStyleFiles")){
 		$styleFilesData = $I->getStyleFiles();
@@ -92,7 +96,10 @@ if(isset($I)){
 <html lang="de">
 	<head>
 		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" /> 
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+		<?php
+		echo $meta;
+		?>
 		<title><?php echo $pageTitle; ?></title>
 		
 		<link rel="stylesheet" type="text/css" href="./lib/jquery-ui-1.8.24.custom.css" />

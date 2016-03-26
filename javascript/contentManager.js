@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
 var lastLoadedLeft        = -1;
@@ -246,7 +246,7 @@ var contentManager = {
 		
 		contentManager.loadFrame(targetFrame, targetPlugin, -1, page, bps, function(){
 			if(typeof withId != "undefined" && withId != null){
-				contentManager.loadFrame("contentLeft", !options.single ? targetPlugin.substr(1) : options.single, withId);
+				contentManager.loadFrame("contentLeft", (typeof options != "undefined" && options.single) ? options.single : targetPlugin.substr(1), withId);
 				return;
 			}
 			
@@ -388,8 +388,8 @@ var contentManager = {
 		}
 	},
 
-	rightSelection: function(isMultiSelection, selectPlugin, callingPlugin, callingPluginID, callingPluginFunction){
-		contentManager.loadFrame('contentRight', selectPlugin, -1, 0, selectPlugin+'GUI;selectionMode:'+(isMultiSelection ? "multi" : "single")+'Selection,'+callingPlugin+','+callingPluginID+','+callingPluginFunction+','+lastLoadedRightPlugin);
+	rightSelection: function(isMultiSelection, selectPlugin, callingPlugin, callingPluginID, callingPluginFunction, addBPS){
+		contentManager.loadFrame('contentRight', selectPlugin, -1, 0, selectPlugin+'GUI;selectionMode:'+(isMultiSelection ? "multi" : "single")+'Selection,'+callingPlugin+','+callingPluginID+','+callingPluginFunction+','+lastLoadedRightPlugin+(addBPS ? ";"+addBPS : ""));
 		/*loadFrameV2(
 			'contentRight',
 			pluginRight,

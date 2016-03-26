@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class KalenderEvent extends KalenderEntry {
 	private $day;
@@ -607,7 +607,7 @@ class KalenderEvent extends KalenderEntry {
 			
 			$BD = new Button("Dieses Event löschen", "trash", "icon");
 			$BD->style("float:right;margin:10px;");
-			$BD->onclick("if(confirm('Löschen?')) ");
+			$BD->doBefore("if(confirm('Löschen?')) %AFTER");
 			$BD->rmePCR(str_replace("GUI", "", $this->className), $this->classID, $this->editable[1], $this->classID, "contentManager.reloadFrame('contentScreen'); Popup.close('mKalender', 'edit');");
 			
 			if($this->repeat() !== false){
@@ -615,7 +615,7 @@ class KalenderEvent extends KalenderEntry {
 				
 				$BDS = new Button("Alle Events Löschen", "./ubiquitous/Kalender/deleteSeries.png", "icon");
 				$BDS->style("float:right;margin:10px;");
-				$BDS->onclick("if(confirm('Löschen?')) ");
+				$BDS->doBefore("if(confirm('Löschen?')) %AFTER");
 				$BDS->rmePCR(str_replace("GUI", "", $this->className), $this->classID, $this->editable[1], $this->classID, "contentManager.reloadFrame('contentLeft'); Popup.close('mKalender', 'edit');");
 			
 			}
@@ -662,8 +662,22 @@ class KalenderEvent extends KalenderEntry {
 		
 		$BI = new Button("Teilnehmer", "./ubiquitous/Kalender/einladungen.png", "icon");
 		$BI->style("margin: 10px; float: right;");
-		$BI->rmePCR("mKalender", "-1", "getInvitees", array("'$this->className'", "'$this->classID'", "'getInvitees'"), "function(t){ \$j('#eventAdditionalContent').html(''); \$j('#editDetailsmKalender').animate({'width':'800px'}, 200, 'swing', function(){ \$j('#eventSideContent').html(t.responseText).fadeIn(); }); }");
+		$BI->rmePCR("mKalender", "-1", "getInvitees", array("'$this->className'", "'$this->classID'"), "function(t){ \$j('#eventAdditionalContent').html(''); \$j('#editDetailsmKalender').animate({'width':'800px'}, 200, 'swing', function(){ \$j('#eventSideContent').html(t.responseText).fadeIn(); }); }");
 		
+		if(!$this->canInvite)
+			$BI = "";
+		
+		$closed = "";
+		if($this->closeable){
+			$BC = new Button("Termin abschließen", "bestaetigung", "icon");
+			$BC->style("margin: 10px; float: right;");
+			$BC->rmePCR("mKalender", "-1", "getClose", array("'$this->className'", "'$this->classID'"), "function(t){ \$j('#editDetailsContentmKalender').html(t.responseText); }");
+			
+			if($this->closed[0]){
+				$BC = "";
+				$closed = "<p>Termin abgeschlossen am ".Util::CLDateParser($this->closed[0]).($this->closed[1] != "" ? ":<br>".nl2br($this->closed[1]) : "")."</p>";
+			}
+		}
 		
 		$topButtons = "";
 		foreach($this->topButtons AS $B){
@@ -672,7 +686,7 @@ class KalenderEvent extends KalenderEntry {
 			$topButtons .= $B;
 		}
 		
-		return "<div style=\"width:400px;\">".$BDS.$BD.$BE.$BN.$topButtons.$BR.$BI."</div><div style=\"clear:both;\"></div><div style=\"display:none;\" id=\"eventAdditionalContent\"></div><div style=\"display:none;width:400px;float:right;\" id=\"eventSideContent\"></div><div style=\"width:400px;float:left;\" id=\"eventDefaultContent\"$T</div>";
+		return "<div style=\"width:400px;\">".$BDS.$BD.$BE.$BN.$topButtons.$BR.$BI.$BC.$closed."</div><div style=\"clear:both;\"></div><div style=\"display:none;\" id=\"eventAdditionalContent\"></div><div style=\"display:none;width:400px;float:right;\" id=\"eventSideContent\"></div><div style=\"width:400px;float:left;\" id=\"eventDefaultContent\"$T</div>";
 	}
 	
 	public function getInviteForm() {
@@ -706,7 +720,7 @@ class KalenderEvent extends KalenderEntry {
 			$zeit = "";
 		
 		return "
-			<div onclick=\"$onClick\" style=\"".($this->status == 2 ? "color:grey;" : "")."white-space:nowrap;overflow:hidden;height:13px;/*width:60px;*/clear:left;padding:2px;padding-left:4px;cursor:pointer;".($grey ? "color:grey;" : "")."\">
+			<div title=\"$this->title\" onclick=\"$onClick\" style=\"".($this->status == 2 ? "color:grey;" : "")."white-space:nowrap;overflow:hidden;height:13px;/*width:60px;*/clear:left;padding:2px;padding-left:4px;cursor:pointer;".($grey ? "color:grey;" : "")."\">
 				<small>".(($grey AND isset(mKalenderGUI::$colors[$this->owner])) ? "<div style=\"display:inline-block;margin-right:3px;width:5px;background-color:".mKalenderGUI::$colors[$this->owner].";\">&nbsp;</div>" : "")."$zeit $this->title</small>
 			</div>";
 	}

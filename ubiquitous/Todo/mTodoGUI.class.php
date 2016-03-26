@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class mTodoGUI extends mTodo implements iGUIHTMLMP2, iKalender {
 	public function  __construct() {
@@ -45,10 +45,10 @@ class mTodoGUI extends mTodo implements iGUIHTMLMP2, iKalender {
 
 		$gui->name("Aktivität");
 		$gui->colWidth("TodoType","20px");
-		$gui->colWidth("TodoStatus","20px");
+		$gui->colWidth("TodoDoneTime","20px");
 		$gui->object($this);
 		
-		$gui->parser("TodoStatus","mTodoGUI::statusParser");
+		$gui->parser("TodoDoneTime","mTodoGUI::parserDone");
 		$gui->parser("TodoDescription","mTodoGUI::descParser");
 		$gui->parser("TodoType","TodoGUI::typesImage");
 		$gui->parser("TodoTillDay","mTodoGUI::dayParser");
@@ -56,11 +56,39 @@ class mTodoGUI extends mTodo implements iGUIHTMLMP2, iKalender {
 		$gui->activateFeature("CRMEditAbove", $this);
 		
 		$gui->displayMode("CRMSubframeContainer");
-		$gui->attributes(array("TodoType","TodoTillDay","TodoDescription","TodoStatus"));
+		$gui->attributes(array("TodoType","TodoTillDay","TodoDescription","TodoDoneTime"));
 		$gui->customize($this->customizer);
 		return $gui->getBrowserHTML($id);
 	}
+	
+	public static function parserDone($w, $l, $E){
+		$B = new Button("Termin abschließen", "./images/i2/bestaetigung.png", "icon");
+		$B->popup("", "Termin abschließen", "mTodo", -1, "getClose", array($E->getID()));
+		
+		return $B.($w > 0 ? OnEvent::script("\$j('#BrowsermTodo".$E->getID()."').addClass('confirm');") : "");
+	}
 
+	public function getClose($TodoID){
+		$T = new Todo($TodoID);
+		
+		if($T->A("TodoDoneTime")){
+			die("<p>Dieser Termin wurde abgeschlossen am ".Util::CLDateParser($T->A("TodoDoneTime"))."</p><p>".nl2br($T->A("TodoReport"))."</p>");
+		}
+		
+		$F = new HTMLForm("todoClose", array("TodoReport"));
+		$F->getTable()->setColWidth(1, 120);
+		
+		$F->setLabel("TodoReport", "Bericht");
+		
+		$F->setType("TodoReport", "textarea");
+		
+		$F->setInputStyle("TodoReport", "height:200px;");
+		
+		$F->setSaveRMEPCR("Termin abschließen", "", "Todo", $TodoID, "close", OnEvent::closePopup("mKalender").OnEvent::closePopup("mTodo")."contentManager.updateLine('TodoForm', $TodoID, 'mTodo'); if(lastLoadedScreenPlugin == 'mAufgabe') ".OnEvent::reload("Screen"));
+		
+		echo $F;
+	}
+	
 	public function getInvitees($TodoID){
 		$AC = anyC::get("TodoInvitation", "TodoInvitationTodoID", $TodoID);
 		$AC->addOrderV3("TodoInvitationID", "DESC");
@@ -401,10 +429,10 @@ END:VCALENDAR";
 		return $E->A("TodoTillDay")." ".$E->A("TodoTillTime")."<br /><small style=\"color:grey;\">".$U->A("name")."</small>";
 	}
 
-	public static function statusParser($v){
-		if($v == 2) $v = 1;
-		return Util::catchParser($v, null, "erledigt?");
-	}
+	#public static function statusParser($v){
+	#	if($v == 2) $v = 1;
+	#	return Util::catchParser($v, null, "erledigt?");
+	#}
 
 
 	public static function getCalendarDetails($className, $classID, $T = null) {
@@ -491,9 +519,11 @@ END:VCALENDAR";
 			$editMethod = null;
 			$KE->organizer($T->A("TodoOrganizer"));
 		}
-		$KE->editable($editMethod, "deleteFromCalendar");
 		
-		if($T->A("TodoOrganizer") == "")
+		if(!$T->A("TodoDoneTime"))
+			$KE->editable($editMethod, "deleteFromCalendar");
+		
+		if($T->A("TodoOrganizer") == "" AND !$T->A("TodoDoneTime"))
 			$KE->repeatable("editRepeatable");
 
 		$KE->location($T->A("TodoLocation"));
@@ -501,6 +531,11 @@ END:VCALENDAR";
 		$KE->repeat($T->A("TodoRepeat") != "", $T->A("TodoRepeat"), $T->A("TodoRepeatWeekOfMonth") * 1, $T->A("TodoRepeatDayOfWeek"), $T->A("TodoRepeatInterval"), $T->A("TodoRepeatUntil"));
 
 		$KE->UID("TodoID".$T->getID()."@".substr(Util::eK(), 0, 20));
+		
+		$KE->closeable($T->A("TodoDoneTime"), $T->A("TodoReport"));
+		
+		if(!$T->A("TodoDoneTime"))
+			$KE->canInvite();
 		
 		return $KE;
 	}

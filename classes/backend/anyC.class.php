@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class anyC extends Collection {
 	
@@ -75,7 +75,7 @@ class anyC extends Collection {
 	 * @param object $id[optional]
 	 * @param object $returnCollector[optional]
 	 */
-	public function lCV3($id = -1, $returnCollector = true){
+	/*public function lCV3($id = -1, $returnCollector = true){
 		if($this->Adapter == null) $this->loadAdapter();
 
 		$gT = $this->Adapter->getSelectStatement("table");
@@ -86,10 +86,13 @@ class anyC extends Collection {
 
 		if($returnCollector) $this->collector = $this->Adapter->lCV4();
 		else return $this->Adapter->lCV4();
-	}
+	}*/
 	
-	public function toArray($valueFieldName){
+	public function toArray($valueFieldName, $zeroEntryLabel = null){
 		$r = array();
+		
+		if($zeroEntryLabel !== null)
+			$r[0] = $zeroEntryLabel;
 		
 		while($E = $this->getNextEntry())
 			$r[$E->getID()] = $E->A($valueFieldName);

@@ -25,5 +25,12 @@ class phim extends PersistentObject {
 		
 		return $A;
 	}
+	
+	function deleteMe() {
+		if($this->A("phimFromUserID") != Session::currentUser()->getID())
+			Red::errorD ("Sie können nur eigene Nachrichten löschen!");
+		
+		parent::deleteMe();
+	}
 }
 ?>

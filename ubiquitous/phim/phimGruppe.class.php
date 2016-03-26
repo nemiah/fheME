@@ -13,12 +13,18 @@
  *  GNU General Public License for more details.
 
  *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with this program.  If not, see <http://www.gnu.org/licenses></http:>.
  * 
- *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
-
-class mWetter extends anyC {
+class phimGruppe extends PersistentObject {
+	function newAttributes() {
+		$A = parent::newAttributes();
+		
+		$A->phimGruppeMasterUserID = Session::currentUser()->getID();
+		
+		return $A;
+	}
 	
 }
 ?>

@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 abstract class Collection {
 	protected $A = null;
@@ -473,8 +473,13 @@ abstract class Collection {
 	 * 
 	 * @return persistentObject Next entry of Collector
 	 */
-	function getNextEntry(){
-		if($this->collector === null) $this->lCV3();
+	function getNextEntry($lazyLoad = false){
+		if($lazyLoad)
+			return $this->lCV3(-1, false, $lazyLoad);
+					
+		if(!$lazyLoad AND $this->collector === null) 
+			$this->lCV3(-1, true, $lazyLoad);
+		
 		if(isset($this->collector[$this->i]))
 			return $this->collector[$this->i++];
 		
@@ -549,18 +554,21 @@ abstract class Collection {
 	 * @param $id[optional](Integer) Only select object with specified ID
 	 * @param $returnCollector[optional](Boolean) If true, result is saved in collector-variable, otherwise the result is returned
 	 */
-	public function lCV3($id = -1, $returnCollector = true){
-		
-		if($this->Adapter == null) $this->loadAdapter();
-		
+	public function lCV3($id = -1, $returnCollector = true, $lazyload = false){
+		if($this->Adapter == null) 
+			$this->loadAdapter();
+
 		$gT = $this->Adapter->getSelectStatement("table");
-		if(count($gT) == 0) $this->Adapter->setSelectStatement("table",$this->collectionOf);
+		if(count($gT) == 0) 
+			$this->Adapter->setSelectStatement("table", $this->collectionOf);
 		
 		if($id != -1)
 			$this->setAssocV3((count($gT) == 0 ? $this->collectionOf : $gT[0])."ID","=",$id);
 		
-		if($returnCollector) $this->collector = $this->Adapter->lCV3();
-		else return $this->Adapter->lCV3();
+		if($returnCollector) 
+			$this->collector = $this->Adapter->lCV4();
+		else 
+			return $this->Adapter->lCV4($lazyload);
 	}
 	
 	/**
@@ -767,8 +775,8 @@ abstract class Collection {
 	 * 
 	 * @return persistentObject Next entry of Collector
 	 */
-	function n(){
-		return $this->getNextEntry();
+	function n($lazyLoad = false){
+		return $this->getNextEntry($lazyLoad);
 	}
 	
 	public function setTableLock(string $table, boolean $lock){

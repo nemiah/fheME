@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
 /*
@@ -594,7 +594,7 @@ if(useTouch){
 		Touch.cancelNext = false;
 		Touch.inAction = this;
 	});
-	
+
 	$j(document).on("touchstart", ".contentBrowser td", function(ev){
 		$j(this).parent().addClass("highlight");
 		
@@ -611,7 +611,7 @@ if(useTouch){
 		if(Math.abs(ev.clientX - Touch.startPos[0]) < 15 && Math.abs(ev.clientY - Touch.startPos[1]) < 15)
 			return;
 		
-		console.log("CANCEL!");
+		//console.log("CANCEL!");
 		Touch.cancelNext = true;
 		
 		$j(ev.target).trigger("touchend");

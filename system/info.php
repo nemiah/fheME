@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
 if(count($_GET) == 0){
@@ -151,10 +151,10 @@ $pf = new PhpFileDB();
 $pf->setFolder("../system/DBData/");
 $pf->pfdbQuery("SELECT * FROM Installation");
 
-@mysql_connect('localhost','','');
-$e1 = mysql_error();
-@mysql_connect('127.0.0.1','','');
-$e2 = mysql_error();
+@mysqli_connect('localhost','','');
+$e1 = mysqli_error();
+@mysqli_connect('127.0.0.1','','');
+$e2 = mysqli_error();
 $mysql = false;
 
 if(preg_match("/^Access denied for user/", $e1)) $mysql = true;
@@ -199,17 +199,17 @@ echo "MySQL-Server:				".generic($mysql,"erreichbar")." (es werden nur localhost
 while($t = $pf->pfdbFetchAssoc()){
 	echo "	<b>".str_pad($t["host"],20)."".str_pad($t["datab"],20)."</b>\n";
 	
-	$r = mysql_connect($t["host"], $t["user"], $t["password"]);
+	$r = mysqli_connect($t["host"], $t["user"], $t["password"]);
 	
-	echo "		MySQL server: ".mysql_get_server_info()."\n";
-	echo "		MySQL client: ".mysql_get_client_info()."\n";
+	echo "		MySQL server: ".mysqli_get_server_info()."\n";
+	echo "		MySQL client: ".mysqli_get_client_info()."\n";
 	
 	if(extension_loaded("mysqli")){
 		$ri = new mysqli($t["host"], $t["user"], $t["password"], $t["datab"]);
 		#print_r($ri);
 		echo "		MySQLi client: ".$ri->client_info."\n";
 	}
-	$ts = mysql_fetch_assoc(mysql_query("SELECT @@sql_mode"));
+	$ts = mysqli_fetch_assoc(mysqli_query("SELECT @@sql_mode"));
 	echo "		Mode: ".str_replace(array("STRICT_TRANS_TABLES", "STRICT_ALL_TABLES"), array("<span style=\"color:red;\">STRICT_TRANS_TABLES</span>", "<span style=\"color:red;\">STRICT_ALL_TABLES</span>"), $ts["@@sql_mode"]);
 	echo "\n";
 	

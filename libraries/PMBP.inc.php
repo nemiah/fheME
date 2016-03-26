@@ -109,8 +109,8 @@ function PMBP_exec_sql($file, $con, $linespersession = false, $noFile = false) {
 
 		// execute query if end of query detected (; as last character) AND NOT in parents
 		if (substr(trim($dumpline), -1) == ";" /* ereg(";$",trim($dumpline)) */ && !$inparents) {
-			if (!mysql_query(trim($query), $con)) {
-				$error = SQ_ERROR . " " . ($linenumber + 1) . "<br>" . nl2br(htmlentities(trim($query))) . "\n<br>" . htmlentities(mysql_error());
+			if (!mysqli_query($con, trim($query))) {
+				$error = SQ_ERROR . " " . ($linenumber + 1) . "<br>" . nl2br(htmlentities(trim($query))) . "\n<br>" . htmlentities(mysqli_error());
 				break;
 			}
 
@@ -148,16 +148,18 @@ function PMBP_dump($CONF, $PMBP_SYS_VAR, $db, $tables, $data, $drop, $zip, $comm
 	// set backupfile name
 	$time = date("Ymd");
 	if ($zip == "gzip")
-		$backupfile = $db . "." . $time . ".sql.gz";
+		$backupfile = $db . "." . $time . "_utf8.sql.gz";
 	else
-		$backupfile = $db . "." . $time . ".sql";
+		$backupfile = $db . "." . $time . "_utf8.sql";
 	
 	$backupfile = PMBP_EXPORT_DIR . $backupfile;
 
-	$con = @mysql_connect($CONF['sql_host'], $CONF['sql_user'], $CONF['sql_passwd']);
+	$con = @mysqli_connect($CONF['sql_host'], $CONF['sql_user'], $CONF['sql_passwd']);
 	if (!$con)
 		return "DB_ERROR";
-	
+	mysqli_set_charset($con, "utf8");
+	mysqli_query($con, "SET SESSION sql_mode='';");
+		
 	//create comment
 	$out = "# MySQL dump of database '" . $db . "' on host '" . $CONF['sql_host'] . "'\n";
 	$out .= "# backup date and time: " . strftime($CONF['date'], $time) . "\n";
@@ -181,12 +183,12 @@ function PMBP_dump($CONF, $PMBP_SYS_VAR, $db, $tables, $data, $drop, $zip, $comm
 	}
 
 	// select db
-	@mysql_select_db($db);
+	mysqli_select_db($con, $db);
 
 	// get auto_increment values and names of all tables
-	$res = mysql_query("show table status");
+	$res = mysqli_query($con, "show table status");
 	$all_tables = array();
-	while ($row = mysql_fetch_array($res)) {
+	while ($row = mysqli_fetch_array($res)) {
 		if ($row["Comment"] == "VIEW")
 			continue;
 		
@@ -195,8 +197,8 @@ function PMBP_dump($CONF, $PMBP_SYS_VAR, $db, $tables, $data, $drop, $zip, $comm
 
 	// get table structures
 	foreach ($all_tables as $table) {
-		$res1 = mysql_query("SHOW CREATE TABLE `" . $table['Name'] . "`");
-		$tmp = mysql_fetch_array($res1);
+		$res1 = mysqli_query($con, "SHOW CREATE TABLE `" . $table['Name'] . "`");
+		$tmp = mysqli_fetch_array($res1);
 		$table_sql[$table['Name']] = $tmp["Create Table"];
 	}
 
@@ -272,20 +274,23 @@ function PMBP_dump($CONF, $PMBP_SYS_VAR, $db, $tables, $data, $drop, $zip, $comm
 			$out.="### data of table `" . $tablename . "` ###\n\n";
 
 			// check if field types are NULL or NOT NULL
-			$res3 = mysql_query("show columns from `" . $tablename . "`");
+			#$res3 = mysqli_query($con, "show columns from `" . $tablename . "`");
 
-			$res2 = mysql_query("select * from `" . $tablename . "`");
-			for ($j = 0; $j < mysql_num_rows($res2); $j++) {
+			$res2 = mysqli_query($con, "select * from `" . $tablename . "`");
+			for ($j = 0; $j < mysqli_num_rows($res2); $j++) {
 				$out .= "insert into `" . $tablename . "` values (";
-				$row2 = mysql_fetch_row($res2);
+				$row2 = mysqli_fetch_row($res2);
+				
 				// run through each field
-				for ($k = 0; $k < $nf = mysql_num_fields($res2); $k++) {
+				foreach($row2 AS $k => $v){
+				#for ($k = 0; $k < $nf = mysqli_num_fields($res2); $k++) {
 					// identify null values and save them as null instead of ''
-					if (is_null($row2[$k]))
+					if (is_null($v))
 						$out .="null";
 					else
-						$out .="'" . mysql_real_escape_string($row2[$k]) . "'";
-					if ($k < ($nf - 1))
+						$out .="'" . mysqli_real_escape_string($con, $v) . "'";
+					
+					if ($k < count($row2) - 1)
 						$out .=", ";
 				}
 				$out .=");\n";
@@ -385,8 +390,8 @@ function PMBP_get_db_list($CONF) {
 	#global $CONF;
 	// if there is given the name of a single database
 	if ($CONF['sql_db']) {
-		@mysql_connect($CONF['sql_host'], $CONF['sql_user'], $CONF['sql_passwd']);
-		if (@mysql_select_db($CONF['sql_db']))
+		@mysqli_connect($CONF['sql_host'], $CONF['sql_user'], $CONF['sql_passwd']);
+		if (@mysqli_select_db($CONF['sql_db']))
 			$dbs = array($CONF['sql_db']);
 		else
 			$dbs = array();
@@ -395,10 +400,10 @@ function PMBP_get_db_list($CONF) {
 
 	// else try to get a list of all available databases on the server
 	$list = array();
-	@mysql_connect($CONF['sql_host'], $CONF['sql_user'], $CONF['sql_passwd']);
-	$db_list = @mysql_list_dbs();
-	while ($row = @mysql_fetch_array($db_list))
-		if (@mysql_select_db($row['Database']))
+	@mysqli_connect($CONF['sql_host'], $CONF['sql_user'], $CONF['sql_passwd']);
+	$db_list = @mysqli_list_dbs();
+	while ($row = @mysqli_fetch_array($db_list))
+		if (@mysqli_select_db($row['Database']))
 			$list[] = $row['Database'];
 	return $list;
 }

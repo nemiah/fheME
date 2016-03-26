@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class PMReflector {
 
@@ -47,50 +47,16 @@ class PMReflector {
 	
 	public static function getAttributesArrayAnyObject($O){
 		$vars = array();
-		if($O == null) return $vars;
-		foreach($O as $key => $value)
-			$vars[] = $key;
+		if($O == null)
+			return $vars;
 		
-		/*
-		for($i = 0; $i < strlen($s); $i++){
-			
-			if($s[$i] == "'" AND $mode == "copy" AND $s[$i - 1] != "\\") {
-				#$s2 .= $s[$i];
-				$mode = "noCopy";
+		foreach($O as $key => $value){
+			if(is_array($value))
 				continue;
-			}
-			if($s[$i] == "'" AND $mode == "noCopy" AND $s[$i - 1] != "\\") {
-				#$s2 .= $s[$i];
-				$mode = "copy";
-				continue;
-			}
-			if($mode == "noCopy") continue;
-			#echo $s[$i];
-			#if($mode == "copy")
-			#	$s2 .= $s[$i];
 			
-			if($s[$i] == " ") {
-				$newword = $lastword;
-				$lastword = "";
-			} else $lastword .= $s[$i];
-			
-			
-			if($subMode == "none" AND $s[$i] == "\$" AND ($newword == "private" OR $newword == "public" OR $newword == "protected") AND $mode == "copy") {
-				$vars[] = "";
-				$subMode = "variable";
-				continue;
-			}
-			
-			if($subMode == "variable" AND $s[$i] == " ") {
-				$subMode = "none";
-			}
-			
-			if($subMode == "variable" AND $mode == "copy"){
-				$vars[count($vars) - 1] .= $s[$i];
-			}
-			
-			
-		}*/
+			$vars[] = $key;
+		}
+		
 		return $vars;
 	}
 }

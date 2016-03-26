@@ -48,8 +48,11 @@ class Attributes {
 	function newWithAssociativeArray($values){
 	    $a = PMReflector::getAttributesArray(get_class($this));
 	    
-		for($i = 0;$i < count($a);$i++)
-			if(isset($values[$a[$i]])) $this->$a[$i] = $values[$a[$i]];
+		for($i = 0;$i < count($a);$i++){
+			$f = $a[$i];
+			if(isset($values[$a[$i]])) 
+				$this->$f = $values[$a[$i]];
+		}
 	}
 	
 	/**

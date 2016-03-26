@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
 class DBStorage {
@@ -217,11 +217,18 @@ class DBStorage {
 		$changes = 0;
 		foreach($unterschied2 as $key => $value){
 			$newSQL = strstr($CIA->MySQL,"`$value`");
-			$ex = explode(",\n",$newSQL);
+			#$ex = explode(",", $newSQL);
+			$ex = preg_split("/,\s/", $newSQL);
+			#echo "<pre>";
+			#print_r($ex);
+			#echo "</pre>";
 			$newSQL = $ex[0];
 			
 			$sql = "ALTER TABLE `$regs[1]` ADD $newSQL";
 			$this->cWrite->query($sql);
+			self::$lastQuery[] = $sql;
+			if(count(self::$lastQuery) > 5)
+				array_shift(self::$lastQuery);
 			
 			if($this->cWrite->error)
 				throw new Exception($this->cWrite->error);
@@ -381,12 +388,13 @@ class DBStorage {
 		
 		$fields = PMReflector::getAttributesArray($A);
 	    $sql = "UPDATE $table SET";
-	    
-		for($i = 0;$i < count($fields);$i++)
+		for($i = 0;$i < count($fields);$i++){
+			$f = $fields[$i];
+			#print_r($A->$f);
 			#if(!is_numeric($A->$fields[$i]))
-				$sql .= ($i > 0 ? "," : "")." ".$fields[$i]." = '".$this->cWrite->real_escape_string($A->$fields[$i])."'";
+				$sql .= ($i > 0 ? "," : "")." ".$fields[$i]." = '".$this->cWrite->real_escape_string($A->$f)."'";
 			#else $sql .= ($i > 0 ? "," : "")." ".$fields[$i]." = ".$A->$fields[$i]."";
-			
+		}
 		$sql .= " WHERE ".$table."ID = '$id'";
 		$_SESSION["messages"]->addMessage("executing MySQL: $sql");
 		$this->cWrite->query($sql);
@@ -407,9 +415,10 @@ class DBStorage {
 		if($this->c->error AND $this->c->errno == 1146) throw new TableDoesNotExistException($forWhat);
 		
 		$a = new stdClass();
-		while ($row = $result->fetch_assoc())
-			$a->$row["Field"] = "";
-		
+		while ($row = $result->fetch_assoc()){
+			$f = $row["Field"];
+			$a->$f = "";
+		}
 		return $a;
 	}
 	
@@ -444,7 +453,18 @@ class DBStorage {
 		return $value;
 	}
 	
-	function loadMultipleV4(SelectStatement $statement, $typsicher = false){
+	private $lazyRequest = null;
+	function loadMultipleV4(SelectStatement $statement, $lazyload = false){
+		if($lazyload AND $this->lazyRequest !== null){
+			$t = $this->lazyRequest->fetch_object();
+			if(!$t){
+				$this->lazyRequest = null;
+				return null;
+			}
+			
+			return $this->process($t, $statement);
+		}
+		
 		if(!$this->c)
 			throw new StorageException();
 		
@@ -525,7 +545,6 @@ class DBStorage {
 			$sql = str_replace (" t1.", " ".self::$lockAliases[$statement->table[0]].".", $sql);
 		}
 		
-		$collector = array();
 		
 		if($statement->table[0] != "Userdata") $_SESSION["messages"]->startMessage("executing MySQL: $sql");
 		#echo nl2br($sql)."<br /><br />";
@@ -560,7 +579,8 @@ class DBStorage {
 			syslog(LOG_ERR, "MySQL: ".$this->c->error."(".$this->c->errno.") in $sql");
 		
 		#echo $sql."<br /><br />";
-		if($statement->table[0] != "Userdata") $_SESSION["messages"]->endMessage(": ".$this->c->affected_rows." ".$statement->table[0]." geladen");
+		if($statement->table[0] != "Userdata") 
+			$_SESSION["messages"]->endMessage(": ".$this->c->affected_rows." ".$statement->table[0]." geladen");
 		
 		if($this->affectedRowsOnly) {
 			$this->affectedRowsOnly = false;
@@ -575,71 +595,46 @@ class DBStorage {
 			return $this->c->affected_rows;
 		}
 
-		/*if($typsicher){
-			$types = array();
-			$qc = $this->c->query("SHOW COLUMNS FROM ".$statement->table[0]);
-			DBStorage::$queryCounter++;
-			while($tc = $qc->fetch_object())
-				$types[$tc->Field] = $this->mysql2Object($tc->Type);
-				
-			foreach($statement->joinTables AS $kc => $vc){
-				$qc = $this->c->query("SHOW COLUMNS FROM ".$vc);
-				DBStorage::$queryCounter++;
-				while($tc = $qc->fetch_object())
-					$types[$tc->Field] = $this->mysql2Object($tc->Type);
-			}
-			
-			foreach($statement->dataTypes AS $kc => $vc)
-				$types = array_merge($types, $vc);
-		}*/
-		
-		$fields = null;
-		$cName = $statement->table[0];
-		if($statement->className != "") $cName = $statement->className[0];
-		
-
-		while($t = $q->fetch_object()){
-			$A = new Attributes();
-
-			if($fields == null) $fields = PMReflector::getAttributesArrayAnyObject($t);
-			
-			foreach($fields AS $key => $value){
-				$A->$value = $this->fixUtf8(stripslashes($t->$value));
-				
-				/*if($typsicher){
-					if(isset($types[$value])) $typObj = $types[$value];
-					else throw new DataTypeNotDefinedException($value);
-					
-					$A->$value = new $typObj($A->$value);
-					#echo "<pre>";
-					#print_r($A);
-					#echo "</pre>";
-				}*/
-			}
-			
-			if(count($this->parsers) > 0)
-				foreach($this->parsers as $key => $value)
-					if(isset($A->$key))
-						$A->$key = $this->invokeStaticMethod($value, array($A->$key, "load", $A));
-				#eval("\$A->\$key = ".$value."(\"".."\",\"load\", \$A);");
-			
-			$oID = $statement->table[0]."ID";
-			
-			#$cName = $statement->table[0];
-			#if(isset($_SESSION["CurrentAppPlugins"]) AND $_SESSION["CurrentAppPlugins"]->isPluginGeneric($cName))
-			#	$cName = "Generic";
-
-			$newCOfClass = new $cName($t->$oID);
-			$newCOfClass->setA($A);
-			$collector[] = $newCOfClass;
+		if($lazyload){
+			$this->lazyRequest = $q;
+			$t = $q->fetch_object();
+			return $this->process($t, $statement);
 		}
+		
+		$collector = array();
+		while($t = $q->fetch_object())
+			$collector[] = $this->process($t, $statement);
+		
 		
 		return $collector;
 	}
 	
-	/*function loadMultipleT(SelectStatement $statement){
-		return $this->loadMultipleV4($statement, true);
-	}*/
+	private function process($t, $statement){
+		$cName = $statement->table[0];
+		if($statement->className != "") 
+			$cName = $statement->className[0];
+		
+		$A = new Attributes();
+		
+		#if($fields == null) 
+		#	$fields = PMReflector::getAttributesArrayAnyObject($t);
+
+		foreach($t AS $key => $value)
+			$A->$key = $this->fixUtf8(stripslashes($value));
+
+
+		if(count($this->parsers) > 0)
+			foreach($this->parsers as $key => $value)
+				if(isset($A->$key))
+					$A->$key = $this->invokeStaticMethod($value, array($A->$key, "load", $A));
+
+		$oID = $statement->table[0]."ID";
+
+		$newCOfClass = new $cName($t->$oID);
+		$newCOfClass->setA($A);
+		
+		return $newCOfClass;
+	}
 	
 	function loadMultipleV3(SelectStatement $statement){
 
@@ -810,9 +805,10 @@ class DBStorage {
 
 			#if(is_numeric($A->$fields[$i])) $values .= ", ".$A->$fields[$i]."\n";
 			#else
-				$values .= ", '".$this->cWrite->real_escape_string($A->$fields[$i])."'\n";
+			$cf = $fields[$i];
+			$values .= ", '".$this->cWrite->real_escape_string($A->$cf)."'\n";
 
-			$sets .= ",\n`".$fields[$i]."`";
+			$sets .= ",\n`".$cf."`";
 		}
 	    $sql = "INSERT INTO\n $table\n ($sets) VALUES ($values)";
 		$_SESSION["messages"]->addMessage("executing MySQL: $sql");

@@ -923,10 +923,10 @@ class htmlMimeMail5 {
 				break;
 
 			case 'smtp':
-				require_once(dirname(__FILE__) . '/smtp.php');
+				require_once(dirname(__FILE__) . '/hmmsmtp.php');
 				require_once(dirname(__FILE__) . '/RFC822.php');
 				if($this->smtp_conn == null){
-					$this->smtp_conn = new smtp();
+					$this->smtp_conn = new hmmsmtp();
 				
 					$this->smtp_conn->connect($this->smtp_params);
 					if($this->dsn !== null)

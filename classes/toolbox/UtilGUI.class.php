@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class UtilGUI extends Util {
 	function __construct($nonSense = ""){}
@@ -88,6 +88,11 @@ class UtilGUI extends Util {
 			$IS->id("EMailRecipient$dataClassID");
 
 			$tab->addLV("Empfänger:", $IS);
+		}
+		
+		if(isset($data["bcc"]) AND count($data["bcc"]) > 0){
+			foreach($data["bcc"] AS $bcc)
+				$tab->addLV("BCC:", $bcc);
 		}
 		
 		$tab->addLV("Betreff:", "<input type=\"text\" id=\"EMailSubject$dataClassID\" value=\"$data[subject]\" />");
@@ -220,7 +225,7 @@ class UtilGUI extends Util {
 		#$T->setTableStyle("width:100%;");
 		#$T->setColWidth(1, "30%");
 		$B = $this->reminderCheck();
-
+		
 		$R = array();
 		
 		$Kal = new Kalender();
@@ -236,7 +241,7 @@ class UtilGUI extends Util {
 					
 					$R[] = array(
 						$id,
-						"<div class=\"event\" id=\"$id\" style=\"padding:5px;cursor:pointer;\" onclick=\"\$j('.confirm').removeClass('confirm'); \$j(this).addClass('confirm');\$j('#bottom').html('".str_replace("\n", "", addslashes($E->summary()))."');\" onmouseover=\"\$j(this).addClass('highlight');\" onmouseout=\"\$j(this).removeClass('highlight');\">
+						"<div class=\"event\" id=\"$id\" style=\"padding:5px;cursor:pointer;\" onclick=\"\$j('.confirm').removeClass('confirm'); \$j(this).addClass('confirm');\$j('#bottom').html('".str_replace("\n", "", $E->summary() != "" ? addslashes($E->summary()) : "Keine Beschreibung")."');\" onmouseover=\"\$j(this).addClass('highlight');\" onmouseout=\"\$j(this).removeClass('highlight');\">
 							<div style=\"width:15%;display:inline-block;vertical-align:top;\">
 								Kalender
 							</div><div style=\"width:45%;display:inline-block;overflow:hidden;vertical-align:top;\">

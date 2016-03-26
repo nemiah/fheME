@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
 /**var cookieManager = {
@@ -218,7 +218,35 @@ function windowWithRmeP(targetClass, targetClassId, targetMethod, targetMethodPa
 	win.focus();
 }
 
-function windowWithRme(targetClass, targetClassId, targetMethod, targetMethodParameters, bps, target){
+function windowWithRme(targetClass, targetClassId, targetMethod, targetMethodParameters, bps, target, windowOptions){
+	var height = 650;
+	var width = 875;
+	var left = 20;
+	var top = 20;
+	var name = 'Druckansicht';
+	var scroll = true;
+	if(typeof windowOptions != "undefined"){
+		if(windowOptions.height)
+			height = windowOptions.height;
+		
+		if(windowOptions.width)
+			width = windowOptions.width;
+		
+		if(windowOptions.left)
+			left = windowOptions.left;
+		
+		if(windowOptions.top)
+			top = windowOptions.top;
+		
+		if(windowOptions.name)
+			name = windowOptions.name;
+		
+		if(typeof windowOptions.scroll !== "undefined")
+			scroll = windowOptions.scroll;
+	}
+	
+	var options = 'height='+height+',width='+width+',left='+left+',top='+top+',scrollbars='+(scroll ? "yes" : "no")+',resizable=yes';
+	
 	if(typeof target == "undefined")
 		target = "window";
 
@@ -231,8 +259,10 @@ function windowWithRme(targetClass, targetClassId, targetMethod, targetMethodPar
  	else targetMethodParameters = "'"+targetMethodParameters+"'";
 	
  	if(target == "window"){
-		var win = window.open(contentManager.getRoot()+'interface/rme.php?class='+targetClass+'&constructor='+encodeURIComponent(targetClassId)+'&method='+targetMethod+'&parameters='+targetMethodParameters+((bps != "" && typeof bps != "undefined") ? "&bps="+bps : "")+"&r="+Math.random()+(Ajax.physion != "default" ? "&physion="+Ajax.physion : ""),'Druckansicht','height=650,width=875,left=20,top=20,scrollbars=yes,resizable=yes');
+		var win = window.open(contentManager.getRoot()+'interface/rme.php?class='+targetClass+'&constructor='+encodeURIComponent(targetClassId)+'&method='+targetMethod+'&parameters='+targetMethodParameters+((bps != "" && typeof bps != "undefined") ? "&bps="+bps : "")+"&r="+Math.random()+(Ajax.physion != "default" ? "&physion="+Ajax.physion : ""),name,options);
 		win.focus();
+		
+		return win;
 	}
 	
 	if(target == "tab")
@@ -242,10 +272,18 @@ function windowWithRme(targetClass, targetClassId, targetMethod, targetMethodPar
 
 function saveClass(className, id, onSuccessFunction, formName, callback){
 	var formID = "AjaxForm";
-	if(formName) formID = formName;
+	if(formName) 
+		formID = formName;
 	
-	if(!$(formID)) alert("Kein Formular gefunden!");
-	if($(formID).elements.length == 0) alert("Keine Daten zum Speichern gefunden!");
+	var check = formID;
+	if(typeof formID != "string")
+		check = formID[0];
+	
+	if(!$(check))
+		alert("Kein Formular gefunden!");
+	
+	if($(check).elements.length == 0) 
+		alert("Keine Daten zum Speichern gefunden!");
 	
 	var dots = ".";
 	if(document.location.pathname.search(/interface/) > -1) dots = "..";
@@ -258,7 +296,12 @@ function saveClass(className, id, onSuccessFunction, formName, callback){
 	onSuccess: function(transport) {
 		if(checkResponse(transport)) {
 			//showMessage(transport.responseText);
-			$j('#'+formID+" .recentlyChanged").removeClass("recentlyChanged");
+			if(typeof formID == "string")
+				$j('#'+formID+" .recentlyChanged").removeClass("recentlyChanged");
+			else {
+				for(var i = 0; i < formID.length; i++)
+					$j('#'+formID[i]+" .recentlyChanged").removeClass("recentlyChanged");
+			}
 			
 			if(typeof onSuccessFunction == "function")
 				onSuccessFunction(transport);
@@ -269,26 +312,32 @@ function saveClass(className, id, onSuccessFunction, formName, callback){
 	}});
 }
 
-function joinFormFields(formID){
+function joinFormFields(formIDs){
 	setString = "";
-	for(i = 0;i < $(formID).elements.length;i++) {
-		if($(formID).elements[i].type == "button") continue;
-		//if($(formID).elements[i].type == "password" && $(formID).elements[i].value == "") continue;
-		
-		if($(formID).elements[i].type == "radio"){
-			if($(formID).elements[i].checked) setString += "&"+$(formID).elements[i].name+"="+encodeURIComponent($(formID).elements[i].value);
-		} else if($(formID).elements[i].type == "checkbox"){
-			if($(formID).elements[i].checked) setString += "&"+$(formID).elements[i].name+"=1";
-			else setString += "&"+$(formID).elements[i].name+"=0";
-		} else if($(formID).elements[i].type == "select-multiple"){
-			setString += "&"+$(formID).elements[i].name+"=";
-			subString = "";
-			for(j = 0; j < $(formID).elements[i].length; j++)
-				if($(formID).elements[i].options[j].selected) subString += (subString != "" ? ";:;" : "")+$(formID).elements[i].options[j].value;
-			
-			setString += subString;
-			
-		} else setString += "&"+$(formID).elements[i].name+"="+encodeURIComponent($(formID).elements[i].value);
+	if(typeof formIDs == "string")
+		formIDs = [formIDs];
+	
+	for(var j = 0; j < formIDs.length; j++){
+		formID = formIDs[j];
+		for(var i = 0;i < $(formID).elements.length;i++) {
+			if($(formID).elements[i].type == "button") continue;
+			//if($(formID).elements[i].type == "password" && $(formID).elements[i].value == "") continue;
+
+			if($(formID).elements[i].type == "radio"){
+				if($(formID).elements[i].checked) setString += "&"+$(formID).elements[i].name+"="+encodeURIComponent($(formID).elements[i].value);
+			} else if($(formID).elements[i].type == "checkbox"){
+				if($(formID).elements[i].checked) setString += "&"+$(formID).elements[i].name+"=1";
+				else setString += "&"+$(formID).elements[i].name+"=0";
+			} else if($(formID).elements[i].type == "select-multiple"){
+				setString += "&"+$(formID).elements[i].name+"=";
+				subString = "";
+				for(j = 0; j < $(formID).elements[i].length; j++)
+					if($(formID).elements[i].options[j].selected) subString += (subString != "" ? ";:;" : "")+$(formID).elements[i].options[j].value;
+
+				setString += subString;
+
+			} else setString += "&"+$(formID).elements[i].name+"="+encodeURIComponent($(formID).elements[i].value);
+		}
 	}
 	return setString;
 }

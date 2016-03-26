@@ -15,9 +15,15 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class mUserdataGUI extends mUserdata implements iGUIHTML2, icontextMenu {
+	function __construct() {
+		parent::__construct();
+
+		$this->customize();
+	}
+	
 	public function getHTML($id){
 		$this->addOrderV3("name");
 		if($this->A == null) $this->lCV3($id);
@@ -47,7 +53,7 @@ class mUserdataGUI extends mUserdata implements iGUIHTML2, icontextMenu {
 		$gui->setJSEvent("onDelete","function(){ contentManager.reloadFrame('contentLeft'); }");
 		
 		try {
-			return "<div class=\"prettyTitle\">Einschränkungen</div>".$gui->getBrowserHTML($id).($this->numLoaded() == 0 ? $html : "");
+			return "<div class=\"prettyTitle\">Rechte</div>".$gui->getBrowserHTML($id).($this->numLoaded() == 0 ? $html : "");
 		} catch (Exception $e){ echo $e; }
 	}
 	
@@ -177,42 +183,44 @@ class mUserdataGUI extends mUserdata implements iGUIHTML2, icontextMenu {
 		<!--<button class=\"bigButton backgroundColor3\" title=\"".(isset($text["Plugin\nausblenden"]) ? $text["Plugin\nausblenden"] : "Plugin\nausblenden")."\" onclick=\"phynxContextMenu.start(this, 'mUserdata','5','".$text["Plugin"].":');\" style=\"background-image:url(./images/navi/tab.png);\" />-->";
 	}
 	
-	private function roles($role = null){
-		$roles = array(
-			"Verkäuferin" => array("Auftraege" => array("pluginSpecificCanOnlyEditOwn"), "Adressen" => array("pluginSpecificCanUseProvision"), "Provisionen" => array("pluginSpecificHideEK")),
-			"Buchhaltung" => array("Auftraege" => array("pluginSpecificCanSetPayed")),
-			"Lagerverwalterin" => array("mLager" => array("pluginSpecificCanResetLager"))
-		);
-	
-	
-		foreach($roles AS $l => $s)
-			foreach($s AS $plugin => $rule){
-				try {
-					new $plugin();
-					continue;
-				} catch (ClassNotFoundException $e){
-					unset($roles[$l]);
-				}
-			}
-		
-		if($role != null)
-			return $roles[$role];
-		
-		return $roles;
-	}
-	
 	public function rolesPopup($UserID){
-		echo "<p>Die Rollen fassen mehrere Berechtigungen aus unterschiedlichen Plugins zusammen.</p>";
+		echo "<p class=\"highlight\">Die Rollen fassen mehrere Berechtigungen aus unterschiedlichen Plugins zusammen.</p><div style=\"max-height:400px;overflow:auto;\">";
 		
 		$ps = $_SESSION["CurrentAppPlugins"]->getAllPlugins();
 		
 		foreach($this->roles() AS $R => $O){
 			$T = new HTMLTable(3, $R);
 			$T->weight("light");
+			$T->setColWidth(1, 70);
 			$T->setColWidth(3, 30);
 			
 			$i = 0;
 			foreach($O AS $c => $s){
+				if($c == "cantEdit" OR $c == "cantDelete" OR $c == "cantCreate"){
+					foreach($s AS $p){
+						if($p == "WAdresse")
+							continue;
+						
+						if($c == "cantEdit")
+							$T->addRow(array($p, "Kann nicht bearbeiten"));
+						
+						if($c == "cantDelete")
+							$T->addRow(array($p, "Kann nicht löschen"));
+						
+						if($c == "cantCreate")
+							$T->addRow(array($p, "Kann nicht erstellen"));
+					}
+					
+					continue;
+				}
+				
+				if($c == "hidePlugin"){
+					foreach($s AS $p)
+						$T->addRow(array(array_search($p, $ps), "Plugin ausblenden"));
+					
+					continue;
+				}
+				
 				$B = new Button("Rolle aktivieren", "./plugins/Userdata/role.png", "icon");
 				$B->rmePCR("mUserdata", "-1", "rolesActivate", array($UserID, "'$R'"), OnEvent::reload("Left"));
 			
@@ -220,7 +228,7 @@ class mUserdataGUI extends mUserdata implements iGUIHTML2, icontextMenu {
 				$pSs = $class->getPluginSpecificRestrictions();
 				$l = "";
 				foreach($s AS $k => $p){
-					$l .= ($k > 0 ? ", " : "").$pSs[$p];
+					$l .= ($k > 0 ? "<br>" : "").$pSs[$p];
 				}
 				$T->addRow(array(array_search($c, $ps).":", $l, $i == 0 ? $B : ""));
 				if($i == 0){
@@ -238,12 +246,35 @@ class mUserdataGUI extends mUserdata implements iGUIHTML2, icontextMenu {
 			echo $T;
 		}
 		
+		echo "</div>";
+		
 	}
 	
 	public function rolesActivate($UserID, $role){
-		foreach($this->roles($role) AS $c => $s)
-			foreach($s AS $k => $p)
+		foreach($this->roles($role) AS $c => $s){
+			if($c == "cantEdit" OR $c == "cantDelete" OR $c == "cantCreate"){
+				foreach($s AS $k => $p){
+					$p2 = "m$p";
+					if($p == "Adresse")
+						$p2 = "Adressen";
+					
+					mUserdata::setUserdataS($c.$p2, $c.$p, "uRest", $UserID);
+				}
+				continue;
+			}
+			
+			if($c == "hidePlugin"){
+				foreach($s AS $k => $p){
+				mUserdata::setUserdataS($c.$p, $p, "pHide", $UserID);
+					
+				}
+				continue;
+			}
+			
+			foreach($s AS $k => $p){
 				mUserdata::setUserdataS($p, $c, "pSpec", $UserID);
+			}
+		}
 	}
 	
 	public function getContextMenuHTML($identifier){
@@ -272,6 +303,12 @@ class mUserdataGUI extends mUserdata implements iGUIHTML2, icontextMenu {
 			if($key == "mUserdata") continue;
 			if($identifier == "4" AND !PMReflector::implementsInterface($key,"iPluginSpecificRestrictions"))
 				continue;
+			
+			if($identifier == "4"){
+				$c = new $key();
+				if(!$c->getPluginSpecificRestrictions())
+					continue;
+			}
 			
 			if($identifier == "5" AND !in_array($key,$ms))
 				continue;

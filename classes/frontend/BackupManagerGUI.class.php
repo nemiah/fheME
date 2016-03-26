@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2015, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 function BackupManagerGUIFatalErrorShutdownHandler() {
 	$last_error = error_get_last();
@@ -332,7 +332,7 @@ class BackupManagerGUI implements iGUIHTML2 {
 	}
 	
 	private static function getNewBackupName(){
-		return Util::getRootPath()."system/Backup/".$_SESSION["DBData"]["datab"].".".date("Ymd").".sql";
+		return Util::getRootPath()."system/Backup/".$_SESSION["DBData"]["datab"].".".date("Ymd")."_utf8.sql";
 	}
 
 	public function makeBackupOfToday(){
@@ -342,7 +342,14 @@ class BackupManagerGUI implements iGUIHTML2 {
 		$F->loadMe();
 
 		if($F->getA() == null){
-			file_put_contents($F->getID(), "deny from all");
+			file_put_contents($F->getID(), "<IfModule mod_authz_core.c>
+    Require all denied
+</IfModule>
+
+<IfModule !mod_authz_core.c>
+    Order Allow,Deny
+    Deny from all
+</IfModule>");
 			/*file_put_contents($F->getID(), "AuthUserFile ".Util::getRootPath()."system/Backup/.htpasswd
 AuthGroupFile /dev/null
 AuthName \"Restricted\"
@@ -457,9 +464,12 @@ require valid-user
 
 		require Util::getRootPath()."libraries/PMBP.inc.php";
 
-		$DB = new DBStorageU();
+		$DB = new DBStorage();
 		$con = $DB->getConnection();
-		mysql_set_charset("latin1", $con);
+		if(strpos($name, "_utf8"))
+			mysqli_set_charset($con, "utf8");
+		else
+			mysqli_set_charset($con, "latin1");
 		
 		$file = fopen(Util::getRootPath()."system/Backup/$name", "r");
 
