@@ -69,7 +69,7 @@ class mOpenWeatherMapGUI extends anyC implements iGUIHTMLMP2 {
 	public function getOverviewContent($echo = true){
 		$html = "<div class=\"touchHeader\"><span class=\"lastUpdate\" id=\"lastUpdatemOpenWeatherMapGUI\"></span><p>Wetter</p></div><div style=\"padding:10px;height:249px;overflow:auto;\">";
 		while($W = $this->getNextEntry()){
-			$W->download();
+			#$W->download();
 			$dataCurrent = json_decode($W->A("OpenWeatherMapDataCurrent"));
 			$dataForecastDaily = json_decode($W->A("OpenWeatherMapDataForecastDaily"));
 			

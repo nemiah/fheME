@@ -490,13 +490,13 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 			if($events != null AND count($events) > 0)
 				foreach($events AS $ev)
 					foreach($ev AS $KE){
-						$hasEvent[date("d", $K->parseDay($KE->getDay()))] = true;
+						$hasEvent[date("d", $K->parseDay($KE->currentWhen()->day))] = true;
 						
 						$B = new Button("", $KE->icon(), "icon");
 						$B->style("float:left;margin-right:5px;margin-bottom:10px;");
 
-						$list->addItem("$B<b style=\"font-size:15px;\">".$KE->title()."</b><br /><small>".Datum::getGerWeekArray(date("w", $K->parseDay($KE->getDay()))).", ".Util::CLDateParser($K->parseDay($KE->getDay()))."</small>");
-						if(date("W", $K->parseDay($KE->getDay())) > $Woche + 1)
+						$list->addItem("$B<b style=\"font-size:15px;\">".$KE->title()."</b><br /><small>".Datum::getGerWeekArray(date("w", $K->parseDay($KE->currentWhen()->day))).", ".Util::CLDateParser($K->parseDay($KE->currentWhen()->day))."</small>");
+						if(date("W", $K->parseDay($KE->currentWhen()->day)) > $Woche + 1)
 							$list->addItemStyle ("color:grey;");
 						$c++;
 					}

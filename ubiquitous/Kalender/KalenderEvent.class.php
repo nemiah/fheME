@@ -195,23 +195,23 @@ class KalenderEvent extends KalenderEntry {
 						$D->addDay();
 					}
 					
-					$counter = floor(($D->time() - $firstDay) / (3600 * 24 * 7));
+					#$counter = floor(($D->time() - $firstDay) / (3600 * 24 * 7));
 					#echo $counter."<br />";
 					while($D->time() <= $endDay){
 						$newDay = Kalender::formatDay($D->time());
-						
+
 						if($this->repeatUntil > 0  AND $D->time() > $this->repeatUntil)
 							break;
 						
 						$D->addWeek(true);
 						if($newDay == $this->day){
-							$counter++;
+							#$counter++;
 							continue;
 						}
 						
 
-						if($counter % ($this->repeatInterval + 1) != 0){
-							$counter++;
+						if($this->weeks(Kalender::parseDay($this->day), $D->time()) % ($this->repeatInterval + 1) != 0){
+							#$counter++;
 							continue;
 						}
 						
@@ -227,7 +227,7 @@ class KalenderEvent extends KalenderEntry {
 						$W->time = $this->time;
 						$when[] = $W;
 						
-						$counter++;
+						#$counter++;
 					}
 				break;
 				
@@ -360,6 +360,16 @@ class KalenderEvent extends KalenderEntry {
 		#echo "</pre>";
 		
 		return $when;
+	}
+	
+	function weeks($date1, $date2) {
+		if($date1 > $date2) 
+			return $this->datediffInWeeks($date2, $date1);
+		
+		$first = new DateTime("@".$date1);
+		$second = new DateTime("@".$date2);
+		
+		return floor($first->diff($second)->days / 7);
 	}
 	
 	private function isNth($nth, $time){
@@ -720,7 +730,7 @@ class KalenderEvent extends KalenderEntry {
 			$zeit = "";
 		
 		return "
-			<div title=\"$this->title\" onclick=\"$onClick\" style=\"".($this->status == 2 ? "color:grey;" : "")."white-space:nowrap;overflow:hidden;height:13px;/*width:60px;*/clear:left;padding:2px;padding-left:4px;cursor:pointer;".($grey ? "color:grey;" : "")."\">
+			<div title=\"".strip_tags($this->title)."\" onclick=\"$onClick\" style=\"".($this->status == 2 ? "color:grey;" : "")."white-space:nowrap;overflow:hidden;height:13px;/*width:60px;*/clear:left;padding:2px;padding-left:4px;cursor:pointer;".($grey ? "color:grey;" : "")."\">
 				<small>".(($grey AND isset(mKalenderGUI::$colors[$this->owner])) ? "<div style=\"display:inline-block;margin-right:3px;width:5px;background-color:".mKalenderGUI::$colors[$this->owner].";\">&nbsp;</div>" : "")."$zeit $this->title</small>
 			</div>";
 	}
