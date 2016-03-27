@@ -28,17 +28,17 @@ class mClockGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 		$html = "<div class=\"touchHeader\"><p>Uhr</p></div>
 			<div style=\"padding:10px;\">";
 
-		$html .= "<div id=\"fheOverviewClock\"></div>";
+		$html .= "<div id=\"fheOverviewClock\"><span>".Util::CLWeekdayName(date("w"))."<br><b>".date("d").". ".Util::CLMonthName(date("m"))." ".date("Y")."</b></span><b>".Util::CLTimeParser(time())."</b></div>";
 		
 		$html .= "</div>";
 		echo $html;
 	}
 	
 	public static function getOverviewPlugin(){
-		$P = new overviewPlugin("mClockGUI", "Uhr", 0);
+		$P = new overviewPlugin("mClockGUI", "Uhr", 100);
 		
 		$P->updateInterval(1);
-		$P->updateFunction("function(){ var jetzt = new Date(); $('fheOverviewClock').update('<span>'+fheOverview.days[jetzt.getDay()]+',<br /><b>'+jetzt.getDate()+'. '+fheOverview.months[jetzt.getMonth()]+' '+jetzt.getFullYear()+'</b></span><b>'+jetzt.getHours()+':'+(jetzt.getMinutes() < 10 ? '0' : '')+jetzt.getMinutes()+'</b>'); }");
+		$P->updateFunction("function(){ var jetzt = new Date(); $('fheOverviewClock').update('<span>'+fheOverview.days[jetzt.getDay()]+'<br><b>'+jetzt.getDate()+'. '+fheOverview.months[jetzt.getMonth()]+' '+jetzt.getFullYear()+'</b></span><b>'+jetzt.getHours()+':'+(jetzt.getMinutes() < 10 ? '0' : '')+jetzt.getMinutes()+'</b>'); }");
 		
 		return $P;
 	}
