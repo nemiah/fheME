@@ -340,7 +340,7 @@ class mUPnPGUI extends mUPnP implements iGUIHTMLMP2 {
 	}
 	
 	public static function getOverviewPlugin(){
-		return new overviewPlugin("mUPnPGUI", "Multimedia", 100);
+		return new overviewPlugin("mUPnPGUI", "Multimedia", 170);
 	}
 }
 ?>

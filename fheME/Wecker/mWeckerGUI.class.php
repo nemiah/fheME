@@ -46,7 +46,7 @@ class mWeckerGUI extends anyC implements iGUIHTMLMP2 {
 	}
 	
 	public function getOverviewContent(){
-		$html = "<div class=\"touchHeader\" style=\"cursor:pointer;\" onclick=\"contentManager.loadPlugin('contentRight', 'mWecker', 'mWeckerGUI;-', null, {doBefore: Interface.frameStash('contentScreen')});\"><span class=\"lastUpdate\" id=\"lastUpdatemWeckerGUI\"></span><p>Wecker</p></div>
+		$html = "<div class=\"touchHeader\"><span class=\"lastUpdate\" id=\"lastUpdatemWeckerGUI\"></span><p>Wecker</p></div>
 			<div style=\"padding:10px;\">";
 
 		

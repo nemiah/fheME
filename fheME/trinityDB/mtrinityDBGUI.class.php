@@ -34,7 +34,7 @@ class mtrinityDBGUI extends anyC implements iGUIHTMLMP2 {
 	}
 	
 	public static function getOverviewPlugin(){
-		$P = new overviewPlugin("mtrinityDBGUI", "trinityDB", 0);
+		$P = new overviewPlugin("mtrinityDBGUI", "trinityDB", 170);
 		$P->updateInterval(30 * 60);
 		
 		return $P;
