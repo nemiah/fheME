@@ -77,8 +77,32 @@ class mOpenWeatherMapGUI extends anyC implements iGUIHTMLMP2 {
 			$B = new Button("", "./ubiquitous/OWM/icons48/".$icon.".png", "icon");
 			$B->style("float:left;");
 			
+			$BT = "";
+			if(isset($dataForecastDaily->list[6]) AND isset($dataForecastDaily->list[5]) AND isset($dataForecastDaily->list[4])){
+				
+				$total = 0;
+				$count = 0;
+				for($i = 4; $i < 7; $i++){
+					$total += $dataForecastDaily->list[$i]->temp->max;
+					$count++;
+				}
+				
+				$avg = $total / $count;
+				$diff = $avg - $dataCurrent->main->temp_max;
+				$grad = ($diff / 5) * -90;
+				
+				if($grad > 90)
+					$grad = 90;
+				
+				if($grad < -90)
+					$grad = -90;
+				
+				$BT = new Button("Tendenz", "arrow_right", "iconicL");
+				$BT->style("margin-left:10px;transform:rotate({$grad}deg);");
+			}
+			
 			$html .= $B."<div style=\"margin-left:70px;margin-top:5px;\">
-				<b style=\"font-size:30px;font-weight:bold;color:#555;\">".round($dataCurrent->main->temp)." °C</b><br><br>
+				<b style=\"font-size:30px;font-weight:bold;color:#555;\">".round($dataCurrent->main->temp)." °C</b>$BT
 				</div>";
 			
 			$html .= "<div style=\"clear:both;\">";
