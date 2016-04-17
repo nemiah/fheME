@@ -78,11 +78,11 @@ class UsersGUI extends Users implements iGUIHTML2{
 		try {
 			$AD = new LoginAD();
 			$AD->getUsers();
-
-			if($AD->n() !== null)
+			
+			if($AD->n() !== null){
 				$B = $gui->addSideButton ("ActiveDirectory-\nBenutzer", "users");
 				$B->popup("", "ActiveDirectory-Benutzer", "Users", "-1", "ldapUsersPopup");
-				
+			}
 		} catch(Exception $e){
 			
 		}

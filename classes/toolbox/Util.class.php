@@ -177,7 +177,7 @@ class Util {
 	 * @deprecated since version 23.09.2012
 	 */
 	public static function utf8_str_col($string, $width, $pad_string = " ", $pad_type = STR_PAD_RIGHT){
-		return phynx_mb_str_pad($string, $width, $pad_string, $pad_type, "UTF-8");
+		return phynx_mb_str_pad(mb_substr($string, 0, $width), $width, $pad_string, $pad_type, "UTF-8");
 		/*preg_match_all("/./su", $string, $ar);
 		
 		$ar = array_slice($ar[0], 0, $width);

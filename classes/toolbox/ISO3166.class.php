@@ -844,8 +844,8 @@ ZWE    ZW    Simbabwe";
 		return $countries;
 	}
 
-	public static function getCountryToCode($code, $lang = "de"){
-		$countries = self::getCountries($lang);
+	public static function getCountryToCode($code, $lang = "de", $length = 2){
+		$countries = self::getCountries($lang, $length);
 
 		return $countries[$code];
 	}
@@ -854,6 +854,10 @@ ZWE    ZW    Simbabwe";
 		$countries = self::getCountries($lang, $length);
 
 		return array_search($country, $countries);
+	}
+	
+	public static function getCode3ForCode2($code){
+		return self::getCodeToCountry(self::getCountryToCode($code, "de", 2), "de", 3);
 	}
 
 	public static function getZones($code){

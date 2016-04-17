@@ -1223,8 +1223,11 @@ class HTMLGUI implements icontextMenu {
 						$cf = $as[$j];
 						$t = $this->invokeParser($this->parsers[$as[$j]], $sc->$cf, $parameters);
 					}
-					else $t = htmlspecialchars($sc->$as[$j]);
-
+					else {
+						$v = $as[$j];
+						$t = htmlspecialchars($sc->$v);
+					}
+					
 					if($this->multiEditMode != null AND in_array($as[$j], $this->multiEditMode)) $string .= "
 					<td><input onfocus=\"oldValue = this.value;\" onblur=\"if(oldValue != this.value) saveMultiEditInput('".$this->singularClass."','".$aid."','".$as[$j]."');\" onkeydown=\"if(event.keyCode == 13) saveMultiEditInput('".$this->singularClass."','$aid','".$as[$j]."');\" type=\"text\" id=\"".$as[$j]."ID$aid\" value=\"".htmlspecialchars($t)."\" class=\"multiEditInput2\" /></td>";
 					else $string .= "
@@ -1493,7 +1496,7 @@ class HTMLGUI implements icontextMenu {
 					
 					if(isset($this->parsers[$as[$j]])) {
 						$parameters = $this->makeParameterStringFromArray($this->parserParameters[$as[$j]], $sc, $aid);
-						$t = $this->invokeParser($this->parsers[$as[$j]], $sc->$as[$j], $parameters);
+						$t = $this->invokeParser($this->parsers[$as[$j]], $sc->$as[$j], $parameters, $this->attributes[$i]);
 					
 					}
 					else $t = $sc->$as[$j];
@@ -1513,7 +1516,7 @@ class HTMLGUI implements icontextMenu {
 										
 					if(isset($this->parsers[$value])){
 						$parameters = $this->makeParameterStringFromArray($this->parserParameters[$value], $sc, $aid);
-						$t = $this->invokeParser($this->parsers[$value], $sc->$value, $parameters);
+						$t = $this->invokeParser($this->parsers[$value], $sc->$value, $parameters, $this->attributes[$i]);
 					}
 					else $t = $sc->$value;
 					
@@ -1541,10 +1544,10 @@ class HTMLGUI implements icontextMenu {
 		return $html;
 	}
 	
-	protected function invokeParser($function, $value, $parameters){
+	protected function invokeParser($function, $value, $parameters, $object = null){
 		$c = explode("::", $function);
 		$method = new ReflectionMethod($c[0], $c[1]);
-		return $method->invoke(null, $value, "load", $parameters);
+		return $method->invoke(null, $value, $object != null ? $object : "load", $parameters);
 	}
 	
 	protected function makeParameterStringFromArray($array, $sc, $aid){

@@ -89,6 +89,10 @@ if(isset($I)){
 		foreach($scriptFilesData AS $v)
 			$scriptFiles .= "<script type=\"text/javascript\" src=\"$v\"></script>";
 	}
+	
+	$viewport = "width=device-width, initial-scale=1.0, user-scalable=no";
+	if(method_exists($I, "getViewport"))
+		$viewport = $I->getViewport();
 }
 
 ?>
@@ -96,7 +100,7 @@ if(isset($I)){
 <html lang="de">
 	<head>
 		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+		<meta name="viewport" content="<?php echo $viewport; ?>" />
 		<?php
 		echo $meta;
 		?>

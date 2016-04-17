@@ -398,7 +398,7 @@ class HTMLForm {
 		$this->onSubmit = str_replace("contentManager.rmePCR", "windowWithRme", $this->onSubmit);
 	}
 
-	public function setSaveContextMenu(PersistentObject $class, $targetMethod, $onSuccessFunction = ""){
+	public function setSaveContextMenu($class, $targetMethod, $onSuccessFunction = ""){
 		$targetClass = str_replace("GUI", "", get_class($class));
 		
 		$this->setSaveRMEPCR("speichern", "./images/i2/save.gif", $targetClass, $class->getID(), $targetMethod, "function(){ phynxContextMenu.stop(); $onSuccessFunction }");

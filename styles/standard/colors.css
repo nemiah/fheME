@@ -95,7 +95,7 @@
 }
 
 .error {
-	background-color:rgba(220, 50, 0, 0.5);
+	background-color:rgba(220, 50, 0, 0.5) !important;
 }
 
 label {

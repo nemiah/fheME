@@ -654,6 +654,11 @@ $j(function(){
 	} else {
 		$j('#buttonTouchReset').hide();
 	}
+	
+	if(typeof alex == "undefined")
+		$j('#buttonMenu').hide();
+	else
+		$j('#buttonMenu').on(Touch.trigger, function(){ alex.menu(); });
 });
 
 if(!useTouch){

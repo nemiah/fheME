@@ -686,6 +686,14 @@ if($sephy AND isset($sephy[3]) AND $sephy[3])
 							class="iconic iconicL cursor"
 							id="buttonTouchReset"
 							title="Touch"></span>
+					<?php }
+					
+					if(Environment::getS("showMenuButton", "1") == "1"){ ?>
+						<span
+							style="cursor:pointer;float:right;margin-left:15px;margin-right:5px;"
+							class="iconic iconicL iphone"
+							id="buttonMenu"
+							title="Menü"></span>
 					<?php } ?>
 					<!--<xsl:if test="options/showDesktopButton/@value='true'">
 						<img
