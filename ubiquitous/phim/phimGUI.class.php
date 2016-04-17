@@ -106,7 +106,6 @@ class phimGUI extends phim implements iGUIHTML2 {
 		$S = anyC::getFirst("Websocket", "WebsocketUseFor", "phim");
 		
 		$realm = $S->A("WebsocketRealm");
-		$token = $S->A("WebsocketToken");
 		
 		spl_autoload_unregister("phynxAutoloader");
 		
@@ -115,7 +114,7 @@ class phimGUI extends phim implements iGUIHTML2 {
 		require_once __DIR__.'/ClientPhimAuthenticator.php';
 		
 		$client = new Thruway\Peer\Client($realm);
-		$client->addClientAuthenticator(new ClientPhimAuthenticator($realm, "phimUser", $token));
+		$client->addClientAuthenticator(new ClientPhimAuthenticator($realm, "phimUser", $S->A("WebsocketToken")));
 		
 		$client->addTransportProvider(new Thruway\Transport\PawlTransportProvider("ws".($S->A("WebsocketSecure") ? "s" : "")."://".$S->A("WebsocketServer").":".$S->A("WebsocketServerPort")."/"));
 

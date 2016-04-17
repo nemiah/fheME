@@ -314,9 +314,6 @@ class mphimGUI extends anyC implements iGUIHTMLMP2 {
 				<div>$I</div>
 			</div><div style=\"width:32%;display:inline-block;vertical-align:top;\">$L$IC</div>";
 		
-		$realm = "phim";
-		$realm = $S->A("WebsocketRealm");
-		$token = $S->A("WebsocketToken");
 		
 		$rp = str_replace("interface/rme.php", "", $_SERVER["SCRIPT_NAME"]);
 		if(strpos($_SERVER["SCRIPT_NAME"], "phim.php") !== false)
@@ -351,10 +348,10 @@ class mphimGUI extends anyC implements iGUIHTMLMP2 {
 					
 				phimChat.init(
 					"ws'.($S->A("WebsocketSecure") ? "s" : "").'://'.$S->A("WebsocketServer").":".$S->A("WebsocketServerPort").'/",
-					"'.$realm.'", 
+					"'.$S->A("WebsocketRealm").'", 
 					'.Session::currentUser()->getID().', 
 					"'.Session::currentUser()->A("name").'",
-					"'.$token.'",
+					"'.$S->A("WebsocketToken").'",
 					['.implode(",", $groups).'],
 					"'.$root.'");
 						

@@ -672,6 +672,9 @@ var contentManager = {
 				if(transport.responseText.charAt(0) == "{" && transport.responseText.charAt(transport.responseText.length - 1) == "}")
 					transport.responseData = jQuery.parseJSON(transport.responseText);
 				
+				if(transport.responseText.charAt(0) == "[" && transport.responseText.charAt(transport.responseText.length - 1) == "]")
+					transport.responseData = jQuery.parseJSON(transport.responseText);
+				
 				if(typeof onSuccessFunction == "string")
 					eval(onSuccessFunction);
 

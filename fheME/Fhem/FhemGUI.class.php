@@ -24,6 +24,10 @@ class FhemGUI extends Fhem implements iGUIHTML2 {
 		$this->setParser("FhemFHTDefaultDayTemp", "Util::CLNumberParserZ");
 	}
 
+	public function getWSData($for){
+		echo Websocket::getData($for);
+	}
+	
 	function getHTML($id){
 
 		$this->loadMeOrEmpty();

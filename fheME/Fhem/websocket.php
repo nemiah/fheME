@@ -18,6 +18,23 @@
  *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 
+
+class ThruwayLoader {
+	public static function alienClassLoader($class){
+		$ex = explode("\\", $class);
+		
+		#if($ex[0] == "figo"){
+		$file = Util::getRootPath()."plugins/Websocket/WAMP/".implode("/", $ex).".php";
+
+		if(!file_exists($file))
+			return false;
+
+		require_once $file;
+		#}
+	}
+	
+}
+		
 if(isset($argv[1]))
 	$_GET["cloud"] = $argv[1];
 
@@ -28,10 +45,14 @@ if(isset($argv[2]))
 session_name("ExtConnFhem");
 
 require_once realpath(dirname(__FILE__)."/../../system/connect.php");
+$absolutePathToPhynx = realpath(dirname(__FILE__)."/../../")."/";
+
+$e = new ExtConn($absolutePathToPhynx);
+$e->addClassPath($absolutePathToPhynx."fheME/Fhem");
 
 $lastCommand = null;
 $lastCommandC = 0;
-$fp = stream_socket_client("tcp://localhost:7072", $errno, $errstr, 30);
+$fp = stream_socket_client("tcp://192.168.7.11:7072", $errno, $errstr, 30);
 if (!$fp) {
     echo "$errstr ($errno)<br />\n";
 } else {
@@ -80,12 +101,82 @@ if (!$fp) {
 			'id' => $F->getID(),
 			'when' => time()
 		);
-
-		$context = new ZMQContext();
-		$socket = $context->getSocket(ZMQ::SOCKET_PUSH, 'my pusher');
-		$socket->connect("tcp://localhost:5555");
-		$socket->send(json_encode($entryData));
+		
+		#print_r($entryData);
+		go($entryData);
+		
+		#$context = new ZMQContext();
+		#$socket = $context->getSocket(ZMQ::SOCKET_PUSH, 'my pusher');
+		#$socket->connect("tcp://localhost:5555");
+		#$socket->send(json_encode($entryData));
     }
     fclose($fp);
+}
+
+function go($message){
+
+	$S = anyC::getFirst("Websocket", "WebsocketUseFor", "fheME");
+	$realm = $S->A("WebsocketRealm");
+	
+	spl_autoload_unregister("phynxAutoloader");
+	
+	require Util::getRootPath().'PWS/Thruway/vendor/autoload.php';
+		
+
+	if(!class_exists("ClientPhimAuthenticator", false)){
+		Thruway\Logging\Logger::set(new Psr\Log\NullLogger());
+		
+		class ClientPhimAuthenticator implements Thruway\Authentication\ClientAuthenticationInterface {
+			private $authID;
+			private $key;
+			private $realm;
+
+			function __construct($realm, $authID, $key){
+				$this->authID = $authID;
+				$this->key = $key;
+				$this->realm = $realm;
+			}
+
+			public function getAuthId() {
+				return $this->authID;
+			}
+
+			public function setAuthId($authid) {
+
+			}
+
+			public function getAuthMethods() {
+				return ["phimAuth_".$this->realm];
+			}
+
+			public function getAuthenticateFromChallenge(Thruway\Message\ChallengeMessage $msg)	{
+				return new \Thruway\Message\AuthenticateMessage($this->key);
+			}
+		}
+	}
+	
+	$connection = new \Thruway\Connection([
+		"realm"   => $realm,
+		"url"     => "ws".($S->A("WebsocketSecure") ? "s" : "")."://".$S->A("WebsocketServer").":".$S->A("WebsocketServerPort")."/"
+	]);
+	
+	$client = $connection->getClient();
+	$client->addClientAuthenticator(new ClientPhimAuthenticator($realm, "phimUser", $S->A("WebsocketToken")));
+		
+	$connection->on('open', function (\Thruway\ClientSession $session) use ($connection, $message) {
+		$session->publish('it.furtmeier.fheme', [json_encode($message, JSON_UNESCAPED_UNICODE)], [], ["acknowledge" => true])->then(
+			function () use ($connection) {
+				$connection->close();
+			}, function ($connection) {
+				$connection->close();
+			}
+		);
+	});
+
+	$connection->open();
+	
+	
+	#spl_autoload_unregister(array("ThruwayLoader", "alienClassLoader"));
+	#spl_autoload_register("phynxAutoloader");
 }
 ?>

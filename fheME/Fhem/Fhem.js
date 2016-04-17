@@ -31,14 +31,48 @@ var Fhem = {
 	
 	doAutoUpdate: true,
 	
-	handleWS: function(topic, data){
-		Fhem.doAutoUpdate = false;
-		//if(data.type === "BrickletTemperatureIR")
-		//	Tinkerforge.updatePlot(data);
-		//console.log(data);
-		Fhem.requestUpdate(data.id);
-	},
+	wsData: null,
+	
+	connection: function(){
+		if(typeof autobahn == "undefined")
+			return;
+		
+		contentManager.rmePCR("Fhem", "-1", "getWSData", ["fheME"], function(t){
+			Fhem.wsData = t.responseData[0];
 			
+			var connection = new autobahn.Connection({
+				url: "wss://"+Fhem.wsData.WebsocketServer+":"+Fhem.wsData.WebsocketServerPort, 
+				realm: Fhem.wsData.WebsocketRealm,
+				authmethods: ["phimAuth_"+Fhem.wsData.WebsocketRealm],
+				authid: "phimUser",
+				onchallenge: function(session, method, extra){
+					return Fhem.wsData.WebsocketToken;
+				}
+			});
+
+			connection.onopen = function (session, details) {
+				Fhem.doAutoUpdate = false;
+				
+				function onevent(args) {
+					var data = jQuery.parseJSON(args[0]);
+					Fhem.requestUpdate(data.id);
+				}
+
+				session.subscribe('it.furtmeier.fheme', onevent);
+
+			};
+
+			connection.onclose = function(reason){
+
+			}
+
+			connection.open();
+		});
+		
+		
+		
+	},
+				
 	initUpdater: function(){
 		if(Fhem.updater != null)
 			window.clearInterval(Fhem.updater);
@@ -46,8 +80,6 @@ var Fhem = {
 		Fhem.updater = window.setInterval(function(){
 			Fhem.refreshControls();
 		}, 20 * 1000);
-
-		//new PeriodicalExecuter(Fhem.refreshControls, 20);
 	},
 
 	refreshControls: function(){
@@ -191,4 +223,8 @@ var Fhem = {
 }
 
 Fhem.initUpdater();
-Registry.callback("pWebsocket", function(){pWebsocket.subscribe("fhem", Fhem.handleWS);});
+window.setTimeout(function(){
+	Fhem.connection();
+}, 3000);
+
+//Registry.callback("pWebsocket", function(){pWebsocket.subscribe("fhem", Fhem.handleWS);});

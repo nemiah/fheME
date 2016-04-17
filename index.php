@@ -213,11 +213,11 @@ if($sephy AND isset($sephy[3]) AND $sephy[3])
 				alert("Die JavaScript-Dateien konnten nicht geladen werden.\nDies kann an der Server-Konfiguration liegen.\nBitte versuchen Sie, diese Anwendung in ein Unterverzeichnis zu installieren.");
 		</script>
 		<script>
-			window.define = function(factory) {
+			/*window.define = function(factory) {
 				try{ delete window.define; } catch(e){ window.define = void 0; } // IE
 				window.when = factory();
 			};
-			window.define.amd = {};
+			window.define.amd = {};*/
 			<?php
 			if(!Environment::getS("usePWEncryption", true))
 				echo "\$j(function(){

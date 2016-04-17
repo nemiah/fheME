@@ -25,9 +25,9 @@
 		
 		<icon>./plugins/Websocket/Websocket.png</icon>
 		<folder>Websocket</folder>
-		<!--<javascript>when/when.js</javascript>
+		<!--<javascript>when/when.js</javascript>-->
 		<javascript>autobahn.min.js</javascript>
-		<javascript>pWebsocket.js</javascript>-->
+		<!--<javascript>pWebsocket.js</javascript>-->
 		
 		<adminOnly>true</adminOnly>
 		

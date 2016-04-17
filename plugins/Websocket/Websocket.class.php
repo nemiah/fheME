@@ -18,5 +18,10 @@
  *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class Websocket extends PersistentObject {
+	public static function getData($for){
+		$AC = anyC::get("Websocket", "WebsocketUseFor", $for);
+		
+		return $AC->asJSON();
+	}
 }
 ?>

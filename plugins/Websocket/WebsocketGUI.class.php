@@ -18,6 +18,7 @@
  *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class WebsocketGUI extends Websocket implements iGUIHTML2 {
+	
 	function getHTML($id){
 		$gui = new HTMLGUIX($this);
 		$gui->name("Websocket");
@@ -39,7 +40,7 @@ class WebsocketGUI extends Websocket implements iGUIHTML2 {
 		$gui->label("WebsocketServerPort", "Port");
 		
 		$gui->type("WebsocketSecure", "checkbox");
-		$gui->type("WebsocketUseFor", "select", array("phim" => "phim"));
+		$gui->type("WebsocketUseFor", "select", array("phim" => "phim", "fheME" => "fheME"));
 		
 		$gui->space("WebsocketServer");
 		$gui->space("WebsocketRealm");

@@ -1,0 +1,5 @@
+{
+    "require": {
+        "voryx/thruway": "^0.4.0"
+    }
+}

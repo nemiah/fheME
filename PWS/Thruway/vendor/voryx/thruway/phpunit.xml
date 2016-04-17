@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<phpunit
+        backupGlobals="false"
+        backupStaticAttributes="false"
+        colors="true"
+        convertErrorsToExceptions="true"
+        convertNoticesToExceptions="true"
+        convertWarningsToExceptions="true"
+        processIsolation="false"
+        stopOnFailure="false"
+        syntaxCheck="false"
+        bootstrap="tests/bootstrap.php">
+    <testsuites>
+        <testsuite name="Thruway Tests">
+            <directory>tests/</directory>
+            <exclude>tests/WAMP/ReplaceOrphanedSessionTest.php</exclude>
+            <exclude>tests/WAMP/PingTest.php</exclude>
+            <exclude>tests/Crossbar/CrossbarTest.php</exclude>
+
+            <!-- tests that need to be reworked for 0.4 or support hasn't been ported over yet -->
+            <!--<exclude>tests/WAMP/SessionMetaTest.php</exclude>-->
+            <!--<exclude>tests/WAMP/AuthorizingRealmTest.php</exclude>-->
+        </testsuite>
+    </testsuites>
+
+</phpunit>
