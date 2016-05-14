@@ -105,17 +105,31 @@ class mOpenWeatherMapGUI extends anyC implements iGUIHTMLMP2 {
 				<b style=\"font-size:30px;font-weight:bold;color:#555;\">".round($dataCurrent->main->temp)." °C</b>$BT
 				</div>";
 			
+			$D = new Datum();
+			$D->normalize();
+			
+			$c = 0;
 			$html .= "<div style=\"clear:both;\">";
-			for($i = 0; $i < 2; $i++){
-				$time = $dataForecastDaily->list[$i]->dt;
+			for($i = 0; $i < 5; $i++){
+				if($c == 2)
+					break;
 				
-				$icon = OpenWeatherMap::iconPng($dataForecastDaily->list[$i]->weather[0]->icon);
-				$B = new Button("", "./ubiquitous/OWM/icons48/".$icon.".png", "icon");
-
-				$html .= "<div style=\"float:left;width:49%;margin-top:20px;\"><small style=\"color:grey;\">".($i == 0 ? "Heute" : "Morgen")." (".Datum::getGerWeekArray(date("w", $time)).")</small><br>
-					<b style=\"font-size:15px;font-weight:bold;color:#555;\">".round($dataForecastDaily->list[$i]->temp->min)." - ".round($dataForecastDaily->list[$i]->temp->max)." °C<br>".$B."
-					</b>
-					</div>";
+				$time = $dataForecastDaily->list[$i]->dt;
+				if($time < $D->time())
+					continue;
+				
+				#$icon = OpenWeatherMap::iconPng($dataForecastDaily->list[$i]->weather[0]->icon);
+				#$B = new Button("", "./ubiquitous/OWM/icons48/".$icon.".png", "icon");
+				#$B->popup("", "Vorhersage", "mOpenWeatherMap", "-1", "all");
+				
+				#$html .= "<div style=\"float:left;width:49%;margin-top:20px;\"><small style=\"color:grey;\">".($i == 0 ? "Heute" : "Morgen")." (".Datum::getGerWeekArray(date("w", $time)).")</small><br>
+				#	<b style=\"font-size:15px;font-weight:bold;color:#555;\">".round($dataForecastDaily->list[$i]->temp->min)." - ".round($dataForecastDaily->list[$i]->temp->max)." °C<br>".$B."
+				#	</b>
+				#	</div>";
+				
+				$html .= $this->toIcon(true, $dataForecastDaily->list[$i]);
+				
+				$c++;
 			}
 			
 			$html .= "</div>";
@@ -129,6 +143,39 @@ class mOpenWeatherMapGUI extends anyC implements iGUIHTMLMP2 {
 		if($echo)
 			echo $html;
 		return $html;
+	}
+	
+	private function toIcon($clickable, $data){
+		$icon = OpenWeatherMap::iconPng($data->weather[0]->icon);
+		$B = new Button("", "./ubiquitous/OWM/icons48/".$icon.".png", "icon");
+		if($clickable)
+			$B->popup("", "Vorhersage", "mOpenWeatherMap", "-1", "all");
+		#".($i == 0 ? "Heute" : "Morgen")."
+		return "<div style=\"display:inline-block;vertical-align:top;width:49%;margin-top:20px;\"><small style=\"color:grey;\">".Datum::getGerWeekArray(date("w", $data->dt)).", ".date("d", $data->dt).".</small><br>
+			<b style=\"font-size:15px;font-weight:bold;color:#555;\">".round($data->temp->min)." - ".round($data->temp->max)." °C<br>".$B."
+			</b>
+			</div>";
+	}
+	
+	public function all(){
+		$D = new Datum();
+		$D->normalize();
+			
+		$html = "<div style=\"margin-left:2%;\">";
+		while($W = $this->n()){
+			
+			$data = json_decode($W->A("OpenWeatherMapDataForecastDaily"));
+			foreach($data->list AS $value){
+				
+				$time = $value->dt;
+				if($time < $D->time())
+					continue;
+				
+				$html .= $this->toIcon(false, $value);
+			}
+		}
+		
+		echo $html."</div>";
 	}
 	
 	public static function getOverviewPlugin(){

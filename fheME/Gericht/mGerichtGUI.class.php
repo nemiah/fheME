@@ -37,35 +37,11 @@ class mGerichtGUI extends anyC implements iGUIHTMLMP2 {
 			<div style=\"padding:10px;overflow:auto;\">";
 
 		
-		/*$BU = new Button("", "./fheME/Gericht/update.png", "icon");
-		$BU->style("float:right;");
-		$BU->onclick("fheOverview.loadContent('mGerichtGUI::getOverviewContent');");
-		
-		$AC = anyC::get("Gericht");
-		$AC->addOrderV3("RAND()");
-		$AC->setLimitV3("1");
-		
-		$G = $AC->getNextEntry();
-		
-		if($G != null){
-
-			$B = new Button("", "./fheME/Gericht/Gericht.png", "icon");
-			$B->style("float:left;margin-right:10px;margin-bottom:20px;");
-			$B->popup("", "Rezept", "Gericht", $G->getID(), "showDetailsPopup");
-
-			$html .= $BU.$B."<b>".$G->A("GerichtName")."</b>";
-
-			if($G->A("GerichtRezeptBuch") != ""){
-				$html .= "<br /><small style=\"color:grey;\">Buch: ".$G->A("GerichtRezeptBuch")."<br />";
-				$html .= "Seite: ".$G->A("GerichtRezeptBuchSeite")."</small>";
-			}
-		}*/
-		
 		$B = new Button("Liste anzeigen", "compass", "touch");
 		$B->popup("", "Essen", "mGericht", "-1", "showCurrentList", "", "", "{top:20, width:800, hPosition:'center', blackout:true}");
 		
 		$BF = new Button("Gefrierschrank", "hash", "touch");
-		$BF->popup("", "Gefrierschrank", "mGericht", "-1", "showCurrentFrozenList", "", "", "{top:20, width:800, hPosition:'center', blackout:true}");
+		$BF->popup("", "Gefrierschrank", "mGericht", "-1", "showCurrentFrozenList", "", "", "{top:20, width:1000, hPosition:'center', blackout:true}");
 		
 		
 		$html .= "$B$BF</div>";
@@ -105,8 +81,6 @@ class mGerichtGUI extends anyC implements iGUIHTMLMP2 {
 		
 		$E->changeA("GerichtAdded", "0");
 		$E->saveMe();
-		
-		#echo $this->getListTable();
 	}
 	
 	public function addFrozenItem($name){
@@ -122,7 +96,7 @@ class mGerichtGUI extends anyC implements iGUIHTMLMP2 {
 		echo $this->getFrozenListTable();
 	}
 	
-	public function showCurrentFrozenList(){
+	/*public function showCurrentFrozenList(){
 		
 		$B = new Button("Fenster\nschließen", "stop");
 		$B->onclick(OnEvent::closePopup("mGericht"));
@@ -147,6 +121,33 @@ class mGerichtGUI extends anyC implements iGUIHTMLMP2 {
 		</div>
 		<div style=\"clear:both;\"></div>
 			";
+	}*/
+	
+	public function showCurrentFrozenList(){
+		
+		$I = new HTMLInput("GefrierschrankNewEntry", "textarea", "");
+		$I->placeholder("Neuer Eintrag");
+		$I->style("width:390px;padding:5px;margin-left:5px;font-size:20px;float:left;font-family:monospace;max-width:390px;resize:none;height:35px;max-height:35px;");
+		$I->onEnter(OnEvent::rme($this, "addFrozenItem", array("this.value"), "function(transport){ \$j('#currentList').html(transport.responseText); }")." \$j(this).val('');");
+		
+		
+		
+		$B = new Button("Liste schließen", "stop");
+		$B->onclick(OnEvent::closePopup("mGericht"));
+		$B->style("float:right;margin:10px;");
+		
+		#<div id=\"EinkaufslisteNewEntryAC\" style=\"width:390px;height:35px;padding:5px;font-size:20px;margin-top:3px;font-family:monospace;color:grey;float:left;\"></div>
+		echo "
+		<div style=\"width:600px;display:inline-block;vertical-align:top;\" id=\"reAddList\">
+			".$this->getFrozenListReAddTable()."
+		</div><div style=\"width:400px;display:inline-block;vertical-align:top;\">
+			<div id=\"headerList\">
+			$B
+			$I<div style=\"clear:both;\"></div></div>
+			
+			<div id=\"currentList\">".$this->getFrozenListTable()."</div>
+		</div>
+			".OnEvent::script("\$j('#editDetailsContentmEinkaufszettel').css('overflow', ''); setTimeout(function(){ \$j('input[name=EinkaufslisteNewEntry]').focus(); }, 200);");
 	}
 	
 	public function showCurrentList(){
@@ -176,6 +177,27 @@ class mGerichtGUI extends anyC implements iGUIHTMLMP2 {
 		
 		$L = new HTMLList();
 		$L->noDots();
+		$L->addListStyle("padding-top:10px;padding-left:0px;");
+		
+		while($B = $AC->getNextEntry()){
+			$L->addItem($B->A("GefrierschrankName"));
+			$L->addItemStyle("padding:10px;margin-bottom:10px;background-color:#eee;display:inline-block;margin-left:5px;height:24px;white-space:nowrap;font-size:20px;cursor:pointer;user-select: none;");
+			$L->addItemData("maxid", $B->getID());
+			$L->setItemID("Gefriere".$B->getID());
+			$L->addItemEvent("onclick", OnEvent::rme($this, "reAddFrozenItem", array("\$j(this).data('maxid')"), "function(transport){ \$j('#Gefriere".$B->getID()."').remove(); \$j('#currentList').html(transport.responseText); }"));
+		}
+		
+		return $L.OnEvent::script("\$j('#reAddList').css('height', contentManager.maxHeight()).css('overflow', 'auto');");
+		
+	}
+	/*
+	private function getFrozenListReAddTable(){
+		$AC = anyC::get("Gefrierschrank");
+		$AC->addAssocV3("GefrierschrankAdded", "=", "0");
+		$AC->addOrderV3("GefrierschrankName");
+		
+		$L = new HTMLList();
+		$L->noDots();
 		$L->addListStyle("padding-top:10px;width:370px;padding-left:0px;");
 		
 		while($B = $AC->getNextEntry()){
@@ -186,7 +208,7 @@ class mGerichtGUI extends anyC implements iGUIHTMLMP2 {
 		}
 		
 		return $L.$this->js("reAddFrozenItem");
-	}
+	}*/
 	
 	private function getListReAddTable(){
 		$AC = anyC::get("Gericht");
@@ -247,7 +269,38 @@ class mGerichtGUI extends anyC implements iGUIHTMLMP2 {
 				}
 			});");
 	}
+
 	
+
+	public function getFrozenListTable(){
+		$T = new HTMLTable(2);
+		$T->maxHeight(400);
+		$T->setColWidth(2, 30);
+		$T->weight("light");
+		$T->useForSelection(false);
+		
+		$AC = anyC::get("Gefrierschrank");
+		$AC->addAssocV3("GefrierschrankAdded", ">", "0");
+		
+		while($E = $AC->getNextEntry()){
+			$BT = new Button("Löschen", "trash_stroke", "iconicL");
+			#$BT->onclick();
+			
+			$T->addRow(array($E->A("GefrierschrankName"), $BT));
+			$T->addRowStyle("font-size:20px;");
+			$T->addRowEvent("click", OnEvent::rme($this, "reMoveFrozenItem", $E->getID(), OnEvent::reloadPopup("mGericht")));
+			#$T->addCellEvent(1, "click", OnEvent::rme($this, "boughtItem", $E->getID(), "function(transport){ \$j('#currentList').html(transport.responseText); }"));
+			
+		}
+		
+		if($AC->numLoaded() == 0){
+			$T->addRow(array("Die Liste enthält keine Einträge."));
+			$T->addRowColspan(1, 2);
+		}
+		
+		return $T.OnEvent::script("\$j('#currentList div div').css('max-height', contentManager.maxHeight() - \$j('#headerList').outerHeight());");
+	}
+	/*
 	public function getFrozenListTable(){
 		$T = new HTMLTable(2, "Gefrierschrank");
 		$T->maxHeight(480);
@@ -274,7 +327,7 @@ class mGerichtGUI extends anyC implements iGUIHTMLMP2 {
 		}
 		
 		return $T;
-	}
+	}*/
 	
 	public function getListTable(){
 		$T = new HTMLTable(2, "Gerichte");
