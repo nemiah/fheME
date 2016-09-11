@@ -45,6 +45,8 @@ class CCShopping implements iCustomContent {
 		 */
 		$AC = anyC::get("Einkaufszettel");
 		$AC->addAssocV3("EinkaufszettelBought", "=", "0");
+		$AC->addJoinV3("EinkaufszettelKategorie", "EinkaufszettelEinkaufszettelKategorieID", "=", "EinkaufszettelKategorieID");
+		$AC->addOrderV3("EinkaufszettelKategorieName");
 		$AC->addOrderV3("EinkaufszettelName");
 		
 		$html = "<style type=\"text/css\">
@@ -116,7 +118,12 @@ class CCShopping implements iCustomContent {
 		
 		$B = new Button("Wiederherstellen", "undo", "iconicL");
 		
+		$last = null;
 		while($E = $AC->getNextEntry()){
+			if($last != $E->A("EinkaufszettelKategorieName") AND $last !== null){
+				$html .= "<h1 style=\"padding-left:10px;padding-top:15px;padding-bottom:7px;\">".$E->A("EinkaufszettelKategorieName")."</h1>";
+			}
+			
 			$html .= "
 				<div
 					id=\"entry".$E->getID()."\"
@@ -129,6 +136,8 @@ class CCShopping implements iCustomContent {
 					class=\"nonEmpty entryRestore backgroundColor4 borderColor0\"
 					ontouchend=\"if(Touch.cancelNext) return; CustomerPage.rme('setUnBought', [".$E->getID()."], function(){ $('#entry".$E->getID()."').show(); $('#restoreEntry".$E->getID()."').hide(); $('#emptyEntry').hide(); if($('#einkaufsliste .nonEmpty').length == 0) $('#emptyEntry').show(); });\"
 					id=\"restoreEntry".$E->getID()."\" style=\"display:none;\">".$E->A("EinkaufszettelName")." $B</div>";
+			
+			$last = $E->A("EinkaufszettelKategorieName");
 		}
 		
 		$html .= "<div style=\"".($AC->numLoaded() == 0 ? "" : "display:none;")."\" class=\"entry backgroundColor1 borderColor1\" id=\"emptyEntry\">Die Einkaufsliste enthält keine Einträge.<br /><small style=\"color:grey;\">".Util::CLDateParser(time())."</small></div>";

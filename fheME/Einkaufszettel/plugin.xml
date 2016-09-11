@@ -20,7 +20,7 @@
 <phynx>
 	<plugin>
 		<name>Einkaufszettel</name>
-		<menuName></menuName>
+		<menuName>Einkaufen</menuName>
 		<collection>mEinkaufszettel</collection>
 		
 		<icon>./fheME/Einkaufszettel/Einkaufszettel.png</icon>
@@ -34,6 +34,7 @@
 
 		<deploy>
 			<table name="Einkaufszettel" />
+			<table name="EinkaufszettelKategorie" />
 		</deploy>
 	</plugin>
 </phynx>

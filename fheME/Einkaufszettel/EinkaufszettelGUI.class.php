@@ -26,10 +26,28 @@ class EinkaufszettelGUI extends Einkaufszettel implements iGUIHTML2 {
 	}
 	
 	function getHTML($id){
+		if($this->getID() == -1){
+			$this->loadMeOrEmpty();
+			$this->changeA("EinkaufszettelBought", 1);
+		}
+		
 		$gui = new HTMLGUIX($this);
 		$gui->name("Einkaufszettel");
 	
-		$gui->type("EinkaufszettelBought", "checkbox");
+		$gui->attributes(array(
+			"EinkaufszettelName",
+			"EinkaufszettelEinkaufszettelKategorieID",
+			"EinkaufszettelImmer",
+			"EinkaufszettelBought"
+		));
+		
+		$gui->label("EinkaufszettelImmer", "Immer anzeigen?");
+		$gui->label("EinkaufszettelEinkaufszettelKategorieID", "Kategorie");
+		
+		$gui->type("EinkaufszettelBought", "hidden");
+		$gui->type("EinkaufszettelEinkaufszettelKategorieID", "select", anyC::get("EinkaufszettelKategorie"), "EinkaufszettelKategorieName", "Bitte auswählen...");
+		
+		$gui->type("EinkaufszettelImmer", "checkbox");
 		
 		return $gui->getEditHTML();
 	}

@@ -21,19 +21,23 @@
 class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 
 	public function getHTML($id, $page){
+		$this->addOrderV3("EinkaufszettelImmer", "DESC");
 		$this->addOrderV3("EinkaufszettelTime", "DESC");
 		$this->loadMultiPageMode($id, $page, 0);
 
 		$gui = new HTMLGUIX($this);
 		$gui->version("mEinkaufszettel");
-		$gui->colWidth("EinkaufszettelBought", 20);
+		$gui->colWidth("EinkaufszettelImmer", 20);
 		
 		$gui->name("Einkaufszettel");
-		$gui->parser("EinkaufszettelBought", "Util::catchParser");
-		$gui->attributes(array("EinkaufszettelBought", "EinkaufszettelName"));
+		$gui->parser("EinkaufszettelImmer", "Util::catchParser");
+		$gui->attributes(array("EinkaufszettelImmer", "EinkaufszettelName"));
 		
 		$B = $gui->addSideButton("EAN\nprüfen", "lieferschein");
 		$B->popup("", "EAN prüfen", "mEinkaufszettel", "-1", "checkEANPopup");
+		
+		$B = $gui->addSideButton("Kategorien", "manager");
+		$B->loadPlugin("contentRight", "mEinkaufszettelKategorie");
 		
 		return $gui->getBrowserHTML($id);
 	}
@@ -67,7 +71,7 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 			$F = new Factory("Einkaufszettel");
 			$F->sA("EinkaufszettelName", $name);
 			$F->sA("EinkaufszettelBought", "0");
-			$F->sA("EinkaufszettelMenge", "1");
+			#$F->sA("EinkaufszettelMenge", "1");
 			$O = $F->exists(true);
 			if(!$O){
 				$F->sA("EinkaufszettelEAN", $EAN);
@@ -76,7 +80,7 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 					$F->sA("EinkaufszettelNameDetails", $fullname);
 				$F->store();
 			} else {
-				$O->changeA("EinkaufszettelMenge", $O->A("EinkaufszettelMenge") + 1);
+				#$O->changeA("EinkaufszettelMenge", $O->A("EinkaufszettelMenge") + 1);
 				$O->saveMe();
 			}
 		}
@@ -92,7 +96,7 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 			$F = new Factory("Einkaufszettel");
 			$F->sA("EinkaufszettelName", $name);
 			$F->sA("EinkaufszettelTime", time());
-			$F->sA("EinkaufszettelMenge", "1");
+			#$F->sA("EinkaufszettelMenge", "1");
 			$F->store();
 		#}
 		
@@ -104,23 +108,43 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 	
 	public function reAddItem($EinkaufszettelID, $overviewList = false){
 		$E = new Einkaufszettel($EinkaufszettelID);
+		$E->changeA("EinkaufszettelAdded", $E->A("EinkaufszettelAdded") + 1);
+		$E->saveMe();
 		
 		$F = new Factory("Einkaufszettel");
 		$F->sA("EinkaufszettelBought", "0");
 		$F->sA("EinkaufszettelName", $E->A("EinkaufszettelName"));
+		
 		$exists  = $F->exists(true);
 		if($exists !== false){
 			$exists->changeA("EinkaufszettelMenge", $exists->A("EinkaufszettelMenge") + 1);
 			$exists->saveMe();
 		} else {
-			$E->changeA("EinkaufszettelBought", "0");
-			$E->changeA("EinkaufszettelTime", time());
-			$E->changeA("EinkaufszettelMenge", "1");
-			$E->newMe();
+			#$E->changeA("EinkaufszettelBought", "0");
+			#$E->changeA("EinkaufszettelTime", time());
+			$F->sA("EinkaufszettelMenge", "1");
+			#$E->newMe();
+			$F->sA("EinkaufszettelEinkaufszettelKategorieID", $E->A("EinkaufszettelEinkaufszettelKategorieID"));
+			$F->sA("EinkaufszettelTime", time());
+			$F->store();
+			
 		}
 		
+		#$F->sA("EinkaufszettelName", $E->A("EinkaufszettelName"));
+		
+		#$exists  = $F->exists(true);
+		#if($exists !== false){
+			#$exists->changeA("EinkaufszettelMenge", $exists->A("EinkaufszettelMenge") + 1);
+		#	$exists->saveMe();
+		#} else {
+		#	$E->changeA("EinkaufszettelBought", "0");
+		#	
+			#$E->changeA("EinkaufszettelMenge", "1");
+		#	$E->newMe();
+		#}
+		
 		#if(!$overviewList)
-			echo $this->getListTable();
+		echo $this->getListTable();
 		#else
 		#	echo $this->getOverviewList();
 	}
@@ -226,76 +250,42 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 		#$TB->maxHeight(400);
 		#$TB->useForSelection();
 		
-		$AC = anyC::get("Einkaufszettel", "EinkaufszettelBought", "1");
-		$AC->setFieldsV3(array("EinkaufszettelName", "EinkaufszettelNameDetails", "MAX(EinkaufszettelID) AS maxID"));
-		$AC->addAssocV3("EinkaufszettelBoughtTime", ">", time() - 3600 * 24 * 60);
+		$AC = anyC::get("Einkaufszettel", "EinkaufszettelImmer", "1");
+		$AC->setFieldsV3(array("EinkaufszettelName", "EinkaufszettelNameDetails", "EinkaufszettelKategorieName"));#, "MAX(EinkaufszettelID) AS maxID"));
+		$AC->addJoinV3("EinkaufszettelKategorie", "EinkaufszettelEinkaufszettelKategorieID", "=", "EinkaufszettelKategorieID");
+		#$AC->addAssocV3("EinkaufszettelBoughtTime", ">", time() - 3600 * 24 * 60);
 		$AC->addAssocV3("EinkaufszettelEAN", "=", "");
-		$AC->addGroupV3("EinkaufszettelName");
+		#$AC->addGroupV3("EinkaufszettelName");
+		$AC->addOrderV3("EinkaufszettelKategorieName");
 		$AC->addOrderV3("EinkaufszettelName");
 		#$AC->addGroupV3("EinkaufszettelNameDetails");
 		
-		$L = new HTMLList();
-		$L->noDots();
-		$L->addListStyle("padding-top:10px;padding-left:0px;");
+		$LC = new HTMLList();
+		$LC->noDots();
+		$LC->addListStyle("padding-top:10px;padding-left:0px;");
 		
+		$L = "";
+		$last = "";
+		$html = "";
 		while($B = $AC->getNextEntry()){
-			#$BT = new Button("Eintrag löschen", "trash_stroke", "iconicL");
-			#$BT->rmePCR("mEinkaufszettel", "-1", "deleteReAddItem", $B->A("maxID"), "function(transport){ \$j('#reAddList').html(transport.responseText); }");
-			#$BT->style("float:left;margin-right:10px;margin-top:-4px;");
+			if($last != $B->A("EinkaufszettelKategorieName")){
+				$html .= $L;
+				$html .= "<p class=\"prettySubtitle\">".$B->A("EinkaufszettelKategorieName")."</p>";
+				
+				$L = clone $LC;
+			}
 			
 			$L->addItem($B->A("EinkaufszettelName").($B->A("EinkaufszettelNameDetails") != "" ? "<br /><small style=\"color:grey;\">".$B->A("EinkaufszettelNameDetails")."</small>" : ""));
 			$L->addItemStyle("padding:10px;margin-bottom:10px;background-color:#eee;display:inline-block;margin-left:5px;height:24px;white-space:nowrap;font-size:20px;cursor:pointer;user-select: none;");
-			#$L->addItemClass("swipe");
-			$L->addItemData("maxid", $B->A("maxID"));
+
+			$L->addItemData("maxid", $B->getID());
 			$L->addItemEvent("onclick", OnEvent::rme($this, "reAddItem", array("\$j(this).data('maxid')"), "function(transport){ \$j('#currentList').html(transport.responseText); }"));
-			#$TB->addRow(array($BT, ));
-			#$TB->addRowStyle("font-size:20px;");
-			#$TB->addCellClass(2, "swipe");
 			
-			#$TB->addCellEvent(2, "click", OnEvent::rme($this, "reAddItem", $B->A("maxID"), "function(transport){ \$j('#currentList').html(transport.responseText); }"));
+			$last = $B->A("EinkaufszettelKategorieName");
 		}
+		$html .= $L;
 		
-		return $L.OnEvent::script("\$j('#reAddList').css('height', contentManager.maxHeight()).css('overflow', 'auto');");
-		/*.OnEvent::script("
-			\$j('#reAddList ul').parent().css('height', contentManager.maxHeight()).css('overflow', 'auto');
-
-			\$j('.swipe').hammer().on('touch release dragright', function(event){
-				
-				if(event.type == 'touch'){
-					scrollStartedAt = \$j('#reAddList').scrollTop();
-					
-					\$j(this).addClass('highlight');
-					return;
-				}
-				
-				if(event.type == 'release'){
-					event.gesture.preventDefault();
-					
-					if(event.gesture.deltaX > 150)
-						
-					
-					\$j(this).removeClass('confirm');
-					\$j(this).removeClass('highlight');
-					\$j(this).animate({'margin-left': 5});
-					return;
-				}
-				
-				if(event.type == 'dragright'){
-					event.gesture.preventDefault();
-					var margin = event.gesture.deltaX;
-
-					if(margin >= 150)
-						\$j(this).addClass('confirm');
-						
-					if(margin < 150)
-						\$j(this).removeClass('confirm');
-
-					if(margin > 250)
-						margin = 250;
-						
-					\$j(this).css('margin-left', margin);
-				}
-			});");*/
+		return $html.OnEvent::script("\$j('#reAddList').css('height', contentManager.maxHeight()).css('overflow', 'auto');");
 	}
 	
 	public function getACData($query){
