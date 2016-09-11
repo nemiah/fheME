@@ -81,6 +81,10 @@ class HTMLList {
 		$this->style .= $style;
 	}
 	
+	public function removeItem(){
+		array_pop($this->items);
+	}
+	
 	public function addItem($content){
 		$this->items[] = $content;
 		

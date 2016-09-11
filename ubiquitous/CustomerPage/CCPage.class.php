@@ -71,10 +71,10 @@ class CCPage {
 
 		foreach ($dir as $fileinfo) {
 			if($fileinfo->isDot()) continue;
-			if(strpos($fileinfo->getFilename(), ".class.php") === false) continue;
+			if(strpos($fileinfo->getFilename(), ".class.php") === false) 
+				continue;
 
-
-			registerClassPath(str_replace(".class.php", "", $fileinfo->getFilename()), $absolutePath.$fileinfo->getFilename());
+			registerClassPath(str_replace(".class.php", "", $fileinfo->getFilename()), $fileinfo->getPathname());
 		}
 	}
 	

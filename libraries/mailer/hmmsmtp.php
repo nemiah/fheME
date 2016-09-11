@@ -105,6 +105,10 @@ class hmmsmtp {
 			@socket_set_timeout($this->connection, 5, 0);
 		}
 
+		#socket_set_option($this->connection, 'ssl', 'verify_peer', false);
+		#socket_set_option($this->connection, 'ssl', 'verify_host', false);
+		#socket_set_option($this->connection, 'ssl', 'allow_self_signed', true);
+		
 		$greeting = $this->get_data();
 		if (is_resource($this->connection)) {
 			$this->status = SMTP_STATUS_CONNECTED;
@@ -204,7 +208,7 @@ class hmmsmtp {
 		if (is_resource($this->connection)
 				AND $this->send_data('EHLO ' . $this->helo)
 				AND substr(trim($error = $this->get_data()), 0, 3) === '250') {
-
+			
 			if(strpos($error, "STARTTLS") > 0)
 				$this->useStarttls = true;
 			
@@ -278,14 +282,20 @@ class hmmsmtp {
 		
 		$rply = $this->get_data();
 		$code = substr($rply,0,3);
-
+		
 		if($code != 220) {
 			$this->errors[] = 'STARTTLS not accepted from server: ' . trim(substr(trim($rply), 3));
 			return false;
 		}
-
-		if(!stream_socket_enable_crypto($this->connection, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)) 
-		  return false;
+		
+		#stream_set_blocking($this->connection, true);
+		if(!stream_socket_enable_crypto($this->connection, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)) {
+			$error = error_get_last();
+			$this->errors[] = 'STARTTLS failed: ' . $error["message"];
+			#print_r(stream_get_transports());
+			return false;
+		}
+		#stream_set_blocking($this->connection, false);
 		
 		$this->ehlo();
 

@@ -165,6 +165,9 @@ class CRMHTMLGUI extends HTMLGUIX {
 		foreach($this->inputStyles AS $k => $n)
 			$tab->setInputStyle($k, $n);
 		
+		foreach($this->descriptionsField AS $n => $l)
+			$tab->setDescriptionField($n, T::_($l));
+		
 		$tab->setValues($this->object);
 
 		if($this->object->getID() == -1)
@@ -174,6 +177,8 @@ class CRMHTMLGUI extends HTMLGUIX {
 
 		$tab->setSaveClass($this->className, $this->object->getID(), str_replace(array("%CLASSNAME","%CLASSID"), array($this->className, $this->object->getID()), $save), $this->name);
 
+		$tab->useRecentlyChanged();
+		
 		return $abort.$tab;
 	}
 

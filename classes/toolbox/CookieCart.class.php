@@ -463,7 +463,7 @@ class CookieCart {
 				
 				if($t[2] != "CookieCart"){
 					$c = $this->useClass[$num];
-					$A = new $c($t[0]);
+					$A = new $c($t[0], false);
 					$A->loadMe();
 
 					$mwst = $this->mwstField[$num];
@@ -687,7 +687,7 @@ class CookieCart {
 			
 			if($t[2] != "CookieCart"){
 				$c = $this->useClass[$num];
-				$A = new $c($t[0]);
+				$A = new $c($t[0], false);
 				$A->loadMe();
 
 				$mwst = $this->mwstField[$num];
@@ -755,7 +755,7 @@ class CookieCart {
 
 				if($t[2] != "CookieCart"){
 					$c = $this->useClass[$num];
-					$A = new $c($t[0]);
+					$A = new $c($t[0], false);
 					$A->loadMe();
 
 					$mwst = $this->mwstField[$num];

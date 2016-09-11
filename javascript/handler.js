@@ -295,6 +295,12 @@ function saveClass(className, id, onSuccessFunction, formName, callback){
 	parameters: "class="+className+joinFormFields(formID)+"&id="+id,
 	onSuccess: function(transport) {
 		if(checkResponse(transport)) {
+			if(transport.responseText.charAt(0) == "{" && transport.responseText.charAt(transport.responseText.length - 1) == "}")
+				transport.responseData = jQuery.parseJSON(transport.responseText);
+
+			if(transport.responseText.charAt(0) == "[" && transport.responseText.charAt(transport.responseText.length - 1) == "]")
+				transport.responseData = jQuery.parseJSON(transport.responseText);
+				
 			//showMessage(transport.responseText);
 			if(typeof formID == "string")
 				$j('#'+formID+" .recentlyChanged").removeClass("recentlyChanged");

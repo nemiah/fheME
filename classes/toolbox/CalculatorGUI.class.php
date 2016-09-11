@@ -34,6 +34,7 @@ class CalculatorGUI implements icontextMenu {
 
 	
 	public function calculate($formula){
+		$formula = trim($formula, "+-*/");
 		
 		require_once Util::getRootPath().'libraries/math-parser/lib/PHPMathParser/Math.php';
 

@@ -145,7 +145,7 @@ function log_error($errno, $errmsg, $filename, $linenum) {
 	if(defined('E_DEPRECATED'))
 		$errortype[E_DEPRECATED] = 'Function Deprecated';
 	
-	if(!isset($_SESSION["phynx_errors"]))
+	if(!isset($_SESSION["phynx_errors"]) OR !is_array($_SESSION["phynx_errors"]))
 		$_SESSION["phynx_errors"] = array();
 	
 	if(!PHYNX_USE_SYSLOG)

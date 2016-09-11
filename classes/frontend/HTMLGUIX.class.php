@@ -822,12 +822,20 @@ class HTMLGUIX {
 			$TT = new HTMLTable(1);
 			$TT->addTableClass("browserContainerSubHeight");
 			
-			foreach($this->topButtons AS $B){
-				$TT->addRow($B."");
+			if($this->displayMode == "CRMSubframeContainer"){
+				$buttons = "";
+				foreach($this->topButtons AS $B)
+					$buttons .= $B;
 				
-				if($this->displayMode == "CRMSubframeContainer")
-					$TT->addRowClass ("backgroundColor0");
-			}
+				
+				$TT->addRow($buttons);
+				
+				$TT->addRowClass ("backgroundColor0");
+				
+			} else
+				foreach($this->topButtons AS $B)
+					$TT->addRow($B."");
+			
 		}
 
 		T::D("");
@@ -963,7 +971,7 @@ class HTMLGUIX {
 			break;
 			case "CRMEditAbove":
 				#$this->features["CRMEditAbove"] = "";
-				$new = "contentManager.loadFrame('subFrameEdit%COLLECTIONNAME', '%CLASSNAME', %CLASSID, 0, '', function(transport) { \$j('#subFrameEdit%COLLECTIONNAME').show(); \$j('#subFrame%COLLECTIONNAME').hide(); /*if($('subFrameEdit%COLLECTIONNAME').style.display == 'none') new Effect.BlindDown('subFrameEdit%COLLECTIONNAME', {duration:0.5});*/ });";
+				$new = "contentManager.loadFrame('subFrameEdit%COLLECTIONNAME', '%CLASSNAME', %CLASSID, 0, '', function(transport) { \$j('#subFrameEdit%COLLECTIONNAME').show(); \$j('#subFrame%COLLECTIONNAME').hide(); });";
 				if($par1 != null)
 					$new = $par1;
 				

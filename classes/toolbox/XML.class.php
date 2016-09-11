@@ -60,7 +60,7 @@ class XML {
 		
 		while($t = $this->getNextEntry()){
 			$xml .= "
-	<entry class=\"".$this->collectionOf."\">
+	<entry class=\"".($this->collectionOf != "" ? $this->collectionOf : get_class($t))."\">
 		<id>".$t->getID()."</id>";
 			
 			$A = $t->getA();

@@ -75,6 +75,9 @@ class Installation extends PersistentObject {
 	}
 
 	function makeNewInstallation(){
+		if(trim($_SERVER["HTTP_HOST"]) == "")
+			return;
+		
 		$this->A = $this->newAttributes();
 		$this->A->httpHost = $_SERVER["HTTP_HOST"];
 		$_SESSION["messages"]->addMessage("Setting up new Installation on host ".$_SERVER["HTTP_HOST"]);

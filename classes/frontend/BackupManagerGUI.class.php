@@ -209,7 +209,7 @@ class BackupManagerGUI implements iGUIHTML2 {
 			$BOK = $this->makeBackupOfToday();
 			$F = new File(BackupManagerGUI::getNewBackupName());
 			$F->loadMe();
-
+			
 			if($BOK === basename(BackupManagerGUI::getNewBackupName()) AND $F->A("FileSize") > 100) {
 				$B = new Button("Backup abgeschlossen","okCatch");
 				$B->type("icon");

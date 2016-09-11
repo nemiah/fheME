@@ -29,7 +29,8 @@ class DBStorage {
 	protected $dataWrite;
 	public static $queryCounter = 0;
 	public static $lastQuery = array();
-			
+	public static $allowSubSelect = false;
+	
 	function __construct(){
 		if($this->data == null AND isset($_SESSION["DBData"]))
 			$this->data = $_SESSION["DBData"];
@@ -487,6 +488,9 @@ class DBStorage {
 				AND substr($currentWhereValue, 0, 3) != "t2.") 
 				$currentWhereValue = "'".$this->c->real_escape_string($currentWhereValue)."'";
 				
+			if(self::$allowSubSelect AND strpos($statement->whereValues[$key], "SELECT") !== false)
+				$currentWhereValue = $statement->whereValues[$key];
+			
 			$where .= ($where != "(" ? " ".$statement->whereLogOp[$key]." ".($addOpenBracket ? "(" : "") : "")./*(in_array($statement->whereFields[$key], $nJAs) ? "t1." : "").*/"".$statement->whereFields[$key]." ".$statement->whereOperators[$key]." ".$currentWhereValue."";
 			$lastKey = $key;
 		}

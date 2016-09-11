@@ -54,9 +54,6 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 		}
 		
 		
-		
-		
-		
 		// <editor-fold defaultstate="collapsed" desc="styles">
 		$html = "
 		

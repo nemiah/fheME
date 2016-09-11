@@ -113,7 +113,28 @@ class phimGUI extends phim implements iGUIHTML2 {
 
 		require_once __DIR__.'/ClientPhimAuthenticator.php';
 		
-		$client = new Thruway\Peer\Client($realm);
+		Thruway\Logging\Logger::set(new Psr\Log\NullLogger());
+		$connection = new \Thruway\Connection([
+			"realm"   => $realm,
+			"url"     => "ws".($S->A("WebsocketSecure") ? "s" : "")."://".$S->A("WebsocketServer").":".$S->A("WebsocketServerPort")."/"
+		]);
+
+		$client = $connection->getClient();
+		$client->addClientAuthenticator(new ClientPhimAuthenticator($realm, "phimUser", $S->A("WebsocketToken")));
+
+		$connection->on('open', function (\Thruway\ClientSession $session) use ($connection, $message, $to) {
+			$session->publish('it.furtmeier.phim_'.$to, [json_encode($message, JSON_UNESCAPED_UNICODE)], [], ["acknowledge" => true])->then(
+				function () use ($connection) {
+					$connection->close();
+				}, function ($connection) {
+					$connection->close();
+				}
+			);
+		});
+
+		$connection->open();
+		
+		/*$client = new Thruway\Peer\Client($realm);
 		$client->addClientAuthenticator(new ClientPhimAuthenticator($realm, "phimUser", $S->A("WebsocketToken")));
 		
 		$client->addTransportProvider(new Thruway\Transport\PawlTransportProvider("ws".($S->A("WebsocketSecure") ? "s" : "")."://".$S->A("WebsocketServer").":".$S->A("WebsocketServerPort")."/"));
@@ -135,7 +156,7 @@ class phimGUI extends phim implements iGUIHTML2 {
 		});
 
 
-		$client->start();
+		$client->start();*/
 	}
 }
 ?>

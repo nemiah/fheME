@@ -18,6 +18,10 @@
  *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
  */
 class PluginV2 {
+	function registerApplications(){
+		return array();
+	}
+	
 	function registerName() {
 		return "noName";
 	}

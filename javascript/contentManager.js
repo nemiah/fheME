@@ -275,7 +275,7 @@ var contentManager = {
 					if($j('#BrowserMain'+contentManager.historyLeft[historyPlugin][1]).length)
 						found = true;
 
-					if(found)
+					if(found && $j(window).width() > 1000)
 						contentManager.loadFrame("contentLeft", contentManager.historyLeft[historyPlugin][0], contentManager.historyLeft[historyPlugin][1], 0, "", function(){
 							$j('#Browser'+historyPlugin+contentManager.historyLeft[historyPlugin][1]).addClass("lastSelected");
 							$j('#BrowserMain'+contentManager.historyLeft[historyPlugin][1]).addClass("lastSelected");
@@ -634,9 +634,18 @@ var contentManager = {
 						if(typeof options.doBefore == "function")
 							options.doBefore();
 					}
+					
+					var close = "";
+					if(target == "contentLeft" && $j(window).width() <= 1000){
+						close = "<span title=\"Schließen\" style=\"z-index:110;position:fixed;padding:15px;top:5px;right:5px;\" onclick=\"contentManager.emptyFrame('contentLeft'); contentManager.clearHistory(); $j('#contentLeft').css('min-height', '');\" class=\"iconic iconicG iconicL x\" alt=\"Schließen\"></span>";
+					}
 
-					$j("#"+target).html(transport.responseText);
-
+					$j("#"+target).html(close+transport.responseText);
+					
+					if(target == "contentLeft" && $j(window).width() <= 1000 && $j(document).height() > $j("#contentLeft").outerHeight()){
+						$j("#contentLeft").css("min-height", $j(document).height());
+					}
+					
 					if(typeof onSuccessFunction != "undefined" && onSuccessFunction != "") onSuccessFunction(transport);
 
 					Aspect.joinPoint("loaded", "contentManager.loadFrame", arg, transport.responseText);

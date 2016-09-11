@@ -89,7 +89,18 @@ class Red {
 		die("message:'Daten gespeichert'");
 	}
 	
-	public static function messageCreated(){
+	public static function messageCreated(array $data = null){
+		if($data != null){
+			$value = array("type" => "message", "message" => "Datensatz erstellt");
+			foreach($data AS $k => $v)
+				$value[$k] = $v;
+			
+			if(defined("JSON_UNESCAPED_UNICODE"))
+				die(json_encode($value, JSON_UNESCAPED_UNICODE));
+
+			die(json_encode($value));
+		}
+		
 		die("message:'Datensatz erstellt'");
 	}
 	

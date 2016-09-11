@@ -663,7 +663,7 @@ div + .Tab {
 	margin-right:-22px;
 }
 
-@media only screen and (max-width: 1200px) {
+@media only screen and (max-width: 1200px) and (min-width: 1000px) {
 	.sideTableRight .bigButton, .sideTableLeft .bigButton {
 		width:38px;
 		background-position:3px;

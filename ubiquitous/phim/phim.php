@@ -34,7 +34,8 @@ $U = new Users();
 $login = $U->doLogin(array(
 	"loginUsername" => $username,
 	"loginSHAPassword" => $password,
-	"loginPWEncrypted" => 1
+	"loginPWEncrypted" => 1,
+	"anwendung" => "lightCRM"
 ));
 
 if(!$login)

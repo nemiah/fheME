@@ -313,6 +313,9 @@ class mUserdataGUI extends mUserdata implements iGUIHTML2, icontextMenu {
 			if($identifier == "5" AND !in_array($key,$ms))
 				continue;
 			
+			if($value == "Kunde")
+				continue;
+			
 			if(!$_SESSION["CurrentAppPlugins"]->getIsAdminOnly($key) AND $_SESSION["CurrentAppPlugins"]->isCollectionOfFlip($key) != "")
 				$opts .= "<option value=\"$key:".$_SESSION["CurrentAppPlugins"]->isCollectionOfFlip($key)."\">$value</option>";
 		}

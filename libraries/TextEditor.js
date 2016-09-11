@@ -192,9 +192,9 @@ var TextEditor = {
 		if(TextEditor.open) 
 			return;
 		
-		if(typeof field == "object")
-			field = field.get(0);
-		else
+		if(typeof field != "object")
+		//	field = field.get(0);
+		//else
 			field = $j("#"+field);
 		
 		if(!field.length)

@@ -46,7 +46,7 @@ class SysMessages {
 	}
 
 	public static function log($m, $category = "all", $level = 10){
-		if(!isset($_SESSION[self::$variable]))
+		if(!isset($_SESSION[self::$variable]) OR !is_a($_SESSION[self::$variable], "SysMessages"))
 			$_SESSION[self::$variable] = new SysMessages ();
 		
 		$_SESSION[self::$variable]->addMessage($m, $category, $level);

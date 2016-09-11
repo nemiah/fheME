@@ -64,9 +64,9 @@ class Users extends anyC {
 		return $U;
 	}
 
-	public static function login($username, $password, $application, $language = "default", $isCustomerPage = false){
+	public static function login($username, $password, $application, $language = "default", $isCustomerPage = false, $isPWEncrypted = true){
 		$U = new Users();
-		return $U->doLogin(array("loginUsername" => $username, "loginSHAPassword" => $password, "anwendung" => $application, "loginSprache" => $language, "isCustomerPage" => $isCustomerPage)) > 0;
+		return $U->doLogin(array("loginUsername" => $username, "loginSHAPassword" => $password, "anwendung" => $application, "loginSprache" => $language, "isCustomerPage" => $isCustomerPage, "loginPWEncrypted" => $isPWEncrypted)) > 0;
 	}
 	
 	public function getUser($username, $password, $isSHA = false){

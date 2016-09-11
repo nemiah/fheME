@@ -79,6 +79,9 @@ class PersistentObject {
 
 	function changeA($name, $value){
 		if($this->A == null) $this->loadMe();
+		#if(!isset($this->A->$name))
+		#	throw new Exception("Attribute not set!");
+		
 		$this->A->$name = $value;
 	}
 
@@ -319,7 +322,7 @@ class PersistentObject {
 	        if($this->echoIDOnNew) {
 				echo $this->ID;
 			} else
-				Red::messageCreated();
+				Red::messageCreated(array("ID" => $this->ID));
 		}
 		
 		Aspect::joinPoint("after", $this, get_class($this)."::newMe", $this->A);

@@ -570,7 +570,7 @@ class HTMLInput {
 							 ".OnEvent::rme($this->autocomplete[0], "getACData", array("'$this->name'", "request.term", is_array($this->autocomplete[3]) ? "'".json_encode($this->autocomplete[3])."'" : $this->autocomplete[3]), "function(transport){ response(jQuery.parseJSON(transport.responseText)); }")."
 							 
 						},
-						select: function(event, ui) { var r = OnSelectCallback$this->id(ui.item, event); ".($this->autocomplete[2] ? "$('$this->id').style.display = 'none';" : "")." return r; },
+						select: function(event, ui) { if(typeof ui.item.script == 'string') { var F = new Function(ui.item.script); return F(); } var r = OnSelectCallback$this->id(ui.item, event); ".($this->autocomplete[2] ? "$('$this->id').style.display = 'none';" : "")." return r; },
 						change: function(event, ui) { var r = OnSelectCallback$this->id(ui.item, event); ".($this->autocomplete[2] ? "$('$this->id').style.display = 'none';" : "")." return r; }
 					}).data(\"ui-autocomplete\")._renderItem = function( ul, item ) {
 						return \$j( \"<li>\" )

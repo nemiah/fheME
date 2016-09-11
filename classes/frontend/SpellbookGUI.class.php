@@ -58,6 +58,12 @@ class SpellbookGUI implements iGUIHTMLMP2 {
 		$request = array_values($entries);
 		$xml = self::getSpell($request);
 
+		#$AP3 = new AppPlugins("customer");
+		#$plugins = array_merge($plugins, $AP3->getAllPlugins());
+		#$menu = array_merge($menu, array_flip($AP3->getAllMenuEntries()));
+		#$icons = array_merge($icons, $AP3->getIcons());
+		#$plugins3 = array_flip($AP3->getAllPlugins());
+		#print_r($plugins3);
 		
 		
 		$AP = new AppPlugins(Applications::activeApplication());
@@ -144,7 +150,7 @@ class SpellbookGUI implements iGUIHTMLMP2 {
 		$request = array_values($plugins);
 		$xml = self::getSpell($request);
 		ksort($plugins);
-		
+
 		foreach($plugins as $key => $value) {
 			if(isset($menu[$value]))
 				$key = $menu[$value];
@@ -178,8 +184,8 @@ class SpellbookGUI implements iGUIHTMLMP2 {
 			$html .= "
 			<div style=\"width:33%;float:left;\">
 				<div style=\"margin:10px;border-radius:5px;\" class=\"borderColor1 spell\">
-					<div class=\"backgroundColor2\" style=\"padding:10px;padding-bottom:5px;border-top-left-radius:5px;border-top-right-radius:5px;\">
-						$B<span style=\"float:right;margin-top:7px;\">".($isAdmin ? "Admin!" : "")."</span><h2 style=\"margin-bottom:0px;width:200px;\">$key</h2>
+					<div class=\"backgroundColor2\" style=\"padding:10px;padding-bottom:5px;\">
+						$B<span style=\"float:right;margin-top:7px;\">".($isAdmin ? "Admin!" : "")."</span><h2  style=\"margin-bottom:0px;margin-top:0px;\">$key</h2>
 					</div>
 					".($xml !== false ? "<div style=\"padding:7px;height:115px;overflow:auto;\">$text</div>" : "")."
 				</div>

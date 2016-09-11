@@ -367,7 +367,11 @@ class Util {
 		}
 
 		// <editor-fold defaultstate="collapsed" desc="Aspect:jP">
-		return Aspect::joinPoint("after", null, __METHOD__, $r);
+		$ret = Aspect::joinPoint("after", null, __METHOD__, array($r, $ISOCountry), $r);
+		if(is_array($ret))
+			return $ret[0];
+		
+		return $ret;
 		// </editor-fold>
 	}
 
@@ -1430,7 +1434,7 @@ class Util {
 		$subdir = (isset($_SESSION["S"]) AND $_SESSION["S"]->getCurrentUser() != null) ? $_SESSION["S"]->getCurrentUser()->getID() : "info";
 		
 		$CH = Util::getCloudHost();
-		if($CH !== null){
+		if($CH !== null AND get_class($CH) != "CloudHostAny"){
 			$dirtouse = "/tmp";
 			Environment::load();
 			$subdir = Environment::$currentEnvironment->cloudUser()."/$subdir";

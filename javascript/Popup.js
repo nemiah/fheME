@@ -165,7 +165,7 @@ var Popup = {
 			//options.width = "100%";
 			options.height = $j(window).height();
 			options.hPosition = "center";
-			options.absolute = true;
+			//options.absolute = true;
 			options.hasMinimize = false;
 		}
 		

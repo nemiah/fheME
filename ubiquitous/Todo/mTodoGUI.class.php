@@ -397,7 +397,72 @@ END:VCALENDAR";
 		#if($T->A("TodoClass") == "Kalender" OR $T->A("TodoClass") == "DBMail")
 			$T->GUI->insertAttribute("after", "TodoClassID", "TodoName");
 
+		if(BPS::getProperty("TodoGUI", "overview")){
+			
+			$T->GUI->addFieldEvent("TodoUserID", "onChange", OnEvent::rme($this, "getBusyList", array("this.value", "1"), "function(t){ \$j('#busyList').html(t.responseText); }"));
+			$gui = $T->GUI->getEditHTML();
+			
+			$html = "<div id=\"busyList\" style=\"display:inline-block;width:400px;vertical-align:top;max-height:450px;overflow:auto;\">".$this->getBusyList(Session::currentUser()->getID(), false)."</div><div style=\"display:inline-block;width:400px;vertical-align:top;\">$gui</div>";
+			
+			BPS::unsetProperty("TodoGUI", "overview");
+			die($html);
+		}
+			
 		echo $T->GUI->getEditHTML();#.OnEvent::script("\$j('#editTodoGUI input[name=TodoName]').trigger('focus');");
+	}
+	
+	function getBusyList($UserID = null, $echo = false){
+		$cutoffDatePast = time() - (2 * 24 * 3600);
+		$cutoffDateFuture = time() + (84 * 24 * 3600);
+
+		$Kal = new mKalender();
+		$K = $Kal->getData($cutoffDatePast, $cutoffDateFuture, $UserID);
+
+		$Datum = new Datum();
+		$Datum->normalize();
+
+		$htmlEvents = "";
+		$htmlEvents .= "<div class=\"backgroundColor2\"><p class=\"prettySubtitle\">KW ".date("W", $Datum->time())."</p></div>";
+		while($Datum->time() < $cutoffDateFuture){
+
+			$list = "";
+			
+			$events = $K->getEventsOnDay(date("dmY", $Datum->time()));
+
+			if($events != null AND count($events) > 0)
+			foreach($events AS $ev)
+				foreach($ev AS $KE){
+				
+					$list .= "<div style=\"white-space: nowrap;overflow: hidden;text-overflow: ellipsis;\" title=\"".$KE->title()."\"><span>".Util::CLTimeParser($K->parseTime($KE->currentWhen()->time))." - ".Util::CLTimeParser($K->parseTime($KE->getEndTime()))."</span> <small style=\"color:grey;\">".$KE->title()."</small></div>";
+				}
+				
+			$Datum->addDay();
+
+			
+			
+			$style = "";
+			
+			if($Datum->w() == 0 OR $Datum->w() == 6)
+				continue;#$style = "background-color:#DDD;";
+			
+			if($Datum->w() == 1)
+				$htmlEvents .= "<div class=\"backgroundColor2\"><p class=\"prettySubtitle\">KW ".date("W", $Datum->time())."</p></div>";
+			
+			$htmlEvents .= "<div style=\"margin-bottom:20px;{$style}display:inline-block;width:50%;box-sizing:border-box;vertical-align:top;min-height:60px;\">
+				<div style=\"background-color:#EEE;padding:5px;\">
+					<span style=\"display:inline-block;width:30px;font-weight:bold;\">".mb_substr(Util::CLWeekdayName($Datum->w()), 0, 2)."</span>
+					<span style=\"color:grey;\">".Util::CLDateParser($Datum->time())."</span>
+				</div>
+				<div style=\"padding:5px;\">
+					$list
+				</div>
+				</div>";
+		}
+		
+		if($echo)
+			echo $htmlEvents;
+		
+		return $htmlEvents;
 	}
 
 	function deleteFromCalendar($todoID, $makeException = false){
@@ -572,7 +637,7 @@ END:VCALENDAR";
 	
 	public static function getCalendarData($firstDay, $lastDay, $UserID = null) {
 		if($UserID === null)
-			$UserID = Session::currentUser();
+			$UserID = Session::currentUser()->getID();
 		#echo $UserID;
 		$K = new Kalender();
 		#$include = array();

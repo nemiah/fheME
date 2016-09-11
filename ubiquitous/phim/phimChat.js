@@ -155,7 +155,7 @@ var phimChat = {
 			
 			phimChat.overlayShow();
 			
-			//console.warn('WebSocket connection closed: '+reason);	
+			console.warn('WebSocket connection closed: '+reason);	
 		}
 
 		connection.open();

@@ -132,20 +132,9 @@ function PMBP_exec_sql($file, $con, $linespersession = false, $noFile = false) {
 // $tables and $data set whether tables or data to backup. $comment sets the commment text
 // $drop and $zip tell if to include the drop table statement or dry to pack
 function PMBP_dump($CONF, $PMBP_SYS_VAR, $db, $tables, $data, $drop, $zip, $comment) {
-	#global $CONF;
-	#global $PMBP_SYS_VAR;
+	set_time_limit(0);
 	$error = false;
 	
-	// set max string size before writing to file
-	#if (@ini_get("memory_limit"))
-	#	$max_size = Util::getMaxMemory() - memory_get_peak_usage(true) - 1024 * 1024  * 20;
-	#else
-		$max_size = 1024 * 1024  * 20;
-
-	#echo "<br />";
-	#die(Util::formatByte($max_size));
-	#die();
-	// set backupfile name
 	$time = date("Ymd");
 	if ($zip == "gzip")
 		$backupfile = $db . "." . $time . "_utf8.sql.gz";
@@ -153,7 +142,7 @@ function PMBP_dump($CONF, $PMBP_SYS_VAR, $db, $tables, $data, $drop, $zip, $comm
 		$backupfile = $db . "." . $time . "_utf8.sql";
 	
 	$backupfile = PMBP_EXPORT_DIR . $backupfile;
-
+	
 	$con = @mysqli_connect($CONF['sql_host'], $CONF['sql_user'], $CONF['sql_passwd']);
 	if (!$con)
 		return "DB_ERROR";
@@ -161,26 +150,28 @@ function PMBP_dump($CONF, $PMBP_SYS_VAR, $db, $tables, $data, $drop, $zip, $comm
 	mysqli_query($con, "SET SESSION sql_mode='';");
 		
 	//create comment
-	$out = "# MySQL dump of database '" . $db . "' on host '" . $CONF['sql_host'] . "'\n";
-	$out .= "# backup date and time: " . strftime($CONF['date'], $time) . "\n";
-	$out .= "# built by phpMyBackupPro " . PMBP_VERSION . "\n";
-	$out .= "# " . PMBP_WEBSITE . "\n\n";
+	$hout = "# MySQL dump of database '" . $db . "' on host '" . $CONF['sql_host'] . "'\n";
+	$hout .= "# backup date and time: " . date("d.m.Y H:i:s") . "\n";
+	$hout .= "# " . PMBP_WEBSITE . "\n\n";
 
 	// write users comment
 	if ($comment) {
-		$out .= "# comment:\n";
+		$hout .= "# comment:\n";
 		$comment = preg_replace("'\n'", "\n# ", "# " . $comment);
 		foreach (explode("\n", $comment) as $line)
-			$out .= $line . "\n";
+			$hout .= $line . "\n";
 		
-		$out .= "\n";
+		$hout .= "\n";
 	}
 
 	// print "use database" if more than one databas is available
 	if (count(PMBP_get_db_list($CONF)) > 1) {
-		$out .= "CREATE DATABASE IF NOT EXISTS `" . $db . "`;\n\n";
-		$out .= "USE `" . $db . "`;\n";
+		$hout .= "CREATE DATABASE IF NOT EXISTS `" . $db . "`;\n\n";
+		$hout .= "USE `" . $db . "`;\n";
 	}
+	
+	PMBP_save_to_file($backupfile, $zip, $hout, "a");
+	$hout = "";
 
 	// select db
 	mysqli_select_db($con, $db);
@@ -216,53 +207,31 @@ function PMBP_dump($CONF, $PMBP_SYS_VAR, $db, $tables, $data, $drop, $zip, $comm
 		}
 	}
 
-	// order $all_tables and check for ring constraints
-	#$all_tables_copy = $all_tables;
-	#$all_tables = PMBP_order_sql_tables($all_tables, $fks);
-	#$ring_contraints = false;
 
-	// ring constraints found
-	#if ($all_tables === false) {
-	#	$ring_contraints = true;
-	#	$all_tables = $all_tables_copy;
+	
 
-	#	$out.="\n# ring constraints workaround\n";
-	#	$out.="SET FOREIGN_KEY_CHECKS=0;\n";
-	#	$out.="SET AUTOCOMMIT=0;\n";
-	#	$out.="START TRANSACTION;\n";
-	#}
-	#unset($all_tables_copy);
-
-	// as long as no error occurred
-	if ($error) {
-		@unlink("./" . $backupfile);
-		return false;
-	}
-
-	foreach ($all_tables as $row) {
+	foreach ($all_tables AS $row) {
 		$tablename = $row['Name'];
 		$auto_incr[$tablename] = $row['Auto_increment'];
 
-		// don't backup tables in $PMBP_SYS_VAR['except_tables']
-		if (in_array($tablename, explode(",", $PMBP_SYS_VAR['except_tables'])))
-			continue;
 
-		$out.="\n\n";
-		// export tables
+		$kout = "\n\n";
 		if ($tables) {
-			$out.="### structure of table `" . $tablename . "` ###\n\n";
 			if ($drop)
-				$out.="DROP TABLE IF EXISTS `" . $tablename . "`;\n\n";
+				$kout .= "DROP TABLE IF EXISTS `" . $tablename . "`;\n\n";
 
-			$out.=$table_sql[$tablename];
+			$kout .= $table_sql[$tablename];
 
 			// add auto_increment value
-			if ($auto_incr[$tablename])
-				$out.=" AUTO_INCREMENT=" . $auto_incr[$tablename];
+			if ($auto_incr[$tablename] AND strpos($kout, "AUTO_INCREMENT") === false)
+				$kout .= " AUTO_INCREMENT=" . $auto_incr[$tablename];
 
-			$out.=";";
+			$kout .= ";";
 		}
-		$out.="\n\n\n";
+		$kout .= "\n\n\n";
+		
+		PMBP_save_to_file($backupfile, $zip, $kout, "a");
+		$kout = "";
 		
 		if ($error) {
 			@unlink("./" . PMBP_EXPORT_DIR . $backupfile);
@@ -271,59 +240,36 @@ function PMBP_dump($CONF, $PMBP_SYS_VAR, $db, $tables, $data, $drop, $zip, $comm
 		
 		// export data
 		if ($data && !$error) {
-			$out.="### data of table `" . $tablename . "` ###\n\n";
-
 			// check if field types are NULL or NOT NULL
 			#$res3 = mysqli_query($con, "show columns from `" . $tablename . "`");
 
-			$res2 = mysqli_query($con, "select * from `" . $tablename . "`");
-			for ($j = 0; $j < mysqli_num_rows($res2); $j++) {
-				$out .= "insert into `" . $tablename . "` values (";
-				$row2 = mysqli_fetch_row($res2);
+			$res2 = mysqli_query($con, "SELECT * FROM `" . $tablename . "`", MYSQLI_USE_RESULT);
+			while ($row2 = mysqli_fetch_row($res2)) {
+				$sout = "INSERT INTO `" . $tablename . "` VALUES (";
 				
 				// run through each field
 				foreach($row2 AS $k => $v){
-				#for ($k = 0; $k < $nf = mysqli_num_fields($res2); $k++) {
-					// identify null values and save them as null instead of ''
 					if (is_null($v))
-						$out .="null";
+						$sout .= "null";
 					else
-						$out .="'" . mysqli_real_escape_string($con, $v) . "'";
+						$sout .= "'" . mysqli_real_escape_string($con, $v) . "'";
 					
 					if ($k < count($row2) - 1)
-						$out .=", ";
+						$sout .= ", ";
 				}
-				$out .=");\n";
+				$sout .=");\n";
 
-				// if saving is successful, then empty $out, else set error flag
-				if (strlen($out) > $max_size) {
-					if ($out = PMBP_save_to_file($backupfile, $zip, $out, "a"))
-						$out = "";
-					else
-						$error = true;
-				}
+				PMBP_save_to_file($backupfile, $zip, $sout, "a");
+				$sout = "";
 			}
-		}
-
-		// if saving is successful, then empty $out, else set error flag
-		if (strlen($out) > $max_size) {
-			if ($out = PMBP_save_to_file($backupfile, $zip, $out, "a"))
-				$out = "";
-			else
-				$error = true;
+			
+			mysqli_free_result($res2);
 		}
 	}
 
 
-	// if db contained ring constraints        
-	#if ($ring_contraints) {
-	#	$out.="\n\n# ring constraints workaround\n";
-	#	$out .= "SET FOREIGN_KEY_CHECKS=1;\n";
-	#	$out .= "COMMIT;\n";
-	#}
-
-	// save to file
-	if ($backupfile = PMBP_save_to_file($backupfile, $zip, $out, "a")) {
+	$backupfile = PMBP_save_to_file($backupfile, $zip, "", "a");
+	if ($backupfile) {
 		if ($zip != "zip")
 			return basename($backupfile);
 	} else {
@@ -355,13 +301,13 @@ function PMBP_dump($CONF, $PMBP_SYS_VAR, $db, $tables, $data, $drop, $zip, $comm
 
 // saves the string in $fileData to the file $backupfile as gz file or not ($zip)
 // returns backup file name if name has changed (zip), else TRUE. If saving failed, return value is FALSE
-function PMBP_save_to_file($backupfile, $zip, &$fileData, $mode) {
+function PMBP_save_to_file($backupfile, $zip, $fileData, $mode) {
 	if ($zip == "gzip") {
 		if (phynxBackup::$handler === null)
 			phynxBackup::$handler = @gzopen("./" . $backupfile, $mode . "9");
 		
 		if (!phynxBackup::$handler)
-			return false;
+			throw new Exception("Backup file handler exception");
 		
 		@gzwrite(phynxBackup::$handler, $fileData);
 		#@gzclose($zp);
@@ -374,9 +320,11 @@ function PMBP_save_to_file($backupfile, $zip, &$fileData, $mode) {
 		phynxBackup::$handler = fopen($backupfile, $mode);
 	
 	if (!phynxBackup::$handler)
-		return false;
+		throw new Exception("Backup file handler exception");
 
-	fwrite(phynxBackup::$handler, $fileData);
+	$r = fwrite(phynxBackup::$handler, $fileData);
+	if($r === false)
+		throw new Exception("Backup file handler exception");
 	#fclose($zp);
 	
 	return $backupfile;

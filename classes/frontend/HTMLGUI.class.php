@@ -852,7 +852,7 @@ class HTMLGUI implements icontextMenu {
 		if(isset($this->parsers[$as])) {
 			$r = "";
 			$m = explode("::", $this->parsers[$as]);
-			$r = Util::invokeStaticMethod($m[0], $m[1], array((isset($this->attributes->$as) ? $this->attributes->$as : ""), "", implode("%§%",$this->parserParameters[$as])));
+			$r = Util::invokeStaticMethod($m[0], $m[1], array((isset($this->attributes->$as) ? $this->attributes->$as : ""), $this->object, implode("%§%",$this->parserParameters[$as])));
 			#return("\$r = ".$this->parsers[$as]."(\"".(isset($this->attributes->$as) ? $this->attributes->$as : "")."\",\"\",\"".implode("%§%",$this->parserParameters[$as])."\");");
 			return $r;
 		}
@@ -1777,13 +1777,20 @@ class HTMLGUI implements icontextMenu {
 					$cFOBy = new $n();
 					$cFOBy = $cFOBy->getOrderByFields();
 					
-					foreach($cFOBy as $k => $v)
+					foreach($cFOBy AS $k => $v){
+						if(is_object($v))
+							$v = $v->label;
+						
 						$selectForOrderByField .= "<option ".($HKs == "$k;ASC" ? "selected=\"selected\"" : "")." value=\"$k;ASC\">".$v."</option>";
-					
+					}
 					$selectForOrderByField .= "</optgroup><optgroup label=\"absteigend\">";
 					
-					foreach($cFOBy as $k => $v)
+					foreach($cFOBy AS $k => $v){
+						if(is_object($v))
+							$v = $v->label;
+						
 						$selectForOrderByField .= "<option ".($HKs == "$k;DESC" ? "selected=\"selected\"" : "")." value=\"$k;DESC\">".$v."</option>";
+					}
 					
 					$selectForOrderByField .= "</optgroup></select>";
 					
@@ -1934,7 +1941,7 @@ class HTMLGUI implements icontextMenu {
 			break;
 			
 			case "setOrderByField":
-				$v = split(";:;",$key);
+				$v = explode(";:;",$key);
 				
 				$mU = new mUserdata();
 				if($v[1] != "default")

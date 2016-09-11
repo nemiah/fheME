@@ -23,6 +23,9 @@ class PMReflector {
 		
 		if(is_object($className)) return PMReflector::getAttributesArrayAnyObject($className);
 
+		if(trim($className) == "")
+			throw new Exception("Empty class name");
+		
 	    /*$a = array();
 	    $class = new ReflectionClass("$className");
 		$props = $class->getProperties();

@@ -593,7 +593,19 @@ abstract class Collection {
 		if(PMReflector::implementsInterface(get_class($this),"iOrderByField")){
 			$sort = new mUserdata();
 			$sort = $sort->getUDValue("OrderByFieldInHTMLGUI".$this->getClearClass());
-			if($sort != null) $this->setOrderV3(substr($sort,0,strpos($sort,";")),substr($sort,strpos($sort,";")+1));
+			if($sort != null) {
+				$field = substr($sort, 0, strpos($sort, ";"));
+				if(($field * 1)."" === $field){
+					$o = $this->getOrderByFields();
+					foreach($o[$field]->orderBy AS $k => $n){
+						if($k == 0)
+							$this->setOrderV3($n, substr($sort, strpos($sort, ";") + 1));
+						else
+							$this->addOrderV3($n, substr($sort, strpos($sort, ";") + 1));
+					}
+				} else
+					$this->setOrderV3($field, substr($sort, strpos($sort, ";") + 1));
+			}
 		}
 			
 		$this->lCV3($id);
@@ -751,7 +763,7 @@ abstract class Collection {
 		return $xml->getXML();
 	}
 	
-	public function asJSON(){
+	public function asJSON($append = null){
 		#$this->lCV3();
 		
 		$array = array();
@@ -762,6 +774,9 @@ abstract class Collection {
 			
 			$array[] = $subArray;
 		}
+		
+		if($append)
+			$array[] = $append;
 		
 		return json_encode($array, defined("JSON_UNESCAPED_UNICODE") ? JSON_UNESCAPED_UNICODE : 0);
 	}

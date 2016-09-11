@@ -105,9 +105,14 @@ class mInstallationGUI extends mInstallation implements iGUIHTML2 {
 			$BMail = $ST->addButton("Mail-Server", "./plugins/Installation/serverMail.png");
 			#$BMail->popup("edit", "Mail-Server", "LoginData", $MailServerID, "getPopup", "", "LoginDataGUI;preset:mailServer");
 			$BMail->popup("edit", "Mail-Server", "mInstallation", -1, "manageMailservers");
-
+			
 			$BTestMail = $ST->addButton("Mailversand\ntesten", "mail");
 			$BTestMail->popup("mailTest", "Mailversand testen", "mInstallation", "-1", "testMailGUI");
+			
+			$BMailS = $ST->addButton("Mail-\nEinstellungen", "system");
+			$BMailS->popup("edit", "Mail-Einstellungen", "mInstallation", -1, "manageMailsettings");
+			$BMailS->className("backgroundColor0");
+			
 			
 			if(Session::isPluginLoaded("mJabber")){
 				$JabberServer = LoginData::get("JabberServerUserPass");
@@ -260,6 +265,28 @@ class mInstallationGUI extends mInstallation implements iGUIHTML2 {
 
 
 		#return $ST.$g;#.$help;
+	}
+	
+	public function manageMailsettings(){
+		$F = new HTMLForm("mailsettings", array("systemEmail"));
+		$F->getTable()->setColWidth(1, 120);
+		$F->useRecentlyChanged();
+		
+		$F->setValue("systemEmail", mUserdata::getGlobalSettingValue("mailSystemEmail", ""));
+		
+		$F->setLabel("systemEmail", "System E-Mail");
+		$F->setDescriptionField("systemEmail", "Absender-Adresse für Systemnachrichten");
+		
+		$F->setSaveRMEPCR("Speichern", "", "mInstallation", -1, "manageMailsettingsSave", OnEvent::closePopup("mInstallation"));
+		
+		echo $F;
+	}
+	
+	public function manageMailsettingsSave($systemEmail){
+		if(trim($systemEmail) != "" AND !Util::checkIsEmail($systemEmail))
+			Red::alertD ("Bitte geben Sie eine gültige E-Mail-Adresse ein.");
+		
+		mUserdata::setUserdataS("mailSystemEmail", $systemEmail, "", -1);
 	}
 	
 	public function manageMailservers(){

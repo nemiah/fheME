@@ -31,6 +31,7 @@ class XMLPlugin extends PluginV2 {
 	private $menuEntryTarget;
 	private $blockNonAdmin = true;
 	private $doSomethingElse;
+	private $applications = array();
 	
 	private $collectionGUI = array();
 	
@@ -47,7 +48,10 @@ class XMLPlugin extends PluginV2 {
 		$p = xml_parser_create();
 		xml_parser_set_option($p, XML_OPTION_CASE_FOLDING, 0);
 		xml_parse_into_struct($p, $content, $vals, $index);
-		if(xml_get_error_code($p)) echo xml_error_string(xml_get_error_code($p))." at line ".xml_get_current_line_number($p);
+		
+		#if(xml_get_error_code($p)) 
+		#	echo xml_error_string(xml_get_error_code($p))." at line ".xml_get_current_line_number($p);
+		
 		xml_parser_free($p);
 		
 		if(isset($index["genericCollection"]) AND isset($vals[$index["genericCollection"][0]])) $this->genericCollection = $vals[$index["genericCollection"][0]]["value"] == "true";
@@ -94,6 +98,13 @@ class XMLPlugin extends PluginV2 {
 		if(count($allowedPlugins) > 0 AND !in_array($this->registerClassName(), $allowedPlugins))
 			return;
 		
+		if(isset($index["application"]) AND isset($vals[$index["application"][0]])){
+			$xml = new SimpleXMLElement($content);
+			
+			foreach($xml->plugin->application AS $sub)
+				$this->applications[] = array($sub."", $sub["version"][0]."");
+		}
+		
 		if(isset($index["registry"]) AND isset($vals[$index["registry"][0]]))
 			foreach($index["registry"] AS $k => $v){
 				$call = explode(";", $vals[$index["registry"][$k]]["value"]);
@@ -138,6 +149,10 @@ class XMLPlugin extends PluginV2 {
 			}
 				
 		}
+	}
+	
+	function registerApplications(){
+		return $this->applications;
 	}
 	
 	function registerName() {

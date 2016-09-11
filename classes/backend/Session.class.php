@@ -265,8 +265,10 @@ class Session {
 		$_SESSION["CurrentAppPlugins"] = new AppPlugins();
 		$_SESSION["CurrentAppPlugins"]->scanPlugins();
 		$_SESSION["applications"]->setActiveApplication($application);
+		$_SESSION["CurrentAppPlugins"]->scanPlugins("customer");
 		$_SESSION["CurrentAppPlugins"]->scanPlugins();
 		$_SESSION["classPaths"] = array();
+		
 		$this->runOnLoginFunctions();
 	}
 	

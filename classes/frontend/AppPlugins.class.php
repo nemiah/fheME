@@ -86,7 +86,11 @@ class AppPlugins {
 		
 		
 		foreach($this->appFolder AS $key => $value){
-			if($value == "plugins") continue;
+			if($value == "plugins") 
+				continue;
+			
+			if($value == "customer") 
+				continue;
 			
 			unset($this->menuEntries[array_search($key, $this->menuEntries)]);
 		}
@@ -95,10 +99,11 @@ class AppPlugins {
 
 		if($appFolder == null){
 			$folder = "plugins";
-			if($_SESSION["applications"]->getActiveApplication() != "nil") $folder = $_SESSION["applications"]->getActiveApplication();
+			if($_SESSION["applications"]->getActiveApplication() != "nil") 
+				$folder = $_SESSION["applications"]->getActiveApplication();
 		} else
 			$folder = $appFolder;
-
+		
 		$allowedPlugins = Environment::getS("allowedPlugins", array());
 		$extraPlugins = Environment::getS("pluginsExtra", array());
 		if(Applications::activeApplication() == "Zeus" OR Applications::activeApplication() == "nil")
@@ -107,7 +112,6 @@ class AppPlugins {
 		$allowedPlugins = array_merge($allowedPlugins, $extraPlugins);
 		
 		
-		#$p = ".".(is_dir("./$folder/") ? "" : ".");
 		$p = Util::getRootPath();
 
 		if($p[strlen($p) - 1] == "/")
@@ -160,6 +164,21 @@ class AppPlugins {
 					continue;
 				}
 
+				if(count($c->registerApplications())){
+					$apps = $c->registerApplications();
+					$found = false;
+					
+					foreach($apps AS $d){
+						if(Applications::activeApplication() == $d[0]){
+							$this->versions[$c->registerClassName()] = $d[1];
+							$found = true;
+						}
+					}
+					if(!$found)
+						continue;
+				}
+				
+				
 				$pFolder = $c->registerFolder();
 				if(!is_array($pFolder))
 					$this->folders[] = $pFolder;
@@ -192,7 +211,8 @@ class AppPlugins {
 				if($c->registerDependencies() != "none")
 					$this->deps[$c->registerClassName()] = $c->registerDependencies();
 					
-				$this->versions[$c->registerClassName()] = $c->registerVersion();
+				if(!count($c->registerApplications()))
+					$this->versions[$c->registerClassName()] = $c->registerVersion();
 				
 				if($c->registerJavascriptFile() != "" AND isset($_SESSION["JS"])){
 					if(is_array($c->registerJavascriptFile())){
@@ -240,13 +260,16 @@ class AppPlugins {
 					
 					foreach($fld AS $folderName){
 						$path = "./$folder/$folderName/".$c->registerClassName().".class.php";
+						
 						if(file_exists($path))
-						require_once $path;
-						elseif(file_exists(".".$path)) require_once ".".$path;
+							require_once $path;
+						elseif(file_exists(".".$path))
+							require_once ".".$path;
 					}
 				}
 				
-				if($appFolder == null) $c->doSomethingElse();
+				if($appFolder == null)
+					$c->doSomethingElse();
 				
 				$_SESSION["messages"]->endMessage(" successful");
 				unset($c);
