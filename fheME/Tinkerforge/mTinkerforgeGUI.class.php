@@ -57,6 +57,6 @@ class mTinkerforgeGUI extends anyC implements iGUIHTMLMP2 {
 		$html .= "</div>";
 		echo $html;
 	}
-
+	
 }
 ?>

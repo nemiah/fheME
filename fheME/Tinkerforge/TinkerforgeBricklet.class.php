@@ -48,5 +48,34 @@ class TinkerforgeBricklet extends PersistentObject {
 		});
 });");
 	}
+	
+	public function getData(){
+		require_once(__DIR__.'/lib/IPConnection.php');
+		require_once(__DIR__.'/lib/BrickletTemperatureIR.php');
+
+		$a = new stdClass();
+			
+		try {
+			$S = new Tinkerforge($this->A("TinkerforgeBrickletTinkerforgeID"));
+
+
+			$connection = new Tinkerforge\IPConnection();
+			$connection->connect($S->A("TinkerforgeServerIP"), $S->A("TinkerforgeServerPort"));
+
+			$Type = "Tinkerforge\\".$this->A("TinkerforgeBrickletType");
+			$Bricklet = new $Type($this->A("TinkerforgeBrickletUID"), $connection);
+		
+		
+			$a->value1 = floor($Bricklet->getObjectTemperature() / 10.0);
+			$a->value2 = floor($Bricklet->getAmbientTemperature() / 10.0);
+		} catch (Exception $e){
+			$a->value1 = 0;
+			$a->value2 = 0;
+			
+		}	
+			$a->time = time();
+			
+		return $a;
+	}
 }
 ?>
