@@ -35,7 +35,7 @@ class CCTinkerforge extends CCPage implements iCustomContent {
 	}
 	
 	function getStyle(){
-		return "body { background-color:black; }";
+		return "body { background-color:black;cursor:none; }";
 	}
 	
 	function getCMSHTML() {
