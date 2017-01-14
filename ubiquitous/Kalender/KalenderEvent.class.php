@@ -186,30 +186,42 @@ class KalenderEvent extends KalenderEntry {
 				case "weekly":
 					#echo Util::CLDateParser($firstDay)."<br />";
 					#echo $this->repeatInterval;
-					$weekDay = date("w", $pDay);
+					/*$weekDay = date("w", $pDay);
 					$D = new Datum($firstDay > $startDay ? $firstDay : $startDay);
 					while($D->time() <= $endDay){
 						if(date("w", $D->time()) == $weekDay)
 							break;
 						
 						$D->addDay();
+					}*/
+					#$weekDay = date("w", $pDay);
+					$D = new Datum($firstDay);
+					while($D->time() <= $endDay){
+						
+						if($D->time() >= $startDay AND $this->weeks(Kalender::parseDay($this->day), $D->time()) % ($this->repeatInterval + 1) == 0)
+							break;
+						
+						$D->addWeek(true);
 					}
-					
+					#$D->printer();
+					$D->subWeek();
+					#if($startDay < $firstDay)
+					#	$D = new Datum ($firstDay);
 					#$counter = floor(($D->time() - $firstDay) / (3600 * 24 * 7));
 					#echo $counter."<br />";
 					while($D->time() <= $endDay){
-						$newDay = Kalender::formatDay($D->time());
-
+						
 						if($this->repeatUntil > 0  AND $D->time() > $this->repeatUntil)
 							break;
 						
 						$D->addWeek(true);
+						$newDay = Kalender::formatDay($D->time());
 						if($newDay == $this->day){
 							#$counter++;
 							continue;
 						}
 						
-
+						
 						if($this->weeks(Kalender::parseDay($this->day), $D->time()) % ($this->repeatInterval + 1) != 0){
 							#$counter++;
 							continue;
@@ -226,8 +238,6 @@ class KalenderEvent extends KalenderEntry {
 						$W->endDay = $newDay;
 						$W->time = $this->time;
 						$when[] = $W;
-						
-						#$counter++;
 					}
 				break;
 				

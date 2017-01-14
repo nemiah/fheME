@@ -84,14 +84,14 @@ class mGerichtGUI extends anyC implements iGUIHTMLMP2 {
 	}
 	
 	public function addFrozenItem($name){
-		if(preg_match("/[0-9]+/", $name)){
-			$this->addEAN($name, false);
-		} elseif(trim($name) != ""){
+		#if(preg_match("/[0-9]+/", $name)){
+		#	$this->addEAN($name, false);
+		#} elseif(trim($name) != ""){
 			$F = new Factory("Gefrierschrank");
 			$F->sA("GefrierschrankName", $name);
 			$F->sA("GefrierschrankAdded", "1");
 			$F->store();
-		}
+		#}
 		
 		echo $this->getFrozenListTable();
 	}
@@ -125,9 +125,9 @@ class mGerichtGUI extends anyC implements iGUIHTMLMP2 {
 	
 	public function showCurrentFrozenList(){
 		
-		$I = new HTMLInput("GefrierschrankNewEntry", "textarea", "");
+		$I = new HTMLInput("GefrierschrankNewEntry", "text", "");
 		$I->placeholder("Neuer Eintrag");
-		$I->style("width:390px;padding:5px;margin-left:5px;font-size:20px;float:left;font-family:monospace;max-width:390px;resize:none;height:35px;max-height:35px;");
+		$I->style("width:390px;padding:5px;margin-left:5px;font-size:20px;float:left;font-family:monospace;max-width:390px;resize:none;");
 		$I->onEnter(OnEvent::rme($this, "addFrozenItem", array("this.value"), "function(transport){ \$j('#currentList').html(transport.responseText); }")." \$j(this).val('');");
 		
 		

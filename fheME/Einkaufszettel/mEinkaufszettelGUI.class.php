@@ -182,7 +182,7 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 		$html = "<div class=\"touchHeader\"><span class=\"lastUpdate\" id=\"lastUpdatemEinkaufszettelGUI\"></span><p>Einkaufen</p></div>
 			<div style=\"padding:10px;\">";
 
-		$I = new HTMLInput("EinkaufslisteNewEntryOV", "textarea");
+		$I = new HTMLInput("EinkaufslisteNewEntryOV", "text");
 		$I->placeholder("Neuer Eintrag");
 		$I->style("width:100px;padding:3px;font-size:20px;font-family:monospace;height:32px;max-height:32px;");
 		$I->onfocus("fheOverview.noreload.push('mEinkaufszettelGUI::getOverviewContent'); fheOverview.noresize = true;");
@@ -216,9 +216,9 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 		#$BH->onclick("if(\$j('input[name=EinkaufslisteNewEntry]').val() != 'Neuer Eintrag') ".OnEvent::rme($this, "addItem", array("\$j('input[name=EinkaufslisteNewEntry]').val()"), OnEvent::reloadPopup("mEinkaufszettel")));
 		
 		
-		$I = new HTMLInput("EinkaufslisteNewEntry", "textarea", "");
+		$I = new HTMLInput("EinkaufslisteNewEntry", "text", "");
 		$I->placeholder("Neuer Eintrag");
-		$I->style("width:390px;padding:5px;margin-left:5px;font-size:20px;float:left;font-family:monospace;max-width:390px;resize:none;height:35px;max-height:35px;");
+		$I->style("width:390px;padding:5px;margin-left:5px;font-size:20px;float:left;font-family:monospace;max-width:390px;");
 		#$I->onfocus("if(this.value == 'Neuer Eintrag') { \$j(this).val('').css('color', 'black'); }");
 		#$I->onblur("if(this.value == '') { \$j(this).val('Neuer Eintrag').css('color', 'grey'); }");
 		#$I->onkeyup("var currentContent = \$j(this).val(); ".OnEvent::rme($this, "getACData", array("this.value"), "function(transport){ var json = jQuery.parseJSON(transport.responseText); if(json.length >= 1) \$j('#EinkaufslisteNewEntryAC').html(json[0].EinkaufszettelName.replace(currentContent, '<span style=\'color:white;\'>'+currentContent+'</span>')); else \$j('#EinkaufslisteNewEntryAC').html(''); }"));
