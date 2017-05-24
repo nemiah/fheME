@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses></http:>.
  * 
- *  2007 - 2013, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
 class NuntiusGUI extends Nuntius implements iGUIHTML2 {
 	function getHTML($id){

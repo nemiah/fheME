@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007, 2008, 2009, 2010, 2011, Rainer Furtmeier - Rainer@Furtmeier.de
+ *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
 class MailCheckGUI extends MailCheck implements iGUIHTML2 {
 	function getHTML($id){

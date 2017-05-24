@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2016, Rainer Furtmeier - Rainer@Furtmeier.IT
+ *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
 
 class ArrayCollection extends Collection {
