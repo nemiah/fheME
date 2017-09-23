@@ -24,17 +24,27 @@ class GerichtGUI extends Gericht implements iGUIHTML2 {
 		$gui = new HTMLGUIX($this);
 		$gui->name("Gericht");
 
+		$gui->attributes(array(
+			"GerichtName",
+			"GerichtBemerkung",
+			#"GerichtRezeptBuch",
+			#"GerichtRezeptBuchSeite",
+			"GerichtZutaten"
+		));
+		
 		$gui->label("GerichtName","Name");
 		$gui->label("GerichtRezeptBuch","Buch");
 		$gui->label("GerichtRezeptBuchSeite","Seite");
 		
-		$gui->space("GerichtRezept", "Rezept");
+		#$gui->space("GerichtRezept", "Rezept");
 		
 		#$gui->setLabel("GerichtBemerkung","Bemerkung");
 		//$gui->setLabel("GerichtZuletztAm","gekocht am");
 		$gui->type("GerichtZuletztAm","hidden");
 		$gui->type("GerichtRezept","textarea");
 		$gui->type("GerichtBemerkung","textarea");
+		$gui->type("GerichtZutaten","textarea");
+		$gui->inputStyle("GerichtZutaten", "height:200px;");
 		#$gui->setStandardSaveButton($this);
 		if(BPS::popProperty("GerichtGUI", "mode", "default") == "popup")
 			$gui->displayMode ("popup");

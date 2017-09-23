@@ -130,7 +130,7 @@ class CCShopping implements iCustomContent {
 					ontouchend=\"if(Touch.cancelNext) return;  CustomerPage.rme('setBought', [".$E->getID()."], function(){ $('#entry".$E->getID()."').hide(); $('#restoreEntry".$E->getID()."').show(); $('#emptyEntry').hide(); if($('#einkaufsliste .nonEmpty').length == 0) $('#emptyEntry').show(); });\"
 					class=\"nonEmpty entry backgroundColor1 borderColor1\">
 					
-					".($E->A("EinkaufszettelMenge") > 1 ? $E->A("EinkaufszettelMenge")." x " : "").$E->A("EinkaufszettelName").($E->A("EinkaufszettelNameDetails") != "" ? "<br /><small style=\"color:grey;\">".$E->A("EinkaufszettelNameDetails")."</small>" : "")."
+					".($E->A("EinkaufszettelMenge") > 1 ? $E->A("EinkaufszettelMenge")." " : "").$E->A("EinkaufszettelName").($E->A("EinkaufszettelNameDetails") != "" ? "<br /><small style=\"color:grey;\">".$E->A("EinkaufszettelNameDetails")."</small>" : "")."
 				</div>
 				<div 
 					class=\"nonEmpty entryRestore backgroundColor4 borderColor0\"
