@@ -220,7 +220,7 @@ function phynxAutoloader($class_name) {
 	}
 }
 
-if(!isset($_SESSION["S"]) OR !isset($_SESSION["applications"]) OR $_SESSION["applications"]->numAppsLoaded() == 0){
+if(!isset($_SESSION["S"]) OR !isset($_SESSION["applications"]) OR !is_object($_SESSION["applications"]) OR $_SESSION["applications"]->numAppsLoaded() == 0){
 	Session::init();
 	
 	if(Session::isPluginLoaded("mAutoLogin"))

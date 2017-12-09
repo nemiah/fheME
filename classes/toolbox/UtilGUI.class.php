@@ -49,16 +49,9 @@ class UtilGUI extends Util {
 
 		$html = "";
 		
-		if(isset($data["attachmentsAlways"])){
-			
-			/*$B = new Button("Anhänge", "export", "LPBig");
-			$B->style("margin:10px;float:right;");
-			$B->sidePanel("Util", "-1", "EMailPopupAttachmentsSP", array("'$dataClass'", "'$dataClassID'", "'$callbackParameter'"));
-			
-			$html .= $B;*/
-			
+		if(isset($data["attachmentsAlways"]))
 			$html .= OnEvent::script(OnEvent::popupSidePanel("Util", "-1", "EMailPopupAttachmentsSP", array("'$dataClass'", "'$dataClassID'", "'$callbackParameter'")));
-		}
+		
 		
 		#$html .= "<p class=\"prettyTitle\">Neue E-Mail</p>";
 		
@@ -66,8 +59,13 @@ class UtilGUI extends Util {
 		
 		$tab = new HTMLTable(2);
 		$tab->setColWidth(1, "120px;");
-		$tab->addLV("Absender:", "$data[fromName]<br /><small style=\"color:grey;\">&lt;$data[fromAddress]&gt;</small>");
-		
+		if(trim($data["fromAddress"]) != "")
+			$tab->addLV("Absender:", "$data[fromName]<br /><small style=\"color:grey;\">&lt;$data[fromAddress]&gt;</small>");
+		else {
+			$I = new HTMLInput("fromAddress");
+			$I->id("EMailSender$dataClassID");
+			$tab->addLV("Absender:", $I);
+		}
 		if(is_array($data["recipients"])){
 			if(count($data["recipients"]) == 1)
 				$tab->addLV("Empfänger:", $data["recipients"][0][0]."<br /><small style=\"color:grey;\">&lt;".$data["recipients"][0][1]."&gt;</small>");
@@ -79,7 +77,14 @@ class UtilGUI extends Util {
 				$IS = new HTMLInput("EMailRecipient$dataClassID", "select", isset($data["default"]) ? $data["default"] : "0", $recipients);
 				$IS->id("EMailRecipient$dataClassID");
 
-				$tab->addLV("Empfänger:", $IS);
+				$BP = "";
+				if(isset($data["cc"])){
+					$BP = new Button("Empfänger hinzufügen", "./images/i2/add.png", "icon");
+					$BP->style("float:right;margin-top:5px;");
+					$BP->onclick("\$j('#EMailCC1Row$dataClassID').toggle();");
+				}
+				
+				$tab->addLV("Empfänger:", $BP.$IS);
 			}
 		}
 		
@@ -88,6 +93,19 @@ class UtilGUI extends Util {
 			$IS->id("EMailRecipient$dataClassID");
 
 			$tab->addLV("Empfänger:", $IS);
+		}
+		
+		if(isset($data["cc"]) AND is_array($data["cc"])){
+			$cc = array(-1 => "Nicht verwenden");
+			foreach($data["cc"] AS $ID => $Rec)
+				$cc[$ID] = new HTMLInput ($Rec[0]." &lt;".$Rec[1]."&gt;", "option", $ID);;
+
+			$ICC = new HTMLInput("EMailCC$dataClassID", "select", -1, $cc);
+			$ICC->id("EMailCC1$dataClassID");
+
+			$tab->addLV("CC:", $ICC);
+			$tab->addRowStyle("display:none;");
+			$tab->setRowID("EMailCC1Row$dataClassID");
 		}
 		
 		if(isset($data["bcc"]) AND count($data["bcc"]) > 0){
@@ -129,7 +147,17 @@ class UtilGUI extends Util {
 		$BGo->doBefore("$optional %AFTER");
 		if(strpos($data["body"], "<p") !== false OR trim($data["body"]) == "")
 			$BGo->doBefore("$optional \$j('#EMailBody$dataClassID').val(tinyMCE.get('EMailBody$dataClassID').getContent()); %AFTER");
-		$BGo->rmePCR(str_replace("GUI", "", $dataClass), $dataClassID, "sendEmail", array("$('EMailSubject$dataClassID').value", "\$j('#EMailBody$dataClassID').val()", (is_array($data["recipients"]) AND count($data["recipients"]) == 1) ? "0" : "$('EMailRecipient$dataClassID').value", "'".$callbackParameter."'", "files"), $onSuccessFunction);
+		$BGo->rmePCR(str_replace("GUI", "", $dataClass), $dataClassID, "sendEmail", 
+			array(
+				"$('EMailSubject$dataClassID').value",
+				"\$j('#EMailBody$dataClassID').val()", 
+				(is_array($data["recipients"]) AND count($data["recipients"]) == 1) ? "0" : "$('EMailRecipient$dataClassID').value",
+				"'".$callbackParameter."'", 
+				"files", 
+				(!isset($data["cc"]) ? "-1" : "\$j('#EMailCC1$dataClassID').val()"),
+				(trim(trim($data["fromAddress"]) == "") ? "\$j('#EMailSender$dataClassID').val()" : "''")
+			), $onSuccessFunction);
+		
 		#$BGo->onclick("CloudKunde.directMail('$this->ID', '$data[recipientAddress]', $('EMailSubject$this->ID').value, $('EMailBody$this->ID').value); ");
 
 
@@ -338,7 +366,8 @@ class UtilGUI extends Util {
 				//\$j('#top').html(t.responseText);
 			}")."
 		};
-		contentManager.setRoot('../');
+		contentManager.setRoot('../');".
+		(filter_input(INPUT_GET, "physion") ? "Ajax.physion = '".filter_input(INPUT_GET, "physion")."';" : "")."
 		reloadList();"), "Erinnerungen");
 	}
 	

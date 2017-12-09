@@ -444,7 +444,7 @@ class mInstallationGUI extends mInstallation implements iGUIHTML2 {
 			echo OnEvent::script("contentManager.loadFrame('contentLeft','Installation','1');");
 		}
 		catch (TableDoesNotExistException $e){
-			$message = "<p style=\"padding:10px;font-size:20px;color:#555;margin-bottom:40px;text-align:center;\">Ihre Datenbank hat derzeit noch keinen Inhalt.</p>";
+			$message = OnEvent::script("\$j('.installHiddenTab').hide();")."<p style=\"padding:10px;font-size:20px;color:#555;margin-bottom:40px;text-align:center;\">Ihre Datenbank hat derzeit noch keinen Inhalt.</p>";
 			
 			$ASetup = "\$j('#setupButton').attr('src', './plugins/Installation/bigLoader.png'); ".OnEvent::rme($this, "setupAllTables", "", "function(transport){ contentManager.contentBelow(transport.responseText); }");
 			
@@ -530,13 +530,23 @@ class mInstallationGUI extends mInstallation implements iGUIHTML2 {
 		$mail->setText(wordwrap("Diese Nachricht wurde vom phynx Mailtester erzeugt. Ihre E-Mail-Einstellungen sind korrekt.", 80));
 		$adressen = array();
 		$adressen[] = $mailto;
-		if($mail->send($adressen))
-			echo "<p style=\"padding:5px;color:green;\">E-Mail erfolgreich übergeben.</p>";
-		else
+		if($mail->send($adressen)){
+			$data = $mail->getSMTPParams();
+			echo "<p style=\"padding:5px;color:green;\">E-Mail an ".$data['host']."(".$data["user"].") erfolgreich übergeben.</p>";
+		} else
 			echo "<p style=\"padding:5px;color:red;\">Fehler beim Übergeben der E-Mail. Bitte überprüfen Sie Ihre Server-Einstellungen.<br />Fehler: ".nl2br(print_r($mail->errors, true))."</p>";
+		
 		
 		/*
 		$mimeMail2 = new PHPMailer(false, substr($mailfrom, stripos($mailfrom, "@") + 1));
+		$mimeMail2->SMTPOptions = array(
+			'ssl' => array(
+				'verify_peer' => false,
+				'verify_peer_name' => false,
+				'allow_self_signed' => true
+			)
+		);
+		$mimeMail2->SMTPDebug = 2;
 		#$mimeMail2->SMTPSecure = 'tls';
 		$mimeMail2->CharSet = "UTF-8";
 		$mimeMail2->Subject = "phynx Mailtest V2";
@@ -552,7 +562,9 @@ class mInstallationGUI extends mInstallation implements iGUIHTML2 {
 			echo "<p style=\"padding:5px;color:green;\">E-Mail 2 erfolgreich übergeben.</p>";
 		else
 			echo "<p style=\"padding:5px;color:red;\">Fehler beim Übergeben der E-Mail 2. Bitte überprüfen Sie Ihre Server-Einstellungen.<br />Fehler: ".nl2br(print_r($mimeMail2->ErrorInfo, true))."</p>";
-		 */
+		
+		echo "<pre>";
+		*/
 	}
 
 	public function setupAllTables($echoStatus = false){
@@ -568,7 +580,7 @@ class mInstallationGUI extends mInstallation implements iGUIHTML2 {
 		
 		$message = "<p style=\"padding:10px;font-size:20px;color:green;margin-bottom:40px;text-align:center;\">Ihre Datenbank wurde erfolgreich eingerichtet.</p>";
 		
-		$action = "contentManager.loadPlugin('contentRight', 'Users');";
+		$action = "contentManager.loadPlugin('contentRight', 'Users'); contentManager.newClassButton('User',  function(transport){ }, 'contentLeft', 'UserGUI;edit:ok');";
 		
 		$B = new Button("Benutzer anlegen", "./plugins/Installation/benutzer.png", "icon");
 		$B->onclick($action);
@@ -576,11 +588,16 @@ class mInstallationGUI extends mInstallation implements iGUIHTML2 {
 		$html = $this->box($B, $action, "Einen Benutzer<br />anlegen");
 		
 		
-		echo "$message<div style=\"width:350px;margin:auto;padding-bottom:40px;\">".$html."</div>";
+		echo "$message<div style=\"width:350px;margin:auto;padding-bottom:40px;\">".$html."</div>".OnEvent::script("\$j('.installHiddenTab').fadeIn();");
 	}
 	
 	public function updateAllTables($echoStatus = false){
 		set_time_limit(0);
+		
+		try {
+			$C = new Customizer();
+			Customizer::updates("CustomizerPakete");
+		} catch (Exception $ex) { }
 		
 		$return = parent::updateAllTables();
 		if($echoStatus){

@@ -21,6 +21,7 @@
 class mRSSParserGUI extends anyC implements iGUIHTMLMP2 {
 
 	public function getHTML($id, $page){
+		$this->addOrderV3("RSSParserName");
 		$this->loadMultiPageMode($id, $page, 0);
 
 		$gui = new HTMLGUIX($this);

@@ -71,6 +71,8 @@ class RSSParser extends PersistentObject implements iCloneable {
 			$I->pubDate = strtotime($item->pubDate);
 			$I->icon = null;
 			$I->content = $item->contentEncoded."";
+			if(isset($item->enclosure))
+				$I->enclosure = array(array("url" => $item->enclosure["url"]."", "type" => $item->enclosure["type"].""));
 			
 			$E[] = $I;
 		}

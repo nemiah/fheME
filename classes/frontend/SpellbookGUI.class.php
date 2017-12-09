@@ -25,11 +25,14 @@ class SpellbookGUI implements iGUIHTMLMP2 {
 			"location" => "http://www.open3a.de/page-SOAP",
 			"uri" => "http://www.open3a.de/page-SOAP");
 		try {
+			#throw new Exception();
 			$S = new SoapClient(null, $options);
 			$I = $S->getPluginDescription($requestPlugins, false, Applications::activeApplication());
 		} catch (Exception $e){
 			$connection = false;
 		}
+		
+		mUserdata::setUserdataS("SpellbookLastRequest", time(), "", -1);
 		
 		if($connection){
 			try {
@@ -48,6 +51,7 @@ class SpellbookGUI implements iGUIHTMLMP2 {
 		$targets = $_SESSION["CurrentAppPlugins"]->getMenuTargets();
 		
 		$appMenuDisplayed = MenuGUI::getAppMenuOrder("appMenuDisplayed");
+		$userHiddenPlugins = mUserdata::getHiddenPlugins(true);
 		
 		if($appMenuDisplayed != "")
 			$appMenuDisplayed = explode(";", $appMenuDisplayed);
@@ -56,7 +60,9 @@ class SpellbookGUI implements iGUIHTMLMP2 {
 
 		ksort($entries);
 		$request = array_values($entries);
-		$xml = self::getSpell($request);
+		$xml = false;
+		if(time() - mUserdata::getGlobalSettingValue("SpellbookLastRequest", 0) > 3600 * 24 * 7)
+			$xml = self::getSpell($request);
 
 		#$AP3 = new AppPlugins("customer");
 		#$plugins = array_merge($plugins, $AP3->getAllPlugins());
@@ -70,21 +76,49 @@ class SpellbookGUI implements iGUIHTMLMP2 {
 		$plugins = array_flip($AP->getAllPlugins());
 		
 		$html = "";
-		$html .= "<div style=\"float:right;width:160px;padding-top:20px;\" id=\"containerSortTabs\">".$this->getSortable(false)."</div>
-			<div style=\"margin-right:160px;\">";
+		$html .= "<div style=\"float:right;width:160px;padding-top:20px;\" id=\"SpellbookSortTabs\">".$this->getSortable(false)."</div>
+			<div class=\"SpellbookContainer\">";
 		
 		$U = new mUserdata();
 		$U->addAssocV3("typ","=","TTP");
 		$collapsedTabs = Environment::getS("collapsedTabs", "0") == "1";
 		
+		$packages = array();
+		if(file_exists(Util::getRootPath()."Zeus/CloudKunden/CloudKunde.class.php")){
+			require_once Util::getRootPath()."Zeus/CloudKunden/CloudKunde.class.php";
+			$packages = CloudKunde::getPackagePlugins(Applications::activeApplication());
+		}
+			
 		foreach($entries as $key => $value) {
+			if(isset($userHiddenPlugins[$key]))
+				continue;
+			if(isset($userHiddenPlugins[$value]))
+				continue;
+			
 			$text = "";
-			if($xml !== false)
+			if($xml !== false){
 				foreach ($xml->plugin AS $xmlp)
-					if($xmlp->name == $value)
-						$text = $xmlp->description;
+					if($xmlp->name == $value){
+						$text = $xmlp->description->asXML();
+						$text = strip_tags($text, "a");
+						mUserdata::setUserdataS("SpellBookPlugin$value".Applications::activeApplication(), $text, "", -1);
+					}
+			} else 
+				$text = mUserdata::getGlobalSettingValue("SpellBookPlugin$value".Applications::activeApplication(), "");
+			
+			$paket = "";
+			foreach($packages AS $package => $plugins){
+				foreach($plugins AS $plugin)
+					if($plugin == $value){
+						$paket = "<span style=\"color:green;font-weight:bold;\">Ab ".CloudKunde::getAppPackageName(Applications::activeApplication())." Paket ".floor($package / 100)."</span><br>";
+						break 2;
+					}
+			}
+					
 			if(isset($plugins[$value]))
 				unset($plugins[$value]);
+			
+			#$text = strip_tags($text, "a");
 			
 			$BG = new Button("Plugin $key öffnen", "navigation", "icon");
 			$BG->onclick("contentManager.loadPlugin('".(isset($targets[$value]) ? $targets[$value] : "contentRight")."', '$value', '{$value}GUI;-');");
@@ -107,7 +141,7 @@ class SpellbookGUI implements iGUIHTMLMP2 {
 			
 			$IM = new HTMLInput("minPlugin$value", "checkbox", $t == "big" ? "0" : "1");
 			$IM->id("minPlugin$value");
-			$IM->onchange("toggleTab('$value');");
+			$IM->onchange("Menu.toggleTab('$value');");
 			
 			if(isset($_COOKIE["phynx_layout"]) AND ($_COOKIE["phynx_layout"] == "vertical" OR $_COOKIE["phynx_layout"] == "desktop"))
 				$IM->isDisabled (true);
@@ -117,23 +151,23 @@ class SpellbookGUI implements iGUIHTMLMP2 {
 			
 			#border-width:1px;border-style:solid;
 			$html .= "
-			<div style=\"width:33%;float:left;\">
+			<div style=\"\" class=\"SpellbookSpell\">
 				<div style=\"margin:10px;\" class=\"borderColor1 spell\">
 					<div class=\"backgroundColor2\" style=\"padding:10px;padding-bottom:5px;\">
 						$BG$B<h2 style=\"margin-bottom:0px;margin-top:0px;\">$key</h2>
 					</div>
-					<div style=\"padding:7px;\">
+					<div style=\"padding:7px;\" class=\"SpellbookUsePlugin\">
 						$I<label style=\"float:none;width:200px;text-align:left;display:inline;margin-left:10px;font-wight:normal;\" for=\"usePlugin$value\">Plugin verwenden</label>
 					</div>
-					<div style=\"padding:7px;padding-top:0px;\">
+					<div style=\"padding:7px;padding-top:0px;\" class=\"SpellbookMinPlugin\">
 						$IM<label style=\"float:none;width:200px;text-align:left;display:inline;margin-left:10px;font-wight:normal;\" for=\"minPlugin$value\">Reiter minimiert</label>
 					</div>
-					".($xml !== false ? "<div style=\"padding:7px;height:115px;overflow:auto;\">$text</div>" : "")."
+					<div style=\"padding:7px;height:115px;overflow:auto;\" class=\"SpellbookDescription\">$paket$text</div>
 				</div>
 			</div>";
 		}
 		
-		$html .= "</div><h2 style=\"clear:both;padding-top:50px;\">Admin-Plugins und Plugins ohne eigenen Reiter</h2><div style=\"margin-right:160px;\">";
+		$html .= "</div><h2 style=\"clear:both;padding-top:50px;\">Admin-Plugins und Plugins ohne eigenen Reiter</h2><div class=\"SpellbookContainer\">";
 
 		$icons = $AP->getIcons();
 		$plugins = array_flip($plugins);
@@ -152,13 +186,24 @@ class SpellbookGUI implements iGUIHTMLMP2 {
 		ksort($plugins);
 
 		foreach($plugins as $key => $value) {
+			if(isset($userHiddenPlugins[$key]))
+				continue;
+			if(isset($userHiddenPlugins[$value]))
+				continue;
+			
 			if(isset($menu[$value]))
 				$key = $menu[$value];
 			$text = "";
-			if($xml !== false)
+			if($xml !== false){
 				foreach ($xml->plugin AS $xmlp)
-					if($xmlp->name == $value)
-						$text = $xmlp->description;
+					if($xmlp->name == $value){
+						$text = $xmlp->description->asXML();
+						$text = strip_tags($text, "a");
+						mUserdata::setUserdataS("SpellBookPlugin$value".Applications::activeApplication(), $text, "", -1);
+					}
+			} else 
+				$text = mUserdata::getGlobalSettingValue("SpellBookPlugin$value".Applications::activeApplication(), "");
+			
 
 			if($text == "" OR $text == "-")
 				continue;
@@ -182,12 +227,12 @@ class SpellbookGUI implements iGUIHTMLMP2 {
 			
 			#border-width:1px;border-style:solid;
 			$html .= "
-			<div style=\"width:33%;float:left;\">
+			<div style=\"\" class=\"SpellbookSpell\">
 				<div style=\"margin:10px;border-radius:5px;\" class=\"borderColor1 spell\">
 					<div class=\"backgroundColor2\" style=\"padding:10px;padding-bottom:5px;\">
 						$B<span style=\"float:right;margin-top:7px;\">".($isAdmin ? "Admin!" : "")."</span><h2  style=\"margin-bottom:0px;margin-top:0px;\">$key</h2>
 					</div>
-					".($xml !== false ? "<div style=\"padding:7px;height:115px;overflow:auto;\">$text</div>" : "")."
+					".($text != "" ? "<div style=\"padding:7px;height:115px;overflow:auto;\" class=\"SpellbookDescription\">$text</div>" : "")."
 				</div>
 			</div>";
 		}
@@ -204,6 +249,7 @@ class SpellbookGUI implements iGUIHTMLMP2 {
 		$entries = $_SESSION["CurrentAppPlugins"]->getMenuEntries();
 		#$appMenuHidden = MenuGUI::getAppMenuOrder("appMenuHidden");
 		$appMenuDisplayed = MenuGUI::getAppMenuOrder("appMenuDisplayed");
+		$userHiddenPlugins = mUserdata::getHiddenPlugins(true);
 		
 		if($appMenuDisplayed == "")
 			$appMenuDisplayed = implode(";", $_SESSION["CurrentAppPlugins"]->getMenuEntries());
@@ -216,11 +262,16 @@ class SpellbookGUI implements iGUIHTMLMP2 {
 		$L->addListStyle("list-style-type:none;margin-left:0px;margin-top:10px;");
 		$es = array_reverse($es, true);
 		foreach($es AS $key => $value){
+			if(isset($userHiddenPlugins[$key]))
+				continue;
+			if(isset($userHiddenPlugins[$value]))
+				continue;
+			
 			if(!in_array($value, $appMenuDisplayed))
 				continue;
 			
 			$L->addItem($key);
-			$L->addItemClass("containerSortTabsHandle");
+			$L->addItemClass("SpellbookSortTabsHandle");
 			$L->addItemStyle("padding:5px;cursor:move;margin:0px;");
 			$L->setItemID("appMenu_$value");
 		}
@@ -229,7 +280,7 @@ class SpellbookGUI implements iGUIHTMLMP2 {
 		#$I->style("float:left;margin-right:5px;");
 		#$I->onclick(addslashes(OnEvent::rme(new mUserdata(-1), "setUserdata", array("'hideTooltipDashboard'", "'1'"))));
 		
-		$L .= OnEvent::script(OnEvent::sortable("#containerSortTabs ul", ".containerSortTabsHandle", "Spellbook::updateOrder", "y", null, null, "Menu.refresh();")."\$j('#containerSortTabs ul li').hover(function() {
+		$L .= OnEvent::script(OnEvent::sortable("#SpellbookSortTabs ul", ".SpellbookSortTabsHandle", "Spellbook::updateOrder", "y", null, null, "Menu.refresh();")."\$j('#SpellbookSortTabs ul li').hover(function() {
       \$j(this).addClass('backgroundColor2');
     }, function() {
       \$j(this).removeClass('backgroundColor2');

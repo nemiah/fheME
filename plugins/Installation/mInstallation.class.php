@@ -32,6 +32,7 @@ class mInstallation extends anyC {
 	}
 
 	public function setupAllTables($echo = 0){
+		$currentApp = Applications::activeApplication();
 		$apps = Applications::getList();
 		$apps["plugins"] = "plugins";
 		#$apps["plugins"] = "ubiquitous";
@@ -78,7 +79,7 @@ class mInstallation extends anyC {
 		
 		mUserdata::setUserdataS("DBVersion", Phynx::build(), "", -1);
 		$_SESSION["CurrentAppPlugins"] = $currentPlugins;
-		
+		Applications::i()->setActiveApplication($currentApp);
 		return $return;
 	}
 	

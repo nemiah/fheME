@@ -55,6 +55,7 @@ class HTMLGUIX {
 	protected $languageClass;
 
 	protected $sideButtons = array();
+	protected $sideButtonsAlways = array();
 	protected $topButtons = array();
 	protected $fieldButtons = array();
 	protected $fieldEvents = array();
@@ -236,6 +237,29 @@ class HTMLGUIX {
 		
 		
 		$this->sideButtons[] = $B;
+
+		return $B;
+	}
+	
+	/**
+	 * @param string/Object $labelOrButton
+	 * @param string $image
+	 * @return Button
+	 */
+	public function addSideButtonAlways($labelOrButton, $image = ""){
+		if($labelOrButton == null)
+			return;
+
+		if(!is_object($labelOrButton))
+			$B = new Button($labelOrButton, $image);
+		else
+			$B = $labelOrButton;
+		
+		if($this->object instanceof PersistentObject)
+			$B->link("contentLeft");
+		
+		
+		$this->sideButtonsAlways[] = $B;
 
 		return $B;
 	}
@@ -639,6 +663,8 @@ class HTMLGUIX {
 	}
 	
 	function getEditHTML(){
+		T::load(Util::getRootPath()."libraries");
+		
 		$this->object->loadMeOrEmpty();
 
 		if($this->object->getID() == -1)
@@ -654,7 +680,11 @@ class HTMLGUIX {
 		foreach($this->prepended AS $p)
 			$prepended .= $p;
 		
-		return $prepended.$this->topButtons().$this->sideButtons().$F.$requestFocus.GUIFactory::editFormOnchangeTest($this->formID == null ? "edit".get_class($this->object) : $this->formID).($this->hiddenJS != "" ? OnEvent::script($this->hiddenJS." \$j('#$this->formID .recentlyChanged').removeClass('recentlyChanged');") : "");
+		$appended = "";
+		foreach ($this->appended AS $PE)
+			$appended .= $PE;
+		
+		return $prepended.$this->topButtons().$this->sideButtons().$F.$appended.$requestFocus.GUIFactory::editFormOnchangeTest($this->formID == null ? "edit".get_class($this->object) : $this->formID).($this->hiddenJS != "" ? OnEvent::script($this->hiddenJS." \$j('#$this->formID .recentlyChanged').removeClass('recentlyChanged');") : "");
 	}
 
 	/**
@@ -664,17 +694,22 @@ class HTMLGUIX {
 	 * @param int $lineWithId
 	 */
 	// <editor-fold defaultstate="collapsed" desc="getBrowserHTML">
-	function getBrowserHTML($lineWithId = -1, $useBPS = true){
+	function getBrowserHTML($lineWithId = -1, $useBPS = true, $useBPSClass = ""){
 		T::load(Util::getRootPath()."libraries");
 		
 		$canDelete = mUserdata::isDisallowedTo("cantDelete".$this->className);
 		#$canEdit = mUserdata::isDisallowedTo("cantEdit".$this->className);
+		$canCreate = mUserdata::isDisallowedTo("cantCreate".$this->className);
+		
+		if(!$canCreate)
+			$this->showNew = false;
+		
 		if(!$canDelete)
 			$this->showTrash = false;
 		#if(!$canEdit) //KILLS SEARCH-FIELD!!
 		#	$this->showEdit = false;
 		
-		$bps = BPS::getAllProperties("m".$this->className."GUI");
+		$bps = BPS::getAllProperties(($useBPSClass != "" ? $useBPSClass : "m".$this->className)."GUI");
 		if(!$useBPS)
 			$bps = false;
 		
@@ -685,7 +720,7 @@ class HTMLGUIX {
 
 		if($this->blacklists != null)
 			$GUIF->blacklists($this->blacklists);
-
+		
 		if(isset($bps["selectionMode"]))
 			$GUIF->selection($bps["selectionMode"]);
 
@@ -694,11 +729,13 @@ class HTMLGUIX {
 		#$this->multiPageDetails["target"] = $this->frame;#"contentRight";
 		#$GUIF->setMultiPageDetails($this->multiPageDetails);
 
+		if($this->object->targetFrame)
+			$this->targetFrame ($this->object->targetFrame);
+		
 		if($this->targetFrame != null)
 			$GUIF->targetFrame($this->targetFrame);
 		
 		$E = $this->object->getNextEntry();
-
 
 		if($this->attributes == null AND $E != null)
 			$this->attributes = PMReflector::getAttributesArrayAnyObject($E->getA());
@@ -717,7 +754,7 @@ class HTMLGUIX {
 		$Tab->setTableID("Browserm$this->className");
 		$Tab->addTableClass("contentBrowser");
 		if($this->useScreenHeight)
-			$Tab->useScreenHeight();
+			$Tab->useScreenHeight(ceil($this->multiPageDetails["total"] / $this->multiPageDetails["perPage"]) - 1);
 		
 		if($this->header != null AND $this->object->numLoaded() > 0)
 			$Tab->addHeaderRow($this->header);
@@ -729,14 +766,16 @@ class HTMLGUIX {
 			if($this->showPageFlip)
 				$GUIF->buildFlipPageLine("top");
 
-			if($this->object->isFiltered()) $GUIF->buildFilteredWarningLine($this->object->isFilteredLabel());
+			if($this->object->isFiltered() AND !$this->object->appendable) $GUIF->buildFilteredWarningLine($this->object->isFilteredLabel());
 
-			$GUIF->buildNewEntryLine(($this->name == null ? $this->className : $this->name)." neu anlegen");
+			$GUIF->buildNewEntryLine(" ".T::_("%1 neu anlegen", ($this->name == null ? $this->className : $this->name)));
 		}
 
 		$this->object->resetPointer();
 
-
+		if($this->object->appendable)
+			$GUIF->buildPageCaption($this->multiPageDetails["page"] + 1);
+		
 		$DisplayGroup = null;
 		while($E = $this->object->getNextEntry()){
 
@@ -771,18 +810,25 @@ class HTMLGUIX {
 				$DisplayGroup = $E->A($this->displayGroup[0]);
 		}
 
+		
+		if($this->object->appendable){
+			if($this->object->numLoaded() > 8 AND $this->object->isFiltered()) 
+				$GUIF->buildFilteredWarningLine($this->object->isFilteredLabel());
+			return $Tab->getHTMLForUpdate(true);
+		}
+		
 		if($lineWithId == -1) {
 			if($this->object->isFiltered()) $GUIF->buildFilteredWarningLine($this->object->isFilteredLabel());
 
 			if($this->multiPageDetails["total"] > $this->multiPageDetails["perPage"] AND $this->showPageFlip)
 				$GUIF->buildFlipPageLine("bottom");
-			
+
 			if($this->object->numLoaded() == 0)
 				$GUIF->buildNoEntriesLine();
 		}
 		else
 			return $Tab->getHTMLForUpdate();
-
+		
 		$prepend = "";
 		foreach ($this->prepended AS $PE)
 			$prepend .= $PE;
@@ -790,6 +836,11 @@ class HTMLGUIX {
 		$appended = "";
 		foreach ($this->appended AS $PE)
 			$appended .= $PE;
+		
+		$SB = $GUIF->getSideButtons();
+		foreach($SB AS $B)
+			$this->addSideButtonAlways($B);
+		
 		
 		return "<div class=\"browserContainer contentBrowser\">".$prepend.$this->sideButtons($bps).$GUIF->getContainer($Tab, $this->caption, $appended, $this->topButtons($bps))."</div>".str_replace("%CLASSNAME", $this->className, $this->sortable).$this->tip;
 	}
@@ -844,20 +895,25 @@ class HTMLGUIX {
 
 	private function sideButtons($bps = null){
 		T::D($this->className);
-		$ST = "";
-		if(count($this->sideButtons) > 0 AND ($bps == null OR !isset($bps["selectionMode"]))){
-			$position = "left";
-			if($this->object instanceof PersistentObject) $position = "right";
+		
+		$position = "left";
+		if($this->object instanceof PersistentObject) 
+			$position = "right";
 
-			if($this->displayMode == "BrowserLeft")
-				$position = "right";
+		if($this->displayMode == "BrowserLeft")
+			$position = "right";
 
-			$ST = new HTMLSideTable($position);
-			$ST->setTableID("SideTable".get_class($this->object));
-
+		$ST = new HTMLSideTable($position);
+		$ST->setTableID("SideTable".get_class($this->object));
+			
+		if(count($this->sideButtons) > 0 AND ($bps == null OR !isset($bps["selectionMode"])))
 			foreach($this->sideButtons AS $B)
 				$ST->addRow($B."");
-		}
+		
+		
+		foreach($this->sideButtonsAlways AS $B)
+			$ST->addRow($B."");
+		
 
 		T::D("");
 		return $ST;
@@ -1006,12 +1062,14 @@ class HTMLGUIX {
 			break;
 			
 			case "addAnotherLanguageButton":
+				if(!Session::isPluginLoaded("mMultiLanguage"))
+					return;
+				
 				$B = new Button("andere Sprachen", "./images/i2/sprache.png", "icon");
 				if($class->getID() != -1)
 					$B->popup("", "Alternative Sprachen", "mMultiLanguage", "", "getPopupHTML", array("'".$class->getClearClass()."'","'".$class->getID()."'","'".$par1."'"));
-					#$B->rme("mMultiLanguage","","getPopupHTML",array("'".$class->getClearClass()."'","'".$class->getID()."'","'".$par1."'"),"Popup.create(\'".$class->getID()."\', \'altLang".$class->getClearClass()."\', \'alternative Sprachen\'); Popup.update(transport, \'".$class->getID()."\', \'altLang".$class->getClearClass()."\');");
 				else
-					$B->onclick("alert('Sie müssen den Artikel zuerst speichern, bevor Sie Übersetzungen eintragen können')");
+					$B->onclick("alert('Sie müssen den Eintrag zuerst speichern, bevor Sie Übersetzungen eintragen können')");
 
 				$B->style("float:right;");
 				#$this->setInputStyle($par1,"width:90%;");

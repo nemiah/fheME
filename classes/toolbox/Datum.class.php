@@ -104,8 +104,12 @@ class Datum {
 			$this->timestamp += 3600 * (!date("I", $this->timestamp) ? 1 : -1);
 	}
 	
-	function subWeek(){
+	function subWeek($fixDST = false){
+		$oldTime = $this->timestamp;
 		$this->timestamp -= 7 * 24 * 3600;
+		
+		if($fixDST AND date("I", $oldTime) != date("I", $this->timestamp))
+			$this->timestamp -= 3600 * (!date("I", $oldTime) ? 1 : -1);
 	}
 	
 	function addMonth($dontSkipMonth = false){
@@ -164,7 +168,7 @@ class Datum {
 	}
 	
 	function printer(){
-		echo date("d m Y H i s",$this->timestamp)."<br />";
+		echo date("d m Y H i s",$this->timestamp)."<br>";
 	}
 	function time(){
 		return $this->timestamp;

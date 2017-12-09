@@ -324,7 +324,7 @@ class KalenderViewMonat {
 				if($j < $cols) $html .= "
 				<td
 					style=\"vertical-align:top;padding:0px;\"
-					class=\"".((date("d.m.Y",$D->time()) == date("d.m.Y") AND $ansicht != "tag")? "backgroundColor1" : "")." Day borderColor1\">
+					class=\"".((date("d.m.Y",$D->time()) == date("d.m.Y") AND $ansicht != "tag")? "backgroundColor1" : "")." Day borderColor1\" data-day=\"".$D->time()."\">
 					<div
 						style=\"".($ansicht == "tag" ? "display:none;" : "")."height:21px;padding-top:2px;padding-left:5px;text-align:right;padding-right:5px;\"
 						class=\"innerCellTitle\">

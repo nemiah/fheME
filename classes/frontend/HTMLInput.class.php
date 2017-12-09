@@ -455,8 +455,8 @@ class HTMLInput {
 			case "fileold":
 			case "color":
 				$JS = "";
-				if($this->type == "radio1")
-					$this->type = "radio";
+				#if($this->type == "radio1")
+				#	$this->type = "radio";
 				
 				if($this->type == "fileold")
 					$this->type = "file";
@@ -580,6 +580,10 @@ class HTMLInput {
 					};");
 				}
 				
+				$useType = $this->type;
+				if($useType == "radio1")
+					$useType = "radio";
+				
 				return "$B2$cal<input
 					".($this->maxlength != null ? " maxlength=\"$this->maxlength\"" : "")."
 					".($this->placeholder != null ? " placeholder=\"$this->placeholder\"" : "")."
@@ -599,7 +603,7 @@ class HTMLInput {
 					name=\"$this->name\"
 					$data
 					".($this->isDisabled ? "disabled=\"disabled\"" : "")."
-					type=\"".($this->type != "readonly" ? $this->type : "text" )."\"
+					type=\"".($useType != "readonly" ? $useType : "text" )."\"
 					".($this->onchange != null ? "onchange=\"$this->onchange\"" : "")."
 					".($this->id != null ? "id=\"$this->id\"" : "")."
 					$value />$this->requestFocus$JS";

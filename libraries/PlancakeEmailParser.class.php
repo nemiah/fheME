@@ -193,45 +193,50 @@ class PlancakeEmailParser {
 		preg_match_all('!boundary=(.*)$!mi', $this->emailRawContent, $matches);
 		$boundaries = $matches[1];
 		// sometimes boundaries are delimited by quotes - we want to remove them
-		foreach ($boundaries as $i => $v) {
-			$boundaries[$i] = str_replace(array("'", '"'), '', $v);
-		}
-
-		foreach ($this->rawBodyLines as $line) {
-			if (!$detectedContentType) {
-
-				if (preg_match($contentTypeRegex, $line, $matches)) {
-					$detectedContentType = true;
-				}
-
-				if (preg_match('/charset=(.*)/i', $line, $matches)) {
+		foreach ($boundaries AS $i => $v)
+			$boundaries[$i] = trim(str_replace(array("'", '"'), '', $v));
+		
+		#
+		
+		foreach ($this->rawBodyLines AS $line) {
+			if ($detectedContentType AND is_array($boundaries))
+				foreach($boundaries AS $boundary)
+					if(strpos($line, $boundary) !== false)
+						break 2;
+				
+			
+			
+			if(!$detectedContentType AND !preg_match($contentTypeRegex, trim($line), $matches)){
+				
+				if (preg_match('/charset=(.*)/i', $line, $matches)) 
 					$charset = strtoupper(trim($matches[1], '"'));
-				}
-			} else if ($detectedContentType && $waitingForContentStart) {
-
-				if (preg_match('/charset=(.*)/i', $line, $matches)) {
-					$charset = strtoupper(trim($matches[1], '"'));
-				}
-
-				if ($contentTransferEncoding == null && preg_match('/^Content-Transfer-Encoding: ?(.*)/i', $line, $matches)) {
-					$contentTransferEncoding = $matches[1];
-				}
-
-				if (self::isNewLine($line)) {
-					$waitingForContentStart = false;
-				}
-			} else {  // ($detectedContentType && !$waitingForContentStart)
-				// collecting the actual content until we find the delimiter
-				// if the delimited is AAAAA, the line will be --AAAAA  - that's why we use substr
-				if (is_array($boundaries)) {
-					if (in_array(substr($line, 2), $boundaries)) {  // found the delimiter
-						break;
-					}
-				}
-				$body .= $line . "\n";
+				
+				continue;
 			}
+			
+			$detectedContentType = true;
+			
+			
+			if ($waitingForContentStart AND preg_match('/charset=(.*)/i', $line, $matches)) 
+				$charset = strtoupper(trim($matches[1], '"'));
+				
+			if ($contentTransferEncoding == null && preg_match('/^Content-Transfer-Encoding: ?(.*)/i', $line, $matches)) 
+				$contentTransferEncoding = $matches[1];
+					
+			if (self::isNewLine($line)) {
+				$waitingForContentStart = false;
+				continue;
+			}
+			
+			if($waitingForContentStart)
+				continue;
+			
+			$body .= $line."\n";
 		}
-
+		#echo "<pre>";
+		#echo $body;
+		#echo "</pre>";
+		
 		if (!$detectedContentType) {
 			// if here, we missed the text/plain content-type (probably it was
 			// in the header), thus we assume the whole body is what we are after
@@ -250,7 +255,7 @@ class PlancakeEmailParser {
 			// FORMAT=FLOWED, despite being popular in emails, it is not
 			// supported by iconv
 			$charset = str_replace("FORMAT=FLOWED", "", $charset);
-
+			
 			$body = iconv($charset, 'UTF-8//TRANSLIT', $body);
 
 			if ($body === FALSE) { // iconv returns FALSE on failure
@@ -291,6 +296,10 @@ class PlancakeEmailParser {
 		return '';
 	}
 
+	public function getHeaders(){
+		return $this->rawFields;
+	}
+	
 	/**
 	 *
 	 * @param string $line

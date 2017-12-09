@@ -227,11 +227,11 @@ function $$(something){
 	return $j(something);
 }
 
-function PeriodicalExecuter(callback, delayInSeconds) {
+/*function PeriodicalExecuter(callback, delayInSeconds) {
 	window.setInterval(function(){
 		callback();
 	}, delayInSeconds * 1000);
-}
+}*/
 
 var Ajax = {
 	physion: "default",

@@ -32,6 +32,7 @@ class XMLPlugin extends PluginV2 {
 	private $blockNonAdmin = true;
 	private $doSomethingElse;
 	private $applications = array();
+	private $registry = array();
 	
 	private $collectionGUI = array();
 	
@@ -40,6 +41,21 @@ class XMLPlugin extends PluginV2 {
 	function __construct($file, $allowedPlugins = null){
 		$this->file = $file;
 		$this->parse($allowedPlugins);
+		
+		$this->customize();
+	}
+	
+	public function customize(){
+		if(defined("PHYNX_FORBID_CUSTOMIZERS"))
+			return;
+		
+		try {
+			$active = mUserdata::getGlobalSettingValue("activeCustomizer");
+			if($active == null) return;
+
+			$this->customizer = new $active();
+			$this->customizer->customizeClass($this);
+		} catch (Exception $e){ }
 	}
 	
 	private function parse($allowedPlugins){
@@ -101,22 +117,24 @@ class XMLPlugin extends PluginV2 {
 		if(isset($index["application"]) AND isset($vals[$index["application"][0]])){
 			$xml = new SimpleXMLElement($content);
 			
-			foreach($xml->plugin->application AS $sub)
-				$this->applications[] = array($sub."", $sub["version"][0]."");
+			foreach($xml->plugin->application AS $sub){
+				$menu = $this->menuName;
+				if(isset($sub["menuName"]))
+					$menu = trim($sub["menuName"][0]."") == "" ? null : $sub["menuName"][0]."";
+				
+				$this->applications[] = array($sub."", $sub["version"][0]."", $menu);
+			}
 		}
 		
 		if(isset($index["registry"]) AND isset($vals[$index["registry"][0]]))
 			foreach($index["registry"] AS $k => $v){
-				$call = explode(";", $vals[$index["registry"][$k]]["value"]);
-				#print_r($call);
+				$this->registry[] = explode(";", $vals[$index["registry"][$k]]["value"]);
 				
-				if(count($call) == 3)
-					Registry::setCallback($call[0], $call[1], $call[2]);
+				#if(count($call) == 3)
+				#	Registry::setCallback($call[0], $call[1], $call[2]);
 
-				if(count($call) == 2)
-					Registry::setCallback($call[0], $call[1]);
-					#echo "callbacks:";
-				#print_r(Registry::getCallbacks($call[0], $call[2]));
+				#if(count($call) == 2)
+				#	Registry::setCallback($call[0], $call[1]);
 			}
 
 		
@@ -196,9 +214,21 @@ class XMLPlugin extends PluginV2 {
 	}
 	*/
 	function registerMenuEntry(){
+		// <editor-fold defaultstate="collapsed" desc="Aspect:jP">
+		try {
+			$MArgs = array($this->collection);
+			return Aspect::joinPoint("around", $this, __METHOD__, $MArgs);
+		} catch (AOPNoAdviceException $e) {}
+		Aspect::joinPoint("before", $this, __METHOD__, $MArgs);
+		// </editor-fold>
+		
 		if($this->menuName != null) return $this->menuName;
 		else return "";
 		#else return parent::registerMenuEntry();
+	}
+	
+	function registerRegistry(){
+		return $this->registry;
 	}
 	
 	function registerMenuEntryTarget(){
@@ -211,7 +241,17 @@ class XMLPlugin extends PluginV2 {
 	}
 	
 	function registerPluginIsAdminOnly(){
-		if($this->adminOnly != null) return $this->adminOnly == "true";
+		// <editor-fold defaultstate="collapsed" desc="Aspect:jP">
+		try {
+			$MArgs = array($this->collection);
+			return Aspect::joinPoint("around", $this, __METHOD__, $MArgs);
+		} catch (AOPNoAdviceException $e) {}
+		Aspect::joinPoint("before", $this, __METHOD__, $MArgs);
+		// </editor-fold>
+		
+		if($this->adminOnly != null)
+			return $this->adminOnly == "true";
+		
 		else return parent::registerPluginIsAdminOnly();
 	}
 	

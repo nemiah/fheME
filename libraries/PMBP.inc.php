@@ -33,6 +33,7 @@ class phynxBackup {
 // $file can be a gzopen() or open() handler, $con is the database connection
 // $linespersession says how many lines should be executed; if false, all lines will be executed
 function PMBP_exec_sql($file, $con, $linespersession = false, $noFile = false) {
+	set_time_limit(300);
 	$query = "";
 	$queries = 0;
 	$error = "";
@@ -136,10 +137,10 @@ function PMBP_dump($CONF, $PMBP_SYS_VAR, $db, $tables, $data, $drop, $zip, $comm
 	$error = false;
 	
 	$time = date("Ymd");
-	if ($zip == "gzip")
+	#if ($zip == "gzip")
 		$backupfile = $db . "." . $time . "_utf8.sql.gz";
-	else
-		$backupfile = $db . "." . $time . "_utf8.sql";
+	#else
+	#	$backupfile = $db . "." . $time . "_utf8.sql";
 	
 	$backupfile = PMBP_EXPORT_DIR . $backupfile;
 	
@@ -207,9 +208,6 @@ function PMBP_dump($CONF, $PMBP_SYS_VAR, $db, $tables, $data, $drop, $zip, $comm
 		}
 	}
 
-
-	
-
 	foreach ($all_tables AS $row) {
 		$tablename = $row['Name'];
 		$auto_incr[$tablename] = $row['Auto_increment'];
@@ -268,8 +266,14 @@ function PMBP_dump($CONF, $PMBP_SYS_VAR, $db, $tables, $data, $drop, $zip, $comm
 	}
 
 
-	$backupfile = PMBP_save_to_file($backupfile, $zip, "", "a");
-	if ($backupfile) {
+	PMBP_save_to_file($backupfile, $zip, "", "a");
+	
+	if(phynxBackup::$handler)
+		gzclose(phynxBackup::$handler);
+	
+	return basename($backupfile);
+	
+	/*if ($backupfile) {
 		if ($zip != "zip")
 			return basename($backupfile);
 	} else {
@@ -295,25 +299,24 @@ function PMBP_dump($CONF, $PMBP_SYS_VAR, $db, $tables, $data, $drop, $zip, $comm
 		@unlink(substr($backupfile, 0, strlen($backupfile) - 4));
 		@unlink("./" . $backupfile);
 		return FALSE;
-	}
+	}*/
 }
 
 
 // saves the string in $fileData to the file $backupfile as gz file or not ($zip)
 // returns backup file name if name has changed (zip), else TRUE. If saving failed, return value is FALSE
 function PMBP_save_to_file($backupfile, $zip, $fileData, $mode) {
-	if ($zip == "gzip") {
-		if (phynxBackup::$handler === null)
-			phynxBackup::$handler = @gzopen("./" . $backupfile, $mode . "9");
-		
-		if (!phynxBackup::$handler)
-			throw new Exception("Backup file handler exception");
-		
-		@gzwrite(phynxBackup::$handler, $fileData);
-		#@gzclose($zp);
-		
-		return $backupfile;
-	}
+	#if ($zip == "gzip") {
+	if (phynxBackup::$handler === null)
+		phynxBackup::$handler = gzopen($backupfile, $mode . "4");
+	#var_dump(phynxBackup::$handler);
+	if (!phynxBackup::$handler)
+		throw new Exception("Backup file handler exception");
+
+	gzwrite(phynxBackup::$handler, $fileData);
+	
+	return true;
+	#}
 	
 	
 	if (phynxBackup::$handler === null)
@@ -327,8 +330,7 @@ function PMBP_save_to_file($backupfile, $zip, $fileData, $mode) {
 		throw new Exception("Backup file handler exception");
 	#fclose($zp);
 	
-	return $backupfile;
-	
+	return true;
 }
 
 

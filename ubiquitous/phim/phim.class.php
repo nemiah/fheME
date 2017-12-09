@@ -18,6 +18,94 @@
  *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
 class phim extends PersistentObject {
+
+	function sendMessage($to, $text){
+		$F = new Factory("phim");
+		
+		$target = $to;
+		$group = 0;
+		if($to[0] == "g"){
+			$group = str_replace("g", "", $to);
+			$to = 0;
+		}
+		
+		$F->sA("phimFromUserID", Session::currentUser()->getID());
+		$F->sA("phimToUserID", $to);
+		$F->sA("phimTime", time());
+		$F->sA("phimMessage", $text);
+		$F->sA("phimphimGruppeID", $group);
+		
+		$message = new stdClass();
+		$message->method = "message";
+		$message->content = $text;
+		$message->from = Session::currentUser()->getID();
+		$message->fromUser = Session::currentUser()->A("name");
+		$message->to = $to;
+		$message->time = time();
+		$message->group = $group;
+		
+		$F->store();
+		
+		$this->go($message, $target);
+	}
+	
+	protected function go($message, $to){
+		$S = anyC::getFirst("Websocket", "WebsocketUseFor", "phim");
+		
+		$realm = $S->A("WebsocketRealm");
+		
+		spl_autoload_unregister("phynxAutoloader");
+		
+		require Util::getRootPath().'PWS/Thruway/vendor/autoload.php';
+
+		require_once __DIR__.'/ClientPhimAuthenticator.php';
+		
+		Thruway\Logging\Logger::set(new Psr\Log\NullLogger());
+		$connection = new \Thruway\Connection([
+			"realm"   => $realm,
+			"url"     => "ws".($S->A("WebsocketSecure") ? "s" : "")."://".$S->A("WebsocketServer").":".$S->A("WebsocketServerPort")."/"
+		]);
+
+		$client = $connection->getClient();
+		$client->addClientAuthenticator(new ClientPhimAuthenticator($realm, "phimUser", $S->A("WebsocketToken")));
+
+		$connection->on('open', function (\Thruway\ClientSession $session) use ($connection, $message, $to) {
+			$session->publish('it.furtmeier.phim_'.$to, [json_encode($message, JSON_UNESCAPED_UNICODE)], [], ["acknowledge" => true])->then(
+				function () use ($connection) {
+					$connection->close();
+				}, function ($connection) {
+					$connection->close();
+				}
+			);
+		});
+
+		$connection->open();
+		
+		/*$client = new Thruway\Peer\Client($realm);
+		$client->addClientAuthenticator(new ClientPhimAuthenticator($realm, "phimUser", $S->A("WebsocketToken")));
+		
+		$client->addTransportProvider(new Thruway\Transport\PawlTransportProvider("ws".($S->A("WebsocketSecure") ? "s" : "")."://".$S->A("WebsocketServer").":".$S->A("WebsocketServerPort")."/"));
+
+		$client->on('open', function (Thruway\ClientSession $session) use ($message, $to) {
+
+			$session->publish('it.furtmeier.phim_'.$to, [json_encode($message, JSON_UNESCAPED_UNICODE)], [], ["acknowledge" => true])->then(
+				function () {
+					echo "Publish Acknowledged!\n";
+					die();
+				},
+				function ($error) {
+					// publish failed
+					echo "Publish Error {$error}\n";
+				}
+			);
+
+			//$session->close();
+		});
+
+
+		$client->start();*/
+	}
+	
 	function newAttributes() {
 		$A = parent::newAttributes();
 		

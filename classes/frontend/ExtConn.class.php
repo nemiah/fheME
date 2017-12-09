@@ -106,6 +106,8 @@ class ExtConn {
 			$this->paths[] = $this->absolutePath."classes/frontend/Applications.class.php";
 			$this->paths[] = $this->absolutePath."classes/frontend/HTMLGUI.class.php";
 			$this->paths[] = $this->absolutePath."classes/frontend/HTMLGUI2.class.php";
+			$this->paths[] = $this->absolutePath."classes/frontend/HTMLGUIX.class.php";
+			$this->paths[] = $this->absolutePath."classes/frontend/GUIFactory.class.php";
 			$this->paths[] = $this->absolutePath."classes/frontend/HTML_de_DE.class.php";
 			$this->paths[] = $this->absolutePath."classes/frontend/HTML_en_US.class.php";
 			$this->paths[] = $this->absolutePath."classes/frontend/UnifiedTable.class.php";
@@ -221,11 +223,9 @@ class ExtConn {
 		if($Data === false){
 			$q = $PFDB->pfdbQuery("SELECT * FROM Installation WHERE httpHost = '*'");
 			$Data = $PFDB->pfdbFetchAssoc($q);
-		
-		
 		}
 		
-		$this->setMySQLData($Data["host"], $Data["user"], $Data["password"], $Data["datab"]);
+		$this->setMySQLData($Data["host"], $Data["user"], $Data["password"], $Data["datab"], $Data["httpHost"], $Data["ID"]);
 	}
 
 	public function useAdminUser(){
@@ -267,13 +267,15 @@ class ExtConn {
 		return $this->currentUser;
 	}
 
-	function setMySQLData($host, $username, $password, $database){
+	function setMySQLData($host, $username, $password, $database, $httpHost = "*", $ID = ""){
 
 		$_SESSION["DBData"] = array();
-		$_SESSION["DBData"]["host"]		= $host;
-		$_SESSION["DBData"]["user"]		= $username;
-		$_SESSION["DBData"]["password"] = $password;
-		$_SESSION["DBData"]["datab"]	= $database;
+		$_SESSION["DBData"]["host"]				= $host;
+		$_SESSION["DBData"]["user"]				= $username;
+		$_SESSION["DBData"]["password"]			= $password;
+		$_SESSION["DBData"]["datab"]			= $database;
+		$_SESSION["DBData"]["InstallationID"]	= $ID;
+		$_SESSION["DBData"]["httpHost"]			= $httpHost;
 	}
 	
 	function setPaths(){

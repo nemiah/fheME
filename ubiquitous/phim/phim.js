@@ -52,5 +52,10 @@ var phim = {
 };
 
 $j(function(){
-	//phim.init();
+	contentManager.rmePCR("mphim", "-1", "testAutostart", [], function(t){
+		if(t.responseText != "1")
+			return;
+		
+		windowWithRme('mphim', -1, 'chatPopup', [], '', 'window', {height: 300, width:550, left: $j.jStorage.get('phimX', 20), top: $j.jStorage.get('phimY', 20), name: 'phim', scroll: false});
+	});
 });

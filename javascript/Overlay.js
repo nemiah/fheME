@@ -51,7 +51,10 @@ var Overlay = {
 				$j('#loginPassword').val(";;cookieData;;");
 				$j('#loginSHAPassword').val(data.password);
 				$j('#saveLoginData').prop("checked", true);
-				$j('#anwendung').val(data.application);
+				
+				if(typeof Util.querySt('application') == 'undefined')
+					$j('#anwendung').val(data.application);
+				
 				$j('#doAutoLogin').prop("checked", data.autologin);
 				
 				$j('#doAutoLoginContainer').fadeIn();

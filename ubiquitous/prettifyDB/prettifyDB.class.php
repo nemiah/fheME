@@ -24,15 +24,15 @@ class prettifyDB extends PersistentObject {
 			"-ctu|-immerse|[-.]2hd|-bia|-wasabi|-Hannibal|-FoV|.immerse|-EVOLVE|c4tv|-HoC|Repack|-compulsion|-ASAP|-SiNNERS|-ECI|BluRay|-AVS|-KILLERS|-LOL" => "",
 			"[-.]DIMENSION|-MADHACKER|-FEVER|[-.]PiLAF|.PROPER|WEBRip|AAC" => "",
 			"s([0-9]+)e([0-9]+)" => "S\\1E\\2",
-			"^([a-z])" => "strtoupper('\\1')",
+			#"^([a-z])" => "strtoupper('\\1')",
 			".hdtv|-orenji|[-.]x264|[_.]WEB[-.]DL|[._]h.264|-kyr" => "",
 			"([0-9]{1,2})×([0-9]{2})" => "S\\1E\\2",
-			"(.[a-z])" => "strtoupper('\\1')",
+			#"(.[a-z])" => "strtoupper('\\1')",
 			"Mkv" => "mkv",
 			"Mp4" => "mp4",
 			".720p" => "",
 			".(20[0-9]{2})." => "' (\\1) '",
-			"." => "' '"
+			"." => " "
 		)
 	);
 	
@@ -45,7 +45,15 @@ class prettifyDB extends PersistentObject {
 	
 	public static function apply($target, $text){
 		foreach(self::rules($target) AS $reg => $replace)
-			$text = preg_replace("/".str_replace(".", "\.", $reg)."/ei", str_replace(array("."), array("\."), $replace), $text);
+			$text = preg_replace("/".str_replace(".", "\.", $reg)."/i", str_replace(array("."), array("\."), $replace), $text);
+		
+		$text = preg_replace_callback("/(\.[a-z])/", function($args){
+			return strtoupper($args[1]);
+		}, $text);
+		
+		$text = preg_replace_callback("/^([a-z])/", function($args){
+			return strtoupper($args[1]);
+		}, $text);
 		
 		return $text;
 	}

@@ -100,15 +100,27 @@ class hmmsmtp {
 		  return $obj;
 
 		  } else { */
-		$this->connection = fsockopen($this->host, $this->port, $errno, $errstr, $this->timeout);
-		if (function_exists('socket_set_timeout')) {
-			@socket_set_timeout($this->connection, 5, 0);
-		}
-
-		#socket_set_option($this->connection, 'ssl', 'verify_peer', false);
-		#socket_set_option($this->connection, 'ssl', 'verify_host', false);
-		#socket_set_option($this->connection, 'ssl', 'allow_self_signed', true);
 		
+		$socket_context = stream_context_create(array(
+			'ssl' => array(
+				'verify_peer' => false,
+				'verify_peer_name' => false,
+				'allow_self_signed' => true
+			)));
+		#$this->connection = fsockopen($this->host, $this->port, $errno, $errstr, $this->timeout);
+		$this->connection = stream_socket_client(
+                $this->host.":".$this->port,
+                $errno,
+                $errstr,
+                $this->timeout,
+                STREAM_CLIENT_CONNECT,
+                $socket_context
+            );
+		
+		if (function_exists('socket_set_timeout')) 
+			@socket_set_timeout($this->connection, 5, 0);
+		
+
 		$greeting = $this->get_data();
 		if (is_resource($this->connection)) {
 			$this->status = SMTP_STATUS_CONNECTED;

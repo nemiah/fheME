@@ -48,14 +48,15 @@ class LoginDataGUI extends LoginData implements iGUIHTML2 {
 		$gui->type("typ", "hidden");
 		$gui->type("wert", "hidden");
 		$gui->type("passwort", "password");
+		$gui->type("optionen2", "hidden");
 
 
-
-		$onkeyup = "$('editLoginDataGUI').wert.value = $('editLoginDataGUI').benutzername.value+'::::'+$('editLoginDataGUI').passwort.value+($('editLoginDataGUI').server.value != '' ? '::::s:'+$('editLoginDataGUI').server.value : '')+($('editLoginDataGUI').optionen.value != '' ? '::::o:'+$('editLoginDataGUI').optionen.value : '')";
+		$onkeyup = "$('editLoginDataGUI').wert.value = $('editLoginDataGUI').benutzername.value+'::::'+$('editLoginDataGUI').passwort.value+($('editLoginDataGUI').server.value != '' ? '::::s:'+$('editLoginDataGUI').server.value : '')+($('editLoginDataGUI').optionen.value != '' ? '::::o:'+$('editLoginDataGUI').optionen.value : '')+($('editLoginDataGUI').optionen2.value != '' ? '::::2:'+$('editLoginDataGUI').optionen2.value : '')";
 		$gui->addFieldEvent("benutzername", "onKeyup", $onkeyup);
 		$gui->addFieldEvent("server", "onKeyup", $onkeyup);
 		$gui->addFieldEvent("passwort", "onKeyup", $onkeyup);
 		$gui->addFieldEvent("optionen", "onKeyup", $onkeyup);
+		$gui->addFieldEvent("optionen2", "onKeyup", $onkeyup);
 
 
 		$U = new Users();
@@ -291,13 +292,15 @@ class LoginDataGUI extends LoginData implements iGUIHTML2 {
 			$gui->type("passwort", "hidden");*/
 			$gui->type("name", "hidden");
 			$gui->type("UserID", "hidden");
+			$gui->type("optionen2", "text");
 			
 			$gui->label("server", "AD-Server");
 			$gui->label("optionen", "Benutzer-Pfad");
+			$gui->label("optionen2", "Nur Gruppe");
 			
 			$gui->descriptionField("benutzername", "Mit Domain-Name. Z.B. Administator@Furtmeier.dom");
 			$gui->descriptionField("optionen", "Bitte geben Sie den LDAP-Pfad zum Benutzer-Verzeichnis ein. Z.B. OU=Benutzer,DC=furtmeier,DC=dom");
-			
+			$gui->descriptionField("optionen2", "Bitte geben Sie die LDAP-Gruppe ein, deren Mitglied ein Benutzer sein muss. Z.B. CN=ERP,OU=Globale Zugriffsgruppen,DC=furtmeier,DC=dom");
 			$onSave = "Popup.close('Users', 'edit');";
 		}
 

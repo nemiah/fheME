@@ -1,0 +1,153 @@
+@media only screen and (max-width: 1200px) and (min-width: 1000px) {
+	.sideTableRight .bigButton, .sideTableLeft .bigButton {
+		width:38px;
+		background-position:3px;
+		text-indent: 100px;
+		font-size: 0px;
+		overflow: hidden;
+	}
+
+	.sideTableRight .MPBigButton, .sideTableLeft .MPBigButton {
+		margin-right:0px;
+	}
+	
+	.sideTableLeft .bigButton {
+		float:right;
+	}
+
+	#contentRight .sideTableLeft {
+		width:60px;
+		margin-left:-70px;
+	}
+
+	#contentLeft .sideTableRight {
+		width:60px;
+		margin-right:-70px;
+	}
+	
+	.sideTableRight .buttonSettings {
+		margin-right:-10px;
+	}
+}
+
+.SpellbookContainer {
+	margin-right:160px;
+}
+
+.SpellbookSpell {
+	width:33%;float:left;
+}
+
+.DesktopCol {
+	float:right;
+	width:33.3333%;
+}
+
+.sideTableMobileButton {
+	display:none;
+}
+
+@media only screen and (max-width: 1000px) {
+	.sideTableMobileButton {
+		display:block;
+	}
+	
+	#wrapperTableTd1 {
+		width:100%;
+		position:absolute;
+		top:0;
+		left:0;
+		z-index: 100;
+		background-color: white;
+		
+	}
+	
+	#wrapperTableTd2 {
+		width:100%;
+		float:none;
+	}
+	
+	#contentLeft table {
+		/*width:100%;*/
+	}
+	
+	#contentLeft .sideTableRight {
+		display:none;
+		margin-right:0px;
+		position:absolute;
+		width:100%;
+		background-color:white;
+		top:50px;
+	}
+	
+	#contentRight .sideTableLeft {
+		display:none;
+		margin-left:0px;
+		position:absolute;
+		width:100%;
+		background-color:white;
+		top:0px;
+	}
+	
+	#contentLeft, #contentRight {
+		width:100%;
+	}
+	
+	#contentLeft .Tab, #contentLeft .lightTab {
+		margin-right:0;
+	}
+	
+	#footer {
+		display:none;
+	}
+	
+	#navigation {
+		/*display:none;*/
+		height:56px;
+	}
+	
+	#navTabsWrapper {
+		/*display:none;*/
+		height:56px;
+	}
+	
+	.navTab {
+		display:none;
+	}
+	
+	#busyBox {
+		height:50px;
+		margin-top:-30px;
+		margin-left:-12px;
+	}
+	
+	#wrapper {
+		padding-bottom:0;
+	}
+	
+	#SpellbookMenuEntry {
+		display:block;
+	}
+	
+	#SpellbookSortTabs, .SpellbookMinPlugin, .SpellbookUsePlugin, .SpellbookDescription {
+		display:none;
+	}
+
+	.SpellbookContainer {
+		margin-right:0px;
+	}
+	
+	.SpellbookSpell {
+		width:100%;
+		float:none;
+	}
+
+	.DesktopCol {
+		float:none;
+		width:100%;
+	}
+
+	.DesktopCol2, .DesktopCol3 {
+		display:none;
+	}
+}

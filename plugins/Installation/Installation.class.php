@@ -20,6 +20,25 @@
 class Installation extends PersistentObject {
 	private $folder = "./system/DBData/";
 	
+	public static function getDBFolder($folder = null){
+		$external = false;
+		
+		if(file_exists(Util::getRootPath()."../../phynxConfig")){
+			$folder = Util::getRootPath()."../../phynxConfig/";
+			$external = true;
+		}
+		
+		if(file_exists(Util::getRootPath()."../phynxConfig")){
+			$folder = Util::getRootPath()."../phynxConfig/";
+			$external = true;
+		}
+		
+		if($folder == null)
+			$folder = Util::getRootPath()."system/DBData/";
+		
+		return array($folder, $external);
+	}
+	
 	public function getA(){
 		if($this->A == null) $this->loadMe();
 		return $this->A;
@@ -77,6 +96,9 @@ class Installation extends PersistentObject {
 	function makeNewInstallation(){
 		if(trim($_SERVER["HTTP_HOST"]) == "")
 			return;
+		
+		#$e = new Exception();
+		#file_put_contents("/var/www/phynxConfig/log.txt", file_get_contents("/var/www/phynxConfig/log.txt")."\n\n".$e->getTraceAsString());
 		
 		$this->A = $this->newAttributes();
 		$this->A->httpHost = $_SERVER["HTTP_HOST"];

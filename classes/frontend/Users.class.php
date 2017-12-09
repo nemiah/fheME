@@ -76,7 +76,10 @@ class Users extends anyC {
 		$user = $this->getAppServerUser($username, !$isSHA ? sha1($password) : $password);
 		if($user != null)
 			return $user;
-
+		
+		if(class_exists("ZLog", false))
+			ZLog::Write(LOGLEVEL_DEBUG, "lcrm (".__LINE__.")::Logon():No appserver user! SHA? ".($isSHA ? "yes" : "no")."; $username");
+		
 		$user = LoginAD::getUser($username, $password);
 		if($user != null)
 			return $user;
@@ -147,7 +150,10 @@ class Users extends anyC {
 					return $U;
 				}
 			}
-		} catch (Exception $e){}
+		} catch (Exception $e){
+			if(class_exists("ZLog", false))
+				ZLog::Write(LOGLEVEL_WARN, "lcrm (".__LINE__.")::Logon():Exception: ".get_class($e).": ".$e->getMessage());
+		}
 
 		return null;
 	}
@@ -188,13 +194,18 @@ class Users extends anyC {
 			parse_str($ps, $p);
 		else 
 			$p = $ps;
-		#if($p["loginPassword"] == ";;;-1;;;") return 0;
 
 		$this->doLogout();
+		
+		$_SESSION["DBData"] = $_SESSION["S"]->getDBData(null, isset($p["loginMandant"]) ? $p["loginMandant"] : null);
 
-		$_SESSION["DBData"] = $_SESSION["S"]->getDBData();
-
+		
 		try {
+			if(isset($p["loginMandant"]) AND file_exists(Util::getRootPath()."plugins/multiInstall/plugin.xml")){
+				$DB = new DBStorage();
+				$DB->renewConnection();
+			}
+		
 			$U = $this->getUser($p["loginUsername"], $p["loginSHAPassword"], $p["loginPWEncrypted"]);
 			if($U === null) return 0;
 
@@ -227,7 +238,7 @@ class Users extends anyC {
 				$UA->password = "Admin";
 				if($p["loginSprache"] != "default")
 					$UA->language = $p["loginSprache"];
-				
+				$UA->isInstall = true;
 				$UA->isAdmin = 1;
 				$U = new User(-1);
 				$U->setA($UA);
@@ -267,6 +278,26 @@ class Users extends anyC {
 		return $users;
 	}
 
+	public function changePassword($username, $oldPassword, $newPassword1, $newPassword2){
+		if($newPassword1 == sha1("") OR $newPassword2 == sha1(""))
+			Red::errorD ("Bitte geben Sie neue Passwörter ein");
+		
+		if($newPassword1 != $newPassword2)
+			Red::errorD ("Die Passwörter stimmen nicht überein");
+		
+		$U = $this->getUser($username, $oldPassword, true);
+		if(!$U)
+			Red::errorD ("Benutzer unbekannt");
+		
+		if($U->A("isAdmin"))
+			Red::errorD ("Benutzer unbekannt");
+		
+		$U->changeA("SHApassword", $newPassword1);
+		$U->saveMe(false, false, false);
+		
+		Red::messageD("Passwort geändert!");
+	}
+	
 	public function lostPassword($username){
 		// <editor-fold defaultstate="collapsed" desc="Aspect:jP">
 		try {
@@ -276,13 +307,11 @@ class Users extends anyC {
 		Aspect::joinPoint("before", $this, __METHOD__, $MArgs);
 		// </editor-fold>
 
-		if($username == "") Red::errorC("User", "lostPasswordErrorUser");
+		if($username == "") 
+			Red::errorC("User", "lostPasswordErrorUser");
 
-		$Lang = $this->loadLanguageClass("User")->getText();
 
-		$ac = new anyC();
-		$ac->setCollectionOf("User");
-		$ac->addAssocV3("username", "=", $username);
+		$ac = anyC::get("User", "username", $username);
 		$ac->lCV3();
 
 		$U = $ac->getNextEntry();

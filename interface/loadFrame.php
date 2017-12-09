@@ -58,6 +58,13 @@ if(!PMReflector::implementsInterface($n,"iGUIHTMLMP2")
 try {
 	ob_start();
 	Timer::now("init", __FILE__, __LINE__);
+	
+	if(method_exists($b, "appendable"))
+		$b->appendable(isset($_GET["appendable"]) ? $_GET["appendable"] : false);
+	
+	if(method_exists($b, "targetFrame"))
+		$b->targetFrame(isset($_GET["frame"]) ? $_GET["frame"] : null);
+	
 	echo $b->getHTML((isset($_GET["id"]) ? $_GET["id"] : "-1"), isset($_GET["page"]) ? $_GET["page"] : 0, isset($_GET["frame"]) ? $_GET["frame"] : null);
 	Timer::now("done", __FILE__, __LINE__);
 	

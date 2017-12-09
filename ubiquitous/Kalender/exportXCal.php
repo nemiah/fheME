@@ -29,6 +29,8 @@ $E->addClassPath($absolutePathToPhynx . "/ubiquitous/xCal/");
 $E->addClassPath($absolutePathToPhynx . "/ubiquitous/Sync/");
 $E->addClassPath($absolutePathToPhynx . "/ubiquitous/Todo/");
 $E->addClassPath($absolutePathToPhynx . "/ubiquitous/Kalender/");
+$E->loadPlugin("lightCRM", "Mail", true);
+#$E->addClassPath($absolutePathToPhynx . "/lightCRM/Mail/");
 
 $E->useDefaultMySQLData();
 
@@ -59,7 +61,7 @@ if(isset($_GET["auth_token"])){
 		die("incorrect login information");
 	
 	$user = mSync::getUserByToken($userToken);
-	$E->login($user->A("username"), $user->A("SHApassword"));
+	$E->login($user->A("username"), $user->A("SHApassword"), true);
 }
 else 
 	$E->login($_GET["username"], $_GET["password"]);
@@ -69,6 +71,12 @@ else
 $calendar = mTodoGUI::getCalendarData($cutoffDatePast, $cutoffDateFuture);
 $events = array();
 foreach ($calendar->getEventsList() as $calendarEvent) {
+	if(isset($_GET["filter"]) AND $_GET["filter"] != ""){
+		$ex = explode(",", $_GET["filter"]);
+		if(!in_array($calendarEvent->title(), $ex))
+			continue;
+	}
+		
 	$events[] = $calendarEvent->toXCal();
 }
 echo xCalUtil::getXCal($events);

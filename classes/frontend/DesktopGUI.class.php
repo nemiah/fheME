@@ -32,9 +32,9 @@ class DesktopGUI extends UnpersistentClass implements iGUIHTML2 {
 			
 			if($id == "1")
 				return "
-					<div style=\"float:right;width:33.3333%;\"><div id=\"desktopRight\" style=\"padding:10px;\">".$c->getHTML($id)."</div></div>
-					<div style=\"float:right;width:33.3333%;\"><div id=\"desktopMiddle\" style=\"padding:10px;width:90%;margin:auto;\"></div></div>
-					<div style=\"float:right;width:33.3333%;\"><div id=\"desktopLeft\" style=\"padding:10px;\"></div></div>
+					<div class=\"DesktopCol\"><div id=\"desktopRight\" style=\"padding:10px;\">".$c->getHTML($id)."</div></div>
+					<div class=\"DesktopCol DesktopCol2\"><div id=\"desktopMiddle\" style=\"padding:10px;width:90%;margin:auto;\"></div></div>
+					<div class=\"DesktopCol DesktopCol3\"><div id=\"desktopLeft\" style=\"padding:10px;\"></div></div>
 					".OnEvent::script(OnEvent::frame("desktopLeft", "Desktop", "2").OnEvent::frame("desktopMiddle", "Desktop", "3"))."<div style=\"clear:both;\"></div>";
 			
 			return $c->getHTML($id);

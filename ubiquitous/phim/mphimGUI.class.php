@@ -75,6 +75,9 @@ class mphimGUI extends anyC implements iGUIHTMLMP2 {
 		$B = $gui->addSideButton("Config-Datei", "new");
 		$B->windowRme("mphim", "-1", "getConfigFile");
 		
+		$B = $gui->addSideButton("Einstellungen", "system");
+		$B->popup("", "Einstellungen", "mphim", "-1", "settingsPopup");
+		
 		$users = self::$users = Users::getUsersArray("Alle", true);
 
 		$T = new HTMLTable(1, "Konversation mit");
@@ -108,6 +111,29 @@ class mphimGUI extends anyC implements iGUIHTMLMP2 {
 		$gui->addSideRow($TG);
 		
 		return $gui->getBrowserHTML($id);
+	}
+	
+	public function settingsPopup(){
+		$F = new HTMLForm("settings", array("autostart"));
+		$F->getTable()->setColWidth(1, 120);
+		$F->useRecentlyChanged();
+		
+		$F->setValue("autostart", mUserdata::getUDValueS("phimAutostart", "0"));
+		$F->setType("autostart", "checkbox");
+		
+		$F->setSaveRMEPCR("Speichern", "", "mphim", "-1", "settingsSave", OnEvent::closePopup("mphim"));
+		
+		echo $F;
+	}
+	
+	public function settingsSave($autostart){
+		mUserdata::setUserdataS("phimAutostart", $autostart);
+		
+		Red::messageSaved();
+	}
+	
+	public function testAutostart(){
+		echo mUserdata::getUDValueS("phimAutostart", "0");
 	}
 	
 	public function getConfigFile(){

@@ -6,6 +6,7 @@
 html {
 	overflow-y: scroll;
 	-webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+	height:100%;
 }
 
 @font-face { 
@@ -240,6 +241,7 @@ html {
 body {
 	font-size:0.8em;
 	font-family:sans-serif;
+	height:100%;
 }
 
 a:hover {
@@ -466,11 +468,16 @@ label {
 
 
 #footer {
-	font-size:0.75em;
-	height:30px;
+	font-size:1em;
 	text-align:right;
-	padding-top:5px;
-	clear:both;
+	padding:10px;
+	clear:both;	
+	background:#ffab62;
+	width:calc(100% - 20px);
+	height:50px;
+	position:absolute;
+	bottom:0;
+	left:0;
 	/*background-image: linear-gradient(#AAAAAA 0%, rgba(170, 170, 170, 0) 4px);*/
 }
 
@@ -648,9 +655,11 @@ div + .Tab {
 	margin-top:0px;
 	margin-bottom:0px;
 	margin-left:-170px;
+	float:left;
 }
 
 #contentLeft .sideTableRight {
+	float:right;
 	width:160px;
 	margin-left:0px;
 	margin-top:0px;
@@ -661,38 +670,6 @@ div + .Tab {
 .sideTableRight .buttonSettings {
 	float:right;
 	margin-right:-22px;
-}
-
-@media only screen and (max-width: 1200px) and (min-width: 1000px) {
-	.sideTableRight .bigButton, .sideTableLeft .bigButton {
-		width:38px;
-		background-position:3px;
-		text-indent: 100px;
-		font-size: 0px;
-		overflow: hidden;
-	}
-
-	.sideTableRight .MPBigButton, .sideTableLeft .MPBigButton {
-		margin-right:0px;
-	}
-	
-	.sideTableLeft .bigButton {
-		float:right;
-	}
-
-	#contentRight .sideTableLeft {
-		width:60px;
-		margin-left:-70px;
-	}
-
-	#contentLeft .sideTableRight {
-		width:60px;
-		margin-right:-70px;
-	}
-	
-	.sideTableRight .buttonSettings {
-		margin-right:-10px;
-	}
 }
 
 .FormSeparatorWithLabel td {
@@ -889,6 +866,10 @@ input[type=button][name=currentSaveButton], input[type=button][name=submitForm] 
 .ui-widget-content .ui-state-focus {
 	border: 1px solid transparent;
 	background-image: none;
+}
+
+.ui-button {
+	width:auto !important;
 }
 
 .tableWeightLightColored {

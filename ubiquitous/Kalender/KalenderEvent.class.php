@@ -39,7 +39,9 @@ class KalenderEvent extends KalenderEntry {
 	private $currentWhen;
 	private $owner;
 	private $topButtons = array();
-	
+	private $isRepeatable;
+	private $isMovable;
+	private $isCloneable;
 	private $status = 0; //see TodoGUI::getStatus
 	
 	function __construct($className, $classID, $day, $time, $title) {
@@ -184,34 +186,40 @@ class KalenderEvent extends KalenderEntry {
 				break;
 				
 				case "weekly":
-					#echo Util::CLDateParser($firstDay)."<br />";
-					#echo $this->repeatInterval;
-					/*$weekDay = date("w", $pDay);
-					$D = new Datum($firstDay > $startDay ? $firstDay : $startDay);
-					while($D->time() <= $endDay){
-						if(date("w", $D->time()) == $weekDay)
-							break;
-						
-						$D->addDay();
-					}*/
-					#$weekDay = date("w", $pDay);
+					#echo $this->title().":<br>";
+					#echo "Event first day: ".Util::CLDateParser($firstDay)."<br>";
+					#echo "Display start day: ".Util::CLDateParser($startDay)."<br>";
+					#echo "display end day: ".Util::CLDateParser($endDay)."<br>";
+					#echo "Event interval: ".($this->repeatInterval + 1)."<br>";
+
 					$D = new Datum($firstDay);
 					while($D->time() <= $endDay){
-						
-						if($D->time() >= $startDay AND $this->weeks(Kalender::parseDay($this->day), $D->time()) % ($this->repeatInterval + 1) == 0)
+						#echo $this->weeks($firstDay, $D->time())."<br>";
+						if(
+							$D->time() >= $startDay 
+							AND 
+							$this->weeks($firstDay, $D->time()) % ($this->repeatInterval + 1) == 0
+						)
 							break;
 						
 						$D->addWeek(true);
+						#if($this->weeks($firstDay, $D->time()) % ($this->repeatInterval + 1) == 0)
+						#	echo "!";
+						#$D->printer();
 					}
 					#$D->printer();
-					$D->subWeek();
+					
+					#echo "------<br>";
+					
+					$D->subWeek(true);
+					#$D->printer();
 					#if($startDay < $firstDay)
 					#	$D = new Datum ($firstDay);
 					#$counter = floor(($D->time() - $firstDay) / (3600 * 24 * 7));
 					#echo $counter."<br />";
 					while($D->time() <= $endDay){
 						
-						if($this->repeatUntil > 0  AND $D->time() > $this->repeatUntil)
+						if($this->repeatUntil > 0  AND $D->time() >= $this->repeatUntil)
 							break;
 						
 						$D->addWeek(true);
@@ -222,7 +230,7 @@ class KalenderEvent extends KalenderEntry {
 						}
 						
 						
-						if($this->weeks(Kalender::parseDay($this->day), $D->time()) % ($this->repeatInterval + 1) != 0){
+						if($this->weeks($firstDay, $D->time()) % ($this->repeatInterval + 1) != 0){
 							#$counter++;
 							continue;
 						}
@@ -239,6 +247,7 @@ class KalenderEvent extends KalenderEntry {
 						$W->time = $this->time;
 						$when[] = $W;
 					}
+					#echo "END;<br><br>";
 				break;
 				
 				case "monthly":
@@ -379,7 +388,7 @@ class KalenderEvent extends KalenderEntry {
 		$first = new DateTime("@".$date1);
 		$second = new DateTime("@".$date2);
 		
-		return floor($first->diff($second)->days / 7);
+		return round($first->diff($second)->days / 7);
 	}
 	
 	private function isNth($nth, $time){
@@ -434,7 +443,14 @@ class KalenderEvent extends KalenderEntry {
 	
 	function repeatable($callMethod){
 		$this->isRepeatable = $callMethod;
-		
+	}
+	
+	function movable($callMethod){
+		$this->isMovable = $callMethod;
+	}
+	
+	function cloneable($callMethod){
+		$this->isCloneable = $callMethod;
 	}
 
 	public static $multiDayColors = array();
@@ -615,6 +631,9 @@ class KalenderEvent extends KalenderEntry {
 	}
 
 	function getInfo($time){
+		if($time == null)
+			$time = Kalender::parseDay($this->day);
+		
 		$BE = "";
 		$BD = "";
 		$BDS = "";
@@ -740,7 +759,7 @@ class KalenderEvent extends KalenderEntry {
 			$zeit = "";
 		
 		return "
-			<div title=\"".strip_tags($this->title)."\" onclick=\"$onClick\" style=\"".($this->status == 2 ? "color:grey;" : "")."white-space:nowrap;overflow:hidden;height:13px;/*width:60px;*/clear:left;padding:2px;padding-left:4px;cursor:pointer;".($grey ? "color:grey;" : "")."\">
+			<div class=\"".($this->isMovable ? "movable" : "")."\" data-clonecallback=\"".str_replace("GUI", "", $this->ownerClass())."::".$this->isCloneable."\" data-movecallback=\"".str_replace("GUI", "", $this->ownerClass())."::".$this->isMovable."\" data-id=\"".$this->ownerClassID()."\" title=\"".strip_tags($this->title)."\" onclick=\"$onClick\" style=\"".($this->status == 2 ? "color:grey;" : "")."white-space:nowrap;overflow:hidden;height:13px;/*width:60px;*/clear:left;padding:2px;padding-left:4px;cursor:pointer;".($grey ? "color:grey;" : "")."\">
 				<small>".(($grey AND isset(mKalenderGUI::$colors[$this->owner])) ? "<div style=\"display:inline-block;margin-right:3px;width:5px;background-color:".mKalenderGUI::$colors[$this->owner].";\">&nbsp;</div>" : "")."$zeit $this->title</small>
 			</div>";
 	}

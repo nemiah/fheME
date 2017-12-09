@@ -847,13 +847,13 @@ ZWE    ZW    Simbabwe";
 	public static function getCountryToCode($code, $lang = "de", $length = 2){
 		$countries = self::getCountries($lang, $length);
 
-		return $countries[$code];
+		return $countries[trim($code)];
 	}
 
 	public static function getCodeToCountry($country, $lang = "de", $length = 2){
 		$countries = self::getCountries($lang, $length);
 
-		return array_search($country, $countries);
+		return array_search(trim($country), $countries);
 	}
 	
 	public static function getCode3ForCode2($code){

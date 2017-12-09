@@ -27,7 +27,7 @@ class CRMHTMLGUI extends HTMLGUIX {
 
 	private $functionDelete = "deleteClass('%CLASSNAME','%CLASSID', function() { contentManager.reloadFrame('contentRight'); contentManager.emptyFrame('contentLeft'); /*ADD*/ },'Eintrag löschen?');";
 	private $functionSave = "function(transport) { contentManager.setLeftFrame('%CLASSNAME', %CLASSID); contentManager.reloadFrame('contentLeft'); contentManager.updateLine('%CLASSNAMEForm', %CLASSID, 'm%CLASSNAME'); }";
-	private $functionSaveNew = "function(transport) { contentManager.reloadFrame('contentRight'); contentManager.loadFrame('contentLeft', '%CLASSNAME', transport.responseText); }";
+	private $functionSaveNew = "function(transport) { contentManager.reloadFrame('contentRight'); contentManager.loadFrame('contentLeft', '%CLASSNAME', transport.responseData ? transport.responseData.ID : transport.responseText); }";
 	private $functionAbort = "contentManager.restoreFrame('contentLeft','lastPage', true);";
 	private $functionEdit = "contentManager.backupFrame('contentLeft','lastPage', true); contentManager.loadFrame('contentLeft','%CLASSNAME','%CLASSID','','%CLASSNAMEGUI;edit:ok');";
 
@@ -168,6 +168,9 @@ class CRMHTMLGUI extends HTMLGUIX {
 		foreach($this->descriptionsField AS $n => $l)
 			$tab->setDescriptionField($n, T::_($l));
 		
+		foreach($this->fieldEvents AS $k => $v)
+			$tab->addJSEvent($v[0], $v[1], $v[2]);
+		
 		$tab->setValues($this->object);
 
 		if($this->object->getID() == -1)
@@ -199,7 +202,7 @@ class CRMHTMLGUI extends HTMLGUIX {
 
 		$tab = new HTMLTable(2);
 
-		$tab->setTableStyle("width:$widths[0]px;margin-left:10px;");
+		$tab->setTableStyle("width:$widths[0]px;max-width:$widths[0]px;margin-left:10px;");
 		$tab->setColWidth(1, "50%");
 		$tab->setColWidth(2, "50%");
 
@@ -285,7 +288,7 @@ class CRMHTMLGUI extends HTMLGUIX {
 		}
 		
 		$row[] = $TC;
-
+		
 		if(count($row) == 1)
 			$row[] = "";
 		

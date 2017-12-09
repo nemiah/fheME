@@ -308,6 +308,10 @@ class htmlMimeMail5 {
 			$this->smtp_params['pass'] = $pass;
 	}
 
+	public function getSMTPParams(){
+		return $this->smtp_params;
+	}
+	
 	/**
 	 * Sets sendmail path and options (optionally) (when directly piping to sendmail)
 	 * 
@@ -973,7 +977,8 @@ class htmlMimeMail5 {
 				if (isset($this->return_path)) {
 					$send_params['from'] = $this->return_path;
 				} elseif (!empty($this->headers['From'])) {
-					$from = Mail_RFC822::parseAddressList($this->headers['From']);
+					$Mail_RFC822 = new Mail_RFC822();
+					$from = $Mail_RFC822->parseAddressList($this->headers['From']);
 					$send_params['from'] = sprintf('%s@%s', $from[0]->mailbox, $from[0]->host);
 				} else {
 					$send_params['from'] = 'postmaster@' . $this->smtp_params['helo'];

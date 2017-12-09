@@ -17,6 +17,9 @@
  *
  *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
+if(!file_exists("/var/www/status/cron_".gethostname()))
+	die("Status file missing!");
+
 ini_set('default_socket_timeout', 7);
 
 if(file_exists("/var/www/status/cron_".gethostname())){
@@ -101,7 +104,7 @@ foreach($zugaenge AS $zugang){
 	
 	if($lastDir == FileStorage::getFilesDir()){
 		syslog(LOG_ERR, "Changing cloud failed! Test 2");
-		throw new Exception("Changing cloud failed 2 ($lastZugang > $zugang)!");
+		throw new Exception("Changing cloud failed 2 ($lastZugang($lastDir) > $zugang(".FileStorage::getFilesDir().")!");
 	}
 	
 	$e->addClassPath(FileStorage::getFilesDir());

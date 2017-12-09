@@ -63,6 +63,9 @@ class LoginAD extends Collection {
 		if($LD == null)
 			return null;
 		
+		if(trim($LD->A("server")) == "")
+			return null;
+		
 		$adServer = "ldap://".$LD->A("server");
 		$ex = explode("@", $LD->A("benutzername"));
 		if($username == null)
@@ -99,14 +102,34 @@ class LoginAD extends Collection {
 			
 			$LD = LoginData::get("ADServerUserPass");
 			$result = ldap_search($ldap, $LD->A("optionen"), "(&(objectCategory=person)(samaccountname=*))");
-
+			#echo $LD->A("optionen2");
 			if(function_exists("ldap_sort"))
 				ldap_sort($ldap, $result, "sn");
 			$info = ldap_get_entries($ldap, $result);
-
+			#echo "<pre>";
+			#print_r($info);
+			#echo "</pre>";
 			foreach($info AS $user){
 				if(!isset($user["samaccountname"]))
 					continue;
+				
+				if($LD->A("optionen2") != "" AND isset($user["memberof"])){
+					$inGroup = false;
+					foreach($user["memberof"] AS $k => $v){
+						if(!is_numeric($k))
+							continue;
+						
+						if($v == $LD->A("optionen2"))
+							break;
+					}
+					
+					if(!$inGroup)
+						continue;
+				}
+				
+				#echo "<pre>";
+				#print_r($user["memberof"]);
+				#echo "</pre>";
 				
 				$R = self::getADEntry($user);
 				

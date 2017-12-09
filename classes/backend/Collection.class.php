@@ -503,7 +503,9 @@ abstract class Collection {
 			return "m".$this->collectionOf;
 			
 		$n = get_class($this);
-		if(strstr($n,"GUI")) $n = get_parent_class($this);
+		if(strstr($n,"GUI")) 
+			$n = get_parent_class($this);
+		
 		return $n;
 	}
 
@@ -587,8 +589,10 @@ abstract class Collection {
 			$entriesPerPage = $mU->getUDValue("entriesPerPage$c");
 			if($entriesPerPage == null) $entriesPerPage = 20;
 		}
+		if($page == "")
+			$page = 0;
 		$num = $this->getAffectedRows($id);
-		$this->setLimitV3($page * $entriesPerPage.",".$entriesPerPage);
+		$this->setLimitV3(($page * $entriesPerPage).",".$entriesPerPage);
 		
 		if(PMReflector::implementsInterface(get_class($this),"iOrderByField")){
 			$sort = new mUserdata();
@@ -638,11 +642,15 @@ abstract class Collection {
 		$this->addDataType("anyField","I");
 		$this->addDataType("totalNum","I");
 		$this->lCV3();
+		
 		$e = $this->getNextEntry();
 		$this->resetPointer();
 		$this->collector = null;
 		$this->Adapter->newSelectStatement();
-		if($e == null) return 0;
+		
+		if($e == null) 
+			return 0;
+		
 		return $e->getA()->totalNum;
 	}
 	
@@ -694,11 +702,20 @@ abstract class Collection {
 		}
 		$this->isFiltered = $fC;
 
+		if(!PMReflector::implementsInterface(get_class($this),"iSearchFilterMulti") AND !PMReflector::implementsInterface(get_class($this),"iSearchFilter"))
+			return $fC;
+		
+		
+		$K = mUserdata::getUDValueS("searchFilterMulti".$this->getClearClass(), "");
+		if($K != ""){
+			$this->searchFilterMulti(explode(";;", trim($K, ";")));
+			$this->isFiltered = true;
+			$fC = true;
+		}
+		
 		if(!PMReflector::implementsInterface(get_class($this),"iSearchFilter"))
 			return $fC;
 		
-		$mU = new mUserdata();
-
 		$K = mUserdata::getUDValueS("searchFilterInHTMLGUI".$this->getClearClass());
 		$F = $this->getSearchedFields();
 		
@@ -707,9 +724,14 @@ abstract class Collection {
 		 
 		foreach($F as $k => $v)
 			$this->addAssocV3("$v","LIKE",'%'.$K.'%',($k == 0 ? "AND" : "OR"),"sfs");
-			
+		
 		$this->isFiltered = true;
+		
 		return true;
+	}
+	
+	public function searchFilterMulti(array $query){
+		
 	}
 	
 	/**

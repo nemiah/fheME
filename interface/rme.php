@@ -69,6 +69,7 @@ if(
 	AND $cla != "Support"
 	AND $cla != "nicEdit"
 	AND $cla != "Telefonanlage"
+	AND $cla != "NextcloudUser"
 	AND $met != "doLogin"
 	AND $met != "createMyTable"
 	AND $met != "checkMyTables"

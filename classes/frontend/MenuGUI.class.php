@@ -57,9 +57,9 @@ class MenuGUI extends UnpersistentClass implements iGUIHTML2, icontextMenu {
 		
 		if($appIco != "") {
 			if(count($_SESSION["applications"]->getApplicationsList()) > 1 AND !$_SESSION["S"]->isAltUser())
-				echo "<img src=\"$appIco\" style=\"margin-left:10px;float:left;\" alt=\"Abmelden/Anwendung wechseln\" title=\"Abmelden/Anwendung wechseln\" onclick=\"".Environment::getS("onLogout", "phynxContextMenu.start(this, 'Menu','1','Anwendung wechseln:','right');")."\" />";
+				echo "<img src=\"$appIco\" id=\"appLogo\" style=\"margin-left:10px;float:left;\" alt=\"Abmelden/Anwendung wechseln\" title=\"Abmelden/Anwendung wechseln\" onclick=\"".Environment::getS("onLogout", "phynxContextMenu.start(this, 'Menu','1','Anwendung wechseln:','right');")."\" />";
 			else
-				echo "<img src=\"$appIco\" style=\"margin-left:10px;float:left;\" alt=\"Abmelden\" title=\"Abmelden\" onclick=\"".Environment::getS("onLogout", "userControl.doLogout();")."\" />";
+				echo "<img src=\"$appIco\" id=\"appLogo\" style=\"margin-left:10px;float:left;\" alt=\"Abmelden\" title=\"Abmelden\" onclick=\"".Environment::getS("onLogout", "userControl.doLogout();")."\" />";
 		}
 		
 
@@ -68,7 +68,7 @@ class MenuGUI extends UnpersistentClass implements iGUIHTML2, icontextMenu {
 			$bigWorld = true;
 		
 		if(!$_SESSION["S"]->isUserAdmin()) {
-			$userHiddenPlugins = mUserdata::getHiddenPlugins();
+			$userHiddenPlugins = mUserdata::getHiddenPlugins(true);
 			
 			$U = new mUserdata();
 			$U->addAssocV3("typ","=","TTP");
@@ -110,11 +110,14 @@ class MenuGUI extends UnpersistentClass implements iGUIHTML2, icontextMenu {
 		$collapsedTabs = Environment::getS("collapsedTabs", "0") == "1";
 		
 		foreach($es as $key => $value) {
-			if(isset($userHiddenPlugins[$value])) continue;
-			$single = $_SESSION["CurrentAppPlugins"]->isCollectionOfFlip($value);
-			$anyC = new anyC();
-			$text = $anyC->loadLanguageClass($single);
-			if($text != null AND $text->getMenuEntry() != "") $key = $text->getMenuEntry();
+			if(isset($userHiddenPlugins[$value])) 
+				continue;
+
+			T::load(Util::getRootPath().Applications::activeApplication().DIRECTORY_SEPARATOR.AppPlugins::i()->getFolderOfPlugin($value), $value);
+			#$single = $_SESSION["CurrentAppPlugins"]->isCollectionOfFlip($value);
+			#$anyC = new anyC();
+			#$text = $anyC->loadLanguageClass($single);
+			#if($text != null AND $text->getMenuEntry() != "") $key = $text->getMenuEntry();
 			
 			$t =  !$_SESSION["S"]->isUserAdmin() ? $U->getUDValueCached("ToggleTab$value") : "big";
 
@@ -123,7 +126,8 @@ class MenuGUI extends UnpersistentClass implements iGUIHTML2, icontextMenu {
 
 			$key = Aspect::joinPoint("renameTab", $this, __METHOD__, array($key), $key);
 			
-			if(isset($_COOKIE["phynx_layout"]) AND ($_COOKIE["phynx_layout"] == "vertical" OR $_COOKIE["phynx_layout"] == "desktop")) $t = "big";
+			if(isset($_COOKIE["phynx_layout"]) AND ($_COOKIE["phynx_layout"] == "vertical" OR $_COOKIE["phynx_layout"] == "desktop"))
+				$t = "big";
 
 			#$emptyFrame = "contentLeft";
 			#if(isset($ts[$value]) AND $ts[$value] == "contentLeft") $emptyFrame = "contentRight";
@@ -131,7 +135,7 @@ class MenuGUI extends UnpersistentClass implements iGUIHTML2, icontextMenu {
 			#$onclick = "contentManager.emptyFrame('contentLeft'); contentManager.emptyFrame('contentRight'); contentManager.emptyFrame('contentScreen'); contentManager.loadFrame('".(isset($ts[$value]) ? $ts[$value] : "contentRight")."', '$value', -1, 0, '{$value}GUI;-');$('windows').update('');";
 			$onclick = "contentManager.loadPlugin('".(isset($ts[$value]) ? $ts[$value] : "contentRight")."', '$value', '{$value}GUI;-');";
 			
-			$B = new Button($key,$icons[$value]);
+			$B = new Button(T::_($key),$icons[$value]);
 			$B->type("icon");
 			$B->style("float:left;margin-right:10px;");
 
@@ -150,7 +154,7 @@ class MenuGUI extends UnpersistentClass implements iGUIHTML2, icontextMenu {
 				<div
 					onclick=\"appMenu.hide(); $onclick\"
 				>
-				$B<p>$key</p>
+				$B<p>".T::_($key)."</p>
 				</div>
 			</li>";
 
@@ -163,37 +167,30 @@ class MenuGUI extends UnpersistentClass implements iGUIHTML2, icontextMenu {
 
 			$style = ((strpos($appMenuHidden, $value) !== false AND $appMenuActive) ? "style=\"display:none;\"" : "");
 
-			$BP = new Button($key, $icons[$value], "icon");
+			$BP = new Button(T::_($key), $icons[$value], "icon");
 			$BP->id($value."MenuImage");
 			if(($t == null OR $t == "big"))
 				$BP->className ("tabImg");
 			else
 				$BP->className ("smallTabImg");
-				
+			$BP->style("width:32px;height:32px;");
+			
+			$hideClass = "";
+			if(Session::isUserAdminS() AND Session::isInstallation() AND $value != "mInstallation")
+				$hideClass = " installHiddenTab";
+			
+			
 			echo "
 				
 				<div
 					id=\"".$value."MenuEntry\"
-					class=\"navBackgroundColor navBorderColor ".(($t == null OR $t == "big") ? "" : " smallTab")." navTab\"
+					class=\"navBackgroundColor navBorderColor ".(($t == null OR $t == "big") ? "" : " smallTab")." navTab$hideClass\"
 					$style
 					>
-					<!--<img
-						style=\"margin-top:-28px;float:left;\"
-						id=\"".$value."TabMinimizer\"
-						class=\"navTabMinimizer\"
-						title=\"Tab $key vergrößern/verkleinern\"
-						onclick=\"toggleTab('$value');\"
-						src=\"./images/i2/tabMinimize.png\" />-->
 					
 					<div onclick=\"$onclick\" style=\"padding:3px;padding-right:7px;padding-top:7px;height:18px;\">
 						$BP
-						<!--<img
-							id=\"".$value."MenuImage\"
-							title=\"$key\"
-							".(($t == null OR $t == "big") ? "class=\"tabImg\"" : "class=\"smallTabImg\"")."
-							src=\"$icons[$value]\" />-->
-							
-						".(($t == null OR $t == "big") ? $key : "")."
+						".(($t == null OR $t == "big") ? T::_($key) : "")."
 					</div>
 				</div>";
 		}
@@ -213,7 +210,7 @@ class MenuGUI extends UnpersistentClass implements iGUIHTML2, icontextMenu {
 			$ud = new mUserdata();
 			$al = $ud->getUDValue("noAutoLogout","false");
 			
-			if($al == "true") echo "<script type=\"text/javascript\">contentManager.startAutoLogoutInhibitor();</script>";
+			if($al == "true") echo "<script type=\"text/javascript\">contentManager.startAutoLogoutInhibitor(".(file_exists(Util::getRootPath()."plugins/AppServer/index.php") ? "1" : "0").");</script>";
 		}
 		
 		echo OnEvent::script("contentManager.isAltUser = ".(Session::isAltUserS() ? "true" : "false").";");

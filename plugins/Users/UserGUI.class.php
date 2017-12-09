@@ -45,9 +45,9 @@ class UserGUI extends User implements iGUIHTML2 {
 		$AC->lCV3();
 		$admins = $AC->numLoaded();
 		
-		$AC = anyC::get("User", "isAdmin", "0");
-		$AC->lCV3();
-		$users = $AC->numLoaded();
+		
+		#$AC->lCV3();
+		#$users = $AC->numLoaded();
 		
 		$gui = new HTMLGUIX($this);
 		#$gui->setObject();
@@ -90,10 +90,13 @@ class UserGUI extends User implements iGUIHTML2 {
 		
 		
 		#$gui->translate($this->loadTranslation());
-		$gui->space("UserEmail",isset($this->texts["Kontaktdaten"]) ? $this->texts["Kontaktdaten"] : "Kontaktdaten");
-		$gui->type("isAdmin","checkbox");
-		if($admins == 1 AND $users == 0)
+		$gui->space("UserEmail", isset($this->texts["Kontaktdaten"]) ? $this->texts["Kontaktdaten"] : "Kontaktdaten");
+		
+		$gui->type("isAdmin", "checkbox");
+		$firstUser = anyC::getFirst("User", "isAdmin", "0");
+		if($firstUser === null AND $admins == 1)
 			$gui->type("isAdmin", "hidden");
+		
 		#$gui->setOptions("isAdmin",array("1","0"),array("ja ","nein"));
 		#$gui->setStandardSaveButton($this);
 		

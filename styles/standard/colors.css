@@ -115,8 +115,8 @@ label {
   
 
 body {
-	background-color:#d8d8d8;
-	color:black;
+	/*background-color:#d8d8d8;*/
+	color:#222;
 }
 
 a:link, a:active, a:visited {
@@ -279,15 +279,18 @@ select {
 #contentBelowContent {
 	border-top-color:#DDD;
 	border-top-style:solid;
+	border-bottom-color:#DDD;
+	border-bottom-style:solid;
 	background-color:#EEE;
 }
 
 #footer {
-	color:#888;
+	background-color:#333;
+	color:#999;
 }
 
 #footer a:link, #footer a:visited, #footer a:active {
-	color:#888;
+	color:#999;
 }
 
 /**
@@ -306,6 +309,10 @@ select {
 
 .phynxNoTouch #navTabsWrapper .navTab:not(.theOne):hover {
 	background-color:#9E9EF0;
+}
+
+#navigation {
+	background-color:#d8d8d8;
 }
 
 #navigation div.theOne {

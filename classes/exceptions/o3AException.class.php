@@ -18,7 +18,7 @@
  *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
 class o3AException extends Exception {
-	function __construct($message){
+	function __construct($message = "none"){
 		if(isset($_SESSION["messages"])) $_SESSION["messages"]->addMessage(get_class($this)." thrown!");
 		parent::__construct($message);
 	}

@@ -48,11 +48,7 @@ class TodoGUI extends Todo implements iGUIHTML2 {
 		$this->loadMeOrEmpty();
 		$bps = $this->getMyBPSData();
 		
-		$allowed = array();
-		$ACS = anyC::get("Userdata", "name", "shareCalendarTo".Session::currentUser()->getID());
-		$ACS->addAssocV3("name", "=", "shareCalendarTo0", "OR");
-		while($Share = $ACS->getNextEntry())
-			$allowed[$Share->A("UserID")] = $Share->A("wert");
+		$allowed = $this->getAllowed();
 		
 		if($id == -1) {
 			$this->A->TodoTillDay = Util::CLDateParser(time() + 7 * 24 * 3600);
@@ -153,7 +149,7 @@ class TodoGUI extends Todo implements iGUIHTML2 {
 
 		$gui->type("TodoType","select", TodoGUI::types());
 		
-		$gui->type("TodoRemind","select", array("-1" => "keine Erinnerung", "60" => "1 Minute vorher", "300" => "5 Minuten vorher", "600" => "10 Minuten vorher", "900" => "15 Minuten vorher", "1800" => "30 Minuten vorher", "2700" => "45 Minuten vorher", "3600" => "1 Stunde vorher"));
+		$gui->type("TodoRemind","select", array("-1" => "keine Erinnerung", "60" => "1 Minute vorher", "300" => "5 Minuten vorher", "600" => "10 Minuten vorher", "900" => "15 Minuten vorher", "1800" => "30 Minuten vorher", "2700" => "45 Minuten vorher", "3600" => "1 Stunde vorher", 60 * 60 * 24 => "1 Tag vorher", 60 * 60 * 24 * 7 => "1 Woche vorher"));
 
 		$gui->type("TodoClass","hidden");
 		$gui->type("TodoDescription","textarea");
@@ -187,6 +183,9 @@ class TodoGUI extends Todo implements iGUIHTML2 {
 			
 			$users[$u->getID()] = $u->A("name");			
 		}
+		
+		if(!isset($users[Session::currentUser()->getID()]))
+			$users[Session::currentUser()->getID()] = Session::currentUser()->A("name");
 		
 		$users["-1"] = "Alle";
 
@@ -418,7 +417,7 @@ class TodoGUI extends Todo implements iGUIHTML2 {
 		$t->addColStyle(1, "text-align:right;");
 		$t->addColStyle(1, "width:110px;");
 		
-		#<input class=\"multiEditInput2\" onfocus=\"oldValue = this.value;\" onblur=\"if(oldValue != this.value) saveMultiEditInput('Posten','".$t->getID()."','preis');\" value=\"$ta->preis\" id=\"preisID".$t->getID()."\" type=\"text\" onkeyup=\"updateEKs('".$t->getID()."');\" onkeydown=\"if(event.keyCode == 13) saveMultiEditInput('Posten','".$t->getID()."','preis');\"  />
+		
 		
 		if($teilnehmerID != 0) {
 			$st = $this->getStatus();

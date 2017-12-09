@@ -17,18 +17,7 @@
  * 
  *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
-header("Content-type: text/javascript");
-
-require_once "../libraries/minify/JSMin.php";
-
-$root = realpath(dirname(__FILE__)."/../");
-
-foreach($_GET["path"] AS $path){
-	if(strpos($path, "./javascript/") !== 0 AND strpos($path, "./libraries/") !== 0 AND strpos($path, "./ubiquitous/Wysiwyg/") !== 0)
-		continue;
-	#echo file_get_contents($root."/".$path)."\n\n";
-	echo JSMin::minify(file_get_contents($root."/".$path))."\n\n";
-	
-	#echo $path."\n";
+interface iSearchFilterMulti {
+	public function searchFilterMulti(array $query);
 }
 ?>

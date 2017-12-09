@@ -269,7 +269,7 @@ class Util {
 			case "US":
 				$r .= "{firma}\n";
 				$r .= "{abteilung}\n";
-				$r .= "{position}{vorname}{nachname}{titelSuffix}\n";
+				$r .= "{position}{anredeWM}{titelPrefix}{vorname}{nachname}{titelSuffix}\n";
 				$r .= "{zusatz1}\n";
 				$r .= "{nr}{strasse}\n";
 				$r .= "{zusatz2}\n";
@@ -281,7 +281,7 @@ class Util {
 			case "CH":
 				$r .= "{firma}\n";
 				$r .= "{abteilung}\n";
-				$r .= "{position}{vorname}{nachname}{titelSuffix}\n";
+				$r .= "{position}{anredeWM}{titelPrefix}{vorname}{nachname}{titelSuffix}\n";
 				$r .= "{zusatz1}\n";
 				$r .= "{strasse}{nr}\n";
 				$r .= "{plz}{ort}\n";
@@ -292,7 +292,7 @@ class Util {
 			case "GR":
 				$r .= "{firma}\n";
 				$r .= "{abteilung}\n";
-				$r .= "{position}{vorname}{nachname}{titelSuffix}\n";
+				$r .= "{position}{anredeWM}{titelPrefix}{vorname}{nachname}{titelSuffix}\n";
 				$r .= "{nr}, {strasse}\n";
 				$r .= "{plz}{ort}\n";
 				$r .= "{land}";
@@ -301,7 +301,7 @@ class Util {
 			case "BE":
 				$r .= "{firma}\n";
 				$r .= "{abteilung}\n";
-				$r .= "{position}{vorname}{nachname}{titelSuffix}\n";
+				$r .= "{position}{anredeWM}{titelPrefix}{vorname}{nachname}{titelSuffix}\n";
 				$r .= "{strasse}, {nr}\n";
 				$r .= "{plz}{ort}\n";
 				$r .= "{land}";
@@ -310,7 +310,7 @@ class Util {
 			case "DK":
 				$r .= "{firma}\n";
 				$r .= "{abteilung}\n";
-				$r .= "{position}{vorname}{nachname}{titelSuffix}\n";
+				$r .= "{position}{anredeWM}{titelPrefix}{vorname}{nachname}{titelSuffix}\n";
 				$r .= "{strasse}{nr}\n";
 				$r .= "{bezirk}\n";
 				$r .= "{plz}{ort}\n";
@@ -320,7 +320,7 @@ class Util {
 			case "HU":
 				$r .= "{firma}\n";
 				$r .= "{abteilung}\n";
-				$r .= "{position}{vorname}{nachname}{titelSuffix}\n";
+				$r .= "{position}{anredeWM}{titelPrefix}{vorname}{nachname}{titelSuffix}\n";
 				$r .= "{ort}\n";
 				$r .= "{strasse}{nr}\n";
 				$r .= "{plz}\n";
@@ -331,7 +331,7 @@ class Util {
 			case "HR":
 				$r .= "{firma}\n";
 				$r .= "{abteilung}\n";
-				$r .= "{position}{vorname}{nachname}{titelSuffix}\n";
+				$r .= "{position}{anredeWM}{titelPrefix}{vorname}{nachname}{titelSuffix}\n";
 				$r .= "{strasse}{nr}\n";
 				$r .= "$ISOCountry-{plz}{ort}\n";
 				$r .= "{land}";
@@ -340,7 +340,7 @@ class Util {
 			case "ES":
 				$r .= "{firma}\n";
 				$r .= "{abteilung}\n";
-				$r .= "{position}{vorname}{nachname}{titelSuffix}\n";
+				$r .= "{position}{anredeWM}{titelPrefix}{vorname}{nachname}{titelSuffix}\n";
 				$r .= "{bezirk}\n";
 				$r .= "{strasse}{nr}\n";
 				$r .= "{plz}{ort}\n";
@@ -358,7 +358,7 @@ class Util {
 			default:
 				$r .= "{firma}\n";
 				$r .= "{abteilung}\n";
-				$r .= "{position}{vorname}{nachname}{titelSuffix}\n";
+				$r .= "{position}{anredeWM}{titelPrefix}{vorname}{nachname}{titelSuffix}\n";
 				$r .= "{strasse}{nr}\n";
 				$r .= "{zusatz2}\n";
 				$r .= "{plz}{ort}\n";
@@ -599,16 +599,19 @@ class Util {
 		if($l == "store") return Util::parseFloat($_SESSION["S"]->getUserLanguage(), $number);
 	}
 	
-	public static function CLTimeParser($time, $l = "load"){
-		if($l == "load") return Util::formatTime($_SESSION["S"]->getUserLanguage(), $time);
+	public static function CLTimeParser($time, $l = "load", $showSeconds = false){
+		if(is_object($showSeconds))
+			$showSeconds = false;
+		
+		if($l == "load") return Util::formatTime($_SESSION["S"]->getUserLanguage(), $time, $showSeconds);
 		if($l == "store") return Util::parseTime($_SESSION["S"]->getUserLanguage(), $time);
 	}
 
-	public static function CLTimeParserE($time, $l = "load"){
+	public static function CLTimeParserE($time, $l = "load", $showSeconds = false){
 		if($l == "load" AND $time == "-1") return "";
 		if($l == "store" AND $time == "") return "-1";
 
-		return self::CLTimeParser($time, $l);
+		return self::CLTimeParser($time, $l, $showSeconds);
 	}
 	
 	public static function CLHoursParser($time, $l = "load"){
@@ -618,7 +621,7 @@ class Util {
 	
 	public static function CLNumberParserZ($number, $l = "load"){
 		if($l == "load") {
-			$n = Util::formatNumber($_SESSION["S"]->getUserLanguage(), $number * 1, 3, true, true);
+			$n = Util::formatNumber($_SESSION["S"]->getUserLanguage(), (float) $number, 3, true, true);
 			$l = strlen($n) - 1;
 			if($n[$l] == "0") $n = substr($n, 0, $l);
 			return $n;
@@ -628,6 +631,23 @@ class Util {
 	
 	public static function CLFormatAnrede(Adresse $Adresse, $shortmode = false, $lessFormal = false, $perDu = false){
 		return self::formatAnrede(Session::getLanguage(), $Adresse, $shortmode, $lessFormal, $perDu);
+	}
+	
+	public static function formatAnredeWMShort($language, Adresse $Adresse){
+		$format = self::getLangAnrede($language);
+		
+		switch($Adresse->A("anrede")){
+			case "2":
+				return $format["maleShort"];
+			break;
+			case "1":
+				return $format["femaleShort"];
+			break;
+		
+			default:
+				return "";
+			break;
+		}
 	}
 	
 	public static function formatAnrede($language, Adresse $Adresse, $shortmode = false, $lessFormal = false, $perDu = false){
@@ -866,8 +886,8 @@ class Util {
 
 		$stringNumber = str_replace($format[2], "", stripslashes($stringNumber));
 		$stringNumber = str_replace($format[0], ".", $stringNumber);
-		$number = $stringNumber * 1;
-
+		$number = (float) $stringNumber;
+		
 		for($i = 0; $i < strlen($stringNumber); $i++) {
 			if(!strstr($stringNumber, ".")) break;
 			if($stringNumber{strlen($stringNumber) - 1 - $i} == "0" OR $stringNumber{strlen($stringNumber) - 1 - $i} == ".")
@@ -896,6 +916,7 @@ class Util {
 		
 		switch($languageTag){
 			case "en_GB":
+			case "en":
 				return array(
 					"male" => "Dear Mr",
 					"maleShort" => "Mr",
@@ -1348,10 +1369,11 @@ class Util {
 			$_SESSION["BPS"]->setACProperty("filename","$filename");
 			$_SESSION["BPS"]->setACProperty("delete", $delete ? "1" : "0");
 			$CH = self::getCloudHost();
+			$physion = Session::physion();
 			if($CH AND isset($CH->usePreviewRewrite) AND $CH->usePreviewRewrite)
-				echo "<!DOCTYPE html><html><script type=\"text/javascript\">document.location='../preview/".basename($filename)."';</script></html>";
+				echo "<!DOCTYPE html><html><script type=\"text/javascript\">document.location='../preview/".basename($filename)."".($physion ? "?physion=$physion[0]" : "")."';</script></html>";
 			else
-				echo "<!DOCTYPE html><html><script type=\"text/javascript\">document.location='./showPDF.php';</script></html>";
+				echo "<!DOCTYPE html><html><script type=\"text/javascript\">document.location='./showPDF.php".($physion ? "?physion=$physion[0]" : "")."';</script></html>";
 		} else
 			echo "<!DOCTYPE html><html><script type=\"text/javascript\">document.location='../system/IECache/".$_SESSION["S"]->getCurrentUser()->getID()."/".basename($filename)."?rand=".rand(100, 1000000)."';</script></html>";
 	}
@@ -1599,9 +1621,20 @@ class Util {
 		#else
 		$head .= 'User-Agent: phynx Version checker'."\r\n";
 
+		
 		$head .= "X-Application: ".$_SESSION["applications"]->getActiveApplication()."\r\n";
 		$head .= "X-Version: ".$_SESSION["applications"]->getRunningVersion()."\r\n";
 		$head .= "X-PHPVersion: ".phpversion()."\r\n";
+		$head .= "X-UserID: ".(Session::currentUser() ? Session::currentUser()->getID() : "0")."\r\n";
+		try {
+			$xml = new SimpleXMLElement(file_get_contents(Util::getRootPath()."system/build.xml"));
+			if($xml->build AND $xml->build->customer)
+				$head .= "X-CustomerID: ".$xml->build->customer."\r\n";
+			
+		} catch (Exception $ex) {
+
+		}
+		
 
 		$head .= 'Connection: close'."\r\n"."\r\n";
 		
@@ -1854,13 +1887,15 @@ class Util {
 		return '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
-		<link rel="shortcut icon"type="image/x-icon" href="data:image/x-icon;,">
+		<link rel="shortcut icon" type="image/x-icon" href="data:image/x-icon;,"></link>
 		<title>'.$title.'</title>
 		'.($js ? '
 		<script type="text/javascript" src="../libraries/jquery/jquery-1.9.1.min.js"></script>
 		<script type="text/javascript" src="../libraries/jquery/jquery-ui-1.10.1.custom.min.js"></script>
 		<script type="text/javascript" src="../libraries/iconic/iconic.min.js"></script>
 		<script type="text/javascript" src="../libraries/jquery/jquery.qtip.min.js"></script>
+		<script type="text/javascript" src="../libraries/flot/jquery.flot.js"></script>
+		<script type="text/javascript" src="../libraries/flot/jquery.flot.time.js"></script>
 		<script type="text/javascript" src="../javascript/P2J.js"></script>
 		<script type="text/javascript" src="../javascript/Aspect.js"></script>
 		<script type="text/javascript" src="../javascript/handler.js"></script>
@@ -1874,7 +1909,7 @@ class Util {
 			});
 		</script>' : "").'
 		
-		<link rel="stylesheet" type="text/css" href="../libraries/jquery/jquery.qtip.min.css" />
+		<link rel="stylesheet" type="text/css" href="../libraries/jquery/jquery.qtip.min.css"></link>
 		<link rel="stylesheet" type="text/css" href="../styles/'.(isset($_COOKIE["phynx_color"])? $_COOKIE["phynx_color"] : "standard").'/colors.css"></link>
 		<link rel="stylesheet" type="text/css" href="../styles/standard/general.css"></link>
 		<style type="text/css">

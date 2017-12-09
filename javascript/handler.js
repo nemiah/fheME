@@ -120,7 +120,9 @@ function checkResponse(transport, hideError) {
  * @deprecated
  **/
 function rme(targetClass, targetClassId, targetMethod, targetMethodParameters, onSuccessFunction, bps){
-	//alert("JS function rme() deprecated, use contentManager.rmePCR instead!");
+	contentManager.rmePCR(targetClass, targetClassId, targetMethod, targetMethodParameters, onSuccessFunction, bps);
+	
+	/*//alert("JS function rme() deprecated, use contentManager.rmePCR instead!");
  	if(typeof targetMethodParameters != "string"){
  		for(var i=0;i<targetMethodParameters.length;i++)
  			targetMethodParameters[i] = "'"+encodeURIComponent(targetMethodParameters[i])+"'";
@@ -133,15 +135,16 @@ function rme(targetClass, targetClassId, targetMethod, targetMethodParameters, o
 	method: 'get',
 	onSuccess: function(transport) {
 		if(onSuccessFunction) eval(onSuccessFunction);
-	}});
+	}});*/
 }
 
 /**
  * @deprecated
  **/
 function rmeP(targetClass, targetClassId, targetMethod, targetMethodParameters, onSuccessFunction, bps){
+	contentManager.rmePCR(targetClass, targetClassId, targetMethod, targetMethodParameters, onSuccessFunction, bps);
 	//alert("JS function rmeP() deprecated, use contentManager.rmePCR instead!");
- 	if(typeof targetMethodParameters != "string"){
+ 	/*if(typeof targetMethodParameters != "string"){
  		for(var i = 0; i < targetMethodParameters.length; i++)
  			targetMethodParameters[i] = "'"+encodeURIComponent(targetMethodParameters[i])+"'";
  			
@@ -154,7 +157,7 @@ function rmeP(targetClass, targetClassId, targetMethod, targetMethodParameters, 
 	parameters: "class="+targetClass+"&construct="+targetClassId+"&method="+targetMethod+"&parameters="+targetMethodParameters+((bps != "" && typeof bps != "undefined") ? "&bps="+bps : ""),
 	onSuccess: function(transport) {
 		if(onSuccessFunction) eval(onSuccessFunction);
-	}});
+	}});*/
  }
  
 
@@ -374,7 +377,7 @@ function deleteClass(className, id, onSuccessFunction, question){
 	contentManager.rmePCR(className, id, "deleteMe", "", onSuccessFunction);
 }
 
-
+/*
 function saveSelection(classe, classId, saveFunction, idToSave, targetFrame, targetClass, targetId){
 	new Ajax.Request("./interface/rme.php", {
 	method: 'post',
@@ -387,7 +390,7 @@ function saveSelection(classe, classId, saveFunction, idToSave, targetFrame, tar
 		}
 	}});
 
-}
+}*/
 
 function saveMultiEditInput(classe, eid, feld, onsuccessFunction){
 	oldValue = $(feld+'ID'+eid).value;
@@ -397,7 +400,17 @@ function saveMultiEditInput(classe, eid, feld, onsuccessFunction){
 	if(field.type == "checkbox")
 		value = field.checked ? "1" : "0";
 	
-	new Ajax.Request("./interface/rme.php?class="+classe+"&constructor="+eid+"&method=saveMultiEditField&parameters="+encodeURIComponent("'"+feld+"','"+value+"'"), {
+	contentManager.rmePCR(classe, eid, "saveMultiEditField", [feld, value], function(transport) {
+		if(transport.responseText.charAt(0) == "{" && transport.responseText.charAt(transport.responseText.length - 1) == "}")
+			transport.responseData = jQuery.parseJSON(transport.responseText);
+
+
+		if(typeof onsuccessFunction != "undefined" && onsuccessFunction != "")
+			onsuccessFunction(transport);
+		
+	});
+	
+	/*new Ajax.Request("./interface/rme.php?class="+classe+"&constructor="+eid+"&method=saveMultiEditField&parameters="+encodeURIComponent("'"+feld+"','"+value+"'"), {
 	method: 'get',
 	onSuccess: function(transport) {
 		if(checkResponse(transport)){
@@ -410,5 +423,5 @@ function saveMultiEditInput(classe, eid, feld, onsuccessFunction){
 			if(typeof onsuccessFunction != "undefined" && onsuccessFunction != "")
 				onsuccessFunction(transport);
 		}
-	}});
+	}});*/
 }

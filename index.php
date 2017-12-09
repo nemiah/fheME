@@ -18,11 +18,39 @@
  *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
 
-if(!function_exists("hex2bin")){
+if(!function_exists("hash_equals")){
 	require_once "./system/basics.php";
 	
-	emoFatalError("I'm sorry, but your PHP version is too old.", "You need at least PHP version 5.4.0 to run this program.<br />You are using ".phpversion().". Please talk to your provider about this.", "phynx");
+	emoFatalError("I'm sorry, but your PHP version is too old.", "You need at least PHP version 5.6.0 to run this program.<br />You are using ".phpversion().". Please talk to your provider about this.", "phynx");
 }
+
+$scripts = array(
+	"./libraries/jquery/jquery-1.9.1.min.js",
+	"./libraries/jquery/jquery-ui-1.10.1.custom.min.js",
+	"./libraries/jquery/jquery.json-2.3.min.js",
+	"./libraries/jquery/jquery.timers.js",
+	"./libraries/jquery/jquery.qtip.min.js",
+	"./libraries/jquery/jquery.scrollTo-1.4.2-min.js",
+	"./libraries/jquery/jquery.hammer.js",
+	"./libraries/jstorage.js",
+	"./libraries/webtoolkit.base64.js",
+	"./libraries/webtoolkit.sha1.js",
+	"./libraries/flot/jquery.flot.js",
+	"./libraries/flot/jquery.flot.time.js",
+	"./libraries/flot/jquery.flot.threshold.js",
+	"./libraries/flot/jquery.flot.pie.js",
+	"./libraries/flot/jquery.flot.selection.js",
+	"./libraries/flot/jquery.flot.orderBars.js",
+	"./libraries/modernizr.custom.js",
+	"./libraries/snap.svg/snap.svg-min.js",
+	"./libraries/touchy/Touchy.js",
+	"./libraries/iconic/iconic.min.js");
+
+foreach($scripts AS $url)
+	header("Link: <$url>; rel=preload; as=script", false);
+
+if(file_exists(dirname(__FILE__)."/styles/standard/merge.css"))
+	header("Link: <./styles/standard/merge.css>; rel=preload; as=style", false);
 
 $dir = new DirectoryIterator(dirname(__FILE__));
 $notExecutable = array();
@@ -122,7 +150,8 @@ if(Phynx::build()){
 
 $validUntil = Environment::getS("validUntil", null);
 
-if($_SESSION["S"]->checkIfUserLoggedIn() == false) $_SESSION["CurrentAppPlugins"]->scanPlugins();
+if($_SESSION["S"]->checkIfUserLoggedIn() == false) 
+	$_SESSION["CurrentAppPlugins"]->scanPlugins();
 
 $updateTitle = true;
 $title = Environment::getS("renameFramework", "phynx by Furtmeier Hard- und Software");
@@ -134,6 +163,125 @@ $favico = "./images/FHSFavicon.ico";
 $sephy = Session::physion();
 if($sephy AND isset($sephy[3]) AND $sephy[3])
 		$favico = $sephy[3];
+
+$background = '
+	<svg
+				style="width:5000px;height:4000px;"
+				xmlns="http://www.w3.org/2000/svg"
+				xmlns:xlink="http://www.w3.org/1999/xlink">
+				<defs
+					id="defs3012">
+				<linearGradient
+					x1="-42.290161"
+					y1="143.31378"
+					x2="403.77344"
+					y2="1179.3137"
+					id="linearGradient3282"
+					xlink:href="#linearGradient3276"
+					gradientUnits="userSpaceOnUse" />
+				<linearGradient
+					id="linearGradient3276">
+					<stop
+						id="stop3278"
+						style="stop-color:#fdd99b;stop-opacity:1"
+						offset="0" />
+					<stop
+						id="stop3280"
+						style="stop-color:#fdd99b;stop-opacity:0"
+						offset="1" />
+				</linearGradient>
+				<linearGradient
+					x1="753.72754"
+					y1="157.27899"
+					x2="1185.8259"
+					y2="1161.8571"
+					id="linearGradient3025"
+					xlink:href="#linearGradient3276"
+					gradientUnits="userSpaceOnUse"
+					gradientTransform="translate(-652.92988,-535.04004)" />
+				<linearGradient
+					x1="-0.46899444"
+					y1="-57.742737"
+					x2="88.643677"
+					y2="306.25726"
+					id="linearGradient3290"
+					xlink:href="#linearGradient3284"
+					gradientUnits="userSpaceOnUse" />
+				<linearGradient
+					id="linearGradient3284">
+					<stop
+						id="stop3286"
+						style="stop-color:#cfbda8;stop-opacity:1"
+						offset="0" />
+					<stop
+						id="stop3288"
+						style="stop-color:#ffffff;stop-opacity:0"
+						offset="1" />
+				</linearGradient>
+				<linearGradient
+					x1="-0.46899444"
+					y1="-57.742737"
+					x2="88.643677"
+					y2="306.25726"
+					id="linearGradient3046"
+					xlink:href="#linearGradient3284"
+					gradientUnits="userSpaceOnUse"
+					gradientTransform="translate(-185.37404,592.87887)" />
+				<linearGradient
+					x1="753.72754"
+					y1="157.27899"
+					x2="1519.8259"
+					y2="2141.8569"
+					id="linearGradient3083"
+					xlink:href="#linearGradient3284"
+					gradientUnits="userSpaceOnUse"
+					gradientTransform="translate(-925.25174,-953.99673)" />
+				</defs>
+				<g
+					transform="translate(0,147.63782)"
+					id="layer1">
+				<path
+					d="M 1971.8271,1649.7169 C 1585.0954,1961.859 -818.24172,1014.1453 -905.09085,431.51644 720.11678,-1427.3773 9232.2538,-799.22686 1971.8271,1649.7169 z"
+					id="path3081"
+					style="opacity:0.48318092;fill:url(#linearGradient3083);fill-opacity:1;stroke:none" />
+				<path
+					d="M 2244.1489,2068.6736 C 1857.5335,2380.6652 -409.38459,1008.6272 -806.76899,710.47313 725.51083,-911.45479 9384.8842,-75.05722 2244.1489,2068.6736 z"
+					id="rect3263"
+					style="opacity:0.48318092;fill:url(#linearGradient3025);fill-opacity:1;stroke:#a05a2c" />
+				</g>
+			</svg>';
+
+$backgroundStyle = "";
+try {
+	if(file_exists(Util::getRootPath()."ubiquitous/Hintergrundbilder")){
+		require_once Util::getRootPath()."ubiquitous/Hintergrundbilder/Hintergrundbild.class.php";
+
+		$HG = Hintergrundbild::find();
+		if($HG){
+			$backgroundStyle = "background-image: url(".$HG->A("HintergrundbildImageURL").");background-size: cover;background-position: bottom center;background-repeat: no-repeat;";
+			$background = "";
+		}
+	}
+} catch (Exception $ex) {
+
+}
+$CH = Util::getCloudHost();
+$mandanten = array();
+if(file_exists(Util::getRootPath()."plugins/multiInstall/plugin.xml") AND ($CH == null OR get_class($CH) == "CloudHostAny")){
+	$selected = false;
+	list($folder) = Installation::getDBFolder();
+	$MI = new mInstallation();
+	$MI->changeFolder($folder);
+	while($I = $MI->n()){
+		if($I->A("httpHost") == "cloudData")
+			continue;
+
+		if($I->A("httpHost") == $_SERVER["HTTP_HOST"])
+			$selected = $I->getID();
+		
+		$mandanten[$I->getID()] = $I->A("httpHost");
+	}
+}
 
 ?><!DOCTYPE html>
 <html>
@@ -161,37 +309,19 @@ if($sephy AND isset($sephy[3]) AND $sephy[3])
 		</script>
 		<script type="text/javascript" src="./libraries/pace/pace.min.js"></script>
 		<link href="./libraries/pace/pace-theme-minimal.css" rel="stylesheet" />
+		<?php
+		foreach($scripts AS $url)
+			echo "
+		<script type=\"text/javascript\" src=\"$url\"></script>";
+		?>
 		
-		<script type="text/javascript" src="./libraries/jquery/jquery-1.9.1.min.js"></script>
-		<script type="text/javascript" src="./libraries/jquery/jquery-ui-1.10.1.custom.min.js"></script>
-		<script type="text/javascript" src="./libraries/jquery/jquery.json-2.3.min.js"></script>
-		<script type="text/javascript" src="./libraries/jquery/jquery.timers.js"></script>
-		<script type="text/javascript" src="./libraries/jquery/jquery.qtip.min.js"></script>
-		<script type="text/javascript" src="./libraries/jquery/jquery.scrollTo-1.4.2-min.js"></script>
-		<script type="text/javascript" src="./libraries/jquery/jquery.hammer.js"></script>
-		<script type="text/javascript" src="./libraries/jstorage.js"></script>
-		<script type="text/javascript" src="./libraries/webtoolkit.base64.js"></script>
-		<script type="text/javascript" src="./libraries/webtoolkit.sha1.js"></script>
-		<script type="text/javascript" src="./libraries/flot/jquery.flot.js"></script>
-		<script type="text/javascript" src="./libraries/flot/jquery.flot.time.js" async></script>
-		<script type="text/javascript" src="./libraries/flot/jquery.flot.threshold.js" async></script>
-		<script type="text/javascript" src="./libraries/flot/jquery.flot.pie.js" async></script>
-		<script type="text/javascript" src="./libraries/flot/jquery.flot.selection.js" async></script>
-		<script type="text/javascript" src="./libraries/flot/jquery.flot.orderBars.js" async></script>
-		<!--<script type="text/javascript" src="./libraries/nicEdit/nicEdit.js"></script>-->
-		<script type="text/javascript" src="./libraries/modernizr.custom.js"></script>
-		<script type="text/javascript" src="./libraries/snap.svg/snap.svg-min.js"></script>
-		<script type="text/javascript" src="./libraries/touchy/Touchy.js"></script>
-		<script type="text/javascript" src="./libraries/iconic/iconic.min.js"></script>
 		<script type="text/javascript" src="./libraries/tinymce/tinymce.min.js?r=<?php echo $build; ?>" async></script>
 		<script type="text/javascript" src="./libraries/tinymce/jquery.tinymce.min.js?r=<?php echo $build; ?>" async></script>
-		
 		
 		<script type="text/javascript" src="./javascript/P2J.js?r=<?php echo $build; ?>"></script>
 		<script type="text/javascript" src="./javascript/Registry.js?r=<?php echo $build; ?>"></script>
 
 		<script type="text/javascript" src="./javascript/Aspect.js?r=<?php echo $build; ?>"></script>
-		<!--<script type="text/javascript" src="./javascript/Observer.js?r=<?php echo $build; ?>"></script>-->
 		<script type="text/javascript" src="./javascript/Overlay.js?r=<?php echo $build; ?>"></script>
 		<script type="text/javascript" src="./javascript/Menu.js?r=<?php echo $build; ?>"></script>
 		<script type="text/javascript" src="./javascript/autoComplete.js?r=<?php echo $build; ?>" async></script>
@@ -200,11 +330,9 @@ if($sephy AND isset($sephy[3]) AND $sephy[3])
 		<script type="text/javascript" src="./javascript/Interface.js?r=<?php echo $build; ?>"></script>
 		<script type="text/javascript" src="./javascript/Popup.js?r=<?php echo $build; ?>"></script>
 		<script type="text/javascript" src="./javascript/contentManager.js?r=<?php echo $build; ?>"></script>
-		<!--<script type="text/javascript" src="./javascript/DesktopLink.js?r=<?php echo $build; ?>"></script>-->
-		<script type="text/javascript" src="./javascript/notificationArea.js?r=<?php echo $build; ?>"></script>
 		<script type="text/javascript" src="./javascript/handler.js?r=<?php echo $build; ?>"></script>
 		<script type="text/javascript" src="./javascript/Util.js?r=<?php echo $build; ?>"></script>
-
+		
 		<script type="text/javascript" src="./libraries/TextEditor.js?r=<?php echo $build; ?>" async></script>
 		<script type="text/javascript" src="./libraries/fileuploader.js?r=<?php echo $build; ?>" async></script>
 
@@ -264,14 +392,10 @@ if($sephy AND isset($sephy[3]) AND $sephy[3])
 		if((isset($_COOKIE["phynx_layout"]) AND $_COOKIE["phynx_layout"] == "fixed"))
 			echo '
 		<link rel="stylesheet" type="text/css" href="./styles/standard/fixed.css" />';
+		
+			echo '
+		<link rel="stylesheet" type="text/css" href="./styles/standard/mobile.css" />';
 		?>
-
-		<!--[if lt IE 9]>
-		<script type="text/javascript">
-			alert("Sie benötigen mindestens Internet Explorer Version 9!");
-		</script>
-		<![endif]-->
-
 	</head>
 	<body>
 		<div id="DynamicJS" style="display: none;"></div>
@@ -290,50 +414,96 @@ if($sephy AND isset($sephy[3]) AND $sephy[3])
 						<col class="" style="width:120px;" />
 						<col class="" />
 					</colgroup>
+					<tr <?php if(count($mandanten) <= 1 OR $selected !== false) echo "style=\"display:none\""; ?>>
+						<td><label><?php echo T::_("Mandant"); ?>:</label></td>
+						<td>
+							<select style="width:285px;" onfocus="focusMe(this);" onblur="blurMe(this);" type="text" name="loginMandant" id="loginMandant" onkeydown="">
+								<?php $m = ""; foreach($mandanten AS $MID => $MN) $m .= "<option value=\"$MID\" ".($selected == $MID ? "selected=\"selected\"" : "").">".($MN == "*" ? "Standard" : $MN)."</option>"; echo $m; ?>
+							</select>
+						</td>
+					</tr>
 					<tr>
 						<td><label><?php echo T::_("Benutzername"); ?>:</label></td>
-						<td><input style="width:285px;" tabindex="1" onfocus="focusMe(this);" onblur="blurMe(this);" type="text" name="loginUsername" id="loginUsername" onkeydown="userControl.abortAutoCertificateLogin(); userControl.abortAutoLogin(); if(event.keyCode == 13) userControl.doLogin();" /></td>
+						<td><input style="width:285px;" onfocus="focusMe(this);" onblur="blurMe(this);" type="text" name="loginUsername" id="loginUsername" onkeydown="userControl.abortAutoCertificateLogin(); userControl.abortAutoLogin(); if(event.keyCode == 13) userControl.doLogin();" /></td>
 					</tr>
 					<tr>
 						<td><label><?php echo T::_("Passwort"); ?>:</label></td>
 						<td>
 							<img
-								style="float:right;"
+								style="float:right;margin-right:5px;"
 								class="mouseoverFade"
 								onclick="$j('#loginOptions, #altLogins').toggle();"
 								src="./images/i2/settings.png"
 								title="<?php echo T::_("Optionen anzeigen"); ?>"
 								alt="<?php echo T::_("Optionen anzeigen"); ?>"/>
 							
+							<input
+								style="width:240px;box-sizing:border-box;"
+								onfocus="focusMe(this);"
+								onblur="blurMe(this);"
+								type="password"
+								id="loginPassword"
+								onkeydown="userControl.abortAutoCertificateLogin(); userControl.abortAutoLogin(); if(event.keyCode == 13) userControl.doLogin();"
+							/>
+						</td>
+					</tr>
+					<tr class="changePassword" style="display:none;">
+						<td><label><?php echo T::_("Neues Passwort"); ?>:</label></td>
+						<td><input
+								style="width:240px;box-sizing:border-box;"
+								onfocus="focusMe(this);"
+								onblur="blurMe(this);"
+								type="password"
+								id="newPassword1"
+								onkeydown=""
+							/></td>
+					</tr>
+					<tr class="changePassword" style="display:none;">
+						<td><label><?php echo T::_("Neues Passwort"); ?>:</label></td>
+						<td>
 							<img
-								style="float:right;margin-right:5px;"
+								style="float:right;margin-right:5px;margin-top:4px;"
+								class="mouseoverFade"
+								onclick="userControl.changePassword();"
+								src="./images/i2/bestaetigung.png"
+								id="changePasswordButton"
+								title="<?php echo T::_("Passwort ändern"); ?>"
+								alt="<?php echo T::_("Passwort ändern?"); ?>"/>
+							
+							<input
+								style="width:240px;box-sizing:border-box;"
+								onfocus="focusMe(this);"
+								onblur="blurMe(this);"
+								type="password"
+								id="newPassword2"
+								onkeydown="if(event.keyCode == 13) userControl.changePassword();"
+							/></td>
+					</tr>
+					<tr id="loginOptions">
+						<td><label><?php echo T::_("Anwendung"); ?>:</label></td>
+						<td>
+							<img
+								style="float:right;margin-right:5px;margin-top:4px;"
 								class="mouseoverFade"
 								onclick="rmeP('Users', -1, 'lostPassword', [$('loginUsername').value], 'checkResponse(transport);');"
 								src="./images/i2/hilfe.png"
 								title="<?php echo T::_("Passwort vergessen?"); ?>"
 								alt="<?php echo T::_("Passwort vergessen?"); ?>"/>
-							<input
-								style="width:240px;"
-								onfocus="focusMe(this);"
-								onblur="blurMe(this);"
-								type="password"
-								id="loginPassword"
-								tabindex="2"
-								onkeydown="userControl.abortAutoCertificateLogin(); userControl.abortAutoLogin(); if(event.keyCode == 13) userControl.doLogin();"
-							/>
-						</td>
-					</tr>
-					<tr id="loginOptions">
-						<td><label><?php echo T::_("Anwendung"); ?>:</label></td>
-						<td>
+							
+							<img
+								style="float:right;margin-right:5px;margin-top:4px;"
+								class="mouseoverFade"
+								onclick="$j('.changePassword').toggle();"
+								src="./images/i2/refresh.png"
+								title="<?php echo T::_("Passwort ändern"); ?>"
+								alt="<?php echo T::_("Passwort ändern?"); ?>"/>
 							<?php
 							
 							if(Environment::getS("showApplicationsList", "1") == "1"){ ?>
 								<select
-									style=""
+									style="width:240px;box-sizing:border-box;"
 									id="anwendung"
 									name="anwendung"
-									tabindex="3"
 									onkeydown="if(event.keyCode == 13) userControl.doLogin();">
 									<?php echo $_SESSION["applications"]->getHTMLOptions(isset($_GET["application"]) ? $_GET["application"] : null); ?>
 								</select>
@@ -357,7 +527,6 @@ if($sephy AND isset($sephy[3]) AND $sephy[3])
 								style="width:160px;margin-top:5px;"
 								id="loginSprache"
 								name="loginSprache"
-								tabindex="4"
 								onkeydown="if(event.keyCode == 13) userControl.doLogin();">
 								
 								<option value="default"><?php echo T::_("Sprache"); ?></option>
@@ -470,96 +639,15 @@ if($sephy AND isset($sephy[3]) AND $sephy[3])
 			</div>
 		</div>
 		
-		<div id="lightOverlay" style="display: none;" class="backgroundColor0">
-			<img src="./images/html5.png" style="position:fixed;bottom:20px;right:20px;" alt="HTML5" title="HTML5" />
-			<svg
-				style="width:5000px;height:4000px;"
-				xmlns="http://www.w3.org/2000/svg"
-				xmlns:xlink="http://www.w3.org/1999/xlink">
-				<defs
-					id="defs3012">
-				<linearGradient
-					x1="-42.290161"
-					y1="143.31378"
-					x2="403.77344"
-					y2="1179.3137"
-					id="linearGradient3282"
-					xlink:href="#linearGradient3276"
-					gradientUnits="userSpaceOnUse" />
-				<linearGradient
-					id="linearGradient3276">
-					<stop
-						id="stop3278"
-						style="stop-color:#fdd99b;stop-opacity:1"
-						offset="0" />
-					<stop
-						id="stop3280"
-						style="stop-color:#fdd99b;stop-opacity:0"
-						offset="1" />
-				</linearGradient>
-				<linearGradient
-					x1="753.72754"
-					y1="157.27899"
-					x2="1185.8259"
-					y2="1161.8571"
-					id="linearGradient3025"
-					xlink:href="#linearGradient3276"
-					gradientUnits="userSpaceOnUse"
-					gradientTransform="translate(-652.92988,-535.04004)" />
-				<linearGradient
-					x1="-0.46899444"
-					y1="-57.742737"
-					x2="88.643677"
-					y2="306.25726"
-					id="linearGradient3290"
-					xlink:href="#linearGradient3284"
-					gradientUnits="userSpaceOnUse" />
-				<linearGradient
-					id="linearGradient3284">
-					<stop
-						id="stop3286"
-						style="stop-color:#cfbda8;stop-opacity:1"
-						offset="0" />
-					<stop
-						id="stop3288"
-						style="stop-color:#ffffff;stop-opacity:0"
-						offset="1" />
-				</linearGradient>
-				<linearGradient
-					x1="-0.46899444"
-					y1="-57.742737"
-					x2="88.643677"
-					y2="306.25726"
-					id="linearGradient3046"
-					xlink:href="#linearGradient3284"
-					gradientUnits="userSpaceOnUse"
-					gradientTransform="translate(-185.37404,592.87887)" />
-				<linearGradient
-					x1="753.72754"
-					y1="157.27899"
-					x2="1519.8259"
-					y2="2141.8569"
-					id="linearGradient3083"
-					xlink:href="#linearGradient3284"
-					gradientUnits="userSpaceOnUse"
-					gradientTransform="translate(-925.25174,-953.99673)" />
-				</defs>
-				<g
-					transform="translate(0,147.63782)"
-					id="layer1">
-				<path
-					d="M 1971.8271,1649.7169 C 1585.0954,1961.859 -818.24172,1014.1453 -905.09085,431.51644 720.11678,-1427.3773 9232.2538,-799.22686 1971.8271,1649.7169 z"
-					id="path3081"
-					style="opacity:0.48318092;fill:url(#linearGradient3083);fill-opacity:1;stroke:none" />
-				<path
-					d="M 2244.1489,2068.6736 C 1857.5335,2380.6652 -409.38459,1008.6272 -806.76899,710.47313 725.51083,-911.45479 9384.8842,-75.05722 2244.1489,2068.6736 z"
-					id="rect3263"
-					style="opacity:0.48318092;fill:url(#linearGradient3025);fill-opacity:1;stroke:#a05a2c" />
-				</g>
-			</svg>
+		<div id="lightOverlay" style="display: none;<?php echo $backgroundStyle; ?>" class="backgroundColor0">
+			<?php 
+				if($background != "")
+					echo '<img src="./images/html5.png" style="position:fixed;bottom:20px;right:20px;" alt="HTML5" title="HTML5" />';
+				
+				echo $background;
+			?>
 		</div>
 		<div id="darkOverlay" style="display: none; background-color:black;"></div>
-		<div id="phim" style="display:none;"></div>
 
 		<div id="container" style="display:none;">
 			<div id="messenger" style="display:none;" class="backgroundColor3 borderColor1"></div>
@@ -704,7 +792,7 @@ if($sephy AND isset($sephy[3]) AND $sephy[3])
 							alt="Desktop"><xsl:attribute name="src"><xsl:value-of select="iconDesktop" /></xsl:attribute></img>
 					</xsl:if>-->
 					<?php if(Environment::getS("showCopyright", "1") == "1")
-						echo Environment::getS("contentCopyright", 'Copyright (C) 2007 - 2014 by <a href="http://www.Furtmeier.IT">Furtmeier Hard- und Software</a>. This program comes with ABSOLUTELY NO WARRANTY; this is free software, and you are welcome to redistribute it under certain conditions; see <a href="gpl.txt">gpl.txt</a> for details.<!--<br />Thanks to the authors of the libraries and icons used by this program. <a href="javascript:contentManager.loadFrame(\'contentRight\',\'Credits\');">View credits.</a>-->');
+						echo Environment::getS("contentCopyright", 'Copyright (C) 2007 - 2017 by <a href="http://www.Furtmeier.IT">Furtmeier Hard- und Software</a>. This program comes with ABSOLUTELY NO WARRANTY;<br>this is free software, and you are welcome to redistribute it under certain conditions; see <a href="gpl.txt">gpl.txt</a> for details.<!--<br />Thanks to the authors of the libraries and icons used by this program. <a href="javascript:contentManager.loadFrame(\'contentRight\',\'Credits\');">View credits.</a>-->');
 					?>
 				</p>
 			</div>
@@ -714,21 +802,35 @@ if($sephy AND isset($sephy[3]) AND $sephy[3])
 				Ajax.physion = '<?php echo $physion; ?>';
 				<?php $build = Phynx::build(); if($build) echo "Ajax.build = '$build';\n"; ?>
 				$j(document).keydown(function(evt){
-					if(!(evt.keyCode == 83 && evt.ctrlKey))
-						return;
-					evt.preventDefault();
+					if(evt.keyCode == 27){
+						var last = $j('#windows .popup').last();
+						if(!last)
+							return;
+						
+						if(!last.prop("id"))
+							return;
+						
+						var ex = last.prop("id").match(/([a-zA-Z]+)Details([a-zA-Z]+)/);
+						
+						Popup.close(ex[2], ex[1]);
+					}
 					
-					var element = $j(evt.target).prop("tagName").toLowerCase();
+					if(evt.keyCode == 83 && evt.ctrlKey){
 					
-					if(element != "input" && element != "select" && element != "textarea")
-						return;
-					
-					
-					var button = $j(evt.target).parent().parent().parent().find("input[name=currentSaveButton]");
-					if(button.length != 1)
-						return;
-					
-					button.trigger("click");
+						evt.preventDefault();
+
+						var element = $j(evt.target).prop("tagName").toLowerCase();
+
+						if(element != "input" && element != "select" && element != "textarea")
+							return;
+
+
+						var button = $j(evt.target).parent().parent().parent().find("input[name=currentSaveButton]");
+						if(button.length != 1)
+							return;
+
+						button.trigger("click");
+					}
 				});
 
 				<?php

@@ -90,14 +90,7 @@ var phynxContextMenu = {
 	},
 	
 	saveSelection: function(saveTo, identifier, key, onSuccessFunction){
-		new Ajax.Request('./interface/rme.php?class='+saveTo+"&method=saveContextMenu&constructor='-1'&parameters='"+identifier+"','"+key+"'", {onSuccess: function(transport){
-			if(checkResponse(transport)){
-				phynxContextMenu.stop(transport);
-			
-				if(typeof onSuccessFunction != "undefined")
-					eval(onSuccessFunction);
-			}
-		}});
+		contentManager.rmePCR(saveTo, "-1", "saveContextMenu", [identifier, key], onSuccessFunction);
 	},
 	
 	appear: function(transport, options){
@@ -151,7 +144,5 @@ var phynxContextMenu = {
 		contentManager.rmePCR(targetClass, "", "getContextMenuHTML", [identifier], function(transport){
 			phynxContextMenu.appear(transport, options);
 		});
-		
-		//new Ajax.Request('./interface/rme.php?class='+targetClass+"&method=getContextMenuHTML&constructor=''&parameters='"+identifier+"'", {onSuccess: phynxContextMenu.appear});
 	}
 }

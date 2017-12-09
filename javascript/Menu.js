@@ -27,20 +27,11 @@ var Menu = {
 	refresh: function(onSuccessFunction){
 		contentManager.loadFrame("navigation", "Menu", -1, 0, "bps", function(){
 			
-			setHighLight($(lastHighLight.id));
+			Menu.setHighLight($(lastHighLight.id));
 			
 			if(typeof onSuccessFunction == "function")
 				onSuccessFunction();
 		});
-		/*new Ajax.Request("./interface/loadFrame.php?p=Menu&id=-1", {
-		method: 'get',
-		onSuccess: function(transport) {
-			$('navigation').update(transport.responseText);
-			setHighLight($(lastHighLight.id));
-			
-			if(typeof onSuccessFunction == "function")
-				onSuccessFunction();
-		}});*/
 	},
 	
 	showTab: function(plugin){
@@ -61,94 +52,50 @@ var Menu = {
 				$j('#containerSortTabs').html(transport.responseText);
 			});
 		});
-	}
-}
-
-function toggleTab(pluginName){
-	if(pluginName == "morePlugins") {
-		alert("Dieses Tab kann nicht minimiert werden.");
-		return;
-	}
-	contentManager.rmePCR("Menu", '', 'toggleTab', pluginName, "Menu.refresh();");
-}
-
-function querySt(ji) {
-	hu = window.location.search.substring(1);
-	gy = hu.split('&');
-	for (i=0;i<gy.length;i++) {
-		ft = gy[i].split('=');
-		
-		if (ft[0] == ji)
-			return ft[1];
-	}
-}
-
-function loadMenu(){
-	contentManager.loadFrame("navigation", "Menu", -1, 0, "", function(transport){
-		//$('contentLeft').update('');
-		//Popup.closeNonPersistent();
-		contentManager.emptyFrame("contentLeft");
-		
-		if(transport.responseText == "-1"){
-			userControl.doTestLogin();
-			Overlay.show();
-			return;
-		} else Overlay.hide();
-		
-    	//if(!checkResponse(transport)) return;
-    	
-    	//$j('#navigation').html(transport.responseText);
-    	
-    	if($('morePluginsMenuEntry')){
-    		contentManager.loadFrame('contentLeft','morePlugins', -1, 0,'morePluginsGUI;-');
-    		setHighLight($('morePluginsMenuEntry'));
-    	}
-    	
-    	if(typeof querySt('plugin') != 'undefined'){
-			$j("#"+querySt('plugin')+'MenuEntry div').trigger(Touch.trigger);
-    	} else
-			contentManager.loadDesktop();
-    	
-		contentManager.loadJS();
-		contentManager.loadTitle();
-	});
+	},
 	
-	/*new Ajax.Request("./interface/loadFrame.php?p=Menu&id=-1", {
-	method: 'get',
-	onSuccess: function(transport) {
-		$('contentLeft').update('');
-		//Popup.closeNonPersistent();
-		
-		if(transport.responseText == "-1"){
-			userControl.doTestLogin();
-			Overlay.show();
+	toggleTab: function(pluginName){
+		if(pluginName == "morePlugins") {
+			alert("Dieses Tab kann nicht minimiert werden.");
 			return;
-		} else Overlay.hide();
-		
-    	if(!checkResponse(transport)) return;
-    	
-    	$j('#navigation').html(transport.responseText);
-    	
-    	if($('morePluginsMenuEntry')){
-    		contentManager.loadFrame('contentLeft','morePlugins', -1, 0,'morePluginsGUI;-');
-    		setHighLight($('morePluginsMenuEntry'));
-    	}
-    	
-    	if(typeof querySt('plugin') != 'undefined'){
-			$j("#"+querySt('plugin')+'MenuEntry div').trigger("click");
-    	} else
-			contentManager.loadDesktop();
-    	
-		contentManager.loadJS();
+		}
+		contentManager.rmePCR("Menu", '', 'toggleTab', pluginName, "Menu.refresh();");
+	},
 
-		contentManager.loadTitle();
-    	//if($('messageLayer')) 
-    	//if(typeof loadMessages == 'function') loadMessages();
-	}});*/
+	loadMenu: function(){
+		contentManager.loadFrame("navigation", "Menu", -1, 0, "", function(transport){
+			contentManager.emptyFrame("contentLeft");
+
+			if(transport.responseText == "-1"){
+				userControl.doTestLogin();
+				Overlay.show();
+				return;
+			} else Overlay.hide();
+
+			if($('morePluginsMenuEntry')){
+				contentManager.loadFrame('contentLeft','morePlugins', -1, 0,'morePluginsGUI;-');
+				Menu.setHighLight($('morePluginsMenuEntry'));
+			}
+
+			if(typeof Util.querySt('plugin') != 'undefined'){
+				$j("#"+Util.querySt('plugin')+'MenuEntry div').trigger(Touch.trigger);
+			} else
+				contentManager.loadDesktop();
+
+			contentManager.loadJS();
+			contentManager.loadTitle();
+		});
+	},
+	
+	setHighLight: function(obj){
+		if(lastHighLight != null) lastHighLight.className = lastHighLight.className.replace(/ *theOne/,"");
+		obj.className += " theOne";
+		lastHighLight = obj;
+	}
 }
 
 
-function showMenu(name){
+/*function showMenu(name){
 	mouseIsOver[name] = true;
 	//$(name).style.display='block';
 	new Effect.Appear(name,{duration:0.1}); 
@@ -164,10 +111,4 @@ function hideMenu(name){
 	//$(name).style.display='none';//
 	new Effect.Fade(name,{duration:0.1}); 
 	else setTimeout("hideMenu('"+name+"')",1000);
-}
-
-function setHighLight(obj){
-	if(lastHighLight != null) lastHighLight.className = lastHighLight.className.replace(/ *theOne/,"");
-	obj.className += " theOne";
-	lastHighLight = obj;
-}
+}*/

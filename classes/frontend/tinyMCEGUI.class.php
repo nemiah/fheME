@@ -19,7 +19,7 @@
  */
 class tinyMCEGUI {
 	private $ID;
-	public function __construct($ID) {
+	public function __construct($ID = null) {
 		$this->ID = $ID;
 	}
 	
@@ -78,6 +78,8 @@ class tinyMCEGUI {
 				}
 			}
 		} catch (ClassNotFoundException $e){
+			
+		} catch (TableDoesNotExistException $e){
 			
 		}
 		
@@ -169,6 +171,7 @@ class tinyMCEGUI {
 		
 		echo OnEvent::script("
 setTimeout(function(){
+	console.log('#$formID [name=$fieldName]');
 	\$j('#$tinyMCEID').val(\$j('#$formID [name=$fieldName]').val());
 	".$this->editorDokument($tinyMCEID, "function(content){\$j('#$formID [name=$fieldName]').val(content.getContent()).trigger('change'); ".OnEvent::closePopup("tinyMCE").OnEvent::closePopup("nicEdit")."}", $buttons, "./styles/tinymce/office.css", $picturesDir, $onInit)."
 			".($variablesCallback != null ? "$variablesCallback('$fieldName');" : "")."

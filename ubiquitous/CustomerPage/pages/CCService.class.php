@@ -275,7 +275,7 @@ class CCService extends CCAuftrag implements iCustomContent {
 		$T->addRow(array("", "<label>Ansprechpartner:</label>", $Beleg->A("GRLBMServiceAnsprechpartner")));
 		$T->addRow(array("", "<label>Arbeitsort:</label>", $Beleg->A("GRLBMServiceArbeitsort")));
 		if($Beleg->A("GRLBMServiceTerminTag") > 0)
-			$T->addLV(array("", "<label>Termin:</label>", Util::CLDateParserE($Beleg->A("GRLBMServiceTerminTag")).($Beleg->A("GRLBMServiceTerminUhr") > 0 ? " um ".Util::CLTimeParser($Beleg->A("GRLBMServiceTerminUhr"))." Uhr" : "")));
+			$T->addRow(array("", "<label>Termin:</label>", Util::CLDateParserE($Beleg->A("GRLBMServiceTerminTag")).($Beleg->A("GRLBMServiceTerminUhr") > 0 ? " um ".Util::CLTimeParser($Beleg->A("GRLBMServiceTerminUhr"))." Uhr" : "")));
 		
 		
 		$html .= "<div style=\"width:49%;margin-left:1%;display:inline-block;vertical-align:top;\">$T</div>";

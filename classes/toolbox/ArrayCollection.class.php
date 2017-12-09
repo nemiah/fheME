@@ -26,6 +26,10 @@ class ArrayCollection extends Collection {
 		$this->storage = "TempFiles";
 	}
 	
+	public function lCV3($id = -1, $returnCollector = true, $lazyload = false) {
+		#parent::lCV3($id, $returnCollector, $lazyload);
+	}
+	
 	public function add($element){
 		if(method_exists($element, "setID"))
 			$element->setID($this->counter);

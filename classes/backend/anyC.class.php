@@ -19,6 +19,8 @@
  */
 class anyC extends Collection {
 	
+	public $appendable = false;
+	public $targetFrame = null;
 	/**
 	 * Creates a new instance of this class.
 	 * 
@@ -31,6 +33,14 @@ class anyC extends Collection {
 		#}
 	}
 
+	function appendable($isit){
+		$this->appendable = $isit;
+	}
+
+	function targetFrame($name){
+		$this->targetFrame = $name;
+	}
+	
 	/**
 	 * @param string $collectionOf
 	 * @param string $field

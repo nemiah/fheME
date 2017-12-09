@@ -18,7 +18,7 @@
  *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
 class FactoryException extends o3AException {
-	function __construct($message){
+	function __construct($message = "none"){
 		parent::__construct();
 		$this->message = $message;
 	}

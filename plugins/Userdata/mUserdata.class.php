@@ -164,14 +164,18 @@ class mUserdata extends anyC {
 		return $labels;
 	}
 	
-	public static function getPluginSpecificData($forPlugin, $value = null){
+	public static function getPluginSpecificData($forPlugin, $value = null, $forUser = null){
 		if(Session::currentUser() === null)
 			return array();
+		
+		$user = Session::currentUser()->getID();
+		if($forUser != null AND Session::isUserAdminS())
+			$user = $forUser;
 		
 		$UD = new mUserdata();
 		$UD->addAssocV3("typ","=","pSpec");
 		$UD->addAssocV3("wert","=","$forPlugin", "AND");
-		$UD->addAssocV3("UserID","=",$_SESSION["S"]->getCurrentUser()->getID());
+		$UD->addAssocV3("UserID","=", $user);
 	
 		$labels = array();
 		
@@ -218,10 +222,12 @@ class mUserdata extends anyC {
 		return $c;
 	}
 	
-	public function getAsArray($typ){
+	public function getAsArray($typ, $UserID = null){
+		if($UserID == null)
+			$UserID = $_SESSION["S"]->getCurrentUser()->getID();
 		
 		$this->addAssocV3("typ","=",$typ);
-		$this->addAssocV3("UserID","=",$_SESSION["S"]->getCurrentUser()->getID());
+		$this->addAssocV3("UserID", "=", $UserID);
 		$r = array();
 		
 		while(($t = $this->getNextEntry()))

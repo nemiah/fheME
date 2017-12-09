@@ -161,11 +161,6 @@ var AC = {
 	doRequest: function(forField, targetClass){
 		if(forField.value != "") 
 			contentManager.rmePCR(targetClass, '', "getACHTML", [forField.id, htmlReplaces(forField.value)], AC.reloadChecker);
-			/*new Ajax.Request('./interface/rme.php', {
-			
-			method:"get", 
-			parameters:'class='+targetClass+"&method=getACHTML&constructor=''&parameters='"+forField.id+"','"+htmlReplaces(forField.value)+"'", 
-			onSuccess: AC.reloadChecker});*/
 	},
 	
 	start: function(forField){

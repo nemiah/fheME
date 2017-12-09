@@ -103,8 +103,17 @@ class DBStorage {
 	
 	public function renewConnection(){
 		$this->c = new mysqli($this->data["host"],$this->data["user"],$this->data["password"],$this->data["datab"]);
-		if(mysqli_connect_error() AND (mysqli_connect_errno() == 1045 OR mysqli_connect_errno() == 2002 OR mysqli_connect_errno() == 2003 OR mysqli_connect_errno() == 2005)) throw new NoDBUserDataException(mysqli_connect_errno().":".mysqli_connect_error());
+		if(
+			mysqli_connect_error() 
+			AND (
+				mysqli_connect_errno() == 1045 
+				OR mysqli_connect_errno() == 2002 
+				OR mysqli_connect_errno() == 2003 
+				OR mysqli_connect_errno() == 2005
+				OR mysqli_connect_errno() == 1698)) 
+			throw new NoDBUserDataException(mysqli_connect_errno().":".mysqli_connect_error()."; ".$this->data["user"]."@".$this->data["host"]);
 		if(mysqli_connect_error() AND (mysqli_connect_errno() == 1049 OR mysqli_connect_errno() == 1044)) throw new DatabaseNotFoundException();
+		
 		echo $this->c->error;
 		
 		if($this->c->error AND PHYNX_USE_SYSLOG)
@@ -283,8 +292,9 @@ class DBStorage {
 		$this->cWrite->query($CIA->MySQL);
 		DBStorage::$queryCounter++;
 		if($this->cWrite->error)
-			echo $this->cWrite->error;
+			return $this->cWrite->error;
 		
+		return "";
 	}
 	
 	private function dropTable($name){
@@ -369,7 +379,8 @@ class DBStorage {
 		$_SESSION["messages"]->addMessage("executing MySQL: $CIA->MySQL");
 		$this->cWrite->query($CIA->MySQL);
 		DBStorage::$queryCounter++;
-		if($this->cWrite->error AND $this->cWrite->errno == 1046) throw new DatabaseNotSelectedException();
+		if($this->cWrite->error AND $this->cWrite->errno == 1046) 
+			throw new DatabaseNotSelectedException();
 		
 		if(strpos($CIA->MySQL, "INSERT INTO") === false AND !$view){
 			$sql = "ALTER TABLE `$regs[1]` COMMENT = '".$_SESSION["applications"]->getActiveApplication()."_".$_SESSION["applications"]->getRunningVersion().";'";
@@ -772,19 +783,26 @@ class DBStorage {
 
 	function makeNewLines($table, $columns, $values){
 		$query = "INSERT INTO `$table` (`".implode("`, `", $columns)."`) VALUES ";
-		foreach ($values AS $k => $r){
-			$query .= ($k != 0 ? ", " : "")."(";
+		$i = 0;
+		foreach ($values AS $r){
+			if($i != 0)
+				$query .= ", ";
+			
+			$query .= "(";
 			
 			foreach($r AS $kc => $c)
 				$query .= ($kc != 0 ? ", " : "")."'".$this->cWrite->real_escape_string($c)."'";
 			
 			$query .= ")";
+			$i++;
 		}
 		
 		$this->cWrite->query($query);
+		if($this->cWrite->error){
+			echo "DBStorage: ".$this->cWrite->error."<br>$query";
 		
-		if($this->cWrite->error)
-			echo $this->cWrite->error;
+			#sleep(20);
+		}
 		
 		if($this->cWrite->error AND PHYNX_USE_SYSLOG)
 			syslog(LOG_ERR, "MySQL: ".$this->cWrite->error."(".$this->cWrite->errno.") in $query");

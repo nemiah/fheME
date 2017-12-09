@@ -8,9 +8,9 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Poedit-Language: English\n"
-"X-Poedit-Country: UNITED KINGDOM\n"
 "X-Poedit-SourceCharset: utf-8\n"
+"Language: en_GB\n"
+"X-Generator: Poedit 1.5.4\n"
 
 msgid "Neue Nachricht"
 msgstr "New message"
@@ -54,8 +54,12 @@ msgstr "You do not have activated JavaScript."
 msgid "Bitte aktivieren Sie JavaScript, damit diese Anwendung funktioniert."
 msgstr "Please activate JavaScript to run this application."
 
-msgid "Bitte verwenden Sie '<b>Admin</b>' als Benutzername und Passwort, um mit der Ersteinrichtung dieser Anwendung fortzufahren."
-msgstr "Please use '<b>Admin</b>' as username and password to continue setting up this application."
+msgid ""
+"Bitte verwenden Sie '<b>Admin</b>' als Benutzername und Passwort, um mit der "
+"Ersteinrichtung dieser Anwendung fortzufahren."
+msgstr ""
+"Please use '<b>Admin</b>' as username and password to continue setting up "
+"this application."
 
 msgid "Unternehmenssoftware"
 msgstr "Business software"
@@ -74,4 +78,45 @@ msgstr "Edit entry"
 
 msgid "Eintrag löschen"
 msgstr "Delete entry"
+
+msgid "Suche"
+msgstr "Search"
+
+msgid "Suche als Filter anwenden"
+msgstr "Apply search as filter"
+
+msgid "Suche-Details anzeigen"
+msgstr "Show search information"
+
+msgid "Einträge"
+msgstr "entries"
+
+msgid "Eintrag"
+msgstr "entry"
+
+msgid "%1 neu anlegen"
+msgstr "Create new %1"
+
+msgid "Seite"
+msgstr "page"
+
+msgid "Seiten"
+msgstr "pages"
+
+msgid "%1 speichern"
+msgstr "save %1"
+
+msgid "Anzahl Einträge pro Seite"
+msgstr "Entries per page"
+
+msgid "Einstellungen"
+msgstr "Settings"
+
+msgid "nach Kategorien filtern"
+msgstr "Filter by category"
+
+msgid "speichern"
+msgstr "save"
+msgid "Keine Einträge"
+msgstr ""
 

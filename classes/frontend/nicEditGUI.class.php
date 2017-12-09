@@ -19,7 +19,7 @@
  */
 class nicEditGUI {
 	public function editInPopup($formID, $fieldName, $variablesCallback = null){
-		$T = new tinyMCEGUI();
+		$T = new tinyMCEGUI("");
 		return $T->editInPopup($formID, $fieldName, $variablesCallback);
 		
 		/*$ITA = new HTMLInput("nicEditor", "textarea");
@@ -53,7 +53,7 @@ setTimeout(function(){
 	}
 	
 	public function openInPopup($className, $classID, $fieldName){
-		$T = new tinyMCEGUI();
+		$T = new tinyMCEGUI("");
 		return $T->openInPopup($className, $classID, $fieldName);
 		
 		

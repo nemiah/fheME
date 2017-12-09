@@ -8,6 +8,13 @@
 	width:300px;
 	z-index:100000;
 }
+
+#contentRight .AutoComplete {
+	width:400px;
+	margin-left:-30px;
+	box-sizing: border-box;
+}
+
 .AutoComplete tr:hover {
 	background-color:white;
 }

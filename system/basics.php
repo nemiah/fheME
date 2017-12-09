@@ -30,7 +30,7 @@ function addClassPath($path){
 }
 
 function registerClassPath($className, $classPath){
-	if(!is_array($_SESSION["classPaths"]))
+	if(!isset($_SESSION["classPaths"]) OR !is_array($_SESSION["classPaths"]))
 		$_SESSION["classPaths"] = array();
 	
 	if(!isset($_SESSION["classPaths"][$className]))
@@ -60,7 +60,7 @@ function findClass($class_name){
 		return false;
 	
 	$root = str_replace("system".DIRECTORY_SEPARATOR."basics.php", "", __FILE__);
-	if(is_array($_SESSION["classPaths"]) AND isset($_SESSION["classPaths"][$class_name])) {
+	if(isset($_SESSION["classPaths"]) AND is_array($_SESSION["classPaths"]) AND isset($_SESSION["classPaths"][$class_name])) {
 		$path = $_SESSION["classPaths"][$class_name];
 
 		if(file_exists($path))
@@ -169,7 +169,7 @@ function findClass($class_name){
 		$_SESSION["messages"]->addMessage("Warning: Creating interface $class_name");
 		eval('interface '.$class_name.' { } ');
 	} else {
-		eval('class '.$class_name.' { '.
+		eval('class '.str_replace("\\", "_", $class_name).' { '.
 		'    public function __construct() { '.
 		'        throw new ClassNotFoundException("'.$class_name.'"); '.
 		'    } '.

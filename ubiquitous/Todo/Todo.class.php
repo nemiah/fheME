@@ -18,6 +18,16 @@
  *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
 class Todo extends PersistentObject {
+	
+	static function getAllowed(){
+		$allowed = array();
+		$ACS = anyC::get("Userdata", "name", "shareCalendarTo".Session::currentUser()->getID());
+		$ACS->addAssocV3("name", "=", "shareCalendarTo0", "OR");
+		while($Share = $ACS->getNextEntry())
+			$allowed[$Share->A("UserID")] = $Share->A("wert");
+		
+		return $allowed;
+	}
 	public static $repeatTypes = array("" => "nicht Wiederholen", "daily" => "Täglich", "weekly" => "Wöchentlich", "monthly" => "Monatlich", "yearly" => "Jährlich");
 	/*public function invitePerson($id, $TeamId = 0, $nooutput = false){
 		return mTeilnehmerGUI::invitePerson("Todo", $this->ID, $id, $TeamId, $nooutput);
@@ -31,6 +41,14 @@ class Todo extends PersistentObject {
 
 	public function updateGoogle($b){
 		$this->updateGoogle = $b;
+	}
+	
+	public function newAttributes() {
+		$A = parent::newAttributes();
+		
+		$A->TodoRemind = mUserdata::getUDValueS("DefaultValueTodoTodoRemind", "-1");
+		
+		return $A;
 	}
 	
 	public function saveMe($checkUserData = true, $output = false, $update = true) {
@@ -154,6 +172,20 @@ class Todo extends PersistentObject {
 		
 		$id = parent::newMe($checkUserData, false);
 		
+		if($this->AA("TodoTeilnehmer")){
+			$t = explode(";:;", $this->AA("TodoTeilnehmer"));
+
+			foreach($t AS $UserID){
+				if(trim($UserID) == trim($this->A("TodoUserID")))
+					continue;
+				
+				$ST = new Todo(-1);
+				$ST->setA(clone $this->getA());
+				$ST->changeA("TodoUserID", $UserID);
+				$ST->newMe();
+			}
+		}
+		
 		if(Session::isPluginLoaded("mSync") AND ($this->A("TodoExceptionForID") == "0" OR $this->A("TodoExceptionForID") == ""))
 			mSync::newGUID("Todo", $id);
 		
@@ -163,9 +195,9 @@ class Todo extends PersistentObject {
 			if($this->A("TodoUserID") == Session::currentUser()->getID())
 				Google::calendarCreateEvent(mTodoGUI::getCalendarDetails("Todo", $id));
 			
-		if($this->A("TodoClass") == "DBMail" AND Session::isPluginLoaded("mMail")){
+		if($this->A("TodoClass") == "DBMail" AND Session::isPluginLoaded("mMail"))
 			Mail::assign("Todo", $id, $this->A("TodoClassID"));
-		}
+		
 		
 		if(Session::isPluginLoaded("mAufgabe") AND ($this->A("TodoType") == 3 OR $this->A("TodoType") == 4 OR $this->A("TodoType") == 5) AND $this->A("TodoUserID") > 0){
 			$F = new Factory("Aufgabe");

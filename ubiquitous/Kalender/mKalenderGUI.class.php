@@ -303,15 +303,66 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 
 		$nextMonths = new Datum();
 		$nextMonths->setToMonth1st();
+		
 		$thisMonth = $nextMonths->time();
+		
 		$nextMonths->addMonth();
 		$nextMonth = $nextMonths->time();
+		
 		$html .= OnEvent::script("\$j(function() {
-		\$j('#calendar1stMonth').datepicker({ minDate: '".date("d.m.Y", $thisMonth)."'".($TC->getCurrent()->time() < $nextMonth ? ",defaultDate: '".date("d.m.Y",$TC->getCurrent()->time())."'" : "").", showWeek: true,  showOtherMonths: true, onSelect: function(dateText, inst) { var day = Math.round(+new Date(inst.selectedYear, inst.selectedMonth, inst.selectedDay, 0, 1, 0)/1000); ".OnEvent::rme($this, "setView", array("'tag'", "day"), "function(){ ".OnEvent::reload("Screen")." }")." } });
+		
+		
+		\$j('#calendar1stMonth').datepicker({ 
+			minDate: '".date("d.m.Y", $thisMonth)."'
+			".($TC->getCurrent()->time() < $nextMonth ? ",defaultDate: '".date("d.m.Y",$TC->getCurrent()->time())."'" : "").", 
+			showWeek: true,
+			showOtherMonths: true, 
+			beforeShowDay: function(date){ 
+				var month = (date.getMonth() + 1 < 10 ? '0' : '')+(date.getMonth() + 1); 
+				return [true, 'day1_'+date.getFullYear()+month+(date.getDate() < 10 ? '0' : '')+date.getDate(), ''] 
+			},
+			onSelect: function(dateText, inst) { 
+				var day = Math.round(+new Date(inst.selectedYear, inst.selectedMonth, inst.selectedDay, 0, 1, 0)/1000);
+				".OnEvent::rme($this, "setView", array("'tag'", "day"), "function(){ ".OnEvent::reload("Screen")." }")." 
+			}
+		});
+		
+		var terminTage = ".$this->getTerminDays(date("m"), date("Y")).";
+		\$j(function(){
+			for(var i = 0; i < terminTage.length; i++)
+				\$j('.day1_'+terminTage[i]+' a').css('font-weight', 'bold');
 			
+		});
+
 		\$j('.KalenderUser div[class!=backgroundColor1]').hover(function(){ \$j(this).addClass('backgroundColor2'); }, function(){ \$j(this).removeClass('backgroundColor2'); });
-		fitKalender();
+		\$j(function() {
+			fitKalender();
+			\$j('.movable').draggable({
+				helper: \"clone\"
+			});
 			
+			\$j('.Day').droppable({
+				over: function( event, ui ) {
+					\$j(this).addClass('highlight');
+				},
+				out: function( event, ui ) {
+					\$j(this).removeClass('highlight');
+				},
+				
+				drop: function( event, ui ) {
+					\$j(this).removeClass('highlight');
+					
+					if(!event.ctrlKey)
+						var obj = \$j(ui.draggable).data('movecallback').split('::');
+					else
+						var obj = \$j(ui.draggable).data('clonecallback').split('::');
+					
+					contentManager.rmePCR(obj[0], -1, obj[1], [\$j(ui.draggable).data('id'), \$j(this).data('day')], function(){ ".OnEvent::reload("Screen")." }); 
+				}
+
+			});
+		});
+		
 		\$j(window).resize(function() {
 			fitKalender();
 		});
@@ -360,10 +411,60 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 		</style>";
 
 		$html .= OnEvent::script("\$j(function() {
-		\$j('#calendar2ndMonth').datepicker({ minDate: null ".($TC->getCurrent()->time() >= $nextMonth ? ", defaultDate: '".date("d.m.Y",$TC->getCurrent()->time())."'" : ", defaultDate: '".date("d.m.Y",$nextMonth)."'").", showWeek: true, showOtherMonths: true,  onSelect: function(dateText, inst) { var day = Math.round(+new Date(inst.selectedYear, inst.selectedMonth, inst.selectedDay, 0, 1, 0)/1000); ".OnEvent::rme($this, "setView", array("'tag'", "day"), "function(){ ".OnEvent::reload("Screen")." }")." } });
+		\$j('#calendar2ndMonth').datepicker({ 
+			minDate: null ".($TC->getCurrent()->time() >= $nextMonth ? ", defaultDate: '".date("d.m.Y",$TC->getCurrent()->time())."'" : ", defaultDate: '".date("d.m.Y",$nextMonth)."'").", 
+			showWeek: true, 
+			showOtherMonths: true,  
+			onSelect: function(dateText, inst) { 
+				var day = Math.round(+new Date(inst.selectedYear, inst.selectedMonth, inst.selectedDay, 0, 1, 0)/1000); 
+				".OnEvent::rme($this, "setView", array("'tag'", "day"), "function(){ ".OnEvent::reload("Screen")." }")." 
+			},
+			beforeShowDay: function(date){ 
+				var month = (date.getMonth() + 1 < 10 ? '0' : '')+(date.getMonth() + 1); 
+				return [true, 'day2_'+date.getFullYear()+month+(date.getDate() < 10 ? '0' : '')+date.getDate(), ''] 
+			},
+			onChangeMonthYear: function (year, month) {
+				".OnEvent::rme($this, "getTerminDays", array("month", "year", "'1'"), "function(t){ 
+					
+				for(var i = 0; i < t.responseData.length; i++)
+					\$j('.day2_'+t.responseData[i]+' a').css('font-weight', 'bold');
+				}")."
+			}
+		});
+		
+		var terminTage2 = ".$this->getTerminDays(date("m", $TC->getCurrent()->time() >= $nextMonth ? $TC->getCurrent()->time() : $nextMonth), date("Y", $TC->getCurrent()->time() >= $nextMonth ? $TC->getCurrent()->time() : $nextMonth)).";
+		for(var i = 0; i < terminTage2.length; i++)
+			\$j('.day2_'+terminTage2[i]+' a').css('font-weight', 'bold');
+			
+		
 	});");
 		
 		return $html;
+	}
+	
+	function getTerminDays($month, $year, $echo = false){
+		
+		$month = new Datum(mktime(0, 1, 0, $month, 1, $year));
+		
+		$lastDay = clone $month;
+		$lastDay->addMonth(false);
+		$lastDay->subDay();
+		
+		$K = $this->getData($month->time(), $lastDay->time());
+		
+		$days = array();
+		while($month->time() <= $lastDay->time()){
+			$events = $K->getEventsOnDay(date("dmY", $month->time()));
+			if($events != null)
+				$days[] = "".date("Ymd", $month->time());
+			
+			$month->addDay();
+		}
+		
+		if($echo)
+			echo json_encode ($days);
+		
+		return json_encode($days);
 	}
 	
 	function setView($to, $spec = null){
@@ -395,7 +496,7 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 		$U->setUserdata("KalenderDisplay".ucfirst($type),$to);
 	}
 
-	function getInfo($className, $classID, $day){
+	function getInfo($className, $classID, $day = null){
 		$C = new $className($classID);
 		echo $C->getCalendarDetails($className, $classID)->getInfo($day);
 	}

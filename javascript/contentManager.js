@@ -42,13 +42,20 @@ var contentManager = {
 	layout: "",
 	
 	maxHeight: function(){
+		var footerHeight = $j('#footer').outerHeight();
+		if(Interface.mobile())
+			footerHeight = 0;
+		
 		if(contentManager.layout == "desktop")
 			return $j('#wrapper').height() - $j('#wrapperTable').height() - 20; // 20 px padding on contentLeft and contentRight
 		
 		if(contentManager.layout == "vertical")
-			return $j(window).height() - $j('#footer').height() - 30; // 20 px padding on contentLeft and contentRight
+			return $j(window).height() - footerHeight - 20; // 20 px padding on contentLeft and contentRight
 		
-		return ($j(window).height() - $j('#navTabsWrapper').outerHeight() - $j('#footer').height() - 30);
+		if(contentManager.layout == "fixed")
+			return ($j(window).height() - ($j('#navTabsWrapper').outerHeight() > 60 ? $j('#navTabsWrapper').outerHeight() : 60) - footerHeight - 20);
+		
+		return ($j(window).height() - $j('#navTabsWrapper').outerHeight() - footerHeight - 20);
 	},
 			
 	maxWidth: function(getWindow){
@@ -62,7 +69,7 @@ var contentManager = {
 		return ($j(window).width() - $j('#phim:visible').outerWidth());
 	},
 			
-	scrollTable: function(tableID){
+	scrollTable: function(tableID, maxPage){
 		var header_table = $j( '<table aria-hidden="true" id=\"head'+tableID+'\"><thead><tr><td></td></tr></thead></table>' );
 		
 		var scroll_div = '<div id=\"body'+tableID+'\" style="height: 120px;overflow-y: auto;"></div>';
@@ -78,7 +85,21 @@ var contentManager = {
 		});
 
 		$j('div#body'+tableID).prepend($targetDataTable);
-		$j('div#body'+tableID).css("width", $j($targetDataTable).width());
+		$j('div#body'+tableID).css("width", "100%");//$j($targetDataTable).width());
+		$j('div#body'+tableID).scroll(function(event){
+			if(lastLoadedRightPage >= maxPage)
+				return;
+			
+			//console.log(event);
+			var maxScroll = $j(this).children(":first").height() - $j(this).height();
+			//if(maxScroll < 0)
+			//	return;
+			
+			var percent = 100 / maxScroll * $j(this).scrollTop();
+			if(percent > 90)
+				contentManager.appendNextPage('contentRight', $j(this).children(":first").find('tbody').get(0));
+			//var scrollPercent = 100 *  / ($(containeD).height() - $(containeR).height());
+		});
 		//.width($j($targetDataTable).width());
 			
 		$j($targetDataTable).css('width', '100%');
@@ -94,7 +115,8 @@ var contentManager = {
 
 		$j('div#body'+tableID).css('height', height);
 		
-		$j($targetHeaderTable).closest('.browserContainer').css("position", "fixed");
+		var container = $j($targetHeaderTable).closest('.browserContainer');
+		container.css("position", "fixed").css("width", container.parent().width());
 		
 		if($j('#contentRight').find("#"+tableID).length)
 			$j('#contentRight').append("<div style=\"height:"+contentManager.maxHeight()+"px\"></div>");
@@ -108,7 +130,7 @@ var contentManager = {
 		Overlay.init();
 		contentManager.layout = layout;
 		
-		loadMenu();
+		Menu.loadMenu();
 		$('contentLeft').update();
 		//if (document.cookie == "") document.cookie = "CookieTest = Erfolgreich"
 		if (!navigator.cookieEnabled) alert("In Ihrem Browser sind Cookies deaktiviert.\nBitte aktivieren Sie Cookies, damit diese Anwendung funktioniert.");
@@ -215,28 +237,6 @@ var contentManager = {
 		contentManager.emptyFrame('contentLeft');
 		contentManager.emptyFrame('contentRight');
 		contentManager.loadFrame("contentScreen", "Desktop", 1, 0, "");
-		/*
-		new Ajax.Request('./interface/loadFrame.php?p=Desktop&id=1', {
-		method: 'get',
-		onSuccess: function(transport) {
-			if(transport.responseText.search(/^error:/) == -1){
-				lastLoadedRightPlugin = "Desktop";
-				lastLoadedRight = 1;
-				$('contentRight').update(transport.responseText);
-
-				if($('DesktopMenuEntry')) setHighLight($('DesktopMenuEntry'));
-
-				if(!$('morePluginsMenuEntry')) {
-					new Ajax.Request('./interface/loadFrame.php?p=Desktop&id=2', {
-						onSuccess: function(transport){
-							$('contentLeft').update(transport.responseText);
-						}
-					});
-					lastLoadedLeftPlugin = "Desktop";
-					lastLoadedLeft = 2;
-				}
-			}
-		}});*/
 	},
 	
 	loadPlugin: function(targetFrame, targetPlugin, bps, withId, options){
@@ -275,7 +275,7 @@ var contentManager = {
 					if($j('#BrowserMain'+contentManager.historyLeft[historyPlugin][1]).length)
 						found = true;
 
-					if(found && $j(window).width() > 1000)
+					if(found && !Interface.mobile())
 						contentManager.loadFrame("contentLeft", contentManager.historyLeft[historyPlugin][0], contentManager.historyLeft[historyPlugin][1], 0, "", function(){
 							$j('#Browser'+historyPlugin+contentManager.historyLeft[historyPlugin][1]).addClass("lastSelected");
 							$j('#BrowserMain'+contentManager.historyLeft[historyPlugin][1]).addClass("lastSelected");
@@ -305,7 +305,7 @@ var contentManager = {
 		Popup.closeNonPersistent();
 		
 		if($(targetPlugin+'MenuEntry'))
-			setHighLight($(targetPlugin+'MenuEntry'));
+			Menu.setHighLight($(targetPlugin+'MenuEntry'));
 	},
 
 	loadJS: function(){
@@ -341,7 +341,6 @@ var contentManager = {
 			else $("wrapperHandler").update(transport.responseText);
     	});
 		
-    	//new Ajax.Request("./interface/rme.php?class=Menu&method=getActiveApplicationName&constructor=&parameters=",{onSuccess: });
 	},
 
 	setRoot: function(path){
@@ -520,6 +519,18 @@ var contentManager = {
 		$(targetFrame).update("");
 	},
 
+	appendNextPageLoading: false,
+	appendNextPage: function(targetFrame, appendTo){
+		if(contentManager.appendNextPageLoading)
+			return;
+		
+		if(targetFrame == "contentRight"){
+			contentManager.appendNextPageLoading = true;
+			contentManager.loadFrame(targetFrame, lastLoadedRightPlugin, lastLoadedRight, (lastLoadedRightPage * 1) + 1, "", function(){ contentManager.appendNextPageLoading = false; }, false, {'appendTo': appendTo});
+		//target, plugin, withId, page, bps, onSuccessFunction, hideError, options
+		}
+	},
+
 	forwardOnePage: function(targetFrame){
 		if(targetFrame == "contentLeft")
 			contentManager.loadFrame(targetFrame, lastLoadedLeftPlugin, lastLoadedLeft, (lastLoadedLeftPage * 1) + 1);
@@ -563,7 +574,9 @@ var contentManager = {
 	},
 
 	saveSelection: function(classe, classId, saveFunction, idToSave, targetFrame, bps){
-		contentManager.rmePCR(classe, classId, saveFunction, idToSave, function() {contentManager.reloadFrame(targetFrame);}, bps)
+		contentManager.rmePCR(classe, classId, saveFunction, idToSave, function() {
+			contentManager.reloadFrame(targetFrame);
+		}, bps)
 	},
 
 	editInPopup: function(plugin, withId, title, bps, options){
@@ -626,6 +639,10 @@ var contentManager = {
 		if(typeof bps != "undefined")
 			bps = bps.replace(/;/, "&bpsPar[]=");
 		
+		var appendable = false;
+		if(typeof options == "object" && options.appendTo)
+			appendable = true;
+		
 		new Ajax.Request('./interface/loadFrame.php?r='+Math.random(), {
 			onSuccess: function(transport, textStatus, request){
 				if(checkResponse(transport, hideError)) {
@@ -636,17 +653,21 @@ var contentManager = {
 					}
 					
 					var close = "";
-					if(target == "contentLeft" && $j(window).width() <= 1000){
-						close = "<span title=\"Schließen\" style=\"z-index:110;position:fixed;padding:15px;top:5px;right:5px;\" onclick=\"contentManager.emptyFrame('contentLeft'); contentManager.clearHistory(); $j('#contentLeft').css('min-height', '');\" class=\"iconic iconicG iconicL x\" alt=\"Schließen\"></span>";
+					if(target == "contentLeft" && Interface.mobile()){
+						close = "<div style=\"height:50px;\"></div><span title=\"Schließen\" style=\"z-index:110;position:absolute;padding:15px;top:5px;right:5px;\" onclick=\"contentManager.emptyFrame('contentLeft'); contentManager.clearHistory(); $j('#contentLeft').css('min-height', '');\" class=\"iconic iconicG iconicL x\" alt=\"Schließen\"></span>";
 					}
-
-					$j("#"+target).html(close+transport.responseText);
 					
-					if(target == "contentLeft" && $j(window).width() <= 1000 && $j(document).height() > $j("#contentLeft").outerHeight()){
+					if(typeof options == "object" && options.appendTo)
+						$j(options.appendTo).append(transport.responseText);
+					else
+						$j("#"+target).html(close+transport.responseText);
+					
+					if(target == "contentLeft" && Interface.mobile() && $j(document).height() > $j("#contentLeft").outerHeight()){
 						$j("#contentLeft").css("min-height", $j(document).height());
 					}
 					
-					if(typeof onSuccessFunction != "undefined" && onSuccessFunction != "") onSuccessFunction(transport);
+					if(typeof onSuccessFunction != "undefined" && onSuccessFunction != "")
+						onSuccessFunction(transport);
 
 					Aspect.joinPoint("loaded", "contentManager.loadFrame", arg, transport.responseText);
 
@@ -654,7 +675,7 @@ var contentManager = {
 			},
 				
 			method: "POST",
-			parameters: 'p='+plugin+(typeof withId != "undefined" ? '&id='+withId : "")+((typeof bps != "undefined" && bps != "") ? '&bps='+bps : "")+((typeof page != "undefined" && page != "") ? '&page='+page : "")+"&frame="+target});
+			parameters: 'p='+plugin+(typeof withId != "undefined" ? '&id='+withId : "")+((typeof bps != "undefined" && bps != "") ? '&bps='+bps : "")+((typeof page != "undefined" && page != "") ? '&page='+page : "")+"&frame="+target+"&appendable="+(appendable ? "1" : "0")});
 
 	},
 
@@ -710,14 +731,30 @@ var contentManager = {
 
 	},
 
-	startAutoLogoutInhibitor: function(){
-		if(contentManager.autoLogoutInhibitor) return;
+	startAutoLogoutInhibitor: function(hasZentrale){
+		if(contentManager.autoLogoutInhibitor) 
+			return;
 
 		contentManager.autoLogoutInhibitor = true;
 
-		new PeriodicalExecuter(function(pe) {
+		window.setInterval(function(){
 			contentManager.rmePCR('Menu','','autoLogoutInhibitor','');
-		}, 300);
+			
+			if(hasZentrale)
+				$j.ajax({
+					url: contentManager.getRoot()+"plugins/AppServer/index.php?action=keepAlive",
+
+					beforeSend: function(){
+					},
+
+					success: function(transport, textStatus, request){
+
+					},
+					type: "GET",
+					data: null,
+					cache : false
+				});
+		}, 300 * 1000);
 	},
 
 	newClassButton: function(newClass, onSuccessFunction, targetFrame, bps){
@@ -725,19 +762,6 @@ var contentManager = {
 		if(typeof targetFrame == "undefined") targetFrame = "contentLeft";
 
 		contentManager.loadFrame(targetFrame, newClass, -1, 0, bps, onSuccessFunction);
-/*
-		new Ajax.Request('./interface/loadFrame.php?p='+newClass+'&id=-1'+(typeof bps != "undefined" ? "&bps="+bps : ""), {
-		method: 'get',
-		onSuccess: function(transport) {
-			if(checkResponse(transport)) {
-				if(typeof targetFrame == "undefined") targetFrame = "contentLeft";
-				$(targetFrame).update(transport.responseText);
-				//lastLoadedLeft = -1;
-				//lastLoadedLeftPlugin = newClass;
-
-				if(typeof onsuccessFunction != "undefined" && onsuccessFunction != "") onsuccessFunction();
-			}
-		}});*/
 	},
 
 	/*toggleFormFields: function(mode, fields, formID){

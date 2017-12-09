@@ -675,13 +675,13 @@ class CCAuftrag extends CCPage implements iCustomContent {
 		if($data["bankleitzahl"] == "")
 			die("&nbsp;");
 		
-		$uri = "http://www.blzdb.de/page-SOAP";
+		$uri = "http://soapi.io/soap/blz";
 		
 		$Soap = new SoapClient(null, array(
 			"location" => $uri,
 			"uri" => $uri));
 		
-		$R = $Soap->bankInfo($data["bankleitzahl"], $data["kontonummer"]);
+		$R = $Soap->requestBank($data["bankleitzahl"], $data["kontonummer"]);
 		
 		echo $data["bankleitzahl"].": ".$R["bankname"];
 		

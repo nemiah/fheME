@@ -129,6 +129,8 @@ class mxCalGUI extends anyC implements iGUIHTMLMP2 {
 					continue;
 				
 				$calendarEvent = new KalenderEvent("mxCalGUI", $server->A("xCalID") . ":" . (String) $event->uid, $calendar->formatDay($startTimestamp), $calendar->formatTime($startTimestamp), (String)$event->summary);
+				$calendarEvent->endDay($calendar->formatDay($endTimestamp));
+				$calendarEvent->endTime($calendar->formatTime($endTimestamp));
 				$calendar->addEvent($calendarEvent);
 			}
 		}

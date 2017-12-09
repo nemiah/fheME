@@ -37,15 +37,15 @@ class Aspect {
 	}
 
 	public static function findPointCut($mode, $class, $method, $args = null){
+		if(isset($_SESSION[self::$sessionVariable]) AND count($_SESSION[self::$sessionVariable]) > 0)
+			foreach($_SESSION[self::$sessionVariable] AS $PA)
+				self::registerPointCut($PA[0], $PA[1], $PA[2]);
+		
 		if($mode == "around" AND !isset(Aspect::$pointCuts[$mode][$method]))
 			throw new AOPNoAdviceException();
 
 		if($mode == "after" AND !isset(self::$pointCuts[$mode][$method]))
 			return $args;
-
-		if(isset($_SESSION[self::$sessionVariable]) AND count($_SESSION[self::$sessionVariable]) > 0)
-			foreach($_SESSION[self::$sessionVariable] AS $PA)
-				self::registerPointCut($PA[0], $PA[1], $PA[2]);
 			
 		
 		if(isset(Aspect::$pointCuts[$mode][$method]) AND count(Aspect::$pointCuts[$mode][$method]) > 0){

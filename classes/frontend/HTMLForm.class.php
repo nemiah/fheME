@@ -354,7 +354,7 @@ class HTMLForm {
 		$this->onSubmit = $this->saveButtonSubmit."return false;";
 	}
 	
-	public function setSaveRMEPCR($saveButtonLabel, $saveButtonBGIcon, $targetClass, $targetClassId, $targetMethod, $onSuccessFunction = ""){
+	public function setSaveRMEPCR($saveButtonLabel, $saveButtonBGIcon, $targetClass, $targetClassId, $targetMethod, $onSuccessFunction = "", $onFailureFunction = "function(){}"){
 		$this->saveMode = "rmeP";
 		$this->saveButtonLabel = $saveButtonLabel;
 		$this->saveButtonBGIcon = $saveButtonBGIcon;
@@ -387,7 +387,7 @@ class HTMLForm {
 				$values .= ($values != "" ? ", " : "")."\$('$this->id').$f.checked ? '1' : '0'";
 		}
 		
-		$this->saveButtonSubmit = "contentManager.rmePCR('$targetClass', '$targetClassId', '$targetMethod', [$values]".($onSuccessFunction != "" ? ", $onSuccessFunction" : "").");";
+		$this->saveButtonSubmit = "contentManager.rmePCR('$targetClass', '$targetClassId', '$targetMethod', [$values]".($onSuccessFunction != "" ? ", $onSuccessFunction" : "function(){}").", '', true, $onFailureFunction);";
 		$this->onSubmit = $this->saveButtonSubmit."return false;";
 	}
 	
@@ -477,6 +477,14 @@ class HTMLForm {
 		$this->saveAction = "";
 		$this->saveButtonOnclick = "saveBericht('".get_class($berichtClass)."', '$this->id');";
 	}
+	public function setSaveBericht2($berichtClass){
+		$this->saveMode = "Bericht";
+		$this->saveButtonLabel = "Einstellungen speichern";
+		$this->saveButtonBGIcon = "";
+		$this->saveClass = "";
+		$this->saveAction = "";
+		$this->saveButtonOnclick = "Bericht.save('".get_class($berichtClass)."', '$this->id');";
+	}
 
 	public function isEditable($editable){
 		$this->editable = $editable;
@@ -484,7 +492,7 @@ class HTMLForm {
 
 	public function setSaveClass($className, $classID, $onSuccessFunction = '', $label = ''){
 		$this->saveMode = "class";
-		$this->saveButtonLabel = "$label speichern";
+		$this->saveButtonLabel = T::_("%1 speichern", $label);
 		$this->saveButtonBGIcon = "./images/i2/save.gif";
 		$this->saveClass = "";
 		$this->saveAction = "";
@@ -673,15 +681,25 @@ class HTMLForm {
 
 					if($this->cols == 2) $this->table->addLV(
 						(isset($this->labels[$v]) ? $this->labels[$v] : ucfirst($v)).($this->printColon ? ":" : ""),
-						$B.$InputS.(isset($this->descriptionField[$v]) ? "<br /><small style=\"color:grey;\">".$this->descriptionField[$v]."</small>" : ""));
+						$B.$InputS.(isset($this->descriptionField[$v]) ? "<br><small style=\"color:grey;\">".$this->descriptionField[$v]."</small>" : ""));
 
 					if($this->cols == 1) {
+						
+						if(isset($this->labels[$v]) AND $this->labels[$v] != ""){
+							$this->table->addRow(
+							"<label ".($this->cols == 1 ? "style=\"width:100%;\"" : "").">".$this->labels[$v].":</label>");
+							$this->table->addRowClass("backgroundColor3");
+						}
+						
+						if(!isset($this->labels[$v])){
+							$this->table->addRow(
+							"<label ".($this->cols == 1 ? "style=\"width:100%;\"" : "").">".ucfirst($v).":</label>");
+							$this->table->addRowClass("backgroundColor3");
+						}
+						
+						
 						$this->table->addRow(
-						"<label ".($this->cols == 1 ? "style=\"width:100%;\"" : "").">".(isset($this->labels[$v]) ? $this->labels[$v] : ucfirst($v)).":</label>");
-						$this->table->addRowClass("backgroundColor3");
-
-						$this->table->addRow(
-						$B.$InputS.(isset($this->descriptionField[$v]) ? "<br /><small style=\"color:grey;\">".$this->descriptionField[$v]."</small>" : ""));
+						$B.$InputS.(isset($this->descriptionField[$v]) ? "<br><small style=\"color:grey;\">".$this->descriptionField[$v]."</small>" : ""));
 						$this->table->addRowClass("backgroundColor0");
 					}
 

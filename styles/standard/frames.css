@@ -1,5 +1,7 @@
 #container {
-	/*width:100%;*/
+	/*width:100%;*/	
+	min-height:100%;
+	position:relative;
 }
 
 #wrapper {
@@ -8,11 +10,25 @@
 	border-bottom-width:0px;
 	border-bottom-style: solid;
 	clear:both;
-
+	padding-bottom:70px;
 	/*-moz-box-shadow: -4px -2px 4px #AAA;
 	-webkit-box-shadow: -4px -2px 4px #AAA;
 	box-shadow: -4px -2px 4px #AAA;*/
 }
+
+@media only screen and (min-width: 1802px) {
+	#wrapper {
+		border-left:1px solid grey;
+		border-right:1px solid grey;
+		max-width:1800px;
+		margin:auto;
+	}
+	
+	#container {
+		background-color:#eee;
+	}
+}
+
 /*
 #wrapperTable {
 	width:100%;
@@ -64,7 +80,8 @@
 }
 
 #contentLeft table {
-	width:410px;
+	width:100%;
+	max-width:410px;
 	margin:auto;
 	border-left-width:0px;
 	border-left-style: solid;
@@ -96,7 +113,8 @@
 	border-right-width:0px;
 	border-right-style: solid;
 	margin-right:10px;
-	width:390px;
+	max-width:390px;
+	width:100%;
 }
 
 #contentRight .Tab {
@@ -135,6 +153,7 @@
 
 #contentBelowContent {
 	border-top-width: 1px;
+	border-bottom-width: 1px;
 }
 
 caption[onclick] {
@@ -153,22 +172,6 @@ caption {
 #windows table, #windowsPersistent table {
 	margin:auto;
 	width:95%;
-}
-
-
-@media only screen and (max-width: 1000px) {
-	#wrapperTableTd1 {
-		width:100%;
-		position:absolute;
-		top:0;
-		left:0;
-		z-index: 100;
-		background-color: white;
-	}
-	
-	#contentRight {
-		//width:100%;
-	}
 }
 
 #phim {

@@ -89,16 +89,16 @@ class HTMLPopupGUI {
 
 		if($this->showEdit){
 			$TE->setColWidth($cols, 20);
-			$TE->useForSelection(false);
+			#$TE->useForSelection(false);
 		}
 		$TE->maxHeight(400);
 		$TE->weight("light");
 		
-		$BE = new Button("Eintrag bearbeiten", "arrow_right", "iconic");
+		$BE = new Button("Eintrag bearbeiten", "arrow_right", "iconicG");
 		
 		$autoLoad = false;
 		while($A = $this->object->getNextEntry()){
-			$action = "contentManager.selectRow(this); \$j('#editDetails".$this->object->getClearClass()."').animate({'width':'800px'}, 200, 'swing', function(){ ".OnEvent::frame("popupEditEntry", get_class($A), $A->getID(), "0", "function(){ \$j('#popupEditEntry').fadeIn(); }")." });";
+			$action = "contentManager.selectRow('#popupEntryID".$A->getID()."'); \$j('#editDetails".$this->object->getClearClass()."').animate({'width':'800px'}, 200, 'swing', function(){ ".OnEvent::frame("popupEditEntry", get_class($A), $A->getID(), "0", "function(){ \$j('#popupEditEntry').fadeIn(); }")." });";
 			
 			$BD = new Button("Eintrag löschen", "trash_stroke", "iconic");
 			$BD->doBefore("\$j('#popupEditEntry').fadeOut(400, function(){ \$j('#editDetails".$this->object->getClearClass()."').animate({'width':'400px'}, 200, 'swing', function(){ %AFTER }); });");
@@ -110,17 +110,36 @@ class HTMLPopupGUI {
 				$isEmpty = true;
 			}
 			
-			if($this->emptyCheckField != null AND is_array($this->emptyCheckField)){
+			if($this->emptyCheckField != null AND is_array($this->emptyCheckField) AND $this->emptyCheckValue === null){
 				$ec = 0;
-				foreach($this->emptyCheckField AS $field){
-					if($A->A($field) != "")
-						continue;
-						
+				foreach($this->emptyCheckField AS $k => $field){
+					if($A->A($field) != ""){
+						$isEmpty = false;
+						$autoLoad = false;
+						break;
+					}
+					
 					$autoLoad = $action;
 					$isEmpty = true;
 					$ec++;
 				}
 				$isEmpty = $ec == count($this->emptyCheckField);
+			}
+			
+			if($this->emptyCheckField != null AND is_array($this->emptyCheckField) AND is_array($this->emptyCheckValue)){
+				
+				$isEmpty = true;
+				foreach($this->emptyCheckField AS $k => $field){
+					if(isset($this->emptyCheckValue[$k]) AND $A->A($field) != $this->emptyCheckValue[$k]){
+						$isEmpty = false;
+						#$autoLoad = false;
+						break;
+					}
+					
+				}
+				if($isEmpty)
+					$autoLoad = $action;
+				#$isEmpty = $ec == count($this->emptyCheckField);
 			}
 			
 			if(!$isEmpty){
@@ -167,7 +186,7 @@ class HTMLPopupGUI {
 			
 			if($this->showEdit){
 				$TE->addCellID(count($row), "popupEntryID".$A->getID());
-				$TE->addCellStyle(count($row), "vertical-align:top;");
+				$TE->addCellStyle(count($row), "vertical-align:top;cursor:pointer;");
 				$TE->addCellEvent(count($row), "click", $action);
 			}
 		}

@@ -23,6 +23,11 @@ var Interface = {
 	TabBarLast: null,
 	TabBarLastTab: null,
 	isLoading: false,
+	mobileMaxWidth: 1000,
+	
+	mobile: function(){
+		return $j(window).width() <= Interface.mobileMaxWidth;
+	},
 	
 	init: function(){
 		if($('wrapperHandler')){
@@ -198,7 +203,7 @@ var Interface = {
 		contentManager.currentPlugin = plugin;
 		
 		if($(plugin+'MenuEntry'))
-			setHighLight($(plugin+'MenuEntry'));
+			Menu.setHighLight($(plugin+'MenuEntry'));
 	}
 
 }

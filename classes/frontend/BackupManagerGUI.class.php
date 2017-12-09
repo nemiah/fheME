@@ -91,6 +91,10 @@ class BackupManagerGUI implements iGUIHTML2 {
 		$B = $ST->addButton("Einstellungen\nzurücksetzen", "clear");
 		$B->rmePCR("BackupManager", "-1", "clearSettings");
 		
+
+		#$BRestore = $ST->addButton("Datenbank wiederherstellen", "./plugins/Installation/restore.png");
+		#$BRestore->onclick(OnEvent::popup("Backup-Manager", "BackupManager", "-1", "inPopup"));
+			
 		if(count($list) == 0)
 			return "$ST<p class=\"highlight\">Es wurden noch keine Sicherungen angelegt.</p>";
 		
@@ -135,11 +139,12 @@ class BackupManagerGUI implements iGUIHTML2 {
 			$gesamt += $size;
 		}
 
-		#$ST = new HTMLSideTable("right");
-		
 		
 		if(count($list) == 0)
-			return "<p>Es wurden noch keine Sicherungen angelegt.</p>";
+			die("<p class=\"highlight\">Es wurden noch keine Sicherungen angelegt.</p>
+				<p>Wenn Sie eine Sicherung wiederherstellen möchten, dann gehen Sie bitte wie folgt vor:</p>
+				<p class=\"confirm\">Kopieren Sie die Dateien im Verzeichnis <strong>/system/Backup</strong> Ihrer alten Installation in das gleiche Verzeichnis in dieser Installation.</p>
+				<p>Unter Windows finden Sie das Verzeichnis /system/Backup in der Regel unter C:/Programme (x86)/open3A/htdocs oder C:/open3A/htdocs.</p>");
 		
 		echo $TB;
 	}
@@ -332,7 +337,7 @@ class BackupManagerGUI implements iGUIHTML2 {
 	}
 	
 	private static function getNewBackupName(){
-		return Util::getRootPath()."system/Backup/".$_SESSION["DBData"]["datab"].".".date("Ymd")."_utf8.sql";
+		return Util::getRootPath()."system/Backup/".$_SESSION["DBData"]["datab"].".".date("Ymd")."_utf8.sql.gz";
 	}
 
 	public function makeBackupOfToday(){
@@ -471,7 +476,10 @@ require valid-user
 		else
 			mysqli_set_charset($con, "latin1");
 		
-		$file = fopen(Util::getRootPath()."system/Backup/$name", "r");
+		if(substr($name, -3, 3) == ".gz")
+			$file = gzopen(Util::getRootPath()."system/Backup/$name", "r");
+		else
+			$file = fopen(Util::getRootPath()."system/Backup/$name", "r");
 
 		$return = PMBP_exec_sql($file, $con);
 
@@ -483,7 +491,7 @@ require valid-user
 		$Tab->addLV("Zeilen", $return["linenumber"]);
 		$Tab->addLV("Fehler", $return["error"]);
 
-		echo $Tab;
+		echo $Tab.OnEvent::script("\$j('.installHiddenTab').fadeIn();");
 	}
 
 	public static function checkForTodaysBackup(){

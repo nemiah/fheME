@@ -72,7 +72,7 @@ class User extends PersistentObject {
 			$this->A->SHApassword = "";
 	}
 	
-	function saveMe($checkUserData = true, $output = false){
+	function saveMe($checkUserData = true, $output = false, $hash = true){
 		$allowedUsers = Environment::getS("allowedUsers", null);
 		if($allowedUsers !== null AND $this->A("isAdmin") == "0"){
 			$AC = anyC::get("User", "isAdmin", "0");
@@ -86,13 +86,17 @@ class User extends PersistentObject {
 		
 		$U = new User($this->ID);
 		$U->loadMe(false);
-		if(mUserdata::getGlobalSettingValue("encryptionKey") == null AND Session::isUserAdminS()) mUserdata::setUserdataS("encryptionKey", Util::getEncryptionKey(), "eK", -1);
+		
+		if(mUserdata::getGlobalSettingValue("encryptionKey") == null AND Session::isUserAdminS()) 
+			mUserdata::setUserdataS("encryptionKey", Util::getEncryptionKey(), "eK", -1);
+		
 		if($this->A->SHApassword != "")
-			$this->A->SHApassword = sha1($this->A->SHApassword);
+			$this->A->SHApassword = $hash ? sha1(str_replace("\\$", "$",$this->A->SHApassword)) : $this->A->SHApassword;
 		else
 			$this->A->SHApassword = $U->A("SHApassword");
 
-		if($checkUserData) mUserdata::checkRestrictionOrDie("cantEdit".str_replace("GUI","",get_class($this)));
+		if($checkUserData) 
+			mUserdata::checkRestrictionOrDie("cantEdit".str_replace("GUI","",get_class($this)));
 
 		$this->loadAdapter();
 		$this->Adapter->saveSingle2($this->getClearClass(get_class($this)),$this->A);
@@ -136,7 +140,7 @@ class User extends PersistentObject {
 		$A->name = "";
 		$A->username = "";
 		$A->password = "";
-		$A->isAdmin = "";
+		$A->isAdmin = "0";
 		$A->SHApassword = "";
 		$A->language = "";
 		$A->UserEmail = "";

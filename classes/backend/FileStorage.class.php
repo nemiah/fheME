@@ -89,6 +89,12 @@ class FileStorage {
 	}
 	
 	public static function getFilesDir(){
+		// <editor-fold defaultstate="collapsed" desc="Aspect:jP">
+		try {
+			return Aspect::joinPoint("around", __CLASS__, __METHOD__);
+		} catch (AOPNoAdviceException $e) {}
+		// </editor-fold>
+
 		$path = realpath(Util::getRootPath())."/specifics/";
 		
 		if(!file_exists($path.".htaccess") AND is_writable($path))
@@ -116,6 +122,15 @@ class FileStorage {
 			return realpath($dir)."/";
 		}
 		
+		if(Session::isPluginLoaded("multiInstall") AND isset($_SESSION["DBData"]) AND isset($_SESSION["DBData"]["httpHost"])){# AND $_SESSION["DBData"]["httpHost"] != "*"){
+			$path .= "Mandant_".$_SESSION["DBData"]["InstallationID"]."/";
+			
+			if(!file_exists($path)){
+				mkdir($path, 0777, true);
+				chmod($path, 0777);
+			}
+		}
+		
 		return $path;
 	}
 	
@@ -129,7 +144,10 @@ class FileStorage {
 		$dir = realpath($this->dir);
 		$dir .= "/";
 		
-		if(strpos($dir,"specifics") === false AND !$this->forceDir) $dir = self::getFilesDir();#realpath("../specifics")."/";
+		$checkSpecifics = Aspect::joinPoint("check", $this, __METHOD__, array(), true);
+		
+		if($checkSpecifics AND strpos($dir,"specifics") === false AND !$this->forceDir) 
+			$dir = self::getFilesDir();
 		
 		$dirs = array();
 		$files = array();

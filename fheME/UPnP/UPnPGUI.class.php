@@ -159,7 +159,7 @@ class UPnPGUI extends UPnP implements iGUIHTML2 {
 	private function findEntries($xml){
 		$entries = array();
 		foreach($xml->item AS $item){
-			$newName = $item->children("http://purl.org/dc/elements/1.1/");
+			$newName = $item->children("http://purl.org/dc/elements/1.1/")."";
 			$newName = prettifyDB::apply("seriesEpisodeNameDownloaded", $newName);
 			
 			$entries[$newName] = $item;

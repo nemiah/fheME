@@ -31,13 +31,13 @@ class ADesktopGUI extends UnpersistentClass implements iGUIHTML2 {
 						$('contentLeft').update('');
 						Popup.closeNonPersistent();
 						contentManager.loadFrame('contentRight', 'mInstallation', -1, 0, 'mInstallationGUI;-');
-						setHighLight($('mInstallationMenuEntry'));
+						Menu.setHighLight($('mInstallationMenuEntry'));
 					}
 					else if($('mCloudMenuEntry')){
 						$('contentLeft').update('');
 						Popup.closeNonPersistent();
 						contentManager.loadFrame('contentRight', 'mCloud', -1, 0, 'mCloudGUI;-');
-						setHighLight($('mCloudMenuEntry'));
+						Menu.setHighLight($('mCloudMenuEntry'));
 					}
 				</script>";
 			break;
@@ -52,8 +52,8 @@ class ADesktopGUI extends UnpersistentClass implements iGUIHTML2 {
 		if(Environment::getS("blogShow", "1") == "0")
 			return "";
 		
-		$ctx = stream_context_create(array('http' => array('timeout' => 5)));
-		$data = file_get_contents(Environment::getS("blogRSSURL", "http://blog.furtmeier.it/feed/"), 0, $ctx);
+		$ctx = stream_context_create(array('https' => array('timeout' => 1)));
+		$data = file_get_contents(Environment::getS("blogRSSURL", "https://blog.furtmeier.it/feed/"), 0, $ctx);
 		
 		
 		$html = "

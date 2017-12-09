@@ -90,7 +90,7 @@ if(isset($I)){
 			$scriptFiles .= "<script type=\"text/javascript\" src=\"$v\"></script>";
 	}
 	
-	$viewport = "width=device-width, initial-scale=1.0, user-scalable=no";
+	$viewport = "width=device-width, initial-scale=1, user-scalable=no";
 	if(method_exists($I, "getViewport"))
 		$viewport = $I->getViewport();
 }
@@ -107,7 +107,8 @@ if(isset($I)){
 		<title><?php echo $pageTitle; ?></title>
 		
 		<link rel="stylesheet" type="text/css" href="./lib/jquery-ui-1.8.24.custom.css" />
-		<link rel="stylesheet" type="text/css" href="./lib/default.css" />
+		<!--<link rel="stylesheet" type="text/css" href="./lib/default.css" />-->
+		<link rel="stylesheet" type="text/css" href="./lib/default.css?r=<?php echo rand(); ?>" />
 		<style type="text/css">
 			<?php
 			echo $styles;

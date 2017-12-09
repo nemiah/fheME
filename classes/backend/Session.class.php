@@ -56,37 +56,33 @@ class Session {
 			$_SESSION["DBDataWrite"] = $DBWrite;
 	}
 	
-	public function getDBData($newFolder = null){
-		$external = false;
-		
-		if(file_exists(Util::getRootPath()."../../phynxConfig")){
-			$newFolder = Util::getRootPath()."../../phynxConfig/";
-			$external = true;
-		}
-		
-		if(file_exists(Util::getRootPath()."../phynxConfig")){
-			$newFolder = Util::getRootPath()."../phynxConfig/";
-			$external = true;
-		}
-		
-		if($newFolder == null)
-			$newFolder = Util::getRootPath()."system/DBData/";
+	public function getDBData($newFolder = null, $forceID = null){
+		list($newFolder, $external) = Installation::getDBFolder($newFolder);
 		
 		$findFor = "*";
 		if(isset($_SERVER["HTTP_HOST"]))
 			$findFor = $_SERVER["HTTP_HOST"];
+		
 		$data = new mInstallation();
-		if($newFolder != "") $data->changeFolder($newFolder);
+		if($newFolder != "") 
+			$data->changeFolder($newFolder);
+		
 		$data->setAssocV3("httpHost","=",$findFor);
-		#$data->loadCollectionV2();
+		
+		if($forceID !== null){
+			$data = new mInstallation();
+			if($newFolder != "") 
+				$data->changeFolder($newFolder);
+			$data->addAssocV3("InstallationID", "=", $forceID);
+		}
 		
 		$n = $data->getNextEntry();
 		
 		if($n == null) {
-			#$data = new mInstallation();
-			#if($newFolder != "") $data->changeFolder($newFolder);
 			$data = new mInstallation();
-			if($newFolder != "") $data->changeFolder($newFolder);
+			if($newFolder != "") 
+				$data->changeFolder($newFolder);
+			
 			$data->setAssocV3("httpHost","=","*");
 			$n = $data->getNextEntry();
 		}
@@ -160,6 +156,10 @@ class Session {
 	public function isUserAdmin(){
 		$UA = $this->currentUser->getA();
 		return $UA->isAdmin;
+	}
+
+	public static function isInstallation(){
+		return Session::currentUser()->A("isInstall") !== null;
 	}
 
 	public static function isUserAdminS(){

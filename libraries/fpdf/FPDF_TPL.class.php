@@ -308,7 +308,7 @@ class FPDF_TPL extends FPDI_BRIDGE
             return call_user_func_array(array($this, 'TCPDF::SetFont'), $args);
         }
 
-        parent::SetFont($family, $style, $size);
+        parent::SetFont($family, $style, $size, $fontfile, $subset, $out);
 
         $fontkey = $this->FontFamily . $this->FontStyle;
 

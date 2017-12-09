@@ -151,6 +151,9 @@ var Popup = {
 	create: function(ID, type, name, options, ignoreWidth){
 		var size = Overlay.getPageSize(true);
 		var width = 400;
+		if($j(window).width() < width)
+			width = $j(window).width();
+		
 		var hasX = true;
 		var persistent = false;
 		var targetContainer = "windows";
@@ -170,6 +173,9 @@ var Popup = {
 		}
 		
 		var top = null;
+		if(Interface.mobile())
+			top = 0;
+		
 		var right = null;
 		var left = null;
 		var hasMinimize = false;
@@ -267,9 +273,11 @@ var Popup = {
 		if(top == null)
 			top = size[0] <= 1124 ? (66 + $(targetContainer).childNodes.length * 40) : (100 + $(targetContainer).childNodes.length * 40);
 		
-		if(right == null && left == null)
+		if(right == null && left == null){
 			right = size[0] <= 1124 ? (0) : (410 + $(targetContainer).childNodes.length * 20);
-		
+			if(size[0] > 1800)
+				right += (size[0] - 1800) / 2;
+		}
 		//if(left != null)
 		//	right = size[0] - width - left;
 			

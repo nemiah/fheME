@@ -28,6 +28,9 @@ class DBImageGUI implements iGUIHTML2  {
 	public static function resizeMax($imageData, $max_width, $max_height){
 		$image = imagecreatefromstring($imageData);
 		
+		if(!$max_height)
+			$max_height = $max_width;
+		
 		$width  = $max_width;
 		$height = $max_height;
 		$width_orig = imagesx($image);
@@ -139,7 +142,7 @@ class DBImageGUI implements iGUIHTML2  {
 		if(!isset($i[0])) return;
 		if(!isset($i[1])) return;
 		if(!isset($i[2])) return;
-		
+
 		header("Content-type: $i[0]");
 		header("Content-length: $i[1]");
 		echo stripslashes(base64_decode($i[2]));

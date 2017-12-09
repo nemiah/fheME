@@ -17,6 +17,8 @@
  *
  *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
+if(!file_exists("/var/www/status/cron_".gethostname()))
+	die("Status file missing!");
 
 if(file_exists("/var/www/status/cron_".gethostname())){
 	$status = file_get_contents("/var/www/status/cron_".gethostname());

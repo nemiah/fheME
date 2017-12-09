@@ -131,8 +131,10 @@ class HTMLGUI2 extends HTMLGUI {
 	}
 
 	function getBrowserHTML($lineWithId = -1){
-		$this->texts = $this->languageClass->getBrowserTexts();
-		$singularLanguageClass = $this->loadLanguageClass($this->singularClass);
+		T::load(Util::getRootPath()."libraries");
+		
+		#$this->texts = $this->languageClass->getBrowserTexts();
+		#$singularLanguageClass = $this->loadLanguageClass($this->singularClass);
 		$userCanDelete = mUserdata::isDisallowedTo("cantDelete".$this->singularClass);
 		$userCanCreate = mUserdata::isDisallowedTo("cantCreate".$this->singularClass);
 		$userHiddenFields = mUserdata::getHides($this->singularClass);
@@ -183,7 +185,7 @@ class HTMLGUI2 extends HTMLGUI {
 		 * DELETE-BUTTON
 		 */
 		if((!$this->onlyDisplayMode OR $this->deleteInDisplayMode) AND $userCanDelete AND !$this->isSelection AND $this->showDeleteButton)  $this->newColsRight["delete"]  = "
-			<span class=\"iconic trash_stroke\" onclick=\"deleteClass('".$this->singularClass."','%%VALUE%%', ".($this->JSOnDelete == null ? "function() { ".($this->displaySide == "left" ? "contentManager.reloadFrameLeft();" : "contentManager.reloadFrameRight(); if(typeof lastLoadedLeft != 'undefined' && lastLoadedLeft == '%%VALUE%%') $('contentLeft').update('');")." }" : $this->JSOnDelete).",'".str_replace("%1",$this->singularName, $this->texts["%1 wirklich löschen?"])."');\"></span>";
+			<span class=\"iconic trash_stroke\" onclick=\"deleteClass('".$this->singularClass."','%%VALUE%%', ".($this->JSOnDelete == null ? "function() { ".($this->displaySide == "left" ? "contentManager.reloadFrameLeft();" : "contentManager.reloadFrameRight(); if(typeof lastLoadedLeft != 'undefined' && lastLoadedLeft == '%%VALUE%%') $('contentLeft').update('');")." }" : $this->JSOnDelete).",'".T::_("%1 wirklich löschen?", $this->singularName)."');\"></span>";
 		elseif(!$userCanDelete) $this->newColsRight["delete"] = "<img src=\"./images/i2/empty.png\" />";
 
 
@@ -300,7 +302,7 @@ class HTMLGUI2 extends HTMLGUI {
 				#$IPage = $this->getPageSelectionField();
 				#$IPage->style("width:30px;float:right;text-align:right;");
 
-				$pageOptions = $this->multiPageMode[0]." ".($this->multiPageMode[0] == 1 ? $this->texts["Eintrag"] : $this->texts["Einträge"]).", $pageLinks";
+				$pageOptions = $this->multiPageMode[0]." ".($this->multiPageMode[0] == 1 ? T::_("Eintrag") : T::_("Einträge")).", $pageLinks";
 
 				if(!$userDefinedEntriesPerPage){
 					$valuesTab->addRow(array($pageOptions));
@@ -339,7 +341,7 @@ class HTMLGUI2 extends HTMLGUI {
 
 		$filteredCol = null;
 		if($lineWithId == -1 AND $this->showFilteredCategoriesWarning != null AND $this->showFilteredCategoriesWarning[0]) {
-			$dB = new Button($this->texts["Filter löschen"],"./images/i2/delete.gif");
+			$dB = new Button("Filter löschen","./images/i2/delete.gif");
 			$dB->style("float:right;");
 			$dB->type("icon");
 			$dB->rme("HTML","","saveContextMenu",array("'deleteFilters'","'{$this->showFilteredCategoriesWarning[1]}'"), "if(checkResponse(transport)) contentManager.reloadFrameRight();");
@@ -348,7 +350,7 @@ class HTMLGUI2 extends HTMLGUI {
 				<td class=\"backgroundColor0\"".((isset($this->showFilteredCategoriesWarning[0]) AND $this->showFilteredCategoriesWarning[0] == true) ? "<img src=\"./images/i2/note.png\" /></td><td class=\"backgroundColor0\" colspan=\"".($determinedNumberofCols - 2)."\" style=\"color:grey;\" >".$this->texts["Anzeige wurde gefiltert"]."</td><td class=\"backgroundColor0\">$dB</td>" : " >")."</td>
 			</tr>";*/
 
-			$filteredCol = array("<img src=\"./images/i2/note.png\" />",$dB.$this->texts["Anzeige wurde gefiltert"]);
+			$filteredCol = array("<img src=\"./images/i2/note.png\" />",$dB.T::_("Anzeige wurde gefiltert"));
 			$valuesTab->addRow($filteredCol);
 			$valuesTab->addRowColspan(2, $cols-1);
 			$valuesTab->addRowClass("highlight");

@@ -62,6 +62,7 @@ class CookieCart {
 
 	private $couponCallback;
 	private $currentCouponCode;
+	private $callbackOrdered;
 
 	private $CCHSessionVariable = "Customer";
 	private $PostenID = 0;
@@ -100,7 +101,7 @@ class CookieCart {
 
 	public function A($value){
 		
-		if($this->PostenID == 1010){
+		if($this->PostenID == 1010 OR $this->PostenID == 2020){
 			$values = $this->getA();
 
 			if($value == "CookieCartPreis")
@@ -136,7 +137,23 @@ class CookieCart {
 	public function getCCHSessionVariable(){
 		return $this->CCHSessionVariable;
 	}
+	
+	public function setCallbackOrdered($function){
+		$this->callbackOrdered = $function;
+	}
 
+	public function callbackOrdered(){
+		if($this->callbackOrdered == "")
+			return;
+		
+		$ex = explode("::", $this->callbackOrdered);
+		$class = $ex[0];
+		$method = $ex[1];
+		
+		$R = new ReflectionMethod($class, $method);
+		return $R->invokeArgs(null, array());
+	}
+	
 	public function invalidateCoupon(){
 		if($this->couponCallback != null)
 			$this->invokeParser($this->couponCallback, "invalidateCoupon", null);
@@ -144,12 +161,14 @@ class CookieCart {
 
 	function getA(){
 		$A = new stdClass();
-		$values = array(1010 => array("mwst" => "19.00", "preis" => 0, "artikelnummer" => "10%", "name" => "10% Rabatt"));
+		$values = array(
+			1010 => array("mwst" => "19.00", "preis" => 0, "artikelnummer" => "10%", "name" => "10% Rabatt"),
+			2020 => array("mwst" => "19.00", "preis" => -16.8067, "artikelnummer" => "20€", "name" => "20€ Rabatt")
+		);
 		
 		switch($this->PostenID){
 			case "1":
 				$values = $this->invokeParser($this->couponCallback, "getPostenValues", $this->currentCouponCode);
-
 
 				$A->mwst = $values["mwst"];
 				$A->artikelname = $values["name"];
@@ -158,12 +177,16 @@ class CookieCart {
 			break;
 		
 			case "1010":
-				#$netto = $this->getSum("netto", true) * -0.1;
-				#$brutto = Util::kRound($netto * (($values[$this->PostenID]["mwst"] / 100) + 1));
-				#$netto = $brutto / (($values[$this->PostenID]["mwst"] / 100) + 1);
 				$A->mwst = $values[$this->PostenID]["mwst"];
 				$A->artikelname = $values[$this->PostenID]["name"];
 				$A->preis = $this->getSum("netto", true) * -0.1;
+				$A->artikelnummer = $values[$this->PostenID]["artikelnummer"];
+			break;
+		
+			case "2020":
+				$A->mwst = $values[$this->PostenID]["mwst"];
+				$A->artikelname = $values[$this->PostenID]["name"];
+				$A->preis = $values[$this->PostenID]["preis"];
 				$A->artikelnummer = $values[$this->PostenID]["artikelnummer"];
 			break;
 		}
@@ -273,9 +296,13 @@ class CookieCart {
 	}
 	
 	public function exists($artikelID, $type = null){
-		if($type == null) $type = $this->useClass[0];
-		if(strpos($this->cookie, "--$artikelID:__:") !== false AND strpos($this->cookie, ":__:$type--") !== false) return true;
-		else return false;
+		if($type == null) 
+			$type = $this->useClass[0];
+		
+		return preg_match("/--$artikelID:__:[0-9]+:__:$type--/", $this->cookie);
+		
+		#if(strpos($this->cookie, "--$artikelID:__:") !== false AND strpos($this->cookie, ":__:$type--") !== false) return true;
+		#else return false;
 	}
 	
 	protected function setCookie(){
@@ -820,7 +847,7 @@ class CookieCart {
 				
 				$ppName = str_replace(array("Ä", "Ö", "Ü", "ß", "ä" , "ö", "ü"), array("Ae", "Oe", "Ue", "ss", "ae", "oe", "ue"), $tName);
 
-				if($t[2] == "CookieCart" AND ($t[0] == "1" OR  $t[0] == "1010"))
+				if($t[2] == "CookieCart" AND ($t[0] == "1" OR $t[0] == "1010" OR $t[0] == "2020"))
 					$paypalHTML .= '<input type="hidden" name="discount_amount_cart" value="'.abs($brutto).'" />';
 				else $paypalHTML .= '
 	<input type="hidden" name="item_name_'.$i.'" value="'.trim($ppName).'"/ >

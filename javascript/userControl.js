@@ -27,6 +27,24 @@ var userControl = {
 	autoLoginCounter: 0,
 	usePWEncryption: true,
 	
+	changePassword: function(){
+		if($j('#loginPassword').val() != ";;cookieData;;")
+			$j('#loginSHAPassword').val(SHA1($j.trim($j('#loginPassword').val())));
+		
+		contentManager.rmePCR('Users', -1, 'changePassword', [
+			$j('#loginUsername').val(), 
+			$j('#loginSHAPassword').val(), 
+			SHA1($j.trim($j('#newPassword1').val())), 
+			SHA1($j.trim($j('#newPassword2').val()))
+		],
+		function(){ 
+			$j('#newPassword1').val('');
+			$j('#newPassword2').val('');
+			$j('#loginPassword').val('');
+			$j('.changePassword').hide();
+		});
+	},
+	
 	doLogin: function(){
 		userControl.abortAutoCertificateLogin();
 		userControl.abortAutoLogin();
@@ -71,7 +89,7 @@ var userControl = {
 				else
 					$j.jStorage.deleteKey('phynxUserData');
 			   
-				loadMenu();
+				Menu.loadMenu();
 				//DesktopLink.loadContent();
 				contentManager.clearHistory();
 			//$('loginPassword').value = "";
@@ -103,7 +121,7 @@ var userControl = {
 				return;
 			}
 			
-			loadMenu();
+			Menu.loadMenu();
 			//DesktopLink.loadContent();
 		}, "", true, function(){
 			$j('#loginCertOptions').toggle();
@@ -190,17 +208,6 @@ var userControl = {
 				//userControl.doLogin();
 			}
 		});
-	/*
-		new Ajax.Request("./interface/rme.php", {
-		method: 'post',
-		parameters: "class=Users&construct=&method=doLogin&parameters='%3B-%3B%3Bund%3B%3B-%3BloginUsername%3B-%3B%3Bistgleich%3B%3B-%3B0%3B-%3B%3Bund%3B%3B-%3BloginSHAPassword%3B-%3B%3Bistgleich%3B%3B-%3B0%3B-%3B%3Bund%3B%3B-%3Banwendung%3B-%3B%3Bistgleich%3B%3B-%3B0%3B-%3B%3Bund%3B%3B-%3BsaveLoginData%3B-%3B%3Bistgleich%3B%3B-%3B0'",
-		onSuccess: function(transport) {
-			if(transport.responseText == "") {
-				alert("Fehler: Server antwortet nicht!");
-				return;
-			}
-	    	if(transport.responseText == -2) alert("Bitte verwenden Sie 'Admin' als Benutzer und Passwort!\nDie Benutzer-Datenbank existiert noch nicht.");
-		}});*/
 	},
 	
 	doLogout: function(redirect){
@@ -208,18 +215,9 @@ var userControl = {
 			Popup.closeNonPersistent();
 			Popup.closePersistent();
 			contentManager.clearHistory();
-			loadMenu();
+			Menu.loadMenu();
 			contentManager.contentBelow("");
 			if(typeof redirect != "undefined" && redirect != "") document.location.href= redirect;
 		});
-	/*
-		new Ajax.Request("./interface/rme.php?class=Users&constructor=&method=doLogout&parameters=''", {
-		method: 'get',
-		onSuccess: function(transport) {
-			Popup.closeNonPersistent();
-			Popup.closePersistent();
-			loadMenu();
-			if(typeof redirect != "undefined" && redirect != "") document.location.href= redirect;
-		}});*/
 	}
 }

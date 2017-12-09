@@ -54,11 +54,80 @@ class mTodoGUI extends mTodo implements iGUIHTMLMP2, iKalender {
 		$gui->parser("TodoTillDay","mTodoGUI::dayParser");
 
 		$gui->activateFeature("CRMEditAbove", $this);
+
+		if($bps["ownerClass"] == "Projekt"){
+			#$gui->activateFeature("CRMEditAbove", $this, OnEvent::popup("Termin bearbeiten", "mTodo", "%CLASSID", "editInPopup", array("'%CLASSID'")));
+			$gui->activateFeature("CRMEditAbove", $this, OnEvent::popup("Termin bearbeiten", "mKalender", "-1", "getInfo", array("'mTodoGUI'", "'%CLASSID'")));
 		
+			$gui->options(true, true, false, false);
+
+			$Projekt = new Projekt($bps["ownerClassID"]);
+			$UIDs = explode(";:;", $Projekt->A("ProjektTeilnehmerUserIDs"));
+
+			$B = $gui->addTopButton("Neuer\nTermin", "new");
+			$B->popup("", "Neuer Projekttermin", "mTodo", "-1", "newProjectTodo", array($bps["ownerClassID"]), "", "{width:".((count($UIDs) * 150) + 420)."}");
+		}
+			
 		$gui->displayMode("CRMSubframeContainer");
 		$gui->attributes(array("TodoType","TodoTillDay","TodoDescription","TodoDoneTime"));
 		$gui->customize($this->customizer);
 		return $gui->getBrowserHTML($id);
+	}
+	
+	public function newProjectTodo($ProjektID){
+		$Projekt = new Projekt($ProjektID);
+		BPS::setProperty("mTodoGUI", "ownerClass", "Projekt");
+		BPS::setProperty("mTodoGUI", "ownerClassID", $ProjektID);
+			
+		if($Projekt->A("ProjektTeilnehmerUserIDs") == "")
+			$Projekt->changeA("ProjektTeilnehmerUserIDs", Session::currentUser()->getID());
+		
+		$T = new TodoGUI(-1);
+		$T->changeA("TodoTeilnehmer", $Projekt->A("ProjektTeilnehmerUserIDs"));
+		$T->GUI = new HTMLGUIX($T);
+		$T->GUI->displayMode("popupS");
+		$T->GUI->requestFocus("TodoName");
+
+		$T->GUI->addToEvent("onSave", OnEvent::reload("Left").OnEvent::closePopup("mTodo"));
+		
+		$allowed = Todo::getAllowed();
+		$ac = Users::getUsers();
+		$users = array();
+		while($u = $ac->getNextEntry()){
+			if(!isset($allowed[$u->getID()]) AND $u->getID() != Session::currentUser()->getID())
+				continue;
+			
+			if(isset($allowed[$u->getID()]) AND strpos($allowed[$u->getID()], "create") === false)
+				continue;
+			
+			$users[$u->getID()] = $u->A("name");			
+		}
+		$T->getHTML(-1);
+		$T->GUI->insertAttribute("after", "TodoRemind", "TodoTeilnehmer");
+		$T->GUI->type("TodoTeilnehmer", "select-multiple", $users);
+		
+		$T->GUI->type("TodoUserID", "hidden");
+		$T->GUI->type("TodoType", "hidden");
+		$T->GUI->activateFeature("addSaveDefaultButton", $T, "TodoRemind");
+			
+			
+		#echo $T->GUI->getEditHTML();
+		
+		$UIDs = explode(";:;", $Projekt->A("ProjektTeilnehmerUserIDs"));
+		$users = Users::getUsersArray();
+		
+		echo "<div style=\"display:inline-block;vertical-align:top;\">";
+		
+		foreach($UIDs AS $UID){
+			echo "<p style=\"width:150px;display:inline-block;vertical-align:top;box-sizing:border-box;padding-right:10px;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;\" class=\"prettySubtitle\">".$users[$UID]."</p>";
+		}
+		
+		echo "<div style=\"max-height:500px;overflow:auto;width:".(count($UIDs) * 150 + 20)."px;\">";
+		foreach($UIDs AS $UID){
+			echo "<div style=\"width:150px;display:inline-block;vertical-align:top;box-sizing:border-box;padding-right:10px;\">".
+					$this->getBusyList($UID, false, 1)."</div>";
+		}
+		echo "</div></div><div style=\"width:400px;display:inline-block;vertical-align:top;\"><p class=\"prettySubtitle\">Neuer Termin</p>".$T->GUI->getEditHTML()."</div>";
 	}
 	
 	public static function parserDone($w, $l, $E){
@@ -384,7 +453,7 @@ END:VCALENDAR";
 		$T->GUI->displayMode("popupS");
 		$T->GUI->requestFocus("TodoName");
 		#if($id == -1)
-		$T->GUI->addToEvent("onSave", OnEvent::popup("Event", "mKalender", "-1", "getInfo", array("'mTodoGUI'", "transport.responseText", "'$date'")));
+		$T->GUI->addToEvent("onSave", OnEvent::reload("Left").OnEvent::popup("Event", "mKalender", "-1", "getInfo", array("'mTodoGUI'", "transport.responseText", "'$date'")));
 		
 		
 		if($targetClass != null){
@@ -395,8 +464,17 @@ END:VCALENDAR";
 		$T->getHTML($id);
 
 		#if($T->A("TodoClass") == "Kalender" OR $T->A("TodoClass") == "DBMail")
-			$T->GUI->insertAttribute("after", "TodoClassID", "TodoName");
+		$T->GUI->insertAttribute("after", "TodoClassID", "TodoName");
 
+		$T->GUI->activateFeature("addSaveDefaultButton", $T, "TodoRemind");
+			
+		if($T->A("TodoClass") == "DBMail"){
+			#$answer = "; {  Popup.load('Antworten', 'Mail', '-1', 'writeMail', [15,14699,'answer'], '', 'newMail', 'Mail.PopupOptions'); }";
+			$answer = OnEvent::popup("Antworten", "Mail", "-1", "writeMail", array("Mail.currentMailKontoID", $T->A("TodoClassID"), "'answer'"), "MailGUI;usePreset:DBMail2Object", "Mail.PopupOptions", "newMail");
+			$T->GUI->replaceEvent("onSave", "function(){ Mail.updateRow(".$T->A("TodoClassID")."); ".OnEvent::closePopup("mKalender")." $answer }");
+			
+		}
+		
 		if(BPS::getProperty("TodoGUI", "overview")){
 			
 			$T->GUI->addFieldEvent("TodoUserID", "onChange", OnEvent::rme($this, "getBusyList", array("this.value", "1"), "function(t){ \$j('#busyList').html(t.responseText); }"));
@@ -407,11 +485,11 @@ END:VCALENDAR";
 			BPS::unsetProperty("TodoGUI", "overview");
 			die($html);
 		}
-			
+		
 		echo $T->GUI->getEditHTML();#.OnEvent::script("\$j('#editTodoGUI input[name=TodoName]').trigger('focus');");
 	}
 	
-	function getBusyList($UserID = null, $echo = false){
+	function getBusyList($UserID = null, $echo = false, $cols = 2){
 		$cutoffDatePast = time() - (2 * 24 * 3600);
 		$cutoffDateFuture = time() + (84 * 24 * 3600);
 
@@ -436,27 +514,28 @@ END:VCALENDAR";
 					$list .= "<div style=\"white-space: nowrap;overflow: hidden;text-overflow: ellipsis;\" title=\"".$KE->title()."\"><span>".Util::CLTimeParser($K->parseTime($KE->currentWhen()->time))." - ".Util::CLTimeParser($K->parseTime($KE->getEndTime()))."</span> <small style=\"color:grey;\">".$KE->title()."</small></div>";
 				}
 				
-			$Datum->addDay();
 
-			
-			
 			$style = "";
 			
-			if($Datum->w() == 0 OR $Datum->w() == 6)
+			if($Datum->w() == 0 OR $Datum->w() == 6){
+				$Datum->addDay();
 				continue;#$style = "background-color:#DDD;";
+			}
 			
 			if($Datum->w() == 1)
 				$htmlEvents .= "<div class=\"backgroundColor2\"><p class=\"prettySubtitle\">KW ".date("W", $Datum->time())."</p></div>";
 			
-			$htmlEvents .= "<div style=\"margin-bottom:20px;{$style}display:inline-block;width:50%;box-sizing:border-box;vertical-align:top;min-height:60px;\">
+			$htmlEvents .= "<div style=\"margin-bottom:20px;{$style}display:inline-block;width:".(100 / $cols)."%;box-sizing:border-box;vertical-align:top;min-height:60px;\">
 				<div style=\"background-color:#EEE;padding:5px;\">
 					<span style=\"display:inline-block;width:30px;font-weight:bold;\">".mb_substr(Util::CLWeekdayName($Datum->w()), 0, 2)."</span>
-					<span style=\"color:grey;\">".Util::CLDateParser($Datum->time())."</span>
+					<a style=\"color:grey;\" href=\"#\" onclick=\"\$j('#TodoFromDay123, #TodoTillDay123').val('".Util::CLDateParser($Datum->time())."').trigger('change');\">".Util::CLDateParser($Datum->time())."</a>
 				</div>
 				<div style=\"padding:5px;\">
 					$list
 				</div>
 				</div>";
+			
+			$Datum->addDay();
 		}
 		
 		if($echo)
@@ -526,6 +605,20 @@ END:VCALENDAR";
 			$O = $T->getOwnerObject();
 			$KE->value("Kunde", $O->getHTMLFormattedAddress());
 		}
+		
+		if($T->A("TodoClass") == "DBMail"){
+			$M = new DBMail($T->A("TodoClassID"));
+			
+			$B = new Button("Mail anzeigen", "./lightCRM/Mail/Mail.png", "icon");
+			$B->popup("", "Mail anzeigen", "mDBMail2Object", "-1", "showMail", array($T->A("TodoClassID"), $w, 1), "", "Mail.PopupOptions");
+			
+			$BAnswer = new Button("Antworten", "./lightCRM/Mail/images/mail-reply-sender.png", "icon");
+			$BAnswer->popup("newMail", "Antworten", "Mail", -1, "writeMail", array($M->A("DBMailMailKontoID"), $T->A("TodoClassID"), "'answer'"), null, "Mail.PopupOptions");
+			$BAnswer->style("margin-left:10px;");
+			
+			$KE->value("E-Mail",$B.$BAnswer);
+		}
+		
 		$KE->value("Typ", TodoGUI::types($T->A("TodoType")));
 		$KE->value("Ort", $T->A("TodoLocation"));
 		#$KE->value("Status", TodoGUI::getStatus($T->A("TodoStatus")));
@@ -564,6 +657,11 @@ END:VCALENDAR";
 			$KE->value("Telefon", $Adresse->A("tel"));
 		}
 
+		if($T->A("TodoCreatorUserID") != $T->A("TodoUserID")){
+			$creator = new User($T->A("TodoCreatorUserID"));
+			$KE->value("Angelegt von", $creator->A("name"));
+		}
+		
 		$KE->status($T->A("TodoStatus"));
 		
 		$KE->endDay($K->formatDay($T->A("TodoTillDay")));
@@ -591,6 +689,12 @@ END:VCALENDAR";
 		if($T->A("TodoOrganizer") == "" AND !$T->A("TodoDoneTime"))
 			$KE->repeatable("editRepeatable");
 
+		if($T->A("TodoRepeat") == "")
+			$KE->movable("moveTo");
+		
+		if($T->A("TodoRepeat") == "")
+			$KE->cloneable("cloneTo");
+		
 		$KE->location($T->A("TodoLocation"));
 
 		$KE->repeat($T->A("TodoRepeat") != "", $T->A("TodoRepeat"), $T->A("TodoRepeatWeekOfMonth") * 1, $T->A("TodoRepeatDayOfWeek"), $T->A("TodoRepeatInterval"), $T->A("TodoRepeatUntil"));
@@ -619,6 +723,8 @@ END:VCALENDAR";
 		$ACS = anyC::get("Userdata", "name", "shareCalendarTo".Session::currentUser()->getID());
 		$ACS->addAssocV3("name", "=", "shareCalendarTo0", "OR");
 		while($Share = $ACS->getNextEntry()){
+			if($Share->A("UserID") == Session::currentUser()->getID())
+				continue;
 			
 			$U = new User($Share->A("UserID"));
 			
@@ -798,6 +904,24 @@ END:VCALENDAR";
 		$F->setSaveClass("Todo", $todoID, "function(){ /*\$j('#eventAdditionalContent').slideUp();*/ contentManager.reloadFrame('contentScreen'); Kalender.refreshInfoPopup(); }", "Aktivität");
 		
 		return $F;
+	}
+	
+	public function moveTo($TodoID, $toDay){
+		$T = new Todo($TodoID);
+		$diff = $T->A("TodoTillDay") - $T->A("TodoFromDay");
+		
+		$T->changeA("TodoFromDay", $toDay);
+		$T->changeA("TodoTillDay", $toDay + $diff);
+		$T->saveMe();
+	}
+	
+	public function cloneTo($TodoID, $toDay){
+		$T = new Todo($TodoID);
+		$diff = $T->A("TodoTillDay") - $T->A("TodoFromDay");
+		
+		$T->changeA("TodoFromDay", $toDay);
+		$T->changeA("TodoTillDay", $toDay + $diff);
+		$T->newMe();
 	}
 	
 	public static function parserDayOfWeek($value){

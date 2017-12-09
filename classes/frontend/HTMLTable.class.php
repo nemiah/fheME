@@ -423,8 +423,8 @@ class HTMLTable extends UnifiedTable implements iUnifiedTable  {
 		return $R.($this->appendJS != "" ? OnEvent::script($this->appendJS) : "");
 	}
 	
-	public function useScreenHeight(){
-		$this->appendJS .= "contentManager.scrollTable('$this->tableID');";
+	public function useScreenHeight($maxPage = 0){
+		$this->appendJS .= "contentManager.scrollTable('$this->tableID', $maxPage);";
 	}
 }
 ?>
