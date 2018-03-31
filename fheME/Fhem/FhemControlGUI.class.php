@@ -221,6 +221,30 @@ class FhemControlGUI implements iGUIHTML2 {
 				break;
 			}
 
+		if($f->A("FhemType") == "HMCCUDEV"){
+
+			#$togggle = false;
+			#$onclick = "\$j('.fhemeControl:not(#controls_D".$f->getID().")').hide(); \$j('#controls_D".$f->getID()."').toggle();";
+			
+			$values = array("on" => "on", "off" => "off");
+			#$togggle = true;
+			$onclick = OnEvent::rme($this, "toggleDevice", $f->getID(), "if(Fhem.doAutoUpdate) Fhem.requestUpdate();");
+			
+
+			#$controls = $this->getSetTable("D".$f->getID(), $values);
+
+			#if($togggle)
+			#	$controls = "";
+
+			$html = "<div id=\"FhemControlID_".$f->getID()."\" onclick=\"$onclick\" style=\"cursor:pointer;\" class=\"touchButton\">
+					$controls
+					<div id=\"FhemID_".$f->getID()."\">
+
+					</div>
+				</div>";
+
+		}
+		
 		if($f->A("FhemType") == "dummy"){
 			$onclick = "\$j('.fhemeControl:not(#controls_D".$f->getID().")').hide(); \$j('#controls_D".$f->getID()."').toggle();";
 
@@ -621,6 +645,18 @@ class FhemControlGUI implements iGUIHTML2 {
 				return $v->attributes()->state;
 			}
 			
+		if(isset($x->HMCCUDEV_LIST->HMCCUDEV) AND count($x->HMCCUDEV_LIST->HMCCUDEV) > 0)
+			foreach($x->HMCCUDEV_LIST->HMCCUDEV AS $k => $v){
+				if($v->attributes()->name != $F->A("FhemName"))
+					continue;
+				
+				$state = $v->attributes()->state;
+				if($state == "Initialized")
+					$state = "off";
+					
+				return $state;
+			}
+			
 		return null;
 	}
 	
@@ -636,6 +672,39 @@ class FhemControlGUI implements iGUIHTML2 {
 				continue;
 			}
 			
+			if(isset($x->HMCCUDEV_LIST->HMCCUDEV) AND count($x->HMCCUDEV_LIST->HMCCUDEV) > 0)
+				foreach($x->HMCCUDEV_LIST->HMCCUDEV AS $k => $v){
+					$F = new mFhemGUI();
+					$F->addAssocV3("FhemServerID","=",$s->getID());
+					$F->addAssocV3("FhemName","=",$v->attributes()->name);
+
+					$F = $F->getNextEntry();
+					
+					if($F == null)
+						continue;
+					
+					if($ID AND $F->getID() != $ID)
+						continue;
+
+					$state = $v->attributes()->state;
+					if($state == "Initialized")
+						$state = "off";
+					#if($F->A("FhemModel") == "fs20irf") $state = "off";
+
+					#$state = strtolower(str_replace("dim", "", $state));
+
+					$FS = new Button("", "./fheME/Fhem/off.png", "icon");
+					$FS->style("float:left;margin-right:5px;");
+
+					if($state != "off" && $state != "aus")
+						$FS->image("./fheME/Fhem/on.png");
+
+					if(!is_numeric(str_replace("%", "", $state)))
+						$state = "";
+
+					$result[$F->getID()] = array("model" => $F->A("FhemModel"), "state" => "$FS<b>".($F->A("FhemAlias") == "" ? $F->A("FhemName") : $F->A("FhemAlias"))."</b> <small style=\"color:grey;\">$state</small><div style=\"clear:both;\"></div>");
+				}
+				
 			if(isset($x->dummy_LIST->dummy) AND count($x->dummy_LIST->dummy) > 0)
 				foreach($x->dummy_LIST->dummy AS $k => $v){
 					$F = new mFhemGUI();

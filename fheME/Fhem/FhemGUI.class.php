@@ -94,7 +94,7 @@ class FhemGUI extends Fhem implements iGUIHTML2 {
 
 		$gui->type("FhemFHTModel", "select", array("" => "none", "fht80b" => "80B"));
 
-		$gui->type("FhemType", "select", array("" => "none", "FS20" => "FS20","FHZ" => "FHZ", "FHT" => "FHT", "CUL_HM" => "HomeMatic", "IT" => "Intertechno", "CUL_EM" => "ELV EM", "notify" => "notify", "dummy" => "dummy"/*,"RGB" => "RGB"*/));
+		$gui->type("FhemType", "select", array("" => "none", "FS20" => "FS20","FHZ" => "FHZ", "FHT" => "FHT", "CUL_HM" => "HomeMatic", "HMCCUDEV" => "HomeMatic CCU2", "IT" => "Intertechno", "CUL_EM" => "ELV EM", "notify" => "notify", "dummy" => "dummy"/*,"RGB" => "RGB"*/));
 
 		$B = $gui->addSideButton("Show\ndata", "./fheME/Fhem/showData.png");
 		$B->popup("", "Show data", "Fhem", $this->getID(), "showData");
