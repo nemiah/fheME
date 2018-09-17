@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
 
 class KalenderViewMonat {
@@ -159,12 +159,14 @@ class KalenderViewMonat {
 		$html = "<table style=\"margin-left:10px;border-spacing: 0px;\" id=\"KalenderTable\">
 			<colgroup>";
 		
-		for($j = 0; $j < $cols -2; $j++)#
+		for($j = 0; $j < $cols - 2; $j++)#
 			$html .= "
 				<col ".($ansicht == "woche" ? "class=\"backgroundColor".($j % 2 + 2)."\" " : "")." style=\"width:".(100 / $cols)."%;\" />";
 			
 			$html .= "
-				<col style=\"background-color:$this->colorBgSaturday;width:".(100 / $cols)."%;\" />
+				<col style=\"background-color:$this->colorBgSaturday;width:".(100 / $cols)."%;\" />";
+			if($ansicht != "tag")
+				$html .= "
 				<col style=\"background-color:$this->colorBgSunday;width:".(100 / $cols)."%;\" />
 			</colgroup>";
 
@@ -233,7 +235,7 @@ class KalenderViewMonat {
 
 					}
 					$entry = "
-						<div class=\"cellHeight\" style=\"overflow:auto;width:961px;\" id=\"tagDiv\">
+						<div class=\"cellHeight\" style=\"width:100%;\" id=\"tagDiv\">
 							<div style=\"height:961px;\">
 							$dayDivs
 							</div>
@@ -334,7 +336,7 @@ class KalenderViewMonat {
 							".($ansicht != "tag" ? date("d",$D->time()) : "&nbsp;")."
 						</span>
 					</div>
-					<div style=\"overflow:auto;".($ansicht == "monat" ? "margin-top:0px;width:100%;" : "")."\" class=\"".($ansicht == "monat" ? "innerCellHeight" : "")."\">$entry</div>
+					<div style=\"".($ansicht == "monat" ? "margin-top:0px;width:100%;" : "")."\" class=\"".($ansicht == "monat" ? "innerCellHeight" : "")."\">$entry</div>
 				</td>";
 				$D->addDay();
 			}

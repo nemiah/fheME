@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
 class mKalenderGUI extends mKalender implements iGUIHTML2 {
 	function  __construct() {
@@ -290,12 +290,12 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 			$TCalendars
 		</div>
 		".$TC->getHeader()."
-		<div id=\"KalenderWrapper\" style=\"overflow:auto;\">
+		<div id=\"KalenderWrapper\">
 			".($ansicht != "jahr" ? "
 			<div style=\"width:205px;float:right;margin-right:40px;\">
 				<div style=\"height:23px;\"></div>$ST
 			</div>" : "")."
-			<div style=\"".($ansicht != "jahr" ? "margin-right:270px;" : "")."\">
+			<div id=\"KalenderFrame\" style=\"".($ansicht != "jahr" ? "margin-right:270px;" : "")."\">
 
 			".$TC->getTable($this)."
 			</div>
@@ -308,6 +308,18 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 		
 		$nextMonths->addMonth();
 		$nextMonth = $nextMonths->time();
+		
+		$sizing = "";
+		if($ansicht == "tag")
+			$sizing = "\$j('#KalenderFrame').css('overflow', 'auto').css('height', height+'px');
+			\$j('#KalenderTable').css('height', 24*40);
+			\$j('#KalenderFrame').scrollTop(7*40);";
+		
+		if($ansicht == "monat")
+			$sizing = "var cellHeight = (height - \$j('#KalenderTable tr:first th').parent().outerHeight()) / (\$j('#KalenderTable tr').length - ".(($ansicht == "monat" OR $ansicht == "jahr") ? "1" : "0").") - 1;
+			\$j('.cellHeight').css('height', cellHeight+'px');
+			\$j('.innerCellHeight').css('height', (cellHeight - \$j('.innerCellTitle:visible').outerHeight())+'px');";
+		
 		
 		$html .= OnEvent::script("\$j(function() {
 		
@@ -372,14 +384,24 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 		function fitKalender(){
 			if(!\$j('#KalenderTitle').length)
 				return;
-
+				
+			var headerHeight = 0;
+			if(\$j('#KalenderHeader').length > 0)
+				headerHeight = \$j('#KalenderHeader').outerHeight();
+			var height = (contentManager.maxHeight() - \$j('#KalenderAuswahl').outerHeight() - \$j('#KalenderTitle').outerHeight() - headerHeight) + 4;
+			
+			$sizing
+			/*
 			//console.log(\$j('#KalenderTitle').outerHeight());
 			//console.log(\$j('#KalenderAuswahl').outerHeight());
-			var height = (contentManager.maxHeight() - \$j('#KalenderAuswahl').outerHeight() - \$j('#KalenderTitle').outerHeight() - \$j('#KalenderHeader').outerHeight()) + 4;
+			var headerHeight = 0;
+			if(\$j('#KalenderHeader').length > 0)
+				headerHeight = \$j('#KalenderHeader').outerHeight();
+			
+			var height = (contentManager.maxHeight() - \$j('#KalenderAuswahl').outerHeight() - \$j('#KalenderTitle').outerHeight() - headerHeight) + 4;
 			var width = contentManager.maxWidth();
 			
-			\$j('#KalenderWrapper').css('height', height);
-			\$j('#KalenderWrapper').css('width', width);
+			//\$j('#KalenderWrapper').css('height', height).css('width', width);
 
 			var cellHeight = (height - \$j('#KalenderTable tr:first th').parent().outerHeight()) / (\$j('#KalenderTable tr').length - ".(($ansicht == "monat" OR $ansicht == "jahr") ? "1" : "0").") - 1;
 			\$j('.cellHeight').css('height', cellHeight+'px');
@@ -394,13 +416,14 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 			}
 			
 			if(\$j('#tagDiv').length) {
-				\$j('#tagDiv').css('width', \$j('#KalenderTable tr').width()+'px');
-				\$j('#tagDiv').animate({scrollTop: 7*40}, 0);
+				\$j('#tagDiv').css('height', height).css('width', \$j('#KalenderTable tr').width()+'px');
+				\$j('#tagDiv').scrollTop(7*40);//animate({scrollTop: 7*40}, 0);
 				var pos = \$j('#tagDiv').offset();
 				pos.position = 'absolute';
 
-				\$j('#tagDiv').css(pos)
-			}
+				\$j('#tagDiv').css(pos);
+			}*/
+			
 		}")."
 		<style type=\"text/css\">
 			".($TC->getCurrent()->time() < $thisMonth ? "#calendar1stMonth .ui-state-default { border: 1px solid #D3D3D3; background-color:transparent; }" : "")."

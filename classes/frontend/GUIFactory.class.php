@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
 class GUIFactory {
 
@@ -550,7 +550,7 @@ class GUIFactory {
 
 	// <editor-fold defaultstate="collapsed" desc="buildFlipPageLine">
 	public function buildFlipPageLine($where = "top"){
-		T::D("");
+		#T::D("");
 		
 		if($this->multiPageDetails["total"] == null) return;
 		if(!$this->showFlipPage) return;
@@ -613,12 +613,12 @@ class GUIFactory {
 			$this->table->addRowClass("backgroundColor0 browserSeparatorTop");
 			$this->table->setRowPart("thead");
 		}
-		T::D("");
+		#T::D("");
 	}
 	// </editor-fold>
 
 	public function buildPageCaption($page){
-		$this->table->addRow(array(T::_("Seite $page")));
+		$this->table->addRow(array(T::_("Seite %1", $page)));
 		$this->table->addRowColspan(1, count($this->referenceLine));
 		$this->table->addCellStyle(1, "text-align:left;padding-top:15px;font-weight:bold;");
 		$this->table->addRowClass("backgroundColor0");

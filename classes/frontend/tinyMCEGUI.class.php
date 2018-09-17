@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
 class tinyMCEGUI {
 	private $ID;
@@ -38,7 +38,7 @@ class tinyMCEGUI {
 					"save table",
 					"paste textcolor"
 				],
-				paste_as_text: true,
+				paste_as_text: '.Aspect::joinPoint("paste_as_text", __CLASS__, __METHOD__, array(), "true").',
 				browser_spellcheck : true,
 				content_css : "./styles/tinymce/email.css",
 				convert_urls : false,
@@ -82,6 +82,9 @@ class tinyMCEGUI {
 		} catch (TableDoesNotExistException $e){
 			
 		}
+		#return "";
+		#return '
+		#	$j("#'.$tinyMCEID.'").tinymce();';
 		
 		return '
 			$j("#'.$tinyMCEID.'").tinymce({
@@ -109,7 +112,7 @@ class tinyMCEGUI {
 				],
 				font_formats: "Helvetica=helvetica;Courier=courier;Times New Roman=times new roman'.$fonts.'",
 				fontsize_formats: "6pt 7pt 8pt 9pt 10pt 11pt 12pt 26pt 36pt",
-				paste_as_text: true,
+				paste_as_text: '.Aspect::joinPoint("paste_as_text", __CLASS__, __METHOD__, array(), "true").',
 				browser_spellcheck : true,
 				content_css : "'.$css.'",
 				convert_urls : false,
@@ -153,7 +156,7 @@ class tinyMCEGUI {
 		$ITA->style("width:".($variablesCallback != null ? "830" : "1000")."px;height:300px;");
 		
 		if($variablesCallback != null)
-			echo "<div style=\"float:right;width:160px;margin:5px;height:324px;overflow-y:auto;overflow-x:hidden;\">
+			echo "<div style=\"float:right;width:158px;margin:5px;height:324px;overflow-y:auto;overflow-x:hidden;\">
 					<p><small id=\"tinyMCEVarsDescription\"></small></p>
 					<p style=\"margin-top:5px;\" id=\"tinyMCEVars\"></p></div>";
 
@@ -171,7 +174,7 @@ class tinyMCEGUI {
 		
 		echo OnEvent::script("
 setTimeout(function(){
-	console.log('#$formID [name=$fieldName]');
+	//console.log('#$formID [name=$fieldName]');
 	\$j('#$tinyMCEID').val(\$j('#$formID [name=$fieldName]').val());
 	".$this->editorDokument($tinyMCEID, "function(content){\$j('#$formID [name=$fieldName]').val(content.getContent()).trigger('change'); ".OnEvent::closePopup("tinyMCE").OnEvent::closePopup("nicEdit")."}", $buttons, "./styles/tinymce/office.css", $picturesDir, $onInit)."
 			".($variablesCallback != null ? "$variablesCallback('$fieldName');" : "")."

@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
 class SupportGUI {
 	
@@ -62,7 +62,12 @@ class SupportGUI {
 		
 		$mailto = $data["recipients"][$recipient][1];
 		
-		$mimeMail2 = new PHPMailer(false, substr($mailfrom, stripos($mailfrom, "@") + 1));
+		$CH = Util::getCloudHost();
+		$skipOwn = false;
+		if($CH)
+			$skipOwn = true;
+		
+		$mimeMail2 = new PHPMailer(false, substr($mailfrom, stripos($mailfrom, "@") + 1), $skipOwn);
 		$mimeMail2->SMTPOptions = array(
 			'ssl' => array(
 				'verify_peer' => false,

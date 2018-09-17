@@ -15,10 +15,17 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
 class UsersGUI extends Users implements iGUIHTML2{
 	public function getHTML($id){
+		if(Applications::activeApplication() == "supportBox"){
+			$U = anyC::getFirst("User");
+			$UG = new UserGUI($U->getID());
+			
+			return $UG->getHTML($U->getID());
+		}
+		
 		$allowedUsers = Environment::getS("allowedUsers", null);
 		
 		#$this->addAssocV3("UserType", "=", "0");
@@ -173,7 +180,22 @@ class UsersGUI extends Users implements iGUIHTML2{
 		if(is_array($ps) AND !isset($ps["loginPWEncrypted"]))
 			$ps["loginPWEncrypted"] = true;
 			
-		echo parent::doLogin($ps);
+		$r = parent::doLogin($ps);
+		
+		parse_str($ps, $arguments);
+		if(isset($arguments["forwardTo"])){
+			if($r){
+				$_SESSION["phynx_customer"] = $arguments["forceCloud"];
+				#print_r($r);
+				#echo "Anmeldung erfolgreich! <a href=\"$arguments[forwardTo]\">Weiter zur Anwendung</a>";
+				header("Location: $arguments[forwardTo]");
+			} else
+				echo "Anmeldung fehlgeschlagen!";
+			
+			die();
+		}
+		
+		echo $r;
 	}
 	
 	function doLogout(){

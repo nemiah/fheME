@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
 
 ini_set('session.gc_maxlifetime', 24 * 60 * 60);
@@ -144,7 +144,10 @@ class CCAuftrag extends CCPage implements iCustomContent {
 	public function getAuftrag($data){
 		$Beleg = new GRLBM($data["GRLBMID"]);#$this->createAuftrag(new Adresse(1), "W");
 
+		$Auftrag = new Auftrag($Beleg->A("AuftragID"));
+		$K = Kappendix::getKappendixToKundennummer($Auftrag->A("kundennummer"));
 		
+		$js = "";
 		
 		$TSumme = new HTMLTable(3);
 		$TSumme->setTableStyle("width:100%;border-top:1px solid #AAA;margin-top:30px;");
@@ -155,17 +158,33 @@ class CCAuftrag extends CCPage implements iCustomContent {
 		
 		
 		$IZahlungsart = new HTMLInput("zahlungsart", "select", $Beleg->A("GRLBMpayedVia"), GRLBM::getPaymentVia(null, array("transfer", "debit")));
-		$IZahlungsart->onchange("if(this.value == 'debit') $('#rowZahlungsart').show(); else $('#rowZahlungsart').hide(); CustomerPage.timeout = window.setTimeout(CustomerPage.saveKontodaten, 300);");
+		$IZahlungsart->onchange("if(this.value == 'debit') $('.rowZahlungsart').show(); else $('.rowZahlungsart').hide(); CustomerPage.timeout = window.setTimeout(CustomerPage.saveKontodaten, 300);");
 		
-		$IBankleitzahl = new HTMLInput("bankleitzahl", "text", $Beleg->A("GRLBMBankleitzahl"));
-		$IBankleitzahl->placeholder("Bankleitzahl");
-		$IBankleitzahl->style("margin-top:10px;text-align:right;width:130px;");
+		$IBemerkung = new HTMLInput("bemerkung", "textarea");#, $Beleg->A("textbausteinUnten"));
+		$IBemerkung->style("width:100%;height:100px;max-width:100%;");
+		$IBemerkung->placeholder("Bemerkungen");
+		#$IBemerkung->onblur("");
+		#$IBemerkung->onkeyup("if(CustomerPage.timeout != null) window.clearTimeout(CustomerPage.timeout); CustomerPage.timeout = window.setTimeout(CustomerPage.saveBemerkung, 300);");
+		
+		$TBemerkung = new HTMLTable(2, "Bemerkungen");
+		$TBemerkung->setTableStyle("width:100%;");
+		$TBemerkung->setColWidth(1, 26);
+		
+		$TBemerkung->addRow(array(new Button("Bemerkung", "document_alt_stroke", "iconic"), $IBemerkung));
+		$TBemerkung->addCellStyle(1, "vertical-align:top;");
+		
+		$sepa = json_decode($Beleg->A("GRLBMSEPAData"));
+		
+		
+		$IBankleitzahl = new HTMLInput("BIC", "text", $sepa->BIC);
+		$IBankleitzahl->placeholder("BIC");
+		$IBankleitzahl->style("");
 		$IBankleitzahl->onkeyup("if(CustomerPage.timeout != null) window.clearTimeout(CustomerPage.timeout); CustomerPage.timeout = window.setTimeout(CustomerPage.saveKontodaten, 300);");
 		
-		$IKontonummer = new HTMLInput("kontonummer", "text", $Beleg->A("GRLBMKontonummer"));
-		$IKontonummer->placeholder("Kontonummer");
-		$IKontonummer->style("margin-top:10px;text-align:right;margin-left:10px;width:130px;");
-		$IKontonummer->onkeyup("if(CustomerPage.timeout != null) window.clearTimeout(CustomerPage.timeout); CustomerPage.timeout = window.setTimeout(CustomerPage.saveKontodaten, 300);");
+		$IKontonummer = new HTMLInput("IBAN", "text", $sepa->IBAN);
+		$IKontonummer->placeholder("IBAN");
+		$IKontonummer->style("");
+		$IKontonummer->onkeyup("if(CustomerPage.timeout != null) window.clearTimeout(CustomerPage.timeout); CustomerPage.timeout = window.setTimeout(CustomerPage.getBIC, 300);");
 		#$IBIC = new HTMLInput("bic");
 		#$IIBAN = new HTMLInput("iban");
 		
@@ -181,21 +200,34 @@ class CCAuftrag extends CCPage implements iCustomContent {
 		$TZahlungsart->addRowColspan(2, 2);
 		$TZahlungsart->addCellStyle(1, "vertical-align:top;");
 		
-		$TZahlungsart->addRow(array("", $IBankleitzahl." ".$IKontonummer."$BCheck <div id=\"bankMessage\" style=\"margin-top:6px;\">&nbsp;</div>"));
-		$TZahlungsart->setRowID("rowZahlungsart");
+		$TZahlungsart->addRow(array("", $IKontonummer." $BCheck <div id=\"bankMessage\" style=\"display:none;\">&nbsp;</div>"));
+		$TZahlungsart->addRowClass("rowZahlungsart");
+		
+		$TZahlungsart->addRow(array("", $IBankleitzahl));
+		$TZahlungsart->addRowClass("rowZahlungsart");
+		
+		$IMandat = new HTMLInput("mandat", "checkbox");
+		$IMandat->style("vertical-align:middle;");
+		
+		$TZahlungsart->addRow(array("", $IMandat." SEPA-Mandat erteilt"));
+		$TZahlungsart->addRowClass("rowZahlungsart");
+		
+		$IDatenschutz = new HTMLInput("datenschutz", "checkbox");
+		$IDatenschutz->style("vertical-align:middle;");
+		
+		$TZahlungsart->addRow(array("", $IDatenschutz." Hinweise zum Datenschutz gelesen"));
+		
+		$IAGB = new HTMLInput("agb", "checkbox");
+		$IAGB->style("vertical-align:middle;");
+		
+		$TZahlungsart->addRow(array("", $IAGB." AGB akzeptiert"));
+		
 		if($Beleg->A("GRLBMpayedVia") != "debit")
-			$TZahlungsart->addRowStyle("display:none;");
-		else
-			echo OnEvent::script("CustomerPage.saveKontodaten();");
+			$js .= "$('.rowZahlungsart').hide();";
+		#	$TZahlungsart->addRowStyle("display:none;");
+		#else
+		#	echo OnEvent::script("CustomerPage.saveKontodaten();");
 		
-		$IBemerkung = new HTMLInput("bemerkung", "textarea", $Beleg->A("textbausteinUnten"));
-		$IBemerkung->style("width:100%;height:100px;margin-top:40px;");
-		$IBemerkung->placeholder("Bemerkungen");
-		#$IBemerkung->onblur("");
-		$IBemerkung->onkeyup("if(CustomerPage.timeout != null) window.clearTimeout(CustomerPage.timeout); CustomerPage.timeout = window.setTimeout(CustomerPage.saveBemerkung, 300);");
-		
-		$TZahlungsart->addRow(array(new Button("Bemerkung", "document_alt_stroke", "iconic"), $IBemerkung));
-		$TZahlungsart->addCellStyle(1, "vertical-align:top;padding-top:40px;");
 		
 		
 		
@@ -218,7 +250,7 @@ class CCAuftrag extends CCPage implements iCustomContent {
 			$html .= $TSumme;
 		
 		if($this->showZahlungsart)
-			$html .= $TZahlungsart;
+			$html .= $TBemerkung.$TZahlungsart;
 		
 		$html .= $this->getBottom($Beleg);
 		
@@ -227,12 +259,19 @@ class CCAuftrag extends CCPage implements iCustomContent {
 		return $html.OnEvent::script("
 			CustomerPage.timeout = null;
 			CustomerPage.saveBemerkung  = function(){ CustomerPage.rme('setBemerkung', {GRLBMID: $data[GRLBMID], bemerkung: $('textarea[name=bemerkung]').val() }); };
+			CustomerPage.getBIC = function(){
+				CustomerPage.rme('getBIC', {
+					IBAN: $('input[name=IBAN]').val()
+				}, function(t){ $('#bankMessage').html(t); });
+			};
 			CustomerPage.saveKontodaten = function(){ CustomerPage.rme('setKontodaten', {
 				GRLBMID: $data[GRLBMID],
 				zahlungsart: $('select[name=zahlungsart]').val(),
-				kontonummer: $('input[name=kontonummer]').val(),
-				bankleitzahl: $('input[name=bankleitzahl]').val()
-			}, function(t){ $('#bankMessage').html(t); }); };");
+				IBAN: $('input[name=IBAN]').val(),
+				BIC: $('input[name=BIC]').val()
+			}, function(t){ $('#bankMessage').html(t); }); };
+				
+			$js");
 	}
 	
 	public function getBottom($Beleg){
@@ -660,19 +699,34 @@ class CCAuftrag extends CCPage implements iCustomContent {
 		$P->saveMe();
 	}
 	
+	public function getBIC($data){
+		$uri = "http://soapi.io/soap/blz";
+		
+		$Soap = new SoapClient(null, array(
+			"location" => $uri,
+			"uri" => $uri));
+		
+		$R = $Soap->requestBICByIBAN($data["IBAN"]);
+		
+		if($R["isValidBank"])
+			echo OnEvent::script("$('[name=BIC]').val('$R[BIC]'); $('#ktoCheck').removeClass('question_mark').removeClass('x_alt').addClass('check').css('color', 'green');");
+		else
+			echo OnEvent::script("$('[name=BIC]').val('');$('#ktoCheck').removeClass('question_mark').removeClass('check').addClass('x_alt').css('color', 'red');");
+	}
+	
 	public function setKontodaten($data){
 		if($data["zahlungsart"] != "debit"){
-			$data["kontonummer"] = "";
-			$data["bankleitzahl"] = "";
+			$data["IBAN"] = "";
+			$data["BIC"] = "";
 		}
 		
 		$GRLBM = new GRLBM($data["GRLBMID"]);
 		$GRLBM->changeA("GRLBMpayedVia", $data["zahlungsart"]);
-		$GRLBM->changeA("GRLBMKontonummer", $data["kontonummer"]);
-		$GRLBM->changeA("GRLBMBankleitzahl", $data["bankleitzahl"]);
+		#$GRLBM->changeA("GRLBMKontonummer", $data["kontonummer"]);
+		#$GRLBM->changeA("GRLBMBankleitzahl", $data["bankleitzahl"]);
 		$GRLBM->saveMe();
 		
-		if($data["bankleitzahl"] == "")
+		if($data["BIC"] == "")
 			die("&nbsp;");
 		
 		$uri = "http://soapi.io/soap/blz";
@@ -681,11 +735,11 @@ class CCAuftrag extends CCPage implements iCustomContent {
 			"location" => $uri,
 			"uri" => $uri));
 		
-		$R = $Soap->requestBank($data["bankleitzahl"], $data["kontonummer"]);
+		$R = $Soap->checkIBAN($data["IBAN"]);
+		var_dump($R);
+		#echo $data["bankleitzahl"].": ".$R["bankname"];
 		
-		echo $data["bankleitzahl"].": ".$R["bankname"];
-		
-		if($R["isValidKontonummer"])
+		if($R)
 			echo OnEvent::script("$('#ktoCheck').removeClass('question_mark').removeClass('x_alt').addClass('check').css('color', 'green');");
 		else
 			echo OnEvent::script("$('#ktoCheck').removeClass('question_mark').removeClass('check').addClass('x_alt').css('color', 'red');");

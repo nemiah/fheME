@@ -739,7 +739,10 @@ $j(document).on('mouseover', '.bigButton', function(event) {
 	}, event);
 });
 
-$j(document).on("keyup", function(){
+$j(document).on("keyup", function(event){
+	if($j(event.target).prop("id") == "loginPassword" || $j(event.target).prop("id") == "loginUsername")
+		return;
+	
 	if(Date.now() - Ajax.lastRequestTime > 5 * 60 * 1000)
 		contentManager.rmePCR('Menu','','autoLogoutInhibitor','');
 });

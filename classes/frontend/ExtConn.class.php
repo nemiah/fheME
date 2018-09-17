@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
 class ExtConn {
 	protected $absolutePath;
@@ -33,7 +33,7 @@ class ExtConn {
 			if(function_exists("mysqli_connect")) define("PHYNX_MAIN_STORAGE","MySQL");
 			else define("PHYNX_MAIN_STORAGE","MySQLo");
 
-		if($propagateViaInterface)
+		if($propagateViaInterface AND ! defined("PHYNX_VIA_INTERFACE"))
 			define("PHYNX_VIA_INTERFACE", true);
 
 		if($absolutePathToPhynx{strlen($absolutePathToPhynx) - 1} != "/") $absolutePathToPhynx .= "/";

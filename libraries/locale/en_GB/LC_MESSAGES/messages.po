@@ -3,14 +3,14 @@ msgstr ""
 "Project-Id-Version: phynx\n"
 "POT-Creation-Date: \n"
 "PO-Revision-Date: \n"
-"Last-Translator: Rainer Furtmeier <Rainer@Furtmeier.IT>\n"
+"Last-Translator: Nena Furtmeier <Support@Furtmeier.IT>\n"
 "Language-Team: ENGLISH <Support@Furtmeier.IT>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Poedit-SourceCharset: utf-8\n"
 "Language: en_GB\n"
-"X-Generator: Poedit 1.5.4\n"
+"X-Generator: Poedit 1.8.7.1\n"
 
 msgid "Neue Nachricht"
 msgstr "New message"
@@ -54,12 +54,8 @@ msgstr "You do not have activated JavaScript."
 msgid "Bitte aktivieren Sie JavaScript, damit diese Anwendung funktioniert."
 msgstr "Please activate JavaScript to run this application."
 
-msgid ""
-"Bitte verwenden Sie '<b>Admin</b>' als Benutzername und Passwort, um mit der "
-"Ersteinrichtung dieser Anwendung fortzufahren."
-msgstr ""
-"Please use '<b>Admin</b>' as username and password to continue setting up "
-"this application."
+msgid "Bitte verwenden Sie '<b>Admin</b>' als Benutzername und Passwort, um mit der Ersteinrichtung dieser Anwendung fortzufahren."
+msgstr "Please use '<b>Admin</b>' as username and password to continue setting up this application."
 
 msgid "Unternehmenssoftware"
 msgstr "Business software"
@@ -104,7 +100,7 @@ msgid "Seiten"
 msgstr "pages"
 
 msgid "%1 speichern"
-msgstr "save %1"
+msgstr "Save %1"
 
 msgid "Anzahl Einträge pro Seite"
 msgstr "Entries per page"
@@ -117,6 +113,653 @@ msgstr "Filter by category"
 
 msgid "speichern"
 msgstr "save"
-msgid "Keine Einträge"
-msgstr ""
 
+msgid "Keine Einträge"
+msgstr "No entries"
+
+msgid "Operationen"
+msgstr "Operations"
+
+msgid "Editor"
+msgstr "Editor"
+
+msgid ""
+"in Editor\n"
+"bearbeiten"
+msgstr ""
+"Edit in\n"
+"editor"
+
+msgid "%1 editieren"
+msgstr "Edit %1"
+
+msgid "Bitte verwenden Sie '<b>Admin</b>' als Benutzername und als Passwort, um mit der Ersteinrichtung dieser Anwendung fortzufahren."
+msgstr "Please use '<b>Admin</b>' as user name and as password to continue setting up this application."
+
+msgid "Mandant"
+msgstr "Customer"
+
+msgid "Neues Passwort"
+msgstr "New password"
+
+msgid "Passwort ändern"
+msgstr "Change password"
+
+msgid "Passwort ändern?"
+msgstr "Cahnge password?"
+
+msgid "Ihr Gerät unterstützt Touch-Eingaben. Möchten Sie die Touch-Optimierungen aktivieren? Maus-Eingaben werden dann nicht mehr funktionieren.<br /><br />Wenn Sie 'Ja' auswählen, wird die Anwendung neu geladen. Sie können diese Auswahl mit dem %1-Knopf rechts unten rückgängig machen."
+msgstr "Your device supports touch inputs. Do you want to enable touch optimizations? Mouse inputs will be disabled.<br><br>The application will be reloaded on selecting 'yes'. You can revert this decision with the %1 button in the lower right corner."
+
+msgid "bitte auswählen"
+msgstr "please choose"
+
+msgid "Bitte auswählen..."
+msgstr "Please choose..."
+
+msgid "Kontakt"
+msgstr "Contact"
+
+msgid "Telefon"
+msgstr "Phone"
+
+msgid "Fax"
+msgstr "Fax"
+
+msgid "Firma"
+msgstr "Company"
+
+msgid "Strasse"
+msgstr "Street"
+
+msgid "Hausnummer"
+msgstr "Street number"
+
+msgid "PLZ"
+msgstr "Postcode"
+
+msgid "Ort"
+msgstr "City"
+
+msgid "Land"
+msgstr "Country"
+
+msgid "MwSt-Satz"
+msgstr "VAT rate"
+
+msgid "Bemerkung"
+msgstr "Notes"
+
+msgid "Homepage"
+msgstr "Homepage"
+
+msgid "IBAN"
+msgstr "IBAN"
+
+msgid "BIC"
+msgstr "BIC"
+
+msgid "E-Mail"
+msgstr "E-mail"
+
+msgid "Datei-Manager"
+msgstr "File manager"
+
+msgid "Dateien"
+msgstr "Files"
+
+msgid "Datei"
+msgstr "File"
+
+msgid "Ansprechpartner"
+msgstr "Contact Person"
+
+msgid "Zahlung"
+msgstr "Payment"
+
+msgid "Zahlung via"
+msgstr "Pay via"
+
+msgid "Kundennummer"
+msgstr "Customer number"
+
+msgid "Erweitert"
+msgstr "Extended"
+
+msgid "Dokumente"
+msgstr "Documents"
+
+msgid "Forecast"
+msgstr "Forecast"
+
+msgid "Artikel"
+msgstr "Item"
+
+msgid "Alternative Sprachen"
+msgstr "Other languages"
+
+msgid "Rabattgruppen"
+msgstr "Discount groups"
+
+msgid "Kalkulation"
+msgstr "Calculation"
+
+msgid "Preisgruppen"
+msgstr "Pricegroups"
+
+msgid "Lagerbestand"
+msgstr "Stock"
+
+msgid "Stückliste"
+msgstr "Parts List"
+
+msgid "Staffelpreise"
+msgstr "Bulk price"
+
+msgid "Varianten"
+msgstr "Variants"
+
+msgid "Lieferanten"
+msgstr "Suppliers"
+
+msgid "Lieferant"
+msgstr "Supplier"
+
+msgid "Verträge"
+msgstr "Contracts"
+
+msgid ""
+"Rabatt-\n"
+"gruppen"
+msgstr ""
+"Discount\n"
+"groups"
+
+msgid ""
+"Auswahl\n"
+"beenden"
+msgstr ""
+"Quit\n"
+"selection"
+
+msgid "Name"
+msgstr "Name"
+
+msgid "Einheit"
+msgstr "Unit"
+
+msgid "Artikelnummer"
+msgstr "Item number"
+
+msgid "Kategorie"
+msgstr "Category"
+
+msgid "Beschreibung"
+msgstr "Description"
+
+msgid "Preis"
+msgstr "Price"
+
+msgid "MwSt"
+msgstr "VAT"
+
+msgid "Anrede"
+msgstr "Salutation"
+
+msgid "Verkauf"
+msgstr "Sale"
+
+msgid "Lohn"
+msgstr "Wage"
+
+msgid "Sonstiges"
+msgstr "Other"
+
+msgid "Einkauf"
+msgstr "Procurement"
+
+msgid "Netto"
+msgstr "Net"
+
+msgid "Gewinn"
+msgstr "Profit"
+
+msgid "Alle"
+msgstr "All"
+
+msgid "Aktiv"
+msgstr "Active"
+
+msgid "Beendet"
+msgstr "Ended"
+
+msgid "als Standard-Wert speichern"
+msgstr "Save as default value"
+
+msgid "Kundenpreise"
+msgstr "Customer prices"
+
+msgid "Vorname"
+msgstr "First name"
+
+msgid "Nachname"
+msgstr "Surname"
+
+msgid "Mobil"
+msgstr "Mobile"
+
+msgid "Notizen"
+msgstr "Notes"
+
+msgid "Person"
+msgstr "Person"
+
+msgid "Herr"
+msgstr "Mr"
+
+msgid "Frau"
+msgstr "Mrs"
+
+msgid "keine/Firma"
+msgstr "none/Company"
+
+msgid "Familie"
+msgstr "Family"
+
+msgid "Diese Nummer wählen"
+msgstr "Dial this number"
+
+msgid "offen"
+msgstr "open"
+
+msgid "bestätigt"
+msgstr "approved"
+
+msgid "geliefert"
+msgstr "delivered"
+
+msgid "berechnet"
+msgstr "billed"
+
+msgid "abgelehnt"
+msgstr "denied"
+
+msgid "gutgeschrieben"
+msgstr "credited"
+
+msgid "teilweise berechnet"
+msgstr "partly billed"
+
+msgid "Als Filter hinzufügen"
+msgstr "Add as filter"
+
+msgid "Reihenfolge ändern"
+msgstr "Change sort order"
+
+msgid "Original"
+msgstr "Original"
+
+msgid ""
+"Etiketten\n"
+"drucken"
+msgstr ""
+"Print\n"
+"Etiquettes"
+
+msgid "Aufgabe"
+msgstr "Assignment"
+
+msgid "Vorlagen"
+msgstr "Templates"
+
+msgid "Versandkosten"
+msgstr "Shipping"
+
+msgid "Nummer"
+msgstr "Number"
+
+msgid "Datum"
+msgstr "Date"
+
+msgid "Bild"
+msgstr "Image"
+
+msgid "Menge"
+msgstr "Amount"
+
+msgid "bitte auswählen..."
+msgstr "please select..."
+
+msgid "Tage"
+msgstr "Days"
+
+msgid "Prozent"
+msgstr "Percent"
+
+msgid "Buchhaltung"
+msgstr "Accounting"
+
+msgid ""
+"%1 offener\n"
+"Posten"
+msgstr ""
+"%1 open\n"
+"Invoice"
+
+msgid ""
+"%1 offene\n"
+"Posten"
+msgstr ""
+"%1 open\n"
+"Invoices"
+
+msgid ""
+"multiDruck\n"
+"Liste anzeigen"
+msgstr ""
+"Show\n"
+"multiPrint list"
+
+msgid "zu multiDruck-Liste hinzufügen"
+msgstr "add to multiPrint list"
+
+msgid "von multiDruck-Liste entfernen"
+msgstr "remove from multiPrint list"
+
+msgid ""
+"Original\n"
+"drucken"
+msgstr ""
+"Print\n"
+"Original"
+
+msgid ""
+"Kopie\n"
+"drucken"
+msgstr ""
+"Print\n"
+"Copy"
+
+msgid ""
+"direkt\n"
+"drucken"
+msgstr ""
+"Direct\n"
+"print"
+
+msgid ""
+"zur multiDruck-\n"
+"Liste hinzufügen"
+msgstr ""
+"Add to multiPrint\n"
+"list"
+
+msgid ""
+"von multiDruck-\n"
+"Liste entfernen"
+msgstr ""
+"Remove from\n"
+"multiPrintlist"
+
+msgid "Angebot"
+msgstr "Offer"
+
+msgid "Lieferschein"
+msgstr "Delivery Note"
+
+msgid "Rechnungen"
+msgstr "Invoices"
+
+msgid "Gutschrift"
+msgstr "Credit Note"
+
+msgid "Dauerrechnung"
+msgstr "Standing Invoice"
+
+msgid "Rechnung"
+msgstr "Invoice"
+
+msgid "Bestellung"
+msgstr "Order"
+
+msgid "Preisanfrage"
+msgstr "Price Request"
+
+msgid "Bestätigung"
+msgstr "Confirmation"
+
+msgid "Mahnung"
+msgstr "Reminder"
+
+msgid "Stornorechnung"
+msgstr "Cancellation Invoice"
+
+msgid "Kopie"
+msgstr "Copy"
+
+msgid ""
+"versenden mit\n"
+"signaturportal"
+msgstr ""
+"Send with\n"
+"signaturportal"
+
+msgid ""
+"mit PixelLetter\n"
+"versenden"
+msgstr ""
+"Send with\n"
+"PixelLetter"
+
+msgid ""
+"mit onlinebrief24\n"
+"versenden"
+msgstr ""
+"Send with\n"
+"onlinebrief24"
+
+msgid ""
+"per E-Mail\n"
+"verschicken"
+msgstr ""
+"Send via\n"
+"E-mail"
+
+msgid "Zahlungsmoral"
+msgstr "Payment morale"
+
+msgid "Gesamt"
+msgstr "Total"
+
+msgid "Zahlungsart"
+msgstr "Payment"
+
+msgid "Mandatsdatum"
+msgstr "Mandate date"
+
+msgid "Kunde"
+msgstr "Customer"
+
+msgid "Mandat"
+msgstr "Mandate"
+
+msgid "Typ"
+msgstr "Type"
+
+msgid "Speichern"
+msgstr "Save"
+
+msgid "bezahlt"
+msgstr "payed"
+
+msgid "unbezahlt"
+msgstr "unpayed"
+
+msgid "storniert"
+msgstr "canceled"
+
+msgid "Seite %1"
+msgstr "Page %1"
+
+msgid "Bestellungen"
+msgstr "Orders"
+
+msgid "Berichte"
+msgstr "Reports"
+
+msgid "Bestand"
+msgstr "Stock"
+
+msgid "Handgerät"
+msgstr "Hand Device"
+
+msgid "Lager"
+msgstr "Warehouse"
+
+msgid "Bewegungen"
+msgstr "Stock Movement"
+
+msgid "Adressen"
+msgstr "Addresses"
+
+msgid "Aufträge"
+msgstr "Mandates"
+
+msgid "Export"
+msgstr "Export"
+
+msgid "Kategorien"
+msgstr "Categories"
+
+msgid "Etiketten"
+msgstr "Etiquettes"
+
+msgid "Import"
+msgstr "Import"
+
+msgid "Lohngruppen"
+msgstr "Wage Groups"
+
+msgid "Repeatables"
+msgstr "Repeatables"
+
+msgid "Statistik"
+msgstr "Stats"
+
+msgid "Sync"
+msgstr "Sync"
+
+msgid "Vorlageneditor"
+msgstr "Template Editor"
+
+msgid "Provisionen"
+msgstr "Comissions"
+
+msgid "Textbausteine"
+msgstr "Text Blocks"
+
+msgid "Übersicht"
+msgstr "Overview"
+
+msgid "Aufträge<br>anzeigen"
+msgstr "Mandates"
+
+msgid "Artikel<br>anzeigen"
+msgstr "Items"
+
+msgid "Adressen<br>anzeigen"
+msgstr "Addresses"
+
+msgid "Klicken Sie hier, um das tägliche Backup der Datenbank anzulegen."
+msgstr "Click here to create the daily backup of the database."
+
+msgid "Besuchen Sie open3A.de für<br>neue Versionen,<br>mehr Plugins und<br>mehr Funktionen."
+msgstr "Visit open3A.de for<br>new versions,<br>more plugins and<br>more functionality-"
+
+msgid "Registrieren Sie sich noch heute kostenlos auf open3A.de und Sie erhalten die aktuellsten News zu open3A in Ihr Postfach."
+msgstr "Register today on open3A.de to receive current news via newsletter."
+
+msgid "Im open3A.de Support-Forum erhalten Sie kompetente Unterstützung bei Fragen und Problemen."
+msgstr "In the open3A.de support forum you'll receive competent support in the case of questions and problems."
+
+msgid "Lieferanten<br>anzeigen"
+msgstr "Suppliers"
+
+msgid "Auswahl hinzufügen"
+msgstr "Add selction"
+
+msgid "Änderung gespeichert"
+msgstr "Changes saved"
+
+msgid "Daten gespeichert"
+msgstr "Saved"
+
+msgid "Brutto"
+msgstr "Gross"
+
+msgid "Möchten Sie die Eingabemethode zurücksetzen? Sie werden dann erneut gefragt, ob Sie die Touch-Optimierungen nutzen möchten.<br /><br />Wenn Sie 'Ja' auswählen, wird die Anwendung neu geladen."
+msgstr "Do you want to reset the input method? You will be asked again if you want to enable touch optimizations.<br><br>If you select 'yes', the application will be reloaded."
+
+msgid "Interne ID des Eintrags"
+msgstr "Internal ID"
+
+msgid "Repeatable erstellen"
+msgstr "Create Repeatable"
+
+msgid "Kopieren"
+msgstr "Copy"
+
+msgid "Löschen"
+msgstr "Delete"
+
+msgid "Neu mit Werten"
+msgstr "New with values"
+
+msgid "E-Mail-Adresse"
+msgstr "E-mail address"
+
+msgid "Empfänger hinzufügen"
+msgstr "Add recipient"
+
+msgid ""
+"E-Mail\n"
+"senden"
+msgstr ""
+"Send\n"
+"E-mail"
+
+msgid "Abbrechen"
+msgstr "Cancel"
+
+msgid "PDF"
+msgstr "PDF"
+
+msgid "Absender"
+msgstr "Sender"
+
+msgid "Empfänger"
+msgstr "Recipient"
+
+msgid "Betreff"
+msgstr "Subject"
+
+msgid "Anderer Empfänger"
+msgstr "Other recipient"
+
+msgid "Anhänge"
+msgstr "Attachments"
+
+msgid "Lastschrift"
+msgstr "Derect debit"
+
+msgid "Überweisung"
+msgstr "Transfer"
+
+msgid "PayPal"
+msgstr "PayPal"
+
+msgid "Inkasso"
+msgstr "Debt collection"
+
+msgid "Kreditkarte"
+msgstr "Credit card"

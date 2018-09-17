@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
 class MenuGUI extends UnpersistentClass implements iGUIHTML2, icontextMenu {
 	function  __construct() {
@@ -68,7 +68,8 @@ class MenuGUI extends UnpersistentClass implements iGUIHTML2, icontextMenu {
 			$bigWorld = true;
 		
 		if(!$_SESSION["S"]->isUserAdmin()) {
-			$userHiddenPlugins = mUserdata::getHiddenPlugins(true);
+			$userHiddenPlugins= mUserdata::getHiddenPlugins(true);
+			$userHiddenPlugins = Aspect::joinPoint("alterHidden", $this, __METHOD__, array($userHiddenPlugins), $userHiddenPlugins);
 			
 			$U = new mUserdata();
 			$U->addAssocV3("typ","=","TTP");
@@ -135,8 +136,7 @@ class MenuGUI extends UnpersistentClass implements iGUIHTML2, icontextMenu {
 			#$onclick = "contentManager.emptyFrame('contentLeft'); contentManager.emptyFrame('contentRight'); contentManager.emptyFrame('contentScreen'); contentManager.loadFrame('".(isset($ts[$value]) ? $ts[$value] : "contentRight")."', '$value', -1, 0, '{$value}GUI;-');$('windows').update('');";
 			$onclick = "contentManager.loadPlugin('".(isset($ts[$value]) ? $ts[$value] : "contentRight")."', '$value', '{$value}GUI;-');";
 			
-			$B = new Button(T::_($key),$icons[$value]);
-			$B->type("icon");
+			$B = new Button($key,$icons[$value], "icon");
 			$B->style("float:left;margin-right:10px;");
 
 			$BM = new Button("Reihenfolge ändern","./images/i2/topdown.png");
@@ -167,7 +167,7 @@ class MenuGUI extends UnpersistentClass implements iGUIHTML2, icontextMenu {
 
 			$style = ((strpos($appMenuHidden, $value) !== false AND $appMenuActive) ? "style=\"display:none;\"" : "");
 
-			$BP = new Button(T::_($key), $icons[$value], "icon");
+			$BP = new Button($key, $icons[$value], "icon");
 			$BP->id($value."MenuImage");
 			if(($t == null OR $t == "big"))
 				$BP->className ("tabImg");
@@ -355,7 +355,7 @@ class MenuGUI extends UnpersistentClass implements iGUIHTML2, icontextMenu {
 		} catch (AOPNoAdviceException $e) {}
 		Aspect::joinPoint("before", $this, __METHOD__, $MArgs);
 		// </editor-fold>
-		$name = Applications::activeApplication();
+		$name = Applications::activeApplicationLabel();
 		echo Environment::getS("renameApplication:$name", $name." ".Applications::activeVersion());
 	}
 	

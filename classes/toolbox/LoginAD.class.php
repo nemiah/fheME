@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
 class LoginAD extends Collection {
 	public function lCV3($id = -1, $returnCollector = true, $lazyload = false){
@@ -113,15 +113,17 @@ class LoginAD extends Collection {
 				if(!isset($user["samaccountname"]))
 					continue;
 				
-				if($LD->A("optionen2") != "" AND isset($user["memberof"])){
+				if($LD->A("optionen2") != ""){
 					$inGroup = false;
-					foreach($user["memberof"] AS $k => $v){
-						if(!is_numeric($k))
-							continue;
-						
-						if($v == $LD->A("optionen2"))
-							break;
-					}
+					if(isset($user["memberof"]))
+						foreach($user["memberof"] AS $k => $v){
+							if(!is_numeric($k))
+								continue;
+
+							if(trim($v) == trim($LD->A("optionen2")))
+								$inGroup = true;
+
+						}
 					
 					if(!$inGroup)
 						continue;
@@ -173,7 +175,24 @@ class LoginAD extends Collection {
 				if(!isset($user["samaccountname"]))
 					continue;
 				
+				if($LD->A("optionen2") != ""){
+					$inGroup = false;
+					if(isset($user["memberof"]))
+						foreach($user["memberof"] AS $k => $v){
+							if(!is_numeric($k))
+								continue;
+
+							if(trim($v) == trim($LD->A("optionen2")))
+								$inGroup = true;
+
+						}
+					
+					if(!$inGroup)
+						continue;
+				}
+				
 				$R = self::getADEntry($user);
+				$R->SHApassword = $password;
 				
 				$U = new User($R->UserID);
 				$U->setA($R);

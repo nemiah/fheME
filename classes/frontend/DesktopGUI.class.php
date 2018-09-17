@@ -15,12 +15,12 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
 class DesktopGUI extends UnpersistentClass implements iGUIHTML2 {
 	public function getHTML($id){
 		
-		if($_SESSION["S"]->isUserAdmin()) {
+		if(Applications::activeApplication() != "supportBox" AND $_SESSION["S"]->isUserAdmin()) {
 			$D = new ADesktopGUI();
 			return $D->getHTML($id);
 		}

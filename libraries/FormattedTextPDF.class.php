@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
 
 class FormattedTextPDF extends FPDI {
@@ -72,6 +72,9 @@ class FormattedTextPDF extends FPDI {
 	}
 	
 	private function startTag($xml){
+		if($xml == null)
+			return;
+		
 		if($xml->getName() == "p"){
 			if($this->paragraph > 0)
 				$this->Ln(4);#$this->heightStack[count($this->heightStack) - 1] * 2);
@@ -148,6 +151,9 @@ class FormattedTextPDF extends FPDI {
 	}
 
 	private function endTag($xml){
+		if($xml == null)
+			return;
+		
 		if($xml->getName() == "br"){
 			#print_r($this->heightStack);
 			#die($this->heightStack[count($this->heightStack) - 1] * 0.5);

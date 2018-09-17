@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
  
  
@@ -196,15 +196,7 @@ var userControl = {
 				$j('#loginUsername').val("Admin");
 				
 				//alert("Bitte verwenden Sie 'Admin' als Benutzer und Passwort!\nDiese Anwendung wurde noch nicht eingerichtet.");
-				$j("#messageSetup").dialog({
-					modal: true,
-					buttons: {
-						Ok: function() {
-							$j(this).dialog( "close" );
-						}
-					},
-					resizable: false
-				});
+				$j("#messageSetup").show();
 				//userControl.doLogin();
 			}
 		});

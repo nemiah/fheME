@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
  *  This file is part of phynx.
 
@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
 
 if(!function_exists("hash_equals")){
@@ -25,8 +25,8 @@ if(!function_exists("hash_equals")){
 }
 
 $scripts = array(
-	"./libraries/jquery/jquery-1.9.1.min.js",
-	"./libraries/jquery/jquery-ui-1.10.1.custom.min.js",
+	"./libraries/jquery/jquery-3.3.1.min.js",
+	"./libraries/jquery/jquery-ui-1.12.1.custom.min.js",
 	"./libraries/jquery/jquery.json-2.3.min.js",
 	"./libraries/jquery/jquery.timers.js",
 	"./libraries/jquery/jquery.qtip.min.js",
@@ -356,7 +356,7 @@ if(file_exists(Util::getRootPath()."plugins/multiInstall/plugin.xml") AND ($CH =
 		</script>
 		<?php if(!file_exists(dirname(__FILE__)."/styles/standard/merge.css")){ ?>
 		
-		<link rel="stylesheet" type="text/css" href="./libraries/jquery/jquery-ui-1.10.1.custom.css" />
+		<link rel="stylesheet" type="text/css" href="./libraries/jquery/jquery-ui-1.12.1.custom.css" />
 		<link rel="stylesheet" type="text/css" href="./libraries/jquery/jquery.qtip.min.css" />
 		<link rel="stylesheet" type="text/css" href="./libraries/touchy/Touchy.css" />
 		<link rel="stylesheet" type="text/css" href="./styles/standard/overlayBox.css" />
@@ -402,11 +402,17 @@ if(file_exists(Util::getRootPath()."plugins/multiInstall/plugin.xml") AND ($CH =
 		<!--<div style="position:fixed;top:0px;left:0px;width:20px;" id="growlContainer"></div>-->
 		<div id="boxInOverlay" style="display: none;" class="backgroundColor0 borderColor1">
 
+		
+			<div style="display:none;padding:10px;" id="messageSetup" class="highlight">
+				<p class="prettySubtitle" style="margin:0;padding:0;margin-bottom:10px;">Ersteinrichtung</p>
+				<?php echo T::_("Bitte verwenden Sie '<b>Admin</b>' als Benutzername und als Passwort, um mit der Ersteinrichtung dieser Anwendung fortzufahren."); ?>
+			</div>
+			
 			<?php
 			echo Environment::getS("contentLoginTop", "");
 			
 			if(Environment::getS("showCopyright", "1") == "1") { ?>
-			<p style="color:grey;left:10px;position:fixed;bottom:10px;"><a style="color:grey;" target="_blank" href="http://www.furtmeier.it"><?php echo T::_("Unternehmenssoftware"); ?></a> <?php echo T::_("von Furtmeier Hard- und Software"); ?></p>
+			<p style="color:grey;left:10px;position:fixed;bottom:10px;"><a style="color:grey;" target="_blank" href="https://www.open3A.de"><?php echo T::_("Unternehmenssoftware"); ?></a> <?php echo T::_("von Furtmeier Hard- und Software"); ?></p>
 			<?php } ?>
 			<form id="loginForm" onsubmit="return false;">
 				<table class="loginWindow" style="border-spacing: 0 0px;">
@@ -792,7 +798,7 @@ if(file_exists(Util::getRootPath()."plugins/multiInstall/plugin.xml") AND ($CH =
 							alt="Desktop"><xsl:attribute name="src"><xsl:value-of select="iconDesktop" /></xsl:attribute></img>
 					</xsl:if>-->
 					<?php if(Environment::getS("showCopyright", "1") == "1")
-						echo Environment::getS("contentCopyright", 'Copyright (C) 2007 - 2017 by <a href="http://www.Furtmeier.IT">Furtmeier Hard- und Software</a>. This program comes with ABSOLUTELY NO WARRANTY;<br>this is free software, and you are welcome to redistribute it under certain conditions; see <a href="gpl.txt">gpl.txt</a> for details.<!--<br />Thanks to the authors of the libraries and icons used by this program. <a href="javascript:contentManager.loadFrame(\'contentRight\',\'Credits\');">View credits.</a>-->');
+						echo Environment::getS("contentCopyright", 'Copyright (C) 2007 - 2018 by <a href="http://www.Furtmeier.IT">Furtmeier Hard- und Software</a>. This program comes with ABSOLUTELY NO WARRANTY;<br>this is free software, and you are welcome to redistribute it under certain conditions; see <a href="gpl.txt">gpl.txt</a> for details.<!--<br />Thanks to the authors of the libraries and icons used by this program. <a href="javascript:contentManager.loadFrame(\'contentRight\',\'Credits\');">View credits.</a>-->');
 					?>
 				</p>
 			</div>
@@ -863,16 +869,12 @@ if(file_exists(Util::getRootPath()."plugins/multiInstall/plugin.xml") AND ($CH =
 
 		</script>
 		
-		<div style="display:none;" id="messageSetup" title="Ersteinrichtung">
-			<?php echo T::_("Bitte verwenden Sie '<b>Admin</b>' als Benutzername und als Passwort, um mit der Ersteinrichtung dieser Anwendung fortzufahren."); ?>
-		</div>
-		
 		<div style="display:none;" id="messageTouch" title="Touch-Eingabe">
 			<?php echo T::_("Ihr Gerät unterstützt Touch-Eingaben. Möchten Sie die Touch-Optimierungen aktivieren? Maus-Eingaben werden dann nicht mehr funktionieren.<br /><br />Wenn Sie 'Ja' auswählen, wird die Anwendung neu geladen. Sie können diese Auswahl mit dem %1-Knopf rechts unten rückgängig machen.", "<span class=\"iconic iconicG cursor\"></span>"); ?>
 		</div>
 		
-		<div style="display:none;" id="messageTouchReset" title="Touch-Eingabe">
+		<!--<div style="display:none;" id="messageTouchReset" title="Touch-Eingabe">
 			<?php echo T::_("Möchten Sie die Eingabemethode zurücksetzen? Sie werden dann erneut gefragt, ob Sie die Touch-Optimierungen nutzen möchten.<br /><br />Wenn Sie 'Ja' auswählen, wird die Anwendung neu geladen."); ?>
-		</div>
+		</div>-->
 	</body>
 </html>

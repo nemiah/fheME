@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
 
 class DynamicJSGUI extends UnpersistentClass {
@@ -24,8 +24,16 @@ class DynamicJSGUI extends UnpersistentClass {
 	public function  __construct() {
 		$this->customize();
 		
-		while($C = Registry::callNext("DynamicJS"))
-			;
+		while(true){
+			try {
+				$C = Registry::callNext("DynamicJS");
+				if($C === null)
+					break;
+			} catch (ReflectionException $e){
+				
+			}
+		}
+			
 	}
 
 	public static function Class_registerNew($className, $classBody){
@@ -69,7 +77,7 @@ class DynamicJSGUI extends UnpersistentClass {
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */\n\n";
 
 		foreach(self::$aspects AS $v)

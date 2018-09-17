@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
 
 class CookieCart {
@@ -271,7 +271,7 @@ class CookieCart {
 			ereg("--$artikelID:\_\_:([0-9]+):\_\_:$type--",$this->cookie, $regs);
 			$alteMenge = $regs[1];
 			
-			$this->cookie = ereg_replace("--$artikelID:\_\_:[0-9]+:\_\_:$type--","--$artikelID:__:".($menge + $alteMenge).":__:$type--",$this->cookie);
+			$this->cookie = preg_replace("/\-\-$artikelID:\_\_:[0-9]+:\_\_:$type\-\-/","--$artikelID:__:".($menge + $alteMenge).":__:$type--",$this->cookie);
 		}
 		else $this->add($artikelID, $menge, $type);
 		
@@ -287,7 +287,7 @@ class CookieCart {
 	public function update($artikelID, $menge, $type = null){
 		if($type == null) $type = $this->useClass[0];
 		if($this->exists($artikelID, $type))
-			$this->cookie = ereg_replace("--$artikelID:\_\_:[0-9]+:\_\_:$type--","--$artikelID:__:$menge:__:$type--",$this->cookie);
+			$this->cookie = preg_replace("/\-\-$artikelID:\_\_:[0-9]+:\_\_:$type\-\-/","--$artikelID:__:$menge:__:$type--",$this->cookie);
 		else $this->add($artikelID, $menge);
 		
 		if($menge == 0) $this->delete($artikelID, $type, false);
@@ -923,8 +923,8 @@ $s
 	public function getNextElement(){
 		if($this->elements == null) {
 			$this->elements = explode("----",$this->cookie);
-			$this->elements[0] = ereg_replace("^--","",$this->elements[0]);
-			$this->elements[count($this->elements)-1] = ereg_replace("--$","",$this->elements[count($this->elements)-1]);
+			$this->elements[0] = preg_replace("/^\-\-/","",$this->elements[0]);
+			$this->elements[count($this->elements)-1] = preg_replace("/\-\-$/","",$this->elements[count($this->elements)-1]);
 		}
 		
 		if(!isset($this->elements[$this->elementPointer])) return null;

@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
 class Util {
 	public static function ext($filename){
@@ -321,9 +321,8 @@ class Util {
 				$r .= "{firma}\n";
 				$r .= "{abteilung}\n";
 				$r .= "{position}{anredeWM}{titelPrefix}{vorname}{nachname}{titelSuffix}\n";
-				$r .= "{ort}\n";
+				$r .= "{plz} {ort}\n";
 				$r .= "{strasse}{nr}\n";
-				$r .= "{plz}\n";
 				$r .= "{land}";
 			break;
 		
@@ -643,6 +642,9 @@ class Util {
 			case "1":
 				return $format["femaleShort"];
 			break;
+			case "4":
+				return $format["familyShort"];
+			break;
 		
 			default:
 				return "";
@@ -880,7 +882,8 @@ class Util {
 	 * $stringNumber darf nur Ziffern und Separatoren enthalten ansonsten wird null zurückgegeben
 	 */
 	public static function parseFloat($language, $stringNumber){
-		if(is_float($stringNumber) OR is_int($stringNumber)) return $stringNumber;
+		if(is_float($stringNumber) OR is_int($stringNumber)) 
+			return $stringNumber;
 		
 		$format = Util::getLangNumbersFormat($language);
 
@@ -888,15 +891,17 @@ class Util {
 		$stringNumber = str_replace($format[0], ".", $stringNumber);
 		$number = (float) $stringNumber;
 		
-		for($i = 0; $i < strlen($stringNumber); $i++) {
-			if(!strstr($stringNumber, ".")) break;
-			if($stringNumber{strlen($stringNumber) - 1 - $i} == "0" OR $stringNumber{strlen($stringNumber) - 1 - $i} == ".")
-				$stringNumber{strlen($stringNumber) - 1 - $i} = " ";
-			else break;
-		}
-		$stringNumber = trim($stringNumber);
-		if(strcmp($number."", $stringNumber) != 0) return null;
-
+		#for($i = 0; $i < strlen($stringNumber); $i++) {
+		#	if(!strstr($stringNumber, ".")) break;
+		#	if($stringNumber{strlen($stringNumber) - 1 - $i} == "0" OR $stringNumber{strlen($stringNumber) - 1 - $i} == ".")
+		#		$stringNumber{strlen($stringNumber) - 1 - $i} = " ";
+		#	else break;
+		#}
+		#$stringNumber = trim($stringNumber);
+		#if(strcmp($number."", $stringNumber) != 0)
+		#	throw new Exception("Number parser error! $number != $stringNumber");
+		#$tostring = "";
+		
 		return $number;
 	}
 	
@@ -1019,6 +1024,13 @@ class Util {
 				
 				return array("SEK", "n SEK", "-n SEK", ",", 2, ".");
 		
+			case "CNY":
+				if($useSymbol)
+					return array("元", "元 n", "-元 n", ".", 2, ",");
+				
+				return array("CNY", "CNY n", "-CNY n", ".", 2, ",");
+				
+				
 			default:
 				if($useSymbol)
 					return array("€", "n €", "-n €", ",", 2, ".");
@@ -1172,6 +1184,22 @@ class Util {
 		switch($languageTag) {
 			case "de_DE":
 				return Datum::getGerMonthArray();
+			break;
+			case "en_GB":
+				$monate = array();
+				$monate[1] = "Januar";
+				$monate[2] = "Februar";
+				$monate[3] = "March";
+				$monate[4] = "April";
+				$monate[5] = "May";
+				$monate[6] = "June";
+				$monate[7] = "July";
+				$monate[8] = "August";
+				$monate[9] = "September";
+				$monate[10] = "Oktober";
+				$monate[11] = "November";
+				$monate[12] = "December";
+				return $monate;
 			break;
 			default:
 				return Datum::getGerMonthArray();
@@ -1357,8 +1385,8 @@ class Util {
 		$filename = str_replace(array("Ç","ç","É","È","Ê","é","è","ê", "ë", "Č"), array("C","c","E","E","E","e","e","e", "e", "C"), $filename);
 		$filename = str_replace(array("Í","Ì","í","ì", "ï","Õ","Ô","Ó"), array("I","I","i","i", "i","O","O","O"), $filename);
 		$filename = str_replace(array("õ","ô","ó","Ú","ú"), array("o","o","o","U","u"), $filename);
-    	$filename = str_replace(array(":", "–", "\n", "'", "?", "(", ")", ";", "\"", "+", "<", ">", ",", "´", "`", "|"), array("_", "-", "", "", "", "", "", "", "", "", "", "", "", "", "", "_"), $filename);
-		$filename = str_replace(array("__"), array("_"), $filename);
+    	$filename = str_replace(array(":", "–", "\n", "'", "?", "(", ")", ";", "\"", "+", "<", ">", ",", "´", "`", "|", "%"), array("_", "-", "", "", "", "", "", "", "", "", "", "", "", "", "", "_", ""), $filename);
+		$filename = str_replace(array("__", "\n"), array("_", "_"), $filename);
 
 		return $filename;
 	}
@@ -1371,7 +1399,7 @@ class Util {
 			$CH = self::getCloudHost();
 			$physion = Session::physion();
 			if($CH AND isset($CH->usePreviewRewrite) AND $CH->usePreviewRewrite)
-				echo "<!DOCTYPE html><html><script type=\"text/javascript\">document.location='../preview/".basename($filename)."".($physion ? "?physion=$physion[0]" : "")."';</script></html>";
+				echo "<!DOCTYPE html><html><script type=\"text/javascript\">document.location='../preview/".urlencode(basename($filename))."".($physion ? "?physion=$physion[0]" : "")."';</script></html>";
 			else
 				echo "<!DOCTYPE html><html><script type=\"text/javascript\">document.location='./showPDF.php".($physion ? "?physion=$physion[0]" : "")."';</script></html>";
 		} else
@@ -1483,7 +1511,7 @@ class Util {
 		#var_dump(is_dir($dirtouse));
 		#print_r($dirtouse);
 		#die();
-		if(PHYNX_USE_TEMP_HTACCESS AND strpos($dirtouse, Util::getRootPath()) !== false /*AND !file_exists($dirtouse.".htaccess")*/ AND is_writable($dirtouse)){
+		if(defined("PHYNX_USE_TEMP_HTACCESS") AND PHYNX_USE_TEMP_HTACCESS AND strpos($dirtouse, Util::getRootPath()) !== false /*AND !file_exists($dirtouse.".htaccess")*/ AND is_writable($dirtouse)){
 			$content = "<IfModule mod_authz_core.c>
     Require ip ".$_SERVER["REMOTE_ADDR"]."
 </IfModule>";
@@ -1502,7 +1530,7 @@ class Util {
 		elseif(file_exists($dirtouse.".htaccess"))
 			unlink($dirtouse.".htaccess");
 		
-		if(!PHYNX_USE_TEMP_HTACCESS AND file_exists($dirtouse.".htaccess"))
+		if((!defined("PHYNX_USE_TEMP_HTACCESS") OR !PHYNX_USE_TEMP_HTACCESS) AND file_exists($dirtouse.".htaccess"))
 			unlink($dirtouse.".htaccess");
 		
 		return $dirtouse;

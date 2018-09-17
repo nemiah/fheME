@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
 
 class DBStorage {
@@ -337,7 +337,7 @@ class DBStorage {
 			syslog(LOG_ERR, "MySQL: ".$this->c->error."(".$this->c->errno.") in $sql");
 		
 		$t = $q->fetch_object();
-		
+		#print_r($t);
 		$fields = PMReflector::getAttributesArrayAnyObject($t);
 		
 		/*if($typsicher){
@@ -349,7 +349,7 @@ class DBStorage {
 		}*/
 		
 		foreach($fields AS $key => $value){
-			$t->$value = $this->fixUtf8(stripslashes($t->$value));
+			$t->$value = $this->fixUtf8($t->$value); //REMOVED stripslashes on 20180321 because of JSON data
 						
 			/*if($typsicher){
 				if(isset($types[$value])) $typObj = $types[$value];
@@ -395,34 +395,58 @@ class DBStorage {
 	}
 
 	function saveSingle2($table, $id, $A) {
-		#if(PHYNX_MYSQL_STRICT)
-		#	$this->fixTypes($table, $A);
-		
 		$fields = PMReflector::getAttributesArray($A);
 	    $sql = "UPDATE $table SET";
+
+		$params = array(str_pad("", count($fields), "s")."i");
 		for($i = 0;$i < count($fields);$i++){
 			$f = $fields[$i];
-			#print_r($A->$f);
-			#if(!is_numeric($A->$fields[$i]))
-				$sql .= ($i > 0 ? "," : "")." ".$fields[$i]." = '".$this->cWrite->real_escape_string($A->$f)."'";
-			#else $sql .= ($i > 0 ? "," : "")." ".$fields[$i]." = ".$A->$fields[$i]."";
+			#$sql .= ($i > 0 ? "," : "")." ".$fields[$i]." = '".$this->cWrite->real_escape_string($A->$f)."'";
+			$sql .= ($i > 0 ? "," : "")." ".$fields[$i]." = ?";
+			
+			$params[] = &$A->$f;
 		}
-		$sql .= " WHERE ".$table."ID = '$id'";
+		$sql .= " WHERE ".$table."ID = ?";
+		$params[] = &$id;
+		
 		$_SESSION["messages"]->addMessage("executing MySQL: $sql");
-		$this->cWrite->query($sql);
+		$statement = $this->cWrite->prepare($sql);
+		if(!$statement){
+			if($this->cWrite->error AND $this->cWrite->errno == 1054) {
+				preg_match("/[a-zA-Z0-9 ]*\'([a-zA-Z0-9\.]*)\'[a-zA-Z ]*\'([a-zA-Z ]*)\'.*/", $this->cWrite->error, $regs);
+				throw new FieldDoesNotExistException($regs[1],$regs[2]);
+			}
+			
+			throw new Exception($this->cWrite->error);
+		}
+		if(!call_user_func_array(array($statement, 'bind_param'), $params))
+			throw new Exception("Binding parameters failed!");
+		
+		if(!$statement->execute()){
+			if(PHYNX_USE_SYSLOG)
+				syslog(LOG_ERR, "MySQL: ".$statement->error." (".$statement->errno.") in $sql");
+		
+			if($statement->errno == 1062)
+				throw new DuplicateEntryException($statement->error);
+			
+			throw new Exception("Executing statement failed ($sql)");
+		}
+		
 		DBStorage::$queryCounter++;
-		if($this->cWrite->error AND $this->cWrite->errno == 1062)
-			throw new DuplicateEntryException($this->cWrite->error);
+		#if($this->cWrite->error AND $this->cWrite->errno == 1062)
+		#	throw new DuplicateEntryException($this->cWrite->error);
 		
-		if($this->cWrite->error)
-			Red::errorD ($this->cWrite->error);
+		#if($this->cWrite->error)
+		#	Red::errorD ($this->cWrite->error);
 		
-		if($this->cWrite->error AND PHYNX_USE_SYSLOG)
-			syslog(LOG_ERR, "MySQL: ".$this->cWrite->error."(".$this->cWrite->errno.") in $sql");
+		#if($this->cWrite->error AND PHYNX_USE_SYSLOG)
+		#	syslog(LOG_ERR, "MySQL: ".$this->cWrite->error."(".$this->cWrite->errno.") in $sql");
 	}
 
 	function getTableColumns($forWhat){
 		$result = $this->c->query("SHOW COLUMNS FROM $forWhat");
+		if(!$result)
+			throw new Exception("SQL error: SHOW COLUMNS FROM $forWhat");
 		DBStorage::$queryCounter++;
 		if($this->c->error AND $this->c->errno == 1146) throw new TableDoesNotExistException($forWhat);
 		
@@ -444,6 +468,9 @@ class DBStorage {
 		$value = str_replace("Ã¼", "ü", $value);
 		
 		$value = str_replace("ÃŸ", "ß", $value);
+		
+		$value = str_replace('\$', "$", $value);
+		$value = str_replace("\'", "'", $value);
 		return $value;
 	}
 	
@@ -635,7 +662,7 @@ class DBStorage {
 		#	$fields = PMReflector::getAttributesArrayAnyObject($t);
 
 		foreach($t AS $key => $value)
-			$A->$key = $this->fixUtf8(stripslashes($value));
+			$A->$key = $this->fixUtf8($value);//REMOVED stripslashes on 20180321 because of JSON data
 
 
 		if(count($this->parsers) > 0)
@@ -763,7 +790,7 @@ class DBStorage {
 
 		$fields = null;
 		while($t = $q->fetch_assoc()){
-			$t = array_map("stripslashes",$t);
+			#$t = array_map("stripslashes",$t);//REMOVED stripslashes on 20180321 because of JSON data
 			if(count($this->parsers) > 0) 
 				foreach($this->parsers AS $key => $value)
 					if(isset($t[$key])) #eval("\$t[\$key] = ".$value."(\"".$t[$key]."\",\"load\");");

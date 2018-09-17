@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
 class phynxMailer {
 	private $exceptions = false;
@@ -26,6 +26,7 @@ class phynxMailer {
 	private $subject = "";
 	private $body = "";
 	private $attachments = array();
+	private $skipOwn = false;
 	
 	function __construct($to, $subject, $body) {
 		$this->to($to);
@@ -53,13 +54,17 @@ class phynxMailer {
 		$this->attachments[] = $filename;
 	}
 	
+	function skipOwnServer($bool){
+		$this->skipOwn = $bool;
+	}
+	
 	function send(){
 		if(!count($this->from) AND Session::currentUser())
 			$this->from(Session::currentUser()->A("UserEmail"), Session::currentUser()->A("name"));
 		
 		$from = $this->from;
 		
-		$mimeMail2 = new PHPMailer($this->exceptions, substr($from[0], stripos($from[0], "@") + 1));
+		$mimeMail2 = new PHPMailer($this->exceptions, substr($from[0], stripos($from[0], "@") + 1), $this->skipOwn);
 
 		$mimeMail2->CharSet = "UTF-8";
 		$mimeMail2->Subject = $this->subject;

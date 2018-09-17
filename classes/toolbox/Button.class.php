@@ -15,12 +15,13 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
 class Button {
 	
 	private $image;
 	private $label;
+	private $labelReplace1 = null;
 	private $style;
 	private $rme;
 	private $onclick;
@@ -74,8 +75,9 @@ class Button {
 		return $this->label;
 	}
 	
-	function label($label){
+	function label($label, $replace1 = null){
 		$this->label = $label;
+		$this->labelReplace1 = $replace1;
 	}
 	
 	function name($name){
@@ -140,7 +142,7 @@ class Button {
 	}
 	
 	function contextMenu($plugin, $identifier, $title, $leftOrRight = "right", $upOrDown = "down", $options = "{}"){
-		$this->onclick = "phynxContextMenu.start(this, '$plugin','$identifier','$title', '$leftOrRight', '$upOrDown', $options);";
+		$this->onclick = "phynxContextMenu.start(this, '$plugin','$identifier','".T::_($title)."', '$leftOrRight', '$upOrDown', $options);";
 	}
 
 	function image($path){
@@ -298,7 +300,7 @@ class Button {
 	
 	function __toString(){
 		if($this->type != "seamless" AND $this->type != "touch")
-			$this->label = T::_($this->label);
+			$this->label = T::_($this->label, $this->labelReplace1);
 		
 		if($this->before != "")
 			$this->rme = str_replace("%AFTER", $this->rme, $this->before);
@@ -316,7 +318,7 @@ class Button {
 		
 		$onclick = $this->onclick != null ? $this->onclick : "";
 		#if($this->pluginRight != null) $onclick .= ;
-		if($this->rme != null OR $onclick != "") $onclick .= ((mb_substr($onclick, -1) != ";" AND strpos($onclick, "confirm(") === false) ? ";" : "")." { ".($this->loading ? "\$j(this).addClass('loading');" : "")." ".$this->rme." }";
+		if($this->rme != null OR $onclick != "") $onclick .= ((mb_substr($onclick, -1) != ";" AND strpos($onclick, "confirm(") === false) ? ";" : "")." { ".($this->loading ? "\$j(this).addClass('loading'); \$j(this).prop('disabled', true);" : "")." ".$this->rme." }";
 		if($this->type == "bigButton" OR $this->type == "LPBig" OR $this->type == "MPBig")
 			return (strpos($this->style, "float:right;") !== false ? $this->settings : "")."<button".($this->name != null ? " name=\"$this->name\"" : "")." ".($this->disabled ? "disabled=\"disabled\"" : "")." ".($this->id ? "id=\"$this->id\" " : "")."onclick=\"$onclick\" type=\"button\" class=\"$this->class ".($this->type == "bigButton" ? "bigButton" : ($this->type == "LPBig" ? "bigButton LPBigButton" : "bigButton MPBigButton"))."\" style=\"{$this->style}".($this->image != "" ? "background-image:url(".$this->image.");" : "")."\" title=\"$this->label\">".(($this->type == "bigButton" OR $this->type == "MPBig") ? nl2br($this->label) : "")."</button>".(strpos($this->style, "float:right;") === false ? $this->settings : "")."$this->js";
 		

@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
 class Session {
 	static $instance;
@@ -128,6 +128,14 @@ class Session {
 	}
 	
 	public function checkIfUserIsAllowed($plugin){
+		// <editor-fold defaultstate="collapsed" desc="Aspect:jP">
+		try {
+			$MArgs = func_get_args();
+			return Aspect::joinPoint("around", $this, __METHOD__, $MArgs);
+		} catch (AOPNoAdviceException $e) {}
+		Aspect::joinPoint("before", $this, __METHOD__, $MArgs);
+		// </editor-fold>
+		
 		if($plugin == "Menu") return true;
 		if($plugin == "Messages") return true;
 		if($plugin == "JSLoader") return true;

@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
 class HTMLPopupGUI {
 	private $object;
@@ -188,6 +188,12 @@ class HTMLPopupGUI {
 				$TE->addCellID(count($row), "popupEntryID".$A->getID());
 				$TE->addCellStyle(count($row), "vertical-align:top;cursor:pointer;");
 				$TE->addCellEvent(count($row), "click", $action);
+				
+				if(count($row) == 3){
+					$TE->addCellID(count($row) - 1, "popupEntryID".$A->getID());
+					$TE->addCellStyle(count($row) - 1, "vertical-align:top;cursor:pointer;");
+					$TE->addCellEvent(count($row) - 1, "click", $action);
+				}
 			}
 		}
 		

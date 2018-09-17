@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
 if(!file_exists("/var/www/status/cron_".gethostname()))
 	die("Status file missing!");
@@ -111,7 +111,7 @@ foreach($zugaenge AS $zugang){
 
 	try {
 		syslog(LOG_INFO, "$zugang updating...");
-		mRSSParser::update();
+		mRSSParser::update($zugang);
 	}
 	catch(FieldDoesNotExistException $ex){
 		echo $zugang." ".get_class($ex).": ".$ex->getField()."\n";

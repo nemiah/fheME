@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
 class PersistentObject {
 	protected $ID;
@@ -27,9 +27,10 @@ class PersistentObject {
 	 * @deprecated since version 20141218
 	 */
 	protected $noDeleteHideOnly = false;
-
-	protected $languageClass;
-	protected $texts;
+	protected $parsersList = array();
+	
+	#protected $languageClass;
+	#protected $texts;
 
 	protected $myAdapterClass;
 	protected $echoIDOnNew = false;
@@ -109,6 +110,11 @@ class PersistentObject {
 		
 		$this->Adapter->addParser($a,$f);
 		$this->hasParsers = true;
+		$this->parsersList[$a] = $f;
+	}
+	
+	function hasParser($field){
+		return isset($this->parsersList[$field]);
 	}
 
 	function resetParsers(){
@@ -117,6 +123,7 @@ class PersistentObject {
 		
 		$this->Adapter->resetParsers();
 		$this->hasParsers = false;
+		$this->parsersList = array();
 	}
 
 	function getClearClass(){
@@ -155,6 +162,8 @@ class PersistentObject {
 	}*/
 
 	function deleteMe() {
+		Aspect::joinPoint("before", $this, get_class($this)."::deleteMe", $this->A);
+		
 		mUserdata::checkRestrictionOrDie("cantDelete".str_replace("GUI","",get_class($this)));
 		try {
 			if(Session::isPluginLoaded("mArchiv"))
@@ -173,7 +182,7 @@ class PersistentObject {
 		Aspect::joinPoint("after", $this, get_class($this)."::deleteMe", $this->A);
 	}
 
-	function loadTranslation($forClass = null){
+	/*function loadTranslation($forClass = null){
 		if($forClass == null) $forClass = $this->getClearClass();
 		if($this->languageClass == null){
 			try {
@@ -192,7 +201,7 @@ class PersistentObject {
 		$this->texts = $this->languageClass->getText();
 
 		return $this->languageClass;
-	}
+	}*/
 
 	function getGUIClass(){
 		$n = get_class($this)."GUI";
@@ -311,6 +320,7 @@ class PersistentObject {
 	}
 	
 	function newMe($checkUserData = true, $output = false){
+		Aspect::joinPoint("before", $this, get_class($this)."::newMe", $this->A);
 		if($checkUserData) mUserdata::checkRestrictionOrDie("cantCreate".str_replace("GUI","",get_class($this)));
 
 	    $this->loadAdapter();
@@ -318,14 +328,14 @@ class PersistentObject {
 
         $this->ID = $this->Adapter->makeNewLine2($this->getClearClass(get_class($this)), $this->A);
 
+		Aspect::joinPoint("after", $this, get_class($this)."::newMe", $this->A);
+		
         if($output OR $this->echoIDOnNew){
 	        if($this->echoIDOnNew) {
 				echo $this->ID;
 			} else
 				Red::messageCreated(array("ID" => $this->ID));
 		}
-		
-		Aspect::joinPoint("after", $this, get_class($this)."::newMe", $this->A);
 		
         return $this->ID;
 	}

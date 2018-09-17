@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
 class LoginDataGUI extends LoginData implements iGUIHTML2 {
 	function getHTML($id){
@@ -277,6 +277,22 @@ class LoginDataGUI extends LoginData implements iGUIHTML2 {
 			$gui->type("optionen", "hidden");
 			$gui->type("server", "hidden");
 			$gui->type("passwort", "hidden");
+		}
+
+		if($bps != -1 AND isset($bps["preset"]) AND $bps["preset"] == "P.meIDAndPIN"){
+
+			$html = "";
+			
+			$gui->type("UserID", "hidden");
+			$this->changeA("UserID", "-1");
+			$gui->label("benutzername", "CustomerID");
+			$gui->type("name", "hidden");
+			$gui->label("passwort", "PIN");
+			$this->changeA("name", "P.meIDAndPIN");
+			$gui->type("optionen", "hidden");
+			$gui->type("server", "hidden");
+			
+			$onSave = OnEvent::reload("Screen").OnEvent::closePopup("LoginData");
 		}
 		
 		if($bps != -1 AND isset($bps["preset"]) AND $bps["preset"] == "adServer"){

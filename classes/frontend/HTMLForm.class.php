@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
 class HTMLForm {
 	protected $id;
@@ -30,6 +30,7 @@ class HTMLForm {
 	private $enctype;
 	private $appendJs = "";
 	private $descriptionField = array();
+	private $descriptionFieldReplace1 = array();
 
 	private $inputStyle = array();
 
@@ -152,7 +153,7 @@ class HTMLForm {
 
 		if($cols == 4){
 			if($widths == null) $widths = array(700, 132, 218);
-			$this->table->setTableStyle("width:$widths[0]px;margin-left:10px;");
+			$this->table->setTableStyle("width:$widths[0]px;max-width:$widths[0]px;margin-left:10px;");
 
 			$this->table->addColStyle(1, "width:$widths[1]px;");
 			$this->table->addColStyle(2, "width:$widths[2]px;");
@@ -221,6 +222,8 @@ class HTMLForm {
 			$this->fields = PMReflector::getAttributesArrayAnyObject($fields->getA());
 		}
 
+		$title = T::_($title);
+		
 		$this->virtualFields = $virtualFields;
 		$this->types = array();
 		$this->labels = array();
@@ -356,7 +359,7 @@ class HTMLForm {
 	
 	public function setSaveRMEPCR($saveButtonLabel, $saveButtonBGIcon, $targetClass, $targetClassId, $targetMethod, $onSuccessFunction = "", $onFailureFunction = "function(){}"){
 		$this->saveMode = "rmeP";
-		$this->saveButtonLabel = $saveButtonLabel;
+		$this->saveButtonLabel = T::_($saveButtonLabel);
 		$this->saveButtonBGIcon = $saveButtonBGIcon;
 
 
@@ -387,7 +390,7 @@ class HTMLForm {
 				$values .= ($values != "" ? ", " : "")."\$('$this->id').$f.checked ? '1' : '0'";
 		}
 		
-		$this->saveButtonSubmit = "contentManager.rmePCR('$targetClass', '$targetClassId', '$targetMethod', [$values]".($onSuccessFunction != "" ? ", $onSuccessFunction" : "function(){}").", '', true, $onFailureFunction);";
+		$this->saveButtonSubmit = "contentManager.rmePCR('$targetClass', '$targetClassId', '$targetMethod', [$values]".($onSuccessFunction != "" ? ", $onSuccessFunction" : ", function(){}").", '', true, $onFailureFunction);";
 		$this->onSubmit = $this->saveButtonSubmit."return false;";
 	}
 	
@@ -471,7 +474,7 @@ class HTMLForm {
 
 	public function setSaveBericht($berichtClass){
 		$this->saveMode = "Bericht";
-		$this->saveButtonLabel = "Einstellungen speichern";
+		$this->saveButtonLabel = T::_("Einstellungen speichern");
 		$this->saveButtonBGIcon = "";
 		$this->saveClass = "";
 		$this->saveAction = "";
@@ -532,8 +535,9 @@ class HTMLForm {
 		
 	}
 	
-	public function setDescriptionField($fieldName, $description){
+	public function setDescriptionField($fieldName, $description, $replace1 = null){
 		$this->descriptionField[$fieldName] = $description;
+		$this->descriptionFieldReplace1[$fieldName] = $replace1;
 	}
 
 
@@ -590,7 +594,7 @@ class HTMLForm {
 			$Input->isDisplayMode(!$this->editable);
 		} else {
 			$method = explode("::", $this->options[$v][0]);
-			$Input = Util::invokeStaticMethod($method[0], $method[1], array(isset($this->values[$v]) ? $this->values[$v] : null, "", isset($this->options[$v][1]) ? $this->options[$v][1] : null));
+			$Input = Util::invokeStaticMethod($method[0], $method[1], array(isset($this->values[$v]) ? $this->values[$v] : null, "", isset($this->options[$v][1]) ? $this->options[$v][1] : null, (isset($this->options[$v][2]) ? $this->options[$v][2] : null)));
 		}
 
 		return $Input;
@@ -652,7 +656,7 @@ class HTMLForm {
 
 				}
 				if(isset($this->spaces[$v]) AND $this->spaces[$v] != ""){
-					$this->table->addRow(array($this->spaces[$v]));
+					$this->table->addRow(array(T::_($this->spaces[$v])));
 					#$this->table->addRowStyle("font-weight:bold;");
 					#$this->table->addCellStyle(1, "padding-top:20px;");
 					$this->table->addRowColspan(1, 2);
@@ -680,8 +684,8 @@ class HTMLForm {
 				if(!isset($this->types[$v]) OR $this->types[$v] != "hidden"){
 
 					if($this->cols == 2) $this->table->addLV(
-						(isset($this->labels[$v]) ? $this->labels[$v] : ucfirst($v)).($this->printColon ? ":" : ""),
-						$B.$InputS.(isset($this->descriptionField[$v]) ? "<br><small style=\"color:grey;\">".$this->descriptionField[$v]."</small>" : ""));
+						T::_(isset($this->labels[$v]) ? $this->labels[$v] : ucfirst($v)).($this->printColon ? ":" : ""),
+						$B.$InputS.(isset($this->descriptionField[$v]) ? "<br><small style=\"color:grey;\">".T::_($this->descriptionField[$v], isset($this->descriptionFieldReplace1[$v]) ? $this->descriptionFieldReplace1[$v] : null)."</small>" : ""));
 
 					if($this->cols == 1) {
 						
@@ -757,7 +761,7 @@ class HTMLForm {
 
 				$B = $this->getCustomButton($v, $Input);
 
-				$row[] = "<label>".(isset($this->labels[$v]) ? $this->labels[$v] : ucfirst($v)).":</label>";
+				$row[] = "<label>".T::_(isset($this->labels[$v]) ? $this->labels[$v] : ucfirst($v)).":</label>";
 				$row[] = $B.$Input.(isset($this->descriptionField[$v]) ? "<br /><small style=\"color:grey;\">".$this->descriptionField[$v]."</small>" : "");
 				/*if(!isset($this->types[$v]) OR $this->types[$v] != "hidden"){
 					$this->table->addLV(

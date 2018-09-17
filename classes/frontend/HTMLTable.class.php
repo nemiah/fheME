@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
 class HTMLTable extends UnifiedTable implements iUnifiedTable  {
 	private $colStyles = array();
@@ -342,7 +342,7 @@ class HTMLTable extends UnifiedTable implements iUnifiedTable  {
 			$cols .= "
 				<col ".(isset($this->colWidth[$i+1]) ? "style=\"width:".$this->colWidth[$i+1]."\"" : "")." class=\"".(!isset($this->colClass[$i+1]) ? "backgroundColor".($i%2 + 2)."" : $this->colClass[$i+1])."\" />";
 		
-		if(count($this->header) > 0){
+		if($this->header != null AND count($this->header) > 0){
 			$rows .= "
 			<thead>
 			<tr ".(isset($this->rowClasses[-1]) ? "class=\"".$this->rowClasses[-1]."\"" : "").">";
@@ -402,7 +402,7 @@ class HTMLTable extends UnifiedTable implements iUnifiedTable  {
 		".($this->caption != null ? "
 			
 			<div class=\"$tabClass browserContainerSubHeight\" $divStyle>
-				<p>".T::_($this->caption)."</p>
+				<p>".$this->caption."</p>
 			</div>" : "");
 		
 		if($this->tab == 1) $R .= "

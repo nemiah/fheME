@@ -581,8 +581,8 @@ qq.FileUploader = function(o){
         multipleFileDropNotAllowedMessage: "You may only drop one file",
 
         template: '<div class="qq-uploader">' +
-                '<div class="qq-upload-drop-area"><span>Datei hier ablegen zum Hochladen</span></div>' +
-                '<div class="qq-upload-button AJAXUpload" style="background-image:url(./images/i2/folder.png);">Datei auswählen <small>(max. '+o.maxSizePossible+')</small></div>' +
+                '<div class="qq-upload-drop-area"><span>{dragText}</span></div>' +
+                '<div class="qq-upload-button AJAXUpload" style="background-image:url(./images/i2/folder.png);">{uploadButtonText} <small>(max. '+o.maxSizePossible+')</small></div>' +
             '<ul class="qq-upload-list"></ul>' +
             '</div>',
 

@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
 class Aspect {
 
@@ -47,12 +47,11 @@ class Aspect {
 		if($mode == "after" AND !isset(self::$pointCuts[$mode][$method]))
 			return $args;
 			
-		
 		if(isset(Aspect::$pointCuts[$mode][$method]) AND count(Aspect::$pointCuts[$mode][$method]) > 0){
 			$values = array();
 			foreach(Aspect::$pointCuts[$mode][$method] AS $k => $advice) {
 				$values[] = Aspect::invokeParser($advice, $class, $args);
-
+				
 				if(isset(Aspect::$onetimePointCuts[$mode."_".$method])){
 					unset(Aspect::$onetimePointCuts[$mode."_".$method]);
 					unset(Aspect::$pointCuts[$mode][$method][$k]);

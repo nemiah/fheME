@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
 class mTodoGUI extends mTodo implements iGUIHTMLMP2, iKalender {
 	public function  __construct() {
@@ -61,11 +61,11 @@ class mTodoGUI extends mTodo implements iGUIHTMLMP2, iKalender {
 		
 			$gui->options(true, true, false, false);
 
-			$Projekt = new Projekt($bps["ownerClassID"]);
-			$UIDs = explode(";:;", $Projekt->A("ProjektTeilnehmerUserIDs"));
+			#$Projekt = new Projekt($bps["ownerClassID"]);
+			#$UIDs = explode(";:;", $Projekt->A("ProjektTeilnehmerUserIDs"));
 
 			$B = $gui->addTopButton("Neuer\nTermin", "new");
-			$B->popup("", "Neuer Projekttermin", "mTodo", "-1", "newProjectTodo", array($bps["ownerClassID"]), "", "{width:".((count($UIDs) * 150) + 420)."}");
+			$B->popup("", "Neuer Projekttermin", "mTodo", "-1", "newGroupTodo", array("'Projekt'", $bps["ownerClassID"]));
 		}
 			
 		$gui->displayMode("CRMSubframeContainer");
@@ -74,16 +74,55 @@ class mTodoGUI extends mTodo implements iGUIHTMLMP2, iKalender {
 		return $gui->getBrowserHTML($id);
 	}
 	
-	public function newProjectTodo($ProjektID){
-		$Projekt = new Projekt($ProjektID);
-		BPS::setProperty("mTodoGUI", "ownerClass", "Projekt");
-		BPS::setProperty("mTodoGUI", "ownerClassID", $ProjektID);
+	public function newGroupTodo($class, $classID){
+		$teilnehmer = Session::currentUser()->getID();
+		$ort = "";
+		$desc = "";
+		
+		BPS::setProperty("mTodoGUI", "ownerClass", $class);
+		BPS::setProperty("mTodoGUI", "ownerClassID", $classID);
 			
-		if($Projekt->A("ProjektTeilnehmerUserIDs") == "")
-			$Projekt->changeA("ProjektTeilnehmerUserIDs", Session::currentUser()->getID());
+		if($class == "Projekt"){
+			$Projekt = new Projekt($classID);
+
+			if($Projekt->A("ProjektTeilnehmerUserIDs") == "")
+				$Projekt->changeA("ProjektTeilnehmerUserIDs", Session::currentUser()->getID());
+			
+			$teilnehmer = $Projekt->A("ProjektTeilnehmerUserIDs");
+		}
+		
+		if($class == "GRLBM"){
+			$GRLBM = new GRLBM($classID, false);
+			
+			$teilnehmer = array();
+			if($GRLBM->A("GRLBMServiceMitarbeiter"))
+				$teilnehmer[] = $GRLBM->A("GRLBMServiceMitarbeiter");
+			
+			if($GRLBM->A("GRLBMServiceMitarbeiter2"))
+				$teilnehmer[] = $GRLBM->A("GRLBMServiceMitarbeiter2");
+			
+			if($GRLBM->A("GRLBMServiceMitarbeiter3"))
+				$teilnehmer[] = $GRLBM->A("GRLBMServiceMitarbeiter3");
+			
+			if($GRLBM->A("GRLBMServiceMitarbeiter4"))
+				$teilnehmer[] = $GRLBM->A("GRLBMServiceMitarbeiter4");
+			
+			$teilnehmer = implode(";:;", $teilnehmer);
+			
+			if($GRLBM->A("GRLBMServiceArbeitsort") !== null){
+				if($GRLBM->A("GRLBMServiceArbeitsort") == ""){
+					$Auftrag = new Auftrag($GRLBM->A("AuftragID"));
+					$Adresse = new Adresse($Auftrag->A("AdresseID"));
+					$ort = $Adresse->A("strasse")." ".$Adresse->A("nr").", ".$Adresse->A("plz")." ".$Adresse->A("ort");
+					$desc = "Telefon: ".$Adresse->A("tel");
+				}
+			}
+		}
 		
 		$T = new TodoGUI(-1);
-		$T->changeA("TodoTeilnehmer", $Projekt->A("ProjektTeilnehmerUserIDs"));
+		$T->changeA("TodoTeilnehmer", $teilnehmer);
+		$T->changeA("TodoLocation", $ort);
+		$T->changeA("TodoDescription", $desc);
 		$T->GUI = new HTMLGUIX($T);
 		$T->GUI->displayMode("popupS");
 		$T->GUI->requestFocus("TodoName");
@@ -113,7 +152,7 @@ class mTodoGUI extends mTodo implements iGUIHTMLMP2, iKalender {
 			
 		#echo $T->GUI->getEditHTML();
 		
-		$UIDs = explode(";:;", $Projekt->A("ProjektTeilnehmerUserIDs"));
+		$UIDs = explode(";:;", $teilnehmer);
 		$users = Users::getUsersArray();
 		
 		echo "<div style=\"display:inline-block;vertical-align:top;\">";
@@ -128,7 +167,13 @@ class mTodoGUI extends mTodo implements iGUIHTMLMP2, iKalender {
 					$this->getBusyList($UID, false, 1)."</div>";
 		}
 		echo "</div></div><div style=\"width:400px;display:inline-block;vertical-align:top;\"><p class=\"prettySubtitle\">Neuer Termin</p>".$T->GUI->getEditHTML()."</div>";
+		
+		echo OnEvent::script("\$j('#editDetailsmTodo').css('width', '".(count($UIDs) * 150 + 420)."'); window.setTimeout(function(){ \$j('#editDetailsmTodo').css('width', '".(count($UIDs) * 150 + 420)."'); }, 150);");
 	}
+	
+	/*public function newProjectTodo($ProjektID){
+		$this->newGroupTodo("Projekt", $ProjektID);
+	}*/
 	
 	public static function parserDone($w, $l, $E){
 		$B = new Button("Termin abschließen", "./images/i2/bestaetigung.png", "icon");
@@ -528,7 +573,7 @@ END:VCALENDAR";
 			$htmlEvents .= "<div style=\"margin-bottom:20px;{$style}display:inline-block;width:".(100 / $cols)."%;box-sizing:border-box;vertical-align:top;min-height:60px;\">
 				<div style=\"background-color:#EEE;padding:5px;\">
 					<span style=\"display:inline-block;width:30px;font-weight:bold;\">".mb_substr(Util::CLWeekdayName($Datum->w()), 0, 2)."</span>
-					<a style=\"color:grey;\" href=\"#\" onclick=\"\$j('#TodoFromDay123, #TodoTillDay123').val('".Util::CLDateParser($Datum->time())."').trigger('change');\">".Util::CLDateParser($Datum->time())."</a>
+					<a style=\"color:grey;\" href=\"#\" onclick=\"\$j('#TodoFromDay123, #TodoTillDay123').val('".Util::CLDateParser($Datum->time())."').trigger('change'); return false;\">".Util::CLDateParser($Datum->time())."</a>
 				</div>
 				<div style=\"padding:5px;\">
 					$list
@@ -616,7 +661,19 @@ END:VCALENDAR";
 			$BAnswer->popup("newMail", "Antworten", "Mail", -1, "writeMail", array($M->A("DBMailMailKontoID"), $T->A("TodoClassID"), "'answer'"), null, "Mail.PopupOptions");
 			$BAnswer->style("margin-left:10px;");
 			
-			$KE->value("E-Mail",$B.$BAnswer);
+			$BAttachments = "";
+			if($M->A("DBMailHasAttachment")){
+				$BAttachments = new Button("Anhänge", "./lightCRM/Mail/images/attach.png", "icon");
+				$BAttachments->popup("", "Anhänge", "Mail", "-1", "attachmentsPopup", $M->getID(), "", "{width:1000, hPosition:'center'}");
+				$BAttachments->style("margin-left:10px;");
+				#$BAttachments->className("backgroundColor0");
+			}
+			
+			$BWindow = new Button("Neues Fenster", "new_window", "iconicL");
+			$BWindow->windowRme("Mail", $M->getID(), "getInWindow");
+			$BWindow->style("margin-left:10px;");
+		
+			$KE->value("E-Mail",$B.$BAnswer.$BAttachments.$BWindow);
 		}
 		
 		$KE->value("Typ", TodoGUI::types($T->A("TodoType")));

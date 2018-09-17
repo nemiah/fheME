@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
 class HTMLInput {
 	private $type;
@@ -404,6 +404,8 @@ class HTMLInput {
 					<script type=\"text/javascript\">
 						QQUploader$currentId = new qq.FileUploader({
 							maxSizePossible: '".ini_get("upload_max_filesize")."B',
+							uploadButtonText: '".T::_("Datei auswählen")."',
+							dragText: '".T::_("Datei hier ablegen zum Hochladen")."',
 							sizeLimit: ".Util::toBytes(ini_get("upload_max_filesize")).",
 							element: \$j('#$currentId')[0],
 							action: '".(($this->options != null AND isset($this->options["action"])) ? $this->options["action"] : "./interface/set.php")."',

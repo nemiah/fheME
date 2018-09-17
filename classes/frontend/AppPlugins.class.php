@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
 class AppPlugins {
 	private $folders = array();
@@ -296,6 +296,8 @@ class AppPlugins {
 	
 	public function getMenuEntries(){
 		$entries = $this->menuEntries;
+		$entries = Aspect::joinPoint("menu", $this, __METHOD__, array($entries), $entries);
+		
 		$hidden = Environment::getS("hiddenPlugins", array());
 		
 		foreach($entries as $key => $value){
@@ -349,7 +351,7 @@ class AppPlugins {
 	}
 	
 	public function getIcons(){
-		return $this->icons;
+		return Aspect::joinPoint("alter", $this, __METHOD__, array($this->icons), $this->icons);
 	}
 	
 	public function isPluginLoaded($pluginName){

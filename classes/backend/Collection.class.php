@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
 abstract class Collection {
 	protected $A = null;
@@ -565,7 +565,7 @@ abstract class Collection {
 			$this->Adapter->setSelectStatement("table", $this->collectionOf);
 		
 		if($id != -1)
-			$this->setAssocV3((count($gT) == 0 ? $this->collectionOf : $gT[0])."ID","=",$id);
+			$this->setAssocV3("t1.".(count($gT) == 0 ? $this->collectionOf : $gT[0])."ID","=",$id);
 		
 		if($returnCollector) 
 			$this->collector = $this->Adapter->lCV4();
@@ -583,14 +583,12 @@ abstract class Collection {
 	 * @param $entriesPerPage[optional](Integer) Number of entries per page
 	 */
 	public function loadMultiPageMode($id = -1, $page = 0, $entriesPerPage = 20){
-		if($entriesPerPage == 0){
-			$c = $this->getClearClass();#str_replace("GUI", "", get_class($this));
-			$mU = new mUserdata();
-			$entriesPerPage = $mU->getUDValue("entriesPerPage$c");
-			if($entriesPerPage == null) $entriesPerPage = 20;
-		}
+		if($entriesPerPage == 0)
+			$entriesPerPage = mUserdata::getUDValueS("entriesPerPage".$this->getClearClass(), 20);
+		
 		if($page == "")
 			$page = 0;
+		
 		$num = $this->getAffectedRows($id);
 		$this->setLimitV3(($page * $entriesPerPage).",".$entriesPerPage);
 		
@@ -770,7 +768,8 @@ abstract class Collection {
 		$this->setLimitV3("1");
 		$this->lCV3();
 		
-		if($this->numLoaded() == 0) return 1;
+		if($this->numLoaded() == 0) 
+			return 1;
 		
 		$C = $this->getNextEntry();
 		$CA = $C->getA();

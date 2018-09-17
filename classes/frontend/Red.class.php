@@ -15,13 +15,13 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
 class Red {
 	
 	public static function alertD($message, $die = true){
 		if($die)
-			die("alert:'".addslashes($message)."'");
+			die("alert:'".addslashes(T::_($message))."'");
 		else
 			throw new Exception($message);
 	}
@@ -32,7 +32,7 @@ class Red {
 	
 	public static function errorD($message, $exception = false){
 		if(!$exception)
-			die("error:'".addslashes($message)."'");
+			die("error:'".addslashes(T::_($message))."'");
 		else 
 			throw new Exception ($message);
 	}
@@ -61,7 +61,7 @@ class Red {
 
 	public static function messageD($message, array $data = null){
 		if($data != null){
-			$value = array("type" => "message", "message" => $message);
+			$value = array("type" => "message", "message" => T::_($message));
 			foreach($data AS $k => $v)
 				$value[$k] = $v;
 			
@@ -71,12 +71,12 @@ class Red {
 			die(json_encode($value));
 		}
 		
-		die("message:'".addslashes($message)."'");
+		die("message:'".addslashes(T::_($message))."'");
 	}
 	
 	public static function messageSaved(array $data = null){
 		if($data != null){
-			$value = array("type" => "message", "message" => "Daten gespeichert");
+			$value = array("type" => "message", "message" => T::_("Daten gespeichert"));
 			foreach($data AS $k => $v)
 				$value[$k] = $v;
 			
@@ -86,12 +86,12 @@ class Red {
 			die(json_encode($value));
 		}
 		
-		die("message:'Daten gespeichert'");
+		die("message:'".T::_("Daten gespeichert")."'");
 	}
 	
 	public static function messageCreated(array $data = null){
 		if($data != null){
-			$value = array("type" => "message", "message" => "Datensatz erstellt");
+			$value = array("type" => "message", "message" => T::_("Datensatz erstellt"));
 			foreach($data AS $k => $v)
 				$value[$k] = $v;
 			
@@ -101,7 +101,7 @@ class Red {
 			die(json_encode($value));
 		}
 		
-		die("message:'Datensatz erstellt'");
+		die("message:'".T::_("Datensatz erstellt")."'");
 	}
 	
 	public static function errorUpdate($e = null){

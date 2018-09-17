@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
 class UserGUI extends User implements iGUIHTML2 {
 	function getHTML($id){
@@ -67,6 +67,13 @@ class UserGUI extends User implements iGUIHTML2 {
 			"UserSkype",
 			"UserTel"));
 		
+		if(Applications::activeApplication() == "supportBox"){
+			$gui->attributes(array(
+				"name",
+				"username",
+				"password",
+				"SHApassword"));
+		}
 		
 		$gui->label("name","Name");
 		$gui->label("username","Benutzername");
@@ -88,6 +95,11 @@ class UserGUI extends User implements iGUIHTML2 {
 		#$gui->type("isAdmin","radio");
 		$gui->descriptionField("isAdmin","<span style=\"color:red;\">Achtung: als Admin sehen Sie nur diese Admin-Oberfläche und NICHT das Programm selbst!</span>");
 		
+		if(Session::isPluginLoaded("mPasswort")){
+			$gui->type("SHApassword", "hidden");
+			$gui->addSideButton(Passwort::getButton($this));
+			
+		}
 		
 		#$gui->translate($this->loadTranslation());
 		$gui->space("UserEmail", isset($this->texts["Kontaktdaten"]) ? $this->texts["Kontaktdaten"] : "Kontaktdaten");

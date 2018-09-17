@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
 
 var lastLoadedLeft        = -1;
@@ -62,11 +62,10 @@ var contentManager = {
 		if(!getWindow && $j('#desktopWrapper').length > 0)
 			return $j('#wrapper').width();
 		
-		
 		if(contentManager.layout == "vertical")
-			return ($j(window).width() -$j('#navigation').outerWidth() - 1 - $j('#phim:visible').outerWidth());
+			return ($j(window).width() - $j('#navigation').outerWidth() - 1);// - $j('#phim:visible').outerWidth());
 	
-		return ($j(window).width() - $j('#phim:visible').outerWidth());
+		return ($j(window).width());// - $j('#phim:visible').outerWidth());
 	},
 			
 	scrollTable: function(tableID, maxPage){
@@ -107,8 +106,10 @@ var contentManager = {
 
 		$j($targetHeaderTable).find('thead').replaceWith( $j( $targetDataTable ).children('caption, thead').clone().show() );
 
-		var height = contentManager.maxHeight() - $j($targetHeaderTable).outerHeight() - $j("table#foot"+tableID+":visible").outerHeight();
-
+		var height = contentManager.maxHeight() - $j($targetHeaderTable).outerHeight();
+		if($j("table#foot"+tableID+":visible").length)
+			height -= $j("table#foot"+tableID+":visible").outerHeight();
+		
 		$j($targetHeaderTable).closest('.browserContainer').find('.browserContainerSubHeight').each(function(k, v){
 			height -= $j(v).outerHeight();
 		});
@@ -476,6 +477,8 @@ var contentManager = {
 
 		if(typeof contentManager.backupFrames[backupName] == "undefined" || contentManager.backupFrames[backupName] == null) {
 			alert("Backup unknown");
+			console.log(backupName);
+			console.log(contentManager.backupFrames);
 			return;
 		}
 		if(contentManager.backupFrames[backupName][0] != -1 || (targetFrame == 'contentRight' && contentManager.backupFrames[backupName][1] != "") || force){

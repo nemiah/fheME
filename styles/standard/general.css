@@ -849,8 +849,6 @@ input[type=button][name=currentSaveButton], input[type=button][name=submitForm] 
 	background-color:#DDD;
 }
 
-
-/*.ui-widget-content,*/
 .ui-datepicker-calendar .ui-state-default {
 	border:0px;
 }
@@ -860,7 +858,7 @@ input[type=button][name=currentSaveButton], input[type=button][name=submitForm] 
 }
 
 .ui-widget-content .ui-state-active {
-	background-color:#ffb400;
+	background-color:#CCC;
 }
 
 .ui-widget-content .ui-state-focus {
@@ -872,10 +870,30 @@ input[type=button][name=currentSaveButton], input[type=button][name=submitForm] 
 	width:auto !important;
 }
 
+.ui-menu-item-wrapper {
+	display:block;
+	box-sizing:border-box;
+	width:100%
+}
+
+.ui-menu .ui-state-active {
+	margin: 0px;
+}
+
+.ui-state-active,
+.ui-widget-content .ui-state-active,
+.ui-widget-header .ui-state-active,
+a.ui-button:active,
+.ui-button:active,
+.ui-button.ui-state-active:hover {
+	border: 0;
+	color: #222;
+}
+
 .tableWeightLightColored {
 	border-spacing: 0 0px;
 }
-
+/*
 .mce-panel {
 	border: 0px !important;
 	background-image: none !important;
@@ -884,7 +902,7 @@ input[type=button][name=currentSaveButton], input[type=button][name=submitForm] 
 .mce-btn {
 	background-image: none !important;
 	background-color:#ddd !important;
-}
+}*/
 
 .mce-i-phynximage:before{content:"\e014"}
 

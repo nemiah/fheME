@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
 
 if(isset($argv[1]))
@@ -55,6 +55,15 @@ foreach($data AS $k => $v)
 
 
 $mimeMail2 = new PHPMailer(true, "", true);
+$mimeMail2->SMTPOptions = array(
+	'ssl' => array(
+		'verify_peer' => false,
+		'verify_peer_name' => false,
+		'allow_self_signed' => true
+	)
+);
+#$mimeMail2->SMTPDebug = 2;
+$mimeMail2->Hostname = trim(shell_exec("hostname"));
 $mimeMail2->CharSet = "UTF-8";
 $mimeMail2->Subject = "Installation Plugin";
 
@@ -68,10 +77,14 @@ $mimeMail2->IsHTML();
 $mimeMail2->AltBody = "Diese Nachricht wird nur als HTML übertragen";
 
 $mimeMail2->AddAddress($CH->emailAdmin);
-
-if(!$mimeMail2->Send())
-	throw new Exception ("E-Mail could not be sent!");
-
+try {
+	$mimeMail2->Send();
+} catch (phpmailerException $ex){
+	#echo $ex->errorMessage();
+	echo nl2br(print_r($mimeMail2->ErrorInfo, true))."\n";
+	echo "Host: ".$mimeMail2->Host."\n";
+	echo "Username: ".$mimeMail2->Username."\n";
+}
 $e->cleanUp();
 
 ?>

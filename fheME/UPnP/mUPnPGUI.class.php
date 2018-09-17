@@ -210,15 +210,24 @@ class mUPnPGUI extends mUPnP implements iGUIHTMLMP2 {
 				<div style=\"clear:both;\"></div>
 			</div>";
 			
-			$B = new Button("Radio", "share", "iconicL");
+			/*$B = new Button("Radio", "share", "iconicL");
 			#Overlay.showDark();
 			$html .= "
 			<div class=\"touchButton\" onclick=\"UPnP.showRadio();\">
 				".$B."
 				<div class=\"label\">Radio</div>
 				<div style=\"clear:both;\"></div>
-			</div>";
-		
+			</div>";*/
+			if(Session::isPluginLoaded("mPremiumize")){
+				$B = new Button("Cloud Player", "cloud", "iconicL");
+				$html .= "
+				<div class=\"touchButton\" onclick=\"contentManager.loadPlugin('contentScreen', 'mPremiumize', '', null, {});\">
+					".$B."
+					<div class=\"label\">Cloud Player</div>
+					<div style=\"clear:both;\"></div>
+				</div>";
+			}
+			
 		$html .= "</div>";
 		echo $html;
 	}

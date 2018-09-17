@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
 class mInstallationGUI extends mInstallation implements iGUIHTML2 {
 
@@ -61,6 +61,9 @@ class mInstallationGUI extends mInstallation implements iGUIHTML2 {
 			$g .= $writable->getHTML();
 			$hide = true;
 		}
+		
+		if(Applications::activeApplication() == "supportBox")
+			return "";
 		
 		$gui = new HTMLGUI();
 		$gui->setName("Datenbank-Zugangsdaten");
@@ -345,7 +348,7 @@ class mInstallationGUI extends mInstallation implements iGUIHTML2 {
 			$hasDBConnection = true;
 		} catch(Exception $e){}
 		
-		if(!$File->A("FileIsWritable") AND !$hasDBConnection){
+		if(Applications::activeApplication() != "supportBox" AND !$File->A("FileIsWritable") AND !$hasDBConnection){
 			$message = "<p style=\"padding:20px;font-size:20px;color:#555;text-align:center;\">".$_SESSION["applications"]->getActiveApplication()." ist auf diesem Server noch nicht installiert.</p>";
 			$html = "<div style=\"width:600px;margin:auto;line-height:1.5;\">
 				<p>
@@ -546,6 +549,7 @@ class mInstallationGUI extends mInstallation implements iGUIHTML2 {
 				'allow_self_signed' => true
 			)
 		);
+		#$mimeMail2->Hostname = "cloud01.furtmeier.it";
 		$mimeMail2->SMTPDebug = 2;
 		#$mimeMail2->SMTPSecure = 'tls';
 		$mimeMail2->CharSet = "UTF-8";
@@ -580,13 +584,21 @@ class mInstallationGUI extends mInstallation implements iGUIHTML2 {
 		
 		$message = "<p style=\"padding:10px;font-size:20px;color:green;margin-bottom:40px;text-align:center;\">Ihre Datenbank wurde erfolgreich eingerichtet.</p>";
 		
+		if(Applications::activeApplication() == "supportBox"){
+			$action = "contentManager.loadPlugin('contentRight', 'mSBInfo');";
+
+			$B = new Button("Die supportBox konfigurieren", "./plugins/Installation/benutzer.png", "icon");
+			$B->onclick($action);
+
+			$html = $this->box($B, $action, "Die supportBox<br>konfigurieren");
+		} else {
 		$action = "contentManager.loadPlugin('contentRight', 'Users'); contentManager.newClassButton('User',  function(transport){ }, 'contentLeft', 'UserGUI;edit:ok');";
 		
 		$B = new Button("Benutzer anlegen", "./plugins/Installation/benutzer.png", "icon");
 		$B->onclick($action);
 		
-		$html = $this->box($B, $action, "Einen Benutzer<br />anlegen");
-		
+			$html = $this->box($B, $action, "Einen Benutzer<br>anlegen");
+		}
 		
 		echo "$message<div style=\"width:350px;margin:auto;padding-bottom:40px;\">".$html."</div>".OnEvent::script("\$j('.installHiddenTab').fadeIn();");
 	}

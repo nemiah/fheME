@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
 class HTMLGUIX {
 
@@ -66,6 +66,7 @@ class HTMLGUIX {
 	protected $types = array();
 	protected $options = array();
 	protected $descriptionsField = array();
+	protected $descriptionsFieldReplace1 = array();
 	protected $spaces = array();
 	protected $formID;
 
@@ -185,7 +186,7 @@ class HTMLGUIX {
 			$c = $this->loadLanguageClass("HTML");
 			$this->texts = $c->getEditTexts();
 		}*/
-
+		
 		$html = "";
 		if(PMReflector::implementsInterface($pluginName,"iNewWithValues") AND $userCanCreate) $os = "1";
 		else $os = "0";
@@ -376,7 +377,7 @@ class HTMLGUIX {
 			if(isset($this->labels[$fieldName]))
 				return $this->labels[$fieldName];
 			else
-				return ucfirst($fieldName);
+				return ucfirst(str_replace(str_replace("GUI", "", get_class($this->object)), "", $fieldName));
 		}
 		
 		return $this->labels;
@@ -392,7 +393,7 @@ class HTMLGUIX {
 			$opt = array();
 
 			if($zeroEntry != null)
-				$opt[0] = $zeroEntry;
+				$opt[0] = T::_($zeroEntry);
 
 			while($O = $options->getNextEntry())
 				$opt[$O->getID()] = $O->A($labelField);
@@ -404,8 +405,9 @@ class HTMLGUIX {
  		$this->options[$fieldName] = $options;
 	}
 
-	public function descriptionField($fieldName, $description){
+	public function descriptionField($fieldName, $description, $replace1 = ""){
 		$this->descriptionsField[$fieldName] = $description;
+		$this->descriptionsFieldReplace1[$fieldName] = $replace1;
 	}
 
 	public function space($fieldName, $label = ""){
@@ -455,7 +457,7 @@ class HTMLGUIX {
 
 	// <editor-fold defaultstate="collapsed" desc="caption">
 	public function caption($defaultCaption){
-		$this->caption = $defaultCaption;
+		$this->caption = T::_($defaultCaption);
 	}
 	// </editor-fold>
 
@@ -596,6 +598,10 @@ class HTMLGUIX {
 		$this->showSave = $showSave;
 		$this->showInputs = $showInputs;
 	}
+	
+	public function showInputs(){
+		return $this->showInputs;
+	}
 
 	private $form = null;
 	function getForm(){
@@ -605,7 +611,7 @@ class HTMLGUIX {
 		if($this->formID == null)
 			$this->formID = "edit".get_class($this->object);
 		
-		$F = new HTMLForm($this->formID == null ? "edit".get_class($this->object) : $this->formID, $this->attributes == null ? $this->object : $this->attributes, strpos($this->displayMode, "popup") === false ? $this->operationsButton().$this->name : null);
+		$F = new HTMLForm($this->formID == null ? "edit".get_class($this->object) : $this->formID, $this->attributes == null ? $this->object : $this->attributes, strpos($this->displayMode, "popup") === false ? $this->operationsButton().T::_($this->name) : null);
 		$F->getTable()->setColWidth(1, 120);
 		$F->getTable()->addTableClass("contentEdit");
 		
@@ -616,7 +622,7 @@ class HTMLGUIX {
 		}
 		
 		if($this->showSave)
-			$F->setSaveClass(get_class($this->object), $ID, $this->functionEntrySave, $this->name);
+			$F->setSaveClass(get_class($this->object), $ID, $this->functionEntrySave, T::_($this->name));
 
 		$F->isEditable($this->showInputs);
 
@@ -629,19 +635,19 @@ class HTMLGUIX {
 			$F->setType($n, $l, null, isset($this->options[$n]) ? $this->options[$n] : null);
 		
 		foreach($this->labels AS $n => $l)
-			$F->setLabel($n, T::_($l));
+			$F->setLabel($n, $l);
 
 		foreach($this->placeholders AS $n => $l)
-			$F->setPlaceholder($n, $l);
+			$F->setPlaceholder($n, T::_($l));
 		
 		foreach($this->descriptionsField AS $n => $l)
-			$F->setDescriptionField($n, T::_($l));
+			$F->setDescriptionField($n, $l, $this->descriptionsFieldReplace1[$n]);
 
 		foreach($this->parsers AS $n => $l)
-			$F->setType($n, "parser", null, array($l, $this->object));
+			$F->setType($n, "parser", null, array($l, $this->object, $this));
 
 		foreach($this->spaces AS $n => $l)
-			$F->insertSpaceAbove($n, T::_($l));
+			$F->insertSpaceAbove($n, $l);
 
 		foreach($this->fieldButtons AS $n => $B)
 			$F->addFieldButton($n, $B);
@@ -663,7 +669,7 @@ class HTMLGUIX {
 	}
 	
 	function getEditHTML(){
-		T::load(Util::getRootPath()."libraries");
+		#T::load(Util::getRootPath()."libraries");
 		
 		$this->object->loadMeOrEmpty();
 
@@ -695,7 +701,7 @@ class HTMLGUIX {
 	 */
 	// <editor-fold defaultstate="collapsed" desc="getBrowserHTML">
 	function getBrowserHTML($lineWithId = -1, $useBPS = true, $useBPSClass = ""){
-		T::load(Util::getRootPath()."libraries");
+		#T::load(Util::getRootPath()."libraries");
 		
 		$canDelete = mUserdata::isDisallowedTo("cantDelete".$this->className);
 		#$canEdit = mUserdata::isDisallowedTo("cantEdit".$this->className);
@@ -768,7 +774,7 @@ class HTMLGUIX {
 
 			if($this->object->isFiltered() AND !$this->object->appendable) $GUIF->buildFilteredWarningLine($this->object->isFilteredLabel());
 
-			$GUIF->buildNewEntryLine(" ".T::_("%1 neu anlegen", ($this->name == null ? $this->className : $this->name)));
+			$GUIF->buildNewEntryLine(" ".T::_("%1 neu anlegen", T::_($this->name == null ? $this->className : $this->name)));
 		}
 
 		$this->object->resetPointer();
@@ -867,7 +873,7 @@ class HTMLGUIX {
 	}
 	
 	private function topButtons($bps = null){
-		T::D($this->className);
+		#T::D($this->className);
 		$TT = "";
 		if(count($this->topButtons) > 0 AND ($bps == null OR !isset($bps["selectionMode"]))){
 			$TT = new HTMLTable(1);
@@ -889,12 +895,12 @@ class HTMLGUIX {
 			
 		}
 
-		T::D("");
+		#T::D("");
 		return $TT;
 	}
 
 	private function sideButtons($bps = null){
-		T::D($this->className);
+		#T::D($this->className);
 		
 		$position = "left";
 		if($this->object instanceof PersistentObject) 
@@ -915,7 +921,7 @@ class HTMLGUIX {
 			$ST->addRow($B."");
 		
 
-		T::D("");
+		#T::D("");
 		return $ST;
 	}
 

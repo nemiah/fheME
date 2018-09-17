@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
 
 class HTMLGUI implements icontextMenu {
@@ -26,6 +26,7 @@ class HTMLGUI implements icontextMenu {
 	protected $labels = array();
 	private $labelDescriptions = array();
 	private $fieldDescriptions = array();
+	private $fieldDescriptionsReplacement1 = array();
 	
 	protected $values = array();
 	protected $options = array();
@@ -398,8 +399,9 @@ class HTMLGUI implements icontextMenu {
 		$this->labelDescriptions[$attributeName] = $description;
 	}
 	
-	function setFieldDescription($attributeName,$description) {
+	function setFieldDescription($attributeName,$description, $replacement1 = null) {
 		$this->fieldDescriptions[$attributeName] = $description;
+		$this->fieldDescriptionsReplacement1[$attributeName] = $replacement1;
 	}
 	
 	/**
@@ -639,6 +641,10 @@ class HTMLGUI implements icontextMenu {
 		$this->onlyDisplayMode = $b;
 	}
 	
+	function showInputs(){
+		return !$this->onlyDisplayMode;
+	}
+	
 	function setDeleteInDisplayMode($b) {
 		$this->deleteInDisplayMode = $b;
 	}
@@ -856,7 +862,7 @@ class HTMLGUI implements icontextMenu {
 		if(isset($this->parsers[$as])) {
 			$r = "";
 			$m = explode("::", $this->parsers[$as]);
-			$r = Util::invokeStaticMethod($m[0], $m[1], array((isset($this->attributes->$as) ? $this->attributes->$as : ""), $this->object, implode("%§%",$this->parserParameters[$as])));
+			$r = Util::invokeStaticMethod($m[0], $m[1], array((isset($this->attributes->$as) ? $this->attributes->$as : ""), $this->object, implode("%§%",$this->parserParameters[$as]), $this));
 			#return("\$r = ".$this->parsers[$as]."(\"".(isset($this->attributes->$as) ? $this->attributes->$as : "")."\",\"\",\"".implode("%§%",$this->parserParameters[$as])."\");");
 			return $r;
 		}
@@ -954,7 +960,7 @@ class HTMLGUI implements icontextMenu {
 		$html .= "
 			<form id=\"$this->FormID\">
 				<div class=\"backgroundColor1 Tab\">
-					<p>".$this->getOperationsHTML($pluginName, $this->editedID)."".($this->labelCaption == null ? $this->name." editieren:" : $this->labelCaption)."</p>
+					<p>".$this->getOperationsHTML($pluginName, $this->editedID)."".($this->labelCaption == null ? T::_("%1 editieren", T::_($this->name)).":" : T::_($this->labelCaption))."</p>
 				</div>
 				<div>
 				<table>
@@ -986,7 +992,7 @@ class HTMLGUI implements icontextMenu {
 					</tr>";
 				if($this->insertSpaceBefore[$value] != "" AND !$this->tabs[$value]) $html .= "
 					<tr class=\"FormSeparatorWithLabel\">
-						<td colspan=\"2\">".$this->insertSpaceBefore[$value]."</td>
+						<td colspan=\"2\">".T::_($this->insertSpaceBefore[$value])."</td>
 					</tr>";
 				elseif($this->insertSpaceBefore[$value] != "" AND $this->tabs[$value]) {
 					$html .= "
@@ -1012,8 +1018,8 @@ class HTMLGUI implements icontextMenu {
 			
 			$html .= "
 					<tr ".(isset($this->style[$value]) ? "style=\"".$this->style[$value]."\"" : "").">
-						<td id=\"".$value."EditL\"><label for=\"".$value."\">".$label.":".(isset($this->labelDescriptions[$value]) ? "<br /><small>".$this->labelDescriptions[$value]."</small>" : "")."</label></td>
-						<td id=\"".$value."EditR\">".$this->getInput($value)."".(isset($this->fieldDescriptions[$value]) ? "<br /><small style=\"color:grey;\">".$this->fieldDescriptions[$value]."</small>" : "")."</td>
+						<td id=\"".$value."EditL\"><label for=\"".$value."\">".T::_($label).":".(isset($this->labelDescriptions[$value]) ? "<br /><small>".$this->labelDescriptions[$value]."</small>" : "")."</label></td>
+						<td id=\"".$value."EditR\">".$this->getInput($value)."".(isset($this->fieldDescriptions[$value]) ? "<br /><small style=\"color:grey;\">".T::_($this->fieldDescriptions[$value], isset($this->fieldDescriptionsReplacement1[$value]) ? $this->fieldDescriptionsReplacement1[$value] : null)."</small>" : "")."</td>
 					</tr>";
 			
 		}
@@ -1034,7 +1040,7 @@ class HTMLGUI implements icontextMenu {
 							<input 
 								type=\"button\" 
 								name=\"currentSaveButton\"
-								value=\"".($this->labelSaveButton == null ? $this->name." speichern" : $this->labelSaveButton)."\" 
+								value=\"".($this->labelSaveButton == null ? T::_("%1 speichern", T::_($this->name)) : T::_($this->labelSaveButton))."\" 
 								onclick=\"".$this->saveButtonEvent."\" 
 								style=\"background-image:url(./images/i2/save.gif);\"
 							/>".$this->hiddenInputs."
@@ -1614,9 +1620,16 @@ class HTMLGUI implements icontextMenu {
 			if($onClickFunction != "")
 				$action = str_replace("%VALUE", $key, $onClickFunction);
 
+			$replacement1 = null;
+			if(is_array($label)){
+				if(count($label))
+					$replacement1 = $label[1];
+				$label = $label[0];
+			}
+			
 			$html .= "
 			<tr onclick=\"$action\" id=\"cMEntry$key\" style=\"cursor:pointer;\" ".($selectedKey == $key ? "class=\"backgroundColor1\"" : "")." onmouseover=\"oldStyle = this.className;this.className='backgroundColor2';\" onmouseout=\"this.className=oldStyle;\">
-				<td>$label</td>
+				<td>".T::_($label, $replacement1)."</td>
 			</tr>";
 		}
 		$html .= "
@@ -1685,7 +1698,7 @@ class HTMLGUI implements icontextMenu {
 				
 				$Buttons = "";
 				if($s[3]{0} == "1"){
-					$B = new Button($texts["Neu mit Werten"], "new", "icon");
+					$B = new Button("Neu mit Werten", "new", "icon");
 					$B->onclick(OnEvent::reload("Left", "HTMLGUI;insertAsNew:true")/*"contentManager.reloadFrameLeft('HTMLGUI;insertAsNew:true');"*/);
 					$B->style("margin-right:10px;");
 					
@@ -1693,7 +1706,7 @@ class HTMLGUI implements icontextMenu {
 				}
 				
 				if($s[3]{1} == "1"){
-					$B = new Button($texts["Kopieren"], "seiten", "icon");
+					$B = new Button("Kopieren", "seiten", "icon");
 					$B->rmePCR(str_replace("GUI", "", $s[1]), $s[2], 'cloneMe', "", "function(transport){ lastLoadedLeft = (transport.responseText == '' ? -1 : transport.responseText); contentManager.reloadFrameLeft(); contentManager.reloadFrameRight(); }");
 					#$B->onclick("rme('$s[1]','$s[2]','cloneMe','', 'lastLoadedLeft = (transport.responseText == \'\' ? -1 : transport.responseText); contentManager.reloadFrameLeft(); contentManager.reloadFrameRight();');");
 					$B->style("margin-right:10px;");
@@ -1702,7 +1715,7 @@ class HTMLGUI implements icontextMenu {
 				}
 				
 				if($s[3]{2} == "1"){
-					$B = new Button($texts["Löschen"], "trash", "icon");
+					$B = new Button("Löschen", "trash", "icon");
 					$B->onclick("deleteClass('".str_replace("GUI", "", $s[1])."','$s[2]',".($onDeleteEvent == "" ? "function() {  contentManager.reloadFrameRight(); if(typeof lastLoadedLeft != 'undefined' && lastLoadedLeft == '$s[2]') $('contentLeft').update(''); }" : $onDeleteEvent).",'".($onDeleteQuestion == "" ? $texts["Wirklich löschen?"] : $onDeleteQuestion)."');");
 					$B->style("margin-right:10px;");
 					
@@ -1710,7 +1723,7 @@ class HTMLGUI implements icontextMenu {
 				}
 				
 				if($s[3]{3} == "1"){
-					$BRepeatable = new Button($texts["Repeatable erstellen"],"redo");
+					$BRepeatable = new Button("Repeatable erstellen","redo");
 					$BRepeatable->type("icon");
 					$BRepeatable->onclick("contentManager.newClassButton('Repeatable','','contentLeft','RepeatableGUI;RepeatablePlugin:$s[1];RepeatablePluginElementID:$s[2]');");
 					
@@ -1718,7 +1731,7 @@ class HTMLGUI implements icontextMenu {
 				}
 				
 				if($s[3]{4} == "1"){
-					$B = new Button($texts["XML Export"], "export", "icon");
+					$B = new Button("XML Export", "export", "icon");
 					$B->onclick("windowWithRme('$s[1]', '$s[2]', 'getXML', '');phynxContextMenu.stop();");
 					$B->style("margin-right:10px;");
 					
@@ -1730,7 +1743,7 @@ class HTMLGUI implements icontextMenu {
 				
 				$T->addRowClass("backgroundColor0");
 						
-				echo $T."<p><small style=\"color:grey;\">Interne ID des Eintrags: $s[2]</small></p>";
+				echo $T."<p><small style=\"color:grey;\">".T::_("Interne ID des Eintrags").": $s[2]</small></p>";
 						
 				/*echo "
 				<table style=\"text-align:center;border:0px;\">

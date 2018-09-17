@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
 var Popup = {
 	windowsOpen: 0,
@@ -201,6 +201,8 @@ var Popup = {
 				if(options.position == "left"){
 					left = $j('#contentLeft').offset().left + $j('#contentLeft').width();
 					top = $j('#contentLeft').offset().top + parseInt($j('#contentLeft').css('padding-top'));
+					if($j('#desktopWrapper').length)
+						top = $j('#wrapper').offset().top + parseInt($j('#contentLeft').css('padding-top'));
 				}
 			}
 
