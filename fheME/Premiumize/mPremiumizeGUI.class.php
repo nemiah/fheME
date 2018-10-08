@@ -47,15 +47,15 @@ class mPremiumizeGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 		define("PREMIUMIZE_PIN", $login->A("passwort"));
 		
 		$BG = new Button("Play", "play", "touch");
-		$BG->style("width:200px;margin:10px;display:inline-block;");
+		$BG->style("width:150px;margin:10px;display:inline-block;border:1px solid #ccc;text-overflow:hidden;overflow: hidden;white-space: nowrap;");
 		$BG->onclick(OnEvent::rme($this, "restart"));
 		
 		$BP = new Button("Pause", "pause", "touch");
-		$BP->style("width:200px;margin:10px;display:inline-block;");
+		$BP->style("width:150px;margin:10px;display:inline-block;border:1px solid #ccc;text-overflow:hidden;overflow: hidden;white-space: nowrap;");
 		$BP->onclick(OnEvent::rme($this, "pause"));
 		
 		$BS = new Button("Stop", "stop", "touch");
-		$BS->style("width:200px;margin:10px;display:inline-block;");
+		$BS->style("width:150px;margin:10px;display:inline-block;border:1px solid #ccc;text-overflow:hidden;overflow: hidden;white-space: nowrap;");
 		$BS->onclick(OnEvent::rme($this, "stop"));
 		
 		try {
@@ -65,33 +65,34 @@ class mPremiumizeGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 		}
 		
 		$BB = new Button("Zurück", "arrow_left", "touch");
-		$BB->style("width:200px;margin:10px;display:inline-block;");
+		$BB->style("width:120px;margin:10px;display:inline-block;border:1px solid #ccc;text-overflow:hidden;overflow: hidden;white-space: nowrap;");
 		$BB->onclick(OnEvent::reload("Screen", "mPremiumizeGUI;id:".$info->parent_id));
 		
 		$BD = new Button($target == "" ? "Abspielen auf" : $target, "target", "touch");
-		$BD->style("width:200px;margin:10px;display:inline-block;");
+		$BD->style("width:200px;margin:10px;display:inline-block;border:1px solid #ccc;text-overflow:hidden;overflow: hidden;white-space: nowrap;");
 		$BD->popup("", "Abspielen auf", "mPremiumize", -1, "devicePopup");
 		
 		$BX = new Button("Schließen", "x", "touch");
-		$BX->style("width:200px;margin:10px;display:inline-block;");
+		$BX->style("width:120px;margin:10px;display:inline-block;border:1px solid #ccc;text-overflow:hidden;overflow: hidden;white-space: nowrap;");
 		$BX->loadPlugin("contentScreen", "mfheOverview");
 		
 		
-		echo "<div style=\"height:60px;\">
-			<div style=\"float:right;\">".$BD.$BG.$BP.$BS."</div>";
+		echo "<div style=\"height:60px;\" class=\"backgroundColor4\">
+			<div style=\"float:right;\">".$BG.$BP.$BS."</div>";
 		
 		
 		
 		if($info->name != "root")
 			echo $BB;
 		else
-			echo $BX.$BL;
+			echo $BX;
 		
-		echo "</div>";
+		echo "$BD$BL</div>";
 		
 		$folder = PremiumizeAPI::getFolderContent(isset($bps["id"]) ? $bps["id"] : "");
 		
 		echo "<div><div style=\"margin:10px;margin-left:0px;box-sizing:border-box;\">";
+		echo "<div style=\"height:10px;\"></div>";
 		
 		foreach($folder AS $f){
 			if(get_class($f) != "PremiumizeFolder")
@@ -104,6 +105,7 @@ class mPremiumizeGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 			echo trim($BF);
 		}
 		
+		echo "<div style=\"height:15px;\"></div>";
 		
 		foreach($folder AS $k => $f){
 			if(get_class($f) != "PremiumizeFileFile")
@@ -111,7 +113,7 @@ class mPremiumizeGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 			
 			$played = anyC::getFirst("Userdata", "wert", basename($f->stream_link));
 			
-			$BF = new Button(str_replace(".".Util::ext($f->name), "", $f->name), $played ? "check" : "document_alt_stroke", "touch");
+			$BF = new Button(prettifyDB::apply("seriesEpisodeNameDownloaded", $f->name), $played ? "check" : "document_alt_stroke", "touch");
 			$BF->onclick(OnEvent::rme($this, "play", array("'$f->stream_link'"), "function(){ \$j('#button$k span').removeClass('document_alt_stroke').addClass('check'); }"));
 			$BF->style("width:calc(25% - 10px);margin-left:10px;display:inline-block;vertical-align:top;box-sizing:border-box;text-overflow:hidden;overflow: hidden;white-space: nowrap;");
 			$BF->id("button$k");
@@ -209,15 +211,15 @@ class mPremiumizeGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 	}
 	
 	public function devicePopup(){
-		if(time() - mUserdata::getGlobalSettingValue("mPremiumizeLastScan") > 4 * 3600)
-			$this->scan();
+		#if(time() - mUserdata::getGlobalSettingValue("mPremiumizeLastScan") > 4 * 3600)
+		$this->scan();
 		
 		$devices = json_decode(mUserdata::getGlobalSettingValue("mPremiumizeDevices", "[]"));
 		$T = new HTMLTable(1);
 		$T->useForSelection(false);
 		
 		foreach($devices AS $D){
-			$T->addRow(array($D->friendlyname));
+			$T->addRow(array($D->friendlyname." (".$D->ip.")"));
 			$T->addCellStyle(1, "padding:15px;");
 			
 			$T->addCellEvent(1, "click", OnEvent::rme($this, "deviceSave", array("'".$D->friendlyname."'"), OnEvent::closePopup("mPremiumize").OnEvent::reload("Screen")));

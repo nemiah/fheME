@@ -138,7 +138,7 @@ class UPnPGUI extends UPnP implements iGUIHTML2 {
 		#echo htmlentities(print_r($result, true));
 	}*/
 	
-	private function findSeries(&$entries){
+	public function findSeries(&$entries){
 		$series = array();
 		#$lastName = null;
 		foreach($entries AS $newName => $item){
@@ -156,7 +156,7 @@ class UPnPGUI extends UPnP implements iGUIHTML2 {
 		return $series;
 	}
 	
-	private function findEntries($xml){
+	public function findEntries($xml){
 		$entries = array();
 		foreach($xml->item AS $item){
 			$newName = $item->children("http://purl.org/dc/elements/1.1/")."";

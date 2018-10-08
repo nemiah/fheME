@@ -21,6 +21,9 @@ while(true){
 	#echo "msgtype {$msgtype} data {$message->action}\n";
 	var_dump($message);
 	
+	if($message === false)
+		continue;
+	
 	if(!$message->action)
 		continue;
 	

@@ -210,6 +210,13 @@ class mUPnPGUI extends mUPnP implements iGUIHTMLMP2 {
 				<div style=\"clear:both;\"></div>
 			</div>";
 			
+			$html .= "
+			<div class=\"touchButton\" onclick=\"contentManager.loadPlugin('contentScreen', 'UPnPPlayer', '', null, {});\">
+				".$B."
+				<div class=\"label\">Mediencenter V2</div>
+				<div style=\"clear:both;\"></div>
+			</div>";
+			
 			/*$B = new Button("Radio", "share", "iconicL");
 			#Overlay.showDark();
 			$html .= "
@@ -349,7 +356,7 @@ class mUPnPGUI extends mUPnP implements iGUIHTMLMP2 {
 	}
 	
 	public static function getOverviewPlugin(){
-		return new overviewPlugin("mUPnPGUI", "Multimedia", 170);
+		return new overviewPlugin("mUPnPGUI", "Multimedia", 0);
 	}
 }
 ?>
