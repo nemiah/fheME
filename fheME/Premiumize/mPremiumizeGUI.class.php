@@ -80,51 +80,127 @@ class mPremiumizeGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 		echo "<div style=\"height:60px;\" class=\"backgroundColor4\">
 			<div style=\"float:right;\">".$BG.$BP.$BS."</div>";
 		
+		$showSeries = BPS::getProperty("mPremiumizeGUI", "series", "");
 		
-		
-		if($info->name != "root")
+		if($info->name != "root" OR $showSeries){
+			if($showSeries)
+				$BB->onclick(OnEvent::reload("Screen", "mPremiumizeGUI;-"));
+			
 			echo $BB;
-		else
+		} else
 			echo $BX;
 		
 		echo "$BD$BL</div>";
 		
-		$folder = PremiumizeAPI::getFolderContent(isset($bps["id"]) ? $bps["id"] : "");
+		$items = PremiumizeAPI::getFolderContent(isset($bps["id"]) ? $bps["id"] : "");
 		
 		echo "<div><div style=\"margin:10px;margin-left:0px;box-sizing:border-box;\">";
 		echo "<div style=\"height:10px;\"></div>";
 		
-		foreach($folder AS $f){
-			if(get_class($f) != "PremiumizeFolder")
-				continue;
-			
-			$BF = new Button($f->name, "folder_stroke", "touch");
-			$BF->onclick(OnEvent::reload("Screen", "mPremiumizeGUI;id:".$f->id));
-			$BF->style("width:calc(25% - 10px);margin-left:10px;display:inline-block;vertical-align:top;box-sizing:border-box;text-overflow:hidden;overflow: hidden;white-space: nowrap;");
-			
-			echo trim($BF);
-		}
 		
-		echo "<div style=\"height:15px;\"></div>";
-		
-		foreach($folder AS $k => $f){
-			if(get_class($f) != "PremiumizeFileFile")
-				continue;
+		if($showSeries){
+			echo "<h1 class=\"prettyTitle\" style=\"margin-top:5px;padding-top:0;\">$showSeries</h1>";
 			
-			$played = anyC::getFirst("Userdata", "wert", basename($f->stream_link));
+			$series = $this->findSeries($items);
+			$items = $series[$showSeries];
 			
-			$BF = new Button(prettifyDB::apply("seriesEpisodeNameDownloaded", $f->name), $played ? "check" : "document_alt_stroke", "touch");
-			$BF->onclick(OnEvent::rme($this, "play", array("'$f->stream_link'"), "function(){ \$j('#button$k span').removeClass('document_alt_stroke').addClass('check'); }"));
-			$BF->style("width:calc(25% - 10px);margin-left:10px;display:inline-block;vertical-align:top;box-sizing:border-box;text-overflow:hidden;overflow: hidden;white-space: nowrap;");
-			$BF->id("button$k");
-						
-			echo trim($BF);
+			foreach($items AS $k => $f){
+				if(get_class($f) != "PremiumizeFileFile")
+					continue;
+
+				$played = anyC::getFirst("Userdata", "wert", basename($f->stream_link));
+
+				$BF = new Button(prettifyDB::apply("seriesEpisodeNameDownloaded", $f->name), $played ? "check" : "document_alt_stroke", "touch");
+				$BF->onclick(OnEvent::rme($this, "play", array("'$f->stream_link'"), "function(){ \$j('#button$k span').removeClass('document_alt_stroke').addClass('check'); }"));
+				$BF->style("width:calc(25% - 10px);margin-left:10px;display:inline-block;vertical-align:top;box-sizing:border-box;text-overflow:hidden;overflow: hidden;white-space: nowrap;");
+				$BF->id("button$k");
+
+				echo trim($BF);
+			}
+		} else {
+			foreach($items AS $f){
+				if(get_class($f) != "PremiumizeFolder")
+					continue;
+
+				$BF = new Button($f->name, "folder_stroke", "touch");
+				$BF->onclick(OnEvent::reload("Screen", "mPremiumizeGUI;id:".$f->id));
+				$BF->style("width:calc(25% - 10px);margin-left:10px;display:inline-block;vertical-align:top;box-sizing:border-box;text-overflow:hidden;overflow: hidden;white-space: nowrap;");
+
+				echo trim($BF);
+			}
+
+			echo "<div style=\"height:15px;\"></div>";
+
+			#print_r($items);
+			$series = $this->findSeries($items);
+
+			foreach($series AS $seriesName => $content){
+
+				$BF = new Button($seriesName."<br><small style=\"color:grey;\">".count($content)." Folge".(count($content) != 1 ? "n" : "")."</small>", "list", "touch");
+				$BF->onclick(OnEvent::reload("Screen", "_mPremiumizeGUI;series:$seriesName"));
+				$BF->style("width:calc(25% - 10px);margin-left:10px;display:inline-block;vertical-align:top;box-sizing:border-box;text-overflow:hidden;overflow: hidden;white-space: nowrap;");
+				#$BF->id("button$k");
+
+				echo trim($BF);
+			}
+
+			echo "<div style=\"height:15px;\"></div>";
+
+			foreach($items AS $k => $f){
+				if(get_class($f) != "PremiumizeFileFile")
+					continue;
+
+				$played = anyC::getFirst("Userdata", "wert", basename($f->stream_link));
+
+				$BF = new Button(prettifyDB::apply("seriesEpisodeNameDownloaded", $f->name), $played ? "check" : "document_alt_stroke", "touch");
+				$BF->onclick(OnEvent::rme($this, "play", array("'$f->stream_link'"), "function(){ \$j('#button$k span').removeClass('document_alt_stroke').addClass('check'); }"));
+				$BF->style("width:calc(25% - 10px);margin-left:10px;display:inline-block;vertical-align:top;box-sizing:border-box;text-overflow:hidden;overflow: hidden;white-space: nowrap;");
+				$BF->id("button$k");
+
+				echo trim($BF);
+			}
 		}
 		
 		echo "</div></div>";
 		
 	}
 
+	private function findSeries(&$items){
+		$series = array();
+		foreach($items AS $k => $f){
+			if(get_class($f) != "PremiumizeFileFile")
+				continue;
+			
+			$newName = prettifyDB::apply("seriesEpisodeNameDownloaded", $f->name);
+			
+			preg_match("/(.*) S[0-9]{2}E[0-9]{2}/", $newName, $matches);
+			#var_dump($matches);
+			
+			if(isset($matches[1])){
+				if(!isset($series[$matches[1]]))
+					$series[$matches[1]] = array();
+			
+				$series[$matches[1]][$newName] = $f;
+				unset($items[$k]);
+			}
+			
+		}
+		#$lastName = null;
+		/*foreach($items AS $newName => $item){
+			preg_match("/(.*) S[0-9]{2}E[0-9]{2}/", $newName, $matches);
+			#print_r($matches);
+			if(isset($matches[1])){
+				if(!isset($series[$matches[1]]))
+					$series[$matches[1]] = array();
+			
+				$series[$matches[1]][$newName] = $item;
+				unset($entries[$newName]);
+			}
+		}*/
+		
+		return $series;
+	}
+	
 	private function scan(){
 		require_once Util::getRootPath()."fheME/Chromecast/CastV2inPHP/Chromecast.php";
 		$devices = Chromecast::scan();
