@@ -102,14 +102,48 @@ class mAWVGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 	
 	public function downloadTrashData(){
 		$andreas = false;
+		#https://awido.cubefour.de/Customer/awv-nordschwaben/KalenderICS.aspx?oid=00000000-0000-0000-0000-000000001190&jahr=2019&fraktionen=&reminder=0.8:00
+		$ical = file_get_contents("https://awido.cubefour.de/Customer/awv-nordschwaben/KalenderICS.aspx?oid=00000000-0000-0000-0000-000000001190&jahr=".date("Y")."&fraktionen=&reminder=0.8:00");
+		#echo "<pre>";
+		$ex = explode("BEGIN:VEVENT", $ical);
+		unset($ex[0]);
+		#print_r($ical);
+		$data = new stdClass();
+		$data->calendar = array();
+		#print_r($ex);
+		$days = array();
+		foreach($ex AS $event){
+			preg_match("/DTSTART:([0-9T]*)/", $event, $matchesDate);
+			
+			
+			if(isset($days[$matchesDate[1]]))
+				$day = $days[$matchesDate[1]];
+			else {
+				$day = new stdClass();
+				$days[$matchesDate[1]] = $day;
+				$day->fr = array();
+			}
+			
+			preg_match("/DESCRIPTION:([A-Za-zäüöÄÜÖ ]*)/", $event, $matches);
+			#print_r($matches);
+			
+			$day->fr[] = $matches[1];
+			
+			$day->dt = substr($matchesDate[1], 0, 8);
+			$data->calendar[] = $day;
+		}
 		
-		if(!$andreas)
-			$json = file_get_contents("http://awido.cubefour.de/WebServices/Awido.Service.svc/getData/00000000-0000-0000-0000-000000001190?fractions=1,5,2,6,3,4,10&client=awv-nordschwaben");
-		else
-			$json = file_get_contents("http://awido.cubefour.de/WebServices/Awido.Service.svc/getData/00000000-0000-0000-0000-000000000629?fractions=1,5,2,6,3,4,10&client=awv-nordschwaben");
+		#print_r($data);
+		#echo "</pre>";
+		#return;
+		
+		#if(!$andreas)
+		#	$json = file_get_contents("http://awido.cubefour.de/WebServices/Awido.Service.svc/getData/00000000-0000-0000-0000-000000001190?fractions=1,5,2,6,3,4,10&client=awv-nordschwaben");
+		#else
+		#	$json = file_get_contents("http://awido.cubefour.de/WebServices/Awido.Service.svc/getData/00000000-0000-0000-0000-000000000629?fractions=1,5,2,6,3,4,10&client=awv-nordschwaben");
 		
 		echo "<pre style=\"font-size:10px;max-height:400px;overflow:auto;\">";
-		$data = json_decode($json);
+		#$data = json_decode($json);
 		foreach($data->calendar AS $day){
 			if($day->fr == "")
 				continue;
@@ -122,11 +156,11 @@ class mAWVGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 			
 			$tag = new Datum(Util::parseDate("de_DE", substr($day->dt, 6).".".substr($day->dt, 4, 2).".".substr($day->dt, 0, 4)));
 			
-			if($andreas)
-				$tag->subDay();
+			#if($andreas)
+			#	$tag->subDay();
 			
-			$name = "";
-			foreach($day->fr AS $T){
+			#$name = "";
+			/*foreach($day->fr AS $T){
 				if($T == "PT")
 					$name .= ($name != "" ? ", " : "")."Papiertonne";
 				
@@ -138,8 +172,10 @@ class mAWVGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 				
 				if($T == "BT")
 					$name .= ($name != "" ? ", " : "")."Biotonne";
-			}
+			}*/
+			$name = implode(", ", $day->fr);
 			
+			#echo "name: $name";
 			if($name == "")
 				continue;
 			
@@ -153,12 +189,12 @@ class mAWVGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 			$F->sA("TodoUserID", "-1");
 			$F->sA("TodoRemind", "-1");
 			
-			if($andreas){
-				$F->sA("TodoFromTime", Util::parseTime("de_DE", "18:00"));
-				$F->sA("TodoTillTime", Util::parseTime("de_DE", "18:05"));
-				$F->sA("TodoUserID", Session::currentUser()->getID());
-				$F->sA("TodoRemind", 60);
-			}
+			#if($andreas){
+			#	$F->sA("TodoFromTime", Util::parseTime("de_DE", "18:00"));
+			#	$F->sA("TodoTillTime", Util::parseTime("de_DE", "18:05"));
+			#	$F->sA("TodoUserID", Session::currentUser()->getID());
+			#	$F->sA("TodoRemind", 60);
+			#}
 			
 			$F->sA("TodoClass", "Kalender");
 			$F->sA("TodoClassID", "-1");
