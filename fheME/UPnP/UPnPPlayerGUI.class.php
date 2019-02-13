@@ -39,13 +39,20 @@ class UPnPPlayerGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 		
 		
 		if(!isset($bps["folder"]))
-			$ObjectID = "*";
+			$ObjectID = "0";
 		else 
 			$ObjectID = $bps["folder"];
 		#echo $ObjectID;
 	
 		$target = mUserdata::getGlobalSettingValue("UPnPPlayerTarget", "");
 		$source = mUserdata::getGlobalSettingValue("UPnPPlayerSource", "");
+		$UPnPSource = anyC::getFirst("UPnP", "UPnPName", $source);
+		if(!$UPnPSource)
+			$source = "";
+		
+		$UPnPTarget = anyC::getFirst("UPnP", "UPnPName", $target);
+		if(!$UPnPTarget)
+			$target = "";
 		
 		$BD = new Button($target == "" ? "Ziel" : $target, "target", "touch");
 		$BD->style("width:200px;margin:10px;display:inline-block;border:1px solid #ccc;text-overflow:hidden;overflow: hidden;white-space: nowrap;");
@@ -56,19 +63,18 @@ class UPnPPlayerGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 		$BQ->popup("", "Abspielen von", "UPnPPlayer", -1, "sourcesPopup");
 		
 		if($source == "" OR $target == ""){
-			
 			echo "<div style=\"height:60px;\" class=\"backgroundColor4\">".$BQ.$BD."</div>";
 			
 			return;
 		}
 		
 		
-		$UPnPSource = anyC::getFirst("UPnP", "UPnPName", $source);
-		$UPnPTarget = anyC::getFirst("UPnP", "UPnPName", $target);
+		
 		
 		$UPnPSource  = new UPnPGUI($UPnPSource->getID());
 		
 		$result = $UPnPSource->Browse($ObjectID, "BrowseDirectChildren", "");
+		#var_dump(htmlentities($result["Result"]));
 		$xml = new SimpleXMLElement($result["Result"]);
 		$entries = $UPnPSource->findEntries($xml);
 		$series = $UPnPSource->findSeries($entries);

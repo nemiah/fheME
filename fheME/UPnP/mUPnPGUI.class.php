@@ -203,17 +203,17 @@ class mUPnPGUI extends mUPnP implements iGUIHTMLMP2 {
 		
 			$B = new Button("Mediencenter", "share", "iconicL");
 			#Overlay.showDark();
-			$html .= "
-			<div class=\"touchButton\" onclick=\"UPnP.show();\">
-				".$B."
-				<div class=\"label\">Mediencenter</div>
-				<div style=\"clear:both;\"></div>
-			</div>";
+			#$html .= "
+			#<div class=\"touchButton\" onclick=\"UPnP.show();\">
+			#	".$B."
+			#	<div class=\"label\">Mediencenter</div>
+			#	<div style=\"clear:both;\"></div>
+			#</div>";
 			
 			$html .= "
 			<div class=\"touchButton\" onclick=\"contentManager.loadPlugin('contentScreen', 'UPnPPlayer', '', null, {});\">
 				".$B."
-				<div class=\"label\">Mediencenter V2</div>
+				<div class=\"label\">Mediencenter</div>
 				<div style=\"clear:both;\"></div>
 			</div>";
 			
