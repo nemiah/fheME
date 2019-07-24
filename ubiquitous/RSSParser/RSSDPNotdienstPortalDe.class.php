@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2019, open3A GmbH - Support@open3A.de
  */
 class RSSDPNotdienstPortalDe implements iFileBrowser, iRSSDataParser {
 	public function getLabel() {
@@ -34,8 +34,13 @@ class RSSDPNotdienstPortalDe implements iFileBrowser, iRSSDataParser {
 		$tidy->parseString($data, $config, 'utf8');
 		$tidy->cleanRepair();
 		$S = new HTMLSlicer();
-		$XML = new SimpleXMLElement($tidy."");
-		
+		try {
+			libxml_use_internal_errors(true);
+			$tidy = str_replace("&nbsp;", " ", $tidy."");
+			$XML = new SimpleXMLElement($tidy."");
+		} catch (Exception $e){
+			var_dump(libxml_get_errors());
+		}
 		$rss = "<?xml version=\"1.0\" encoding=\"utf-8\"?>
 <rss version=\"2.0\">
 	<channel>

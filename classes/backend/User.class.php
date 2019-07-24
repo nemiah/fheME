@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2019, open3A GmbH - Support@open3A.de
  */
 class User extends PersistentObject {
 	
@@ -120,12 +120,31 @@ class User extends PersistentObject {
 		
 		if(mUserdata::getGlobalSettingValue("encryptionKey") == null AND Session::isUserAdminS()) mUserdata::setUserdataS("encryptionKey", Util::getEncryptionKey(), "eK", -1);
 		$this->A->SHApassword = sha1($this->A->SHApassword);
-		return parent::newMe($checkUserData, $output);
+		
+		$id = parent::newMe($checkUserData, false);
+		
+		if(Applications::activeApplication() == "supportBox"){
+			$F = new Factory("Userdata");
+			$F->sA("UserID", $id);
+			$F->sA("name", "hidePluginUsers");
+			$F->sA("wert", "Users");
+			$F->sA("typ", "pHide");
+			
+			$F->store();
+		}
+			
+        if($output OR $this->echoIDOnNew){
+	        if($this->echoIDOnNew) {
+				echo $this->ID;
+			} else
+				Red::messageCreated(array("ID" => $this->ID));
+		}
 	}
 	
 	public function convertPassword(){
 		$this->loadMe();
-		if($this->A->password == ";;;-1;;;") return;
+		if($this->A->password == ";;;-1;;;") 
+			return;
 		
 		$this->A->SHApassword = $this->A->password;
 		$this->A->password = ";;;-1;;;";

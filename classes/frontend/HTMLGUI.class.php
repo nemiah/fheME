@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2019, open3A GmbH - Support@open3A.de
  */
 
 class HTMLGUI implements icontextMenu {
@@ -1176,6 +1176,7 @@ class HTMLGUI implements icontextMenu {
 		$oldValueForDisplayGroup = "";
 		#if($this->attributes != null)
 			#foreach($this->attributes AS $ei => $vi) {
+		if($this->attributes !== null)
 		for($i=0;$i < count($this->attributes);$i++){
 			#if($firstKey == null) $firstKey = $ei;
 			#$i = $ei;
@@ -1285,7 +1286,7 @@ class HTMLGUI implements icontextMenu {
 		foreach($this->shownCols as $key => $value)
 			$cols .= "<col class=\"backgroundColor".((++$c) % 2 + 2)." ".(isset($this->colClasses[$value]) ? $this->colClasses[$value] : "")."\" ".(isset($this->colStyles[$value]) ? "style=\"".$this->colStyles[$value]."\"" : "")." />\n";
 		
-		if(count($this->attributes) == 0) $cols .= "<col class=\"backgroundColor3\" />\n";
+		if($this->attributes !== null AND count($this->attributes) == 0) $cols .= "<col class=\"backgroundColor3\" />\n";
 		
 		if($this->onlyDisplayMode){
 			if($this->editInDisplayMode)

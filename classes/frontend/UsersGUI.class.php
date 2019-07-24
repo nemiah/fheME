@@ -15,11 +15,11 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2019, open3A GmbH - Support@open3A.de
  */
 class UsersGUI extends Users implements iGUIHTML2{
 	public function getHTML($id){
-		if(Applications::activeApplication() == "supportBox"){
+		if(Applications::activeApplication() == "supportBox" AND Session::isPluginLoaded("mSBForward")){
 			$U = anyC::getFirst("User");
 			$UG = new UserGUI($U->getID());
 			
@@ -30,6 +30,8 @@ class UsersGUI extends Users implements iGUIHTML2{
 		
 		#$this->addAssocV3("UserType", "=", "0");
 		$this->addOrderV3("name");
+		if(Applications::activeApplication() == "supportBox")
+			$this->addAssocV3 ("isAdmin", "=", "0");
 		if($this->A == null) $this->lCV3($id);
 		
 		$up = new anyC();
@@ -126,7 +128,7 @@ class UsersGUI extends Users implements iGUIHTML2{
 		if($allowedUsers !== null)
 			return;
 		
-		$F = new HTMLForm("appserver", array("appServer"), "Application Server");
+		/*$F = new HTMLForm("appserver", array("appServer"), "Application Server");
 		$F->useRecentlyChanged();
 		
 		$F->setLabel("appServer", "App-Server");
@@ -142,11 +144,12 @@ class UsersGUI extends Users implements iGUIHTML2{
 		$F->setSaveRMEPCR("Speichern", "", "Users", "", "saveAppServer", OnEvent::closePopup("Users"));
 		
 
-		echo $F;
+		echo $F;*/
 		
-		if(!function_exists("ldap_connect"))
+		if(!function_exists("ldap_connect")){
+			echo "<p class=\"highlight\">Bitte installieren Sie die PHP LDAP-Erweiterung, um die Active Direcory-Authentifikation zu verwenden.</p>";
 			return;
-		
+		}
 		echo "<span></span><div class=\"backgroundColor1 Tab\"><p>Active Directory</p></div>";
 		
 		$LD = LoginData::get("ADServerUserPass");
@@ -194,6 +197,9 @@ class UsersGUI extends Users implements iGUIHTML2{
 			
 			die();
 		}
+		
+		if($r === 0)
+			sleep (2);
 		
 		echo $r;
 	}

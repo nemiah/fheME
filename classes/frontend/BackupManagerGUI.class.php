@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2019, open3A GmbH - Support@open3A.de
  */
 function BackupManagerGUIFatalErrorShutdownHandler() {
 	$last_error = error_get_last();
@@ -69,6 +69,12 @@ class BackupManagerGUI implements iGUIHTML2 {
 		} catch(TableDoesNotExistException $e){
 			
 		}
+		$FTPServer = null;
+		try {
+			$FTPsServer = LoginData::get("BackupFTPsServerUserPass");
+		} catch(TableDoesNotExistException $e){
+			
+		}
 		
 		$SFTPServer = null;
 		try {
@@ -78,9 +84,17 @@ class BackupManagerGUI implements iGUIHTML2 {
 		}
 		$ST = new HTMLSideTable("right");
 		
+		$B = $ST->addButton("Neue Sicherung\nerstellen", "new");
+		$B->popup("", "Backup-Manager", "BackupManager", "-1", "getWindow", array("0", "'Left'"));
+		
+		#contentManager.rmePCR('BackupManager', '', 'getWindow', '', 'Popup.displayNamed(\'BackupManagerGUI\',\'Backup-Manager\',transport);');
 		$FTPServerID = $FTPServer == null ? -1 : $FTPServer->getID();
 		$BFTP = $ST->addButton("FTP-Server\neintragen", "./plugins/Installation/serverMail.png");
 		$BFTP->popup("edit", "FTP-Server", "LoginData", $FTPServerID, "getPopup", "", "LoginDataGUI;preset:backupFTPServer");
+		
+		$FTPsServerID = $FTPsServer == null ? -1 : $FTPsServer->getID();
+		$BFTP = $ST->addButton("FTPs-Server\neintragen", "./plugins/Installation/serverMail.png");
+		$BFTP->popup("edit", "FTPs-Server", "LoginData", $FTPsServerID, "getPopup", "", "LoginDataGUI;preset:backupFTPServer");
 		
 		if(extension_loaded("ssh2")){
 			$SFTPServerID = $SFTPServer == null ? -1 : $SFTPServer->getID();
@@ -175,7 +189,7 @@ class BackupManagerGUI implements iGUIHTML2 {
 			return $BSave.$GoAway." <label for=\"BackupGoAway\" style=\"float:none;text-align:left;width:auto;\">Diese Meldung nicht mehr anzeigen, ich erstelle meine Backups selbst.</label>";
 	}
 
-	public function getWindow($redo = false){
+	public function getWindow($redo = false, $reload = "none"){
 		register_shutdown_function('BackupManagerGUIFatalErrorShutdownHandler');
 		
 		$F = new File(Util::getRootPath()."system/Backup");
@@ -232,6 +246,16 @@ class BackupManagerGUI implements iGUIHTML2 {
 
 						$T->addRow(array($B."Das Backup wurde erfolgreich auf den FTP-Server hochgeladen"));
 					}
+					
+					$ftpsUpload = $this->FTPsUpload(Util::getRootPath()."system/Backup/$BOK");
+					if($ftpsUpload === true){
+						$B = new Button("FTP-Upload erfolgreich","okCatch");
+						$B->type("icon");
+						$B->style("float:left;margin-right:10px;");
+
+						$T->addRow(array($B."Das Backup wurde erfolgreich auf den FTPs-Server hochgeladen"));
+					}
+					
 					
 					$sftpUpload = $this->SFTPUpload(Util::getRootPath()."system/Backup/$BOK");
 					if($sftpUpload === true){
@@ -301,6 +325,10 @@ class BackupManagerGUI implements iGUIHTML2 {
 		$BD->onclick("\$j('#BMMoreDetails').slideToggle();");
 		$BD->style("margin:10px;");
 		$BD->className("backgroundColor0");
+		
+		
+		if($reload != "none")
+			echo OnEvent::script (OnEvent::reload ($reload));
 		
 		echo $html.$BC.$BD."<div style=\"clear:both;\"></div><div id=\"BMMoreDetails\" style=\"display:none;\">".$TF."</div>";
 	}
@@ -387,6 +415,44 @@ require valid-user
 		if(file_exists($filename))
 			chmod(Util::getRootPath()."system/Backup/".$filename, 0666);
 		return $filename;
+	}
+
+	public function FTPsUpload($filename){
+		$FTPServer = LoginData::get("BackupFTPsServerUserPass");
+		
+		if($FTPServer == null OR $FTPServer->A("server") == "")
+			return null;
+		
+		$ftp_server = $FTPServer->A("server");
+		$benutzername = $FTPServer->A("benutzername");
+		$passwort = $FTPServer->A("passwort");
+
+		$connection_id = ftp_ssl_connect($ftp_server);
+		
+		if (!$connection_id) 
+			throw new Exception("Verbindung mit FTPs-Server $ftp_server nicht möglich!");
+
+		$login_result = ftp_login($connection_id, $benutzername, $passwort);
+
+		if (!$login_result) 
+			throw new Exception("Anmeldung als Benutzer $benutzername nicht möglich!");
+		
+		
+		$subDir = $FTPServer->A("optionen");
+		if($subDir != "" AND $subDir[strlen($subDir) - 1] != "/")
+			$subDir .= "/";
+		
+		$zieldatei = $subDir.basename($filename);
+		$lokale_datei = $filename;
+
+		$upload = ftp_put($connection_id, $zieldatei, $lokale_datei, FTP_ASCII);
+		
+		if (!$upload)
+		  throw new Exception("Beim FTP-Upload ist ein Fehler aufgetreten");
+		
+		ftp_quit($connection_id);
+		
+		return true;
 	}
 
 	public function FTPUpload($filename){

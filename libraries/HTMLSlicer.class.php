@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2019, open3A GmbH - Support@open3A.de
  */
 class HTMLSlicer {
 	private $url;
@@ -57,29 +57,68 @@ class HTMLSlicer {
 		return $this->xml;
 	}
 
+	private function fixErrors(){
+		for($i = 0; $i < 20; $i++){
+			try {
+				$this->xml = new SimpleXMLElement($this->page);
+			} catch(Exception $e){
+				#echo "<pre>";
+				#echo "Exception: ".$e->getMessage()."\n";
+				#print_r(libxml_get_errors());
+
+				$ex = explode("\n", $this->page);
+				foreach(libxml_get_errors() AS $error){
+					#echo trim($error->message).": ";
+					#echo htmlentities($ex[$error->line - 1]);
+					#echo htmlentities(substr($ex[$error->line - 1], $error->column - 10, 20));
+					
+					preg_match("/xmlParseCharRef: invalid xmlChar value ([0-9]+)/", trim($error->message), $matches);
+					#print_r($matches);
+					
+					$this->page = str_replace("&#$matches[1];", "", $this->page);
+				}
+
+				#echo "</pre>";
+
+				#echo $this->page;
+
+				#return;
+			}
+		}
+	}
+	
 	public function parseIt(){
 		libxml_use_internal_errors(true);
 
 		$this->load();
 		$this->page = str_replace('xmlns=', 'ns=', $this->page);
 
-		try {
+		$this->fixErrors();
+		$this->xml = new SimpleXMLElement($this->page);
+		
+		/*try {
 			$this->xml = new SimpleXMLElement($this->page);
 		} catch(Exception $e){
-			#echo "<pre>";
+			echo "<pre>";
 			echo "Exception: ".$e->getMessage()."\n";
+			#print_r(libxml_get_errors());
 			
-			/*foreach(libxml_get_errors() as $error){
-				if($error->level == LIBXML_ERR_WARNING) echo "Warning: ".$error->message;
-				if($error->level == LIBXML_ERR_ERROR) echo "Error: ".$error->message;
-				if($error->level == LIBXML_ERR_FATAL) echo "Fatal error: ".$error->message;
+			$ex = explode("\n", $this->page);
+			foreach(libxml_get_errors() AS $error){
+				echo trim($error->message).": ";
+				#echo htmlentities($ex[$error->line - 1]);
+				echo htmlentities(substr($ex[$error->line - 1], $error->column - 10, 20));
+				preg_match("/xmlParseCharRef: invalid xmlChar value ([0-9]+)/", trim($error->message), $matches);
+				print_r($matches);
+				$this->page = str_replace("&#$matches[1];", "", $this->page);
 			}
-			echo "</pre>";*/
+			
+			echo "</pre>";
 
 			#echo $this->page;
 
 			return;
-		}
+		}*/
 	}
 
 	public function getTag($path){

@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2019, open3A GmbH - Support@open3A.de
  */
 class CCTimeTerminal2 implements iCustomContent {
 	protected $switch = false;
@@ -36,9 +36,23 @@ class CCTimeTerminal2 implements iCustomContent {
 			return "<p style=\"font-size:30px;\">
 				Terminal IP: ".$_SERVER['REMOTE_ADDR']."<br>
 				Server IP: ".$_SERVER['SERVER_ADDR']."</p>
+				<textarea style=\"display:none;width:100%;height:200px;max-width:100%;\" id=\"storage\"></textarea>
+				<div style=\"display:none;\" id=\"insertStorage\">
+					<textarea style=\"width:100%;height:200px;max-width:100%;\" id=\"insertStorageData\"></textarea>
+					<a href=\"#\" style=\"float:right;padding:10px;\" onclick=\"if(!confirm('Daten in dieses Terminal übernehmen?')) return false; $.jStorage.set('pKTransferStack', []); $.jStorage.set('pKTimeStack', JSON.parse($('#insertStorageData').val())); document.location.reload(); return false;\">In Terminal übernehmen (vorhandene Daten werden überschrieben)</a>
+				</div>
 				<p>
-				<a href=\"#\" onclick=\"$.jStorage.set('pKTransferStack', []); $.jStorage.set('pKTimeStack', []); return false;\">Datenspeicher löschen</a>
-				</p>".OnEvent::script("window.setTimeout(function(){ document.location.href=\"?".$_SERVER['QUERY_STRING']."&done=true\"; }, 3000);");
+				<a href=\"#\" onclick=\"window.clearTimeout(goNext); $('#storage').show().html(JSON.stringify($.jStorage.get('pKTimeStack', []).concat($.jStorage.get('pKTransferStack', [])))); return false;\">Datenspeicher anzeigen</a>
+				<br>
+				<br>
+				<a href=\"#\" onclick=\"window.clearTimeout(goNext); $('#insertStorage').show(); return false;\">Datenspeicher übernehmen</a>
+				
+				<br>
+				<br>
+				<br>
+				<br>
+				<a href=\"#\" onclick=\"if(!confirm('Daten wirklich löschen?')) return false; $.jStorage.set('pKTransferStack', []); $.jStorage.set('pKTimeStack', []); return false;\">Datenspeicher löschen</a>
+				</p>".OnEvent::script("var goNext = window.setTimeout(function(){ document.location.href=\"?".$_SERVER['QUERY_STRING']."&done=true\"; }, 3000);");
 		
 		
 		self::loadClasses();
@@ -208,7 +222,7 @@ class CCTimeTerminal2 implements iCustomContent {
 						timeoutTransfer = window.setTimeout(function(){
 							transfer();
 						}, 60000);
-					});
+					}, 'POST');
 			}
 
 			function counter(){

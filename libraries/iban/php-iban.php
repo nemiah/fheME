@@ -57,9 +57,9 @@ function iban_to_machine_format($iban) {
 # (European Committee for Banking Standards) 
 # recommendations available at:
 # http://www.europeanpaymentscouncil.eu/knowledge_bank_download.cfm?file=ECBS%20standard%20implementation%20guidelines%20SIG203V3.2.pdf 
-function iban_to_human_format($iban) {
+function iban_to_human_format($iban, $verify = true) {
  # First verify validity, or return
- if(!verify_iban($iban)) { return false; }
+ if($verify AND !verify_iban($iban)) { return false; }
  # Add spaces every four characters
  $human_iban = '';
  for($i=0;$i<strlen($iban);$i++) {

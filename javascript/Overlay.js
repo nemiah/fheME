@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2019, open3A GmbH - Support@open3A.de
  */
  
 var Overlay = {
@@ -26,20 +26,21 @@ var Overlay = {
 	dark: false,
 	
 	init: function(){
-		Event.observe(window, "resize", Overlay.fit);
+		$j(window).resize(Overlay.fit);
 		
 		Overlay.isInit = true;
 		Overlay.fit();
-		new Effect.Appear($('lightOverlay'), {duration: 0.5});
+		//new Effect.Appear($('lightOverlay'), {duration: 0.5});
+		$j('#lightOverlay').fadeIn(500);
 		Overlay.initWhite = true;
 		
 		setTimeout("$('container').style.display = 'block'",500);
-		//new Effect.Fade($('lightOverlay'), {duration: 1, delay:0.2, queue: "end"});
 	},
 	
 	show: function(){
 		if(!Overlay.loginBox) {
-			new Effect.Appear("boxInOverlay", {duration: 0.2});
+			$j('#boxInOverlay').fadeIn(200);
+			//new Effect.Appear("boxInOverlay", {duration: 0.2});
 			Overlay.loginBox = true;
 			
 			setTimeout("$('loginUsername').focus()",300);
@@ -68,7 +69,8 @@ var Overlay = {
 				$j('#saveLoginDataContainer').hide();
 		}
 		if(!Overlay.white && !Overlay.initWhite) {
-			new Effect.Appear($('lightOverlay'), {duration: 0.5});
+			$j('#lightOverlay').fadeIn(500);
+			//new Effect.Appear($('lightOverlay'), {duration: 0.5});
 			Overlay.white = true;
 			
 			setTimeout("$('contentLeft').update('')",600);
@@ -76,15 +78,7 @@ var Overlay = {
 			
 			
 		}
-	},/*
-
-	showLight: function(duration){
-		new Effect.Appear($('lightOverlay'), {duration: duration});
 	},
-
-	hideLight: function(duration){
-		new Effect.Fade($('lightOverlay'), {duration: duration});
-	},*/
 
 	showDark: function(duration, opacityTo){
 		if(Overlay.dark) return;
@@ -93,8 +87,9 @@ var Overlay = {
 			duration = 0.1;
 		if(typeof opacityTo == "undefined")
 			opacityTo = 0.8;
-
-		new Effect.Appear($('darkOverlay'), {duration: duration, to: opacityTo});
+		
+		$j('#darkOverlay').fadeTo(duration * 1000 , opacityTo);
+		//new Effect.Appear($('darkOverlay'), {duration: duration, to: opacityTo});
 		Overlay.dark = true;
 	},
 
@@ -104,24 +99,25 @@ var Overlay = {
 		if(typeof duration == "undefined")
 			duration = 0.1;
 
-		new Effect.Fade($('darkOverlay'), {duration: duration});
+		$j('#darkOverlay').fadeOut();
 		Overlay.dark = false;
 	},
 
 	hide: function(){
 
 		if(Overlay.initWhite) {
-			setTimeout("new Effect.Fade($('lightOverlay'), {duration: 1})",600);
-			//new Effect.Fade($('lightOverlay'), {duration: 0.5, delay:0.6});
+			setTimeout(function(){
+				$j('#lightOverlay').fadeOut();
+			},600);
 			Overlay.initWhite = false;
 		}
 
 		if(Overlay.white) {
-			new Effect.Fade($('lightOverlay'), {duration: 1});
+			$j('#lightOverlay').fadeOut();
 			Overlay.white = false;
 		}
 		if(Overlay.loginBox) {
-			new Effect.Fade("boxInOverlay", {duration: 0.2});
+			$j('#boxInOverlay').fadeOut();
 			Overlay.loginBox = false;
 		}
 	},

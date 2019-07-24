@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2019, open3A GmbH - Support@open3A.de
  */
 
 var lastLoadedLeft        = -1;
@@ -253,9 +253,11 @@ var contentManager = {
 			
 			if(targetFrame == "contentRight"){
 				var historyPlugin = targetPlugin;
+				var oldName = historyPlugin;
+				
 				if(historyPlugin == "Auftraege")
 					historyPlugin = "mAuftrag";
-
+				
 				if(historyPlugin == "Adressen")
 					historyPlugin = "mAdresse";
 
@@ -269,16 +271,17 @@ var contentManager = {
 					historyPlugin = "mObjektL";
 
 				if(contentManager.historyLeft[historyPlugin] && contentManager.historyLeft[historyPlugin][1] != -1){
+					//console.log("HERE!");
 					var found = false;
-					if($j('#Browser'+historyPlugin+contentManager.historyLeft[historyPlugin][1]).length)
+					if($j('#Browser'+oldName+contentManager.historyLeft[historyPlugin][1]).length)
 						found = true;
 
 					if($j('#BrowserMain'+contentManager.historyLeft[historyPlugin][1]).length)
 						found = true;
-
+					//console.log(found);
 					if(found && !Interface.mobile())
 						contentManager.loadFrame("contentLeft", contentManager.historyLeft[historyPlugin][0], contentManager.historyLeft[historyPlugin][1], 0, "", function(){
-							$j('#Browser'+historyPlugin+contentManager.historyLeft[historyPlugin][1]).addClass("lastSelected");
+							$j('#Browser'+oldName+contentManager.historyLeft[historyPlugin][1]).addClass("lastSelected");
 							$j('#BrowserMain'+contentManager.historyLeft[historyPlugin][1]).addClass("lastSelected");
 						});
 

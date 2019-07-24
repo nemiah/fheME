@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2019, open3A GmbH - Support@open3A.de
  */
 
 function addClassPath($path){
@@ -30,13 +30,29 @@ function addClassPath($path){
 }
 
 function registerClassPath($className, $classPath){
+	if(!defined("PHYNX_SESSION_DONE"))
+		return;
+	
 	if(!isset($_SESSION["classPaths"]) OR !is_array($_SESSION["classPaths"]))
 		$_SESSION["classPaths"] = array();
-	
+		
 	if(!isset($_SESSION["classPaths"][$className]))
 		$_SESSION["classPaths"][$className] = "";
 	
 	$_SESSION["classPaths"][$className] = $classPath;
+}
+
+function registerUnrealClass($className){
+	if(!defined("PHYNX_SESSION_DONE"))
+		return;
+	
+	if(!isset($_SESSION["classPathsUnreal"]) OR !is_array($_SESSION["classPathsUnreal"]))
+		$_SESSION["classPathsUnreal"] = array();
+		
+	if(!isset($_SESSION["classPathsUnreal"][$className]))
+		$_SESSION["classPathsUnreal"][$className] = "";
+	
+	$_SESSION["classPathsUnreal"][$className] = "unreal";
 }
 
 function phynxParseStr($query){ //fools mod_security
@@ -60,6 +76,35 @@ function findClass($class_name){
 		return false;
 	
 	$root = str_replace("system".DIRECTORY_SEPARATOR."basics.php", "", __FILE__);
+	
+	if(!defined("PHYNX_SESSION_DONE")){
+		$defaults = array(
+			"Session" => $root."classes/backend/Session.class.php",
+			"PersistentObject" => $root."classes/backend/PersistentObject.class.php",
+			"User" => $root."classes/backend/User.class.php",
+			"Attributes" => $root."classes/backend/Attributes.class.php",
+			"SysMessages" => $root."classes/toolbox/SysMessages.class.php",
+			"Applications" => $root."classes/frontend/Applications.class.php",
+			"JSLoader" => $root."classes/frontend/JSLoader.class.php",
+			"AppPlugins" => $root."classes/frontend/AppPlugins.class.php",
+			"BackgroundPluginState" => $root."classes/backend/BackgroundPluginState.class.php"
+		);
+		
+		if(isset($defaults[$class_name])){
+			require_once $defaults[$class_name];
+			return 1;
+		}
+	}
+	
+	#echo "<br>".$class_name.":";
+	/*if(false AND isset($_SESSION["classPathsUnreal"]) AND is_array($_SESSION["classPathsUnreal"]) AND isset($_SESSION["classPathsUnreal"][$class_name])) {
+		if(!isset($_SESSION["classPaths"][$class_name])){
+			echo "unreal!";
+			throw new ClassUnrealException($class_name);
+		}
+	}*/
+	
+	
 	if(isset($_SESSION["classPaths"]) AND is_array($_SESSION["classPaths"]) AND isset($_SESSION["classPaths"][$class_name])) {
 		$path = $_SESSION["classPaths"][$class_name];
 
@@ -169,6 +214,8 @@ function findClass($class_name){
 		$_SESSION["messages"]->addMessage("Warning: Creating interface $class_name");
 		eval('interface '.$class_name.' { } ');
 	} else {
+		registerUnrealClass($class_name);
+		
 		eval('class '.str_replace("\\", "_", $class_name).' { '.
 		'    public function __construct() { '.
 		'        throw new ClassNotFoundException("'.$class_name.'"); '.

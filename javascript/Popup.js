@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2019, open3A GmbH - Support@open3A.de
  */
 var Popup = {
 	windowsOpen: 0,
@@ -298,22 +298,6 @@ var Popup = {
 				top = 0;
 		}
 
-		/*var element = Builder.node(
-			"div",
-			{
-				id: type+'Details'+ID,
-				style: 'display:none;top:'+top+'px;'+(right != null ? 'right:'+right : 'left:'+left)+'px;width:'+width+'px;z-index:'+Popup.zIndex,
-				"class": "popup"
-			}, [
-				Builder.node("div", {"class": "backgroundColor1 cMHeader", id: type+'DetailsHandler'+ID}, [
-					Builder.node("a", {id: type+"DetailsCloseWindow"+ID, "class": "closeContextMenu backgroundColor0 borderColor0", style:"cursor:pointer;"+(hasX ? "" : "display:none;")}, ["X"])
-					, name]),
-				Builder.node("div", {"class": "backgroundColor0", style: "clear:both;", id: type+'DetailsContentWrapper'+ID}, [
-					Builder.node("div", {id: type+'DetailsContent'+ID})
-				])
-				
-			]);*/
-
 
 		var element = "<div id=\""+type+'Details'+ID+"\" style=\""+(absolute ? "position:absolute;" : "")+'display:none;top:'+top+'px;'+(right != null ? 'right:'+right : 'left:'+left)+'px;width:'+width+(width.toString().indexOf("%") > -1 ? "" : "px")+';z-index:'+Popup.zIndex+"\" class=\"popup\">\n\
 			<div class=\"backgroundColor1 cMHeader popupHeader\" id=\""+type+'DetailsHandler'+ID+"\">\n\
@@ -354,10 +338,13 @@ var Popup = {
 				
 			}
 		});
-		Event.observe(type+'DetailsCloseWindow'+ID, 'click', function() {Popup.close(ID, type);});
+		//Event.observe(type+'DetailsCloseWindow'+ID, 'click', function() {Popup.close(ID, type);});
+		$j('#'+type+'DetailsCloseWindow'+ID).click(function() {Popup.close(ID, type);});
 		if(hasMinimize){
-			Event.observe(type+'DetailsMinimizeWindow'+ID, 'click', function() {Popup.minimize(ID, type);});
-			Event.observe(type+'DetailsRestoreWindow'+ID, 'click', function() {Popup.restore(ID, type);});
+			/*Event.observe(type+'DetailsMinimizeWindow'+ID, 'click', function() {Popup.minimize(ID, type);});
+			Event.observe(type+'DetailsRestoreWindow'+ID, 'click', function() {Popup.restore(ID, type);});*/
+			$j('#'+type+'DetailsMinimizeWindow'+ID).click(function() {Popup.minimize(ID, type);});
+			$j('#'+type+'DetailsRestoreWindow'+ID).click(function() {Popup.restore(ID, type);});
 		}
 		
 		if(fullscreen){
@@ -372,7 +359,7 @@ var Popup = {
 				elem.webkitRequestFullscreen();
 			}
 		}
-		//Event.observe(type+'Details'+ID, 'click', function(event) {Popup.updateZ(event.target);});
+		
 
 	},
 

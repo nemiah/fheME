@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2019, open3A GmbH - Support@open3A.de
  */
 class Util {
 	public static function ext($filename){
@@ -155,6 +155,7 @@ class Util {
 	public static function toBytes($val) {
 		$val = trim($val);
 		$last = strtolower($val[strlen($val) - 1]);
+		$val = preg_replace("/[^0-9]+/", "", $val);
 		switch ($last) {
 			// The 'G' modifier is available since PHP 5.1.0
 			case 'g':
@@ -634,7 +635,7 @@ class Util {
 	
 	public static function formatAnredeWMShort($language, Adresse $Adresse){
 		$format = self::getLangAnrede($language);
-		
+
 		switch($Adresse->A("anrede")){
 			case "2":
 				return $format["maleShort"];
@@ -657,7 +658,8 @@ class Util {
 
 		switch($Adresse->A("anrede")){
 			case "2":
-				if($shortmode) $A = $format["maleShort"].($Adresse->A("titelPrefix") != "" ? " ".$Adresse->A("titelPrefix") : "");
+				if($shortmode) 
+					$A = $format["maleShort"].($Adresse->A("titelPrefix") != "" ? " ".$Adresse->A("titelPrefix") : "");
 				else {
 					$A = $format["male"].($Adresse->A("titelPrefix") != "" ? " ".$Adresse->A("titelPrefix") : "")." ".trim($Adresse->A("nachname"));
 					if(trim($Adresse->A("nachname")) == "")
@@ -668,7 +670,8 @@ class Util {
 					$A = "Hallo ".trim($Adresse->A("vorname"));
 			break;
 			case "1":
-				if($shortmode) $A = $format["femaleShort"].($Adresse->A("titelPrefix") != "" ? " ".$Adresse->A("titelPrefix") : "");
+				if($shortmode) 
+					$A = $format["femaleShort"].($Adresse->A("titelPrefix") != "" ? " ".$Adresse->A("titelPrefix") : "");
 				else {
 					$A = $format["female"].($Adresse->A("titelPrefix") != "" ? " ".$Adresse->A("titelPrefix") : "")." ".trim($Adresse->A("nachname"));
 					if(trim($Adresse->A("nachname")) == "")
@@ -679,22 +682,28 @@ class Util {
 					$A = "Hallo ".trim($Adresse->A("vorname"));
 			break;
 			case "3":
-				if($shortmode) $A = "";
-				else $A = $format["unknown"];
+				if($shortmode) 
+					$A = "";
+				else 
+					$A = $format["unknown"];
 				
 				if($perDu == true)
 					$A = "Hallo";
 			break;
 			case "4":
-				if($shortmode) $A = $format["familyShort"];
-				else $A = $format["family"]." ".trim($Adresse->A("nachname"));
+				if($shortmode)
+					$A = $format["familyShort"];
+				else
+					$A = $format["family"]." ".trim($Adresse->A("nachname"));
 				
 				if($perDu == true)
 					$A = "Hallo";
 			break;
 			default:
-				if($shortmode) $A = "";
-				else $A = $format["unknown"];
+				if($shortmode) 
+					$A = "";
+				else 
+					$A = $format["unknown"];
 				
 				if($perDu == true)
 					$A = "Hallo";
@@ -950,6 +959,8 @@ class Util {
 	public static function getLangNumbersFormat($languageTag = null){
 		if($languageTag == null)
 			$languageTag = Session::getLanguage();
+		if(strlen($languageTag) > 5)
+			$languageTag = substr ($languageTag, 0, 5);
 		/* array(
 		 * Decimal symbol,
 		 * # digits after decimal,
@@ -967,6 +978,9 @@ class Util {
 			break;
 			case "en_GB":
 				return array(".",2,",");
+			break;
+			case "ru_RU":
+				return array(",",2," ");
 			break;
 			default:
 				return array(",",2,".");
@@ -999,6 +1013,12 @@ class Util {
 					return array("$", "\$n", "\$(n)", ".", 2, ",");
 				
 				return array("USD", "n USD", "-n USD", ".", 2, ",");
+		
+			case "RUB":
+				if($useSymbol)
+					return array("₽", "n ₽", "-n ₽", ",", 2, " ");
+				
+				return array("RUB", "n RUB", "-n RUB", ",", 2, " ");
 		
 			case "GBP":
 				if($useSymbol)
@@ -1386,7 +1406,7 @@ class Util {
 		$filename = str_replace(array("Í","Ì","í","ì", "ï","Õ","Ô","Ó"), array("I","I","i","i", "i","O","O","O"), $filename);
 		$filename = str_replace(array("õ","ô","ó","Ú","ú"), array("o","o","o","U","u"), $filename);
     	$filename = str_replace(array(":", "–", "\n", "'", "?", "(", ")", ";", "\"", "+", "<", ">", ",", "´", "`", "|", "%"), array("_", "-", "", "", "", "", "", "", "", "", "", "", "", "", "", "_", ""), $filename);
-		$filename = str_replace(array("__", "\n"), array("_", "_"), $filename);
+		$filename = str_replace(array("__", "\n", "*"), array("_", "_", "_"), $filename);
 
 		return $filename;
 	}
@@ -1513,7 +1533,9 @@ class Util {
 		#die();
 		if(defined("PHYNX_USE_TEMP_HTACCESS") AND PHYNX_USE_TEMP_HTACCESS AND strpos($dirtouse, Util::getRootPath()) !== false /*AND !file_exists($dirtouse.".htaccess")*/ AND is_writable($dirtouse)){
 			$content = "<IfModule mod_authz_core.c>
-    Require ip ".$_SERVER["REMOTE_ADDR"]."
+	<IfModule authz_host_module.c>
+		Require ip ".$_SERVER["REMOTE_ADDR"]."
+	</IfModule>
 </IfModule>";
 			
 			if(strstr($_SERVER["REMOTE_ADDR"], ".")) //USE ONLY WHEN ON IPV4 due to APACHE BUG https://issues.apache.org/bugzilla/show_bug.cgi?id=49737
@@ -1582,7 +1604,7 @@ class Util {
 		
 	}
 	
-	public static function catchParser($w, $l = "load", $p = ""){
+	public static function catchParser($w, $l = "load", $p = "", $style = ""){
 		
 		if(!is_array($p) AND !is_object($p))
 			$p = HTMLGUI::getArrayFromParametersString($p);
@@ -1592,7 +1614,7 @@ class Util {
 		
 		if(is_array($p))
 			unset($p[0]);
-		return $w == 1 ? "<img ".(isset($p[0]) ? "title=\"$p[0]\"" : "")." src=\"./images/i2/ok.gif\" />" : "<img ".(isset($p[1]) ? "title=\"$p[1]\"" : "")." src=\"./images/i2/notok.gif\" />";
+		return $w == 1 ? "<img style=\"$style\" ".(isset($p[0]) ? "title=\"$p[0]\"" : "")." src=\"./images/i2/ok.gif\" />" : "<img style=\"$style\" ".(isset($p[1]) ? "title=\"$p[1]\"" : "")." src=\"./images/i2/notok.gif\" />";
 	}
 	
 	public static function httpTestAndLoad($url, $timeout = 10) {

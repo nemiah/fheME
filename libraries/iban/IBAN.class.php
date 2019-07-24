@@ -27,8 +27,8 @@ Class IBAN {
   return iban_to_machine_format($this->iban);
  }
 
- public function HumanFormat() {
-  return iban_to_human_format($this->iban);
+ public function HumanFormat($verify = true) {
+  return iban_to_human_format($this->iban, $verify);
  }
 
  public function Country($iban='') {

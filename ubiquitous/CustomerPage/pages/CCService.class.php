@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2019, open3A GmbH - Support@open3A.de
  */
 
 ini_set('session.gc_maxlifetime', 24 * 60 * 60);
@@ -27,6 +27,9 @@ class CCService extends CCAuftrag implements iCustomContent {
 		$this->loadPlugin("open3A", "Niederlassungen", true);
 		#$this->showPosten = false;
 		$this->showPrices = false;
+				
+		if(Session::currentUser() == null AND isset($_POST["benutzer"]) AND Users::login($_POST["benutzer"], $_POST["password"], "open3A"))
+			$this->loggedIn = true;
 	}
 	
 	function getLabel(){

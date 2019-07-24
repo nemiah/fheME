@@ -94,7 +94,21 @@ class FhemGUI extends Fhem implements iGUIHTML2 {
 
 		$gui->type("FhemFHTModel", "select", array("" => "none", "fht80b" => "80B"));
 
-		$gui->type("FhemType", "select", array("" => "none", "FS20" => "FS20","FHZ" => "FHZ", "FHT" => "FHT", "CUL_HM" => "HomeMatic", "HMCCUDEV" => "HomeMatic CCU2", "IT" => "Intertechno", "CUL_EM" => "ELV EM", "notify" => "notify", "dummy" => "dummy"/*,"RGB" => "RGB"*/));
+		$gui->type("FhemHUEModel", "select", array("" => "none", "lightDimmable" => "Licht dimmbar"));
+		
+		$gui->type("FhemType", "select", 
+				array(
+					"" => "none",
+					"FS20" => "FS20",
+					"FHZ" => "FHZ", 
+					"FHT" => "FHT", 
+					"HUEDevice" => "HUE",
+					"CUL_HM" => "HomeMatic", 
+					"HMCCUDEV" => "HomeMatic CCU2",
+					"IT" => "Intertechno",
+					"CUL_EM" => "ELV EM",
+					"notify" => "notify", 
+					"dummy" => "dummy"/*,"RGB" => "RGB"*/));
 
 		$B = $gui->addSideButton("Show\ndata", "./fheME/Fhem/showData.png");
 		$B->popup("", "Show data", "Fhem", $this->getID(), "showData");
@@ -109,11 +123,12 @@ class FhemGUI extends Fhem implements iGUIHTML2 {
 
 		$gui->inputStyle("FhemCommand","height:300px;font-size:8px;");
 
-		$gui->attributes(array("FhemServerID", "FhemLocationID", "FhemName", "FhemAlias", "FhemInOverview", "FhemType", "FhemExtension", "FhemModel", "FhemITModel", "FhemHMModel", "FhemEMModel", "FhemFHTModel", "FhemSpecific", "FhemHMSub", "FhemHMClass", "FhemRoom", "FhemRunOn", "FhemCommand"/*, "FhemFHTDefaultDayTemp"*/));
+		$gui->attributes(array("FhemServerID", "FhemLocationID", "FhemName", "FhemAlias", "FhemInOverview", "FhemType", "FhemExtension", "FhemModel", "FhemITModel", "FhemHMModel", "FhemEMModel", "FhemFHTModel", "FhemSpecific", "FhemHMSub", "FhemHMClass", "FhemRoom", "FhemRunOn", "FhemCommand", "FhemHUEModel"/*, "FhemFHTDefaultDayTemp"*/));
 
 		$gui->space("FhemType");
 
-		$gui->toggleFieldsInit("FhemType", array("FhemModel", "FhemITModel", "FhemHMModel", "FhemEMModel","FhemSpecific", "FhemHMSub", "FhemHMClass", "FhemRoom", "FhemRunOn", "FhemCommand", "FhemFHTModel", "FhemFHTDefaultDayTemp", "FhemExtension"));
+		$gui->toggleFieldsInit("FhemType", array("FhemModel", "FhemITModel", "FhemHMModel", "FhemEMModel","FhemSpecific", "FhemHMSub", "FhemHMClass", "FhemRoom", "FhemRunOn", "FhemCommand", "FhemFHTModel", "FhemFHTDefaultDayTemp", "FhemExtension", "FhemHUEModel"));
+		$gui->toggleFields("FhemType", "HUEDevice", array("FhemHUEModel"));
 		$gui->toggleFields("FhemType", "FHZ", array("FhemSpecific", "FhemRoom"));
 		$gui->toggleFields("FhemType", "FS20", array("FhemModel", "FhemSpecific", "FhemRoom"));
 		$gui->toggleFields("FhemType", "notify", array("FhemRunOn", "FhemCommand", "FhemRoom"));

@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2019, open3A GmbH - Support@open3A.de
  */
 
 /**var cookieManager = {
@@ -63,6 +63,15 @@ function checkResponse(transport, hideError) {
 
 	if(response == "SESSION EXPIRED"){
 		alert("Ihre Sitzung ist abgelaufen, bitte loggen Sie sich erneut ein.");
+		Menu.onTimeout();
+		return false;
+	}
+
+	if(response == "NO USER SESSION"){
+		if(hideError)
+			return true;
+		
+		alert("Sie sind nicht angemeldet, bitte loggen Sie sich erneut ein.");
 		Menu.onTimeout();
 		return false;
 	}
@@ -250,7 +259,7 @@ function windowWithRme(targetClass, targetClassId, targetMethod, targetMethodPar
 	
 	var options = 'height='+height+',width='+width+',left='+left+',top='+top+',scrollbars='+(scroll ? "yes" : "no")+',resizable=yes';
 	
-	if(typeof target == "undefined")
+	if(typeof target == "undefined" || target == '')
 		target = "window";
 
  	if(typeof targetMethodParameters != "string"){

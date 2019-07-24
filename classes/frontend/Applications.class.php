@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2019, open3A GmbH - Support@open3A.de
  */
 class Applications {
 	private $apps = array();
@@ -170,8 +170,16 @@ class Applications {
 	}
 	
 	public function getHTMLOptions($selected = null){
+		if($selected == null)
+			$selected = "open3A";
+		
+		$apps = $this->apps;
+		$apps = array_flip($apps);
+		natcasesort($apps);
+		$apps = array_flip($apps);
+		
 		$o = "";
-		foreach($this->apps as $key => $value)
+		foreach($apps as $key => $value)
 			$o .= "<option ".(($selected != null AND $selected == $value) ? "selected=\"selected\"" : "")." value=\"$value\">$key</option>";
 		return $o;
 	}

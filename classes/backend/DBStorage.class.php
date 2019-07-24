@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2019, open3A GmbH - Support@open3A.de
  */
 
 class DBStorage {
@@ -112,7 +112,9 @@ class DBStorage {
 				OR mysqli_connect_errno() == 2005
 				OR mysqli_connect_errno() == 1698)) 
 			throw new NoDBUserDataException(mysqli_connect_errno().":".mysqli_connect_error()."; ".$this->data["user"]."@".$this->data["host"]);
-		if(mysqli_connect_error() AND (mysqli_connect_errno() == 1049 OR mysqli_connect_errno() == 1044)) throw new DatabaseNotFoundException();
+		
+		if(mysqli_connect_error() AND (mysqli_connect_errno() == 1049 OR mysqli_connect_errno() == 1044)) 
+			throw new DatabaseNotFoundException();
 		
 		echo $this->c->error;
 		
@@ -158,11 +160,13 @@ class DBStorage {
 	
 	function checkForTable($name){
 		$sql = "SHOW TABLES FROM `".$this->data["datab"]."`";
+		self::$lastQuery[] = $sql;
 		$result = $this->c->query($sql);
 		DBStorage::$queryCounter++;
 		$_SESSION["messages"]->addMessage("executing MySQL: $sql");
 		if($result) while ($row = $result->fetch_row())
-			if(strtolower($row[0]) == strtolower($name)) return true;
+			if(strtolower($row[0]) == strtolower($name)) 
+				return true;
 
 		#if($result) mysql_free_result($result);
 		
@@ -312,7 +316,7 @@ class DBStorage {
 	}
 	
 	function loadSingle2($table, $id/*, $typsicher = false*/) {
-		$sql = "SELECT * FROM $table WHERE ".$table."ID = '$id'";
+		$sql = "SELECT * FROM ".$this->c->real_escape_string($table)." WHERE ".$this->c->real_escape_string($table)."ID = '".$this->c->real_escape_string($id)."'";
 		$q = $this->c->query($sql);
 		DBStorage::$queryCounter++;
 		$_SESSION["messages"]->addMessage("executing MySQL: $sql");
@@ -397,16 +401,19 @@ class DBStorage {
 	function saveSingle2($table, $id, $A) {
 		$fields = PMReflector::getAttributesArray($A);
 	    $sql = "UPDATE $table SET";
+		$sql2 = $sql;
 
 		$params = array(str_pad("", count($fields), "s")."i");
 		for($i = 0;$i < count($fields);$i++){
 			$f = $fields[$i];
-			#$sql .= ($i > 0 ? "," : "")." ".$fields[$i]." = '".$this->cWrite->real_escape_string($A->$f)."'";
+			$sql2 .= ($i > 0 ? "," : "")." ".$fields[$i]." = '".$this->cWrite->real_escape_string($A->$f)."'";
 			$sql .= ($i > 0 ? "," : "")." ".$fields[$i]." = ?";
 			
 			$params[] = &$A->$f;
 		}
 		$sql .= " WHERE ".$table."ID = ?";
+		$sql2 .= " WHERE ".$table."ID = '".$this->cWrite->real_escape_string($id)."'";
+		
 		$params[] = &$id;
 		
 		$_SESSION["messages"]->addMessage("executing MySQL: $sql");
@@ -429,7 +436,10 @@ class DBStorage {
 			if($statement->errno == 1062)
 				throw new DuplicateEntryException($statement->error);
 			
-			throw new Exception("Executing statement failed ($sql)");
+			if($statement->errno == 1615) //PROBABLY OPERATING ON VIEW!
+				$this->cWrite->query($sql2);
+			else
+				throw new Exception("Executing statement failed: $statement->error ($statement->errno) ($sql)");
 		}
 		
 		DBStorage::$queryCounter++;
@@ -444,11 +454,14 @@ class DBStorage {
 	}
 
 	function getTableColumns($forWhat){
-		$result = $this->c->query("SHOW COLUMNS FROM $forWhat");
+		$sql = "SHOW COLUMNS FROM $forWhat";
+		self::$lastQuery[] = $sql;
+		$result = $this->c->query($sql);
 		if(!$result)
-			throw new Exception("SQL error: SHOW COLUMNS FROM $forWhat");
+			throw new Exception("SQL error: SHOW COLUMNS FROM $forWhat; ".$this->c->error);
 		DBStorage::$queryCounter++;
-		if($this->c->error AND $this->c->errno == 1146) throw new TableDoesNotExistException($forWhat);
+		if($this->c->error AND $this->c->errno == 1146) 
+			throw new TableDoesNotExistException($forWhat);
 		
 		$a = new stdClass();
 		while ($row = $result->fetch_assoc()){
@@ -597,9 +610,15 @@ class DBStorage {
 		
 		DBStorage::$queryCounter++;
 
-		if($q === null OR ($this->c->error AND ($this->c->errno == 1045 OR $this->c->errno == 2002))) throw new NoDBUserDataException();
-		if($this->c->error AND $this->c->errno == 1146) throw new TableDoesNotExistException($statement->table[0]);
-		if($this->c->error AND $this->c->errno == 1046) throw new DatabaseNotSelectedException();
+		if($q === null /*OR $q === false*/ OR ($this->c->error AND ($this->c->errno == 1045 OR $this->c->errno == 2002))) 
+			throw new NoDBUserDataException();
+		
+		if($this->c->error AND $this->c->errno == 1146) 
+			throw new TableDoesNotExistException($statement->table[0]);
+		
+		if($this->c->error AND $this->c->errno == 1046) 
+			throw new DatabaseNotSelectedException();
+		
 		if($this->c->error AND $this->c->errno == 1047)
 			throw new BrainSplitException($this->c->error);
 		
@@ -644,6 +663,12 @@ class DBStorage {
 		}
 		
 		$collector = array();
+		
+		#if($q === false){
+		#	print_r($this->data);
+		#	echo "MySQL-Fehler: ".$this->c->error." (".$this->c->errno.")<br>\nQuery:$sql";
+		#	
+		#}
 		while($t = $q->fetch_object())
 			$collector[] = $this->process($t, $statement);
 		

@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2019, open3A GmbH - Support@open3A.de
  */
 class HTMLGUIX {
 
@@ -113,6 +113,7 @@ class HTMLGUIX {
 	}
 
 	public function tip(){
+		return; //DISABLED because server-connection is slow
 		if(Environment::getS("hideTooltips", "0") == "1")
 			return "";
 		
@@ -760,10 +761,19 @@ class HTMLGUIX {
 		$Tab->setTableID("Browserm$this->className");
 		$Tab->addTableClass("contentBrowser");
 		if($this->useScreenHeight)
-			$Tab->useScreenHeight(ceil($this->multiPageDetails["total"] / $this->multiPageDetails["perPage"]) - 1);
+			$Tab->useScreenHeight($this->multiPageDetails["perPage"] > 0 ? ceil($this->multiPageDetails["total"] / $this->multiPageDetails["perPage"]) - 1 : 1);
 		
-		if($this->header != null AND $this->object->numLoaded() > 0)
+		if($this->header != null AND $this->object->numLoaded() > 0){
+			if(count(count($this->attributes))){
+				while(count($this->header) <= count($this->attributes) + 1)
+					$this->header[] = "";
+			
+				if(!$this->showEdit)
+					unset($this->header[count($this->header) - 1]);
+			}
+			
 			$Tab->addHeaderRow($this->header);
+		}
 		
 		if($lineWithId == -1) {
 			if($this->showQuicksearch) $GUIF->buildQuickSearchLine();

@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2019, open3A GmbH - Support@open3A.de
  */
 class Users extends anyC {
 	function __construct(){
@@ -205,7 +205,7 @@ class Users extends anyC {
 				$DB = new DBStorage();
 				$DB->renewConnection();
 			}
-		
+
 			$U = $this->getUser($p["loginUsername"], $p["loginSHAPassword"], $p["loginPWEncrypted"]);
 			if($U === null) return 0;
 
@@ -306,7 +306,7 @@ class Users extends anyC {
 		} catch (AOPNoAdviceException $e) {}
 		Aspect::joinPoint("before", $this, __METHOD__, $MArgs);
 		// </editor-fold>
-
+				
 		if($username == "") 
 			Red::errorC("User", "lostPasswordErrorUser");
 
@@ -330,6 +330,19 @@ class Users extends anyC {
 
 		if($U == null) Red::errorC("User", "lostPasswordErrorUser");
 
+		
+		if(
+			file_exists(Util::getRootPath()."/ubiquitous/Passwort/Passwort.class.php") 
+			AND (strpos(Environment::getS("pluginsExtra", ""), "mPasswort") !== false 
+				OR strpos(Environment::getS("allowedPlugins", ""), "mPasswort") !== false)){
+			require_once Util::getRootPath()."/ubiquitous/Passwort/Passwort.class.php";
+			
+			$P = new Passwort();
+			$P->request($U);
+			Red::alertD("Sie haben eine neue Passwortanforderung per E-Mail erhalten.");
+		}
+			
+		
 		$Admin = new anyC();
 		$Admin->setCollectionOf("User");
 		$Admin->addAssocV3("isAdmin", "=", "1");
@@ -339,14 +352,14 @@ class Users extends anyC {
 		if($Admin->A("UserEmail") == "") Red::errorC("User", "lostPasswordErrorAdmin");
 
 		$mail = new htmlMimeMail5();
-		$mail->setFrom("phynx@".$_SERVER["HTTP_HOST"]);
-		$mail->setSubject("[phynx] Password recovery for user $username");
+		$mail->setFrom("open3A@".$_SERVER["HTTP_HOST"]);
+		$mail->setSubject("[open3A] Password recovery for user $username");
 		$mail->setText(wordwrap("Dear ".$Admin->A("name").",
 
-you received this email because the user '$username' of the phynx framework at $_SERVER[HTTP_HOST] has lost his password and is requesting a new one.
+you receive this email because the user '$username' of the open3A installation at $_SERVER[HTTP_HOST] has lost his password and is requesting a new one.
 
 Best regards
-	phynx", 80));
+	open3A", 80));
 		if(!$mail->send(array($Admin->A("UserEmail"))))
 			Red::errorC("User", "lostPasswordErrorAdmin");
 

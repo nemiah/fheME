@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2019, open3A GmbH - Support@open3A.de
  */
 class RSSParser extends PersistentObject implements iCloneable {
 	public function parseFeed(){
@@ -107,20 +107,21 @@ class RSSParser extends PersistentObject implements iCloneable {
 				$ex = explode(":", $field);
 				$fieldsString .= ($fieldsString != "" ? "&" : "")."$ex[0]=".urlencode($ex[1]);
 			}
-
-			curl_setopt($ch,CURLOPT_URL, $this->A("RSSParserURL"));
-			curl_setopt($ch,CURLOPT_POST, true);
-			curl_setopt($ch,CURLOPT_POSTFIELDS, $fieldsString);
+			
+			curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+			curl_setopt($ch, CURLOPT_URL, $this->A("RSSParserURL"));
+			curl_setopt($ch, CURLOPT_POST, true);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, $fieldsString);
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 			curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
 			curl_setopt($ch, CURLOPT_TIMEOUT, 20);
 			
 			$result = curl_exec($ch);
-
+			$error = curl_error($ch);
 			curl_close($ch);
 
 			if(!$result)
-				throw new Exception("Keine Daten erhalten von ".$this->A("RSSParserURL")." (".$this->getID().")!");
+				throw new Exception("Keine Daten erhalten von ".$this->A("RSSParserURL")." (".$this->getID()."; $error) 2!");
 		
 			if($this->A("RSSParserDataParserClass") != ""){
 				$C = $this->A("RSSParserDataParserClass");
@@ -136,9 +137,17 @@ class RSSParser extends PersistentObject implements iCloneable {
 			return;
 		}
 		
-		$data = file_get_contents($this->A("RSSParserURL"));
+		#$data = file_get_contents($this->A("RSSParserURL"));
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+		curl_setopt($ch ,CURLOPT_URL, $this->A("RSSParserURL"));
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+		curl_setopt($ch, CURLOPT_TIMEOUT, 20);
+
+		$data = curl_exec($ch);
 		if(!$data)
-			throw new Exception("Keine Daten erhalten von ".$this->A("RSSParserURL")." (".$this->getID().")!");
+			throw new Exception("Keine Daten erhalten von ".$this->A("RSSParserURL")." (".$this->getID().") 1!");
 		
 		$this->changeA("RSSParserCache", $data);
 		$this->changeA("RSSParserLastUpdate", time());

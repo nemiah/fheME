@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2019, open3A GmbH - Support@open3A.de
  */
 var TextEditor = {
 	isInit: false,
@@ -107,9 +107,6 @@ var TextEditor = {
 		$j(saveButton2).click(TextEditor.backgroundSave);
 		$j(saveButton3).click(TextEditor.setChanges);
 		$j(editorTextarea).keydown(function(){ TextEditor.changed = true; });
-		
-		//Event.observe(saveButton, "click", TextEditor.close);
-		//Event.observe(saveButton2, "click", TextEditor.backgroundSave);
 		
 		editorTAContainer.appendChild(editorTextarea);
 		editorTAContainer.appendChild(saveButton2);

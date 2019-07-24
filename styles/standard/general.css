@@ -268,6 +268,7 @@ input[type=radio],
 input[type=checkbox],
 input[type=button],
 input[type=submit],
+input[type=date],
 select,
 .AJAXUpload,
 button {
@@ -284,6 +285,12 @@ button {
 	-webkit-box-sizing: border-box;
 }
 
+input[type=date] {
+	font-size:80%;
+	padding:0px;
+}
+
+input[type=date],
 input[type=text],
 input[type=submit],
 input[type=password],

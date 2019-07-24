@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2019, open3A GmbH - Support@open3A.de
  */
 
 mouseIsOver = new Array();
@@ -66,7 +66,7 @@ var Menu = {
 		contentManager.loadFrame("navigation", "Menu", -1, 0, "", function(transport){
 			contentManager.emptyFrame("contentLeft");
 
-			if(transport.responseText == "-1"){
+			if(transport.responseText == "NO USER SESSION"){
 				userControl.doTestLogin();
 				Overlay.show();
 				return;
@@ -84,7 +84,7 @@ var Menu = {
 
 			contentManager.loadJS();
 			contentManager.loadTitle();
-		});
+		}, true);
 	},
 	
 	setHighLight: function(obj){
@@ -93,22 +93,3 @@ var Menu = {
 		lastHighLight = obj;
 	}
 }
-
-
-/*function showMenu(name){
-	mouseIsOver[name] = true;
-	//$(name).style.display='block';
-	new Effect.Appear(name,{duration:0.1}); 
-}
-
-function setMouseOut(name){
-	mouseIsOver[name] = false;
-	setTimeout("hideMenu('"+name+"')",1000);
-}
-
-function hideMenu(name){
-	if(mouseIsOver[name] == false) 
-	//$(name).style.display='none';//
-	new Effect.Fade(name,{duration:0.1}); 
-	else setTimeout("hideMenu('"+name+"')",1000);
-}*/

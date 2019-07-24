@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2019, open3A GmbH - Support@open3A.de
  */
 class ADesktopGUI extends UnpersistentClass implements iGUIHTML2 {
 	function  __construct() {
@@ -52,9 +52,42 @@ class ADesktopGUI extends UnpersistentClass implements iGUIHTML2 {
 		if(Environment::getS("blogShow", "1") == "0")
 			return "";
 		
-		$ctx = stream_context_create(array('https' => array('timeout' => 1)));
-		$data = file_get_contents(Environment::getS("blogRSSURL", "https://blog.furtmeier.it/feed/"), 0, $ctx);
+		/*Timer::$enabled = true;
+		Timer::start();
+		echo gethostbyname("blog.furtmeier.it");
+		Timer::now("Start", __FILE__, __LINE__);
 		
+		$filename = "https://blog.furtmeier.it/feed/";
+		$handle = fopen($filename, "rb");
+		Timer::now("fopen", __FILE__, __LINE__);
+		
+		$headers = get_headers($filename, 1);
+		Timer::now("get_headers", __FILE__, __LINE__);
+		#echo "<pre>";
+		#print_r($headers);
+		#echo "</pre>";
+        $data = "";
+        while ($buffer = fgets($handle, 4096)) 
+            $data .= $buffer;
+        
+		fclose($handle);
+		Timer::now("fgets", __FILE__, __LINE__);
+		echo "<pre>";
+		print_r(Timer::getLogged());
+		echo "</pre>";*/
+		
+		if(function_exists("curl_init")){
+			$ch = curl_init();
+			curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
+			curl_setopt($ch, CURLOPT_TIMEOUT, 1); //timeout in seconds
+			curl_setopt($ch, CURLOPT_URL, Environment::getS("blogRSSURL", "https://blog.furtmeier.it/feed/"));
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			$data = curl_exec($ch);
+			curl_close ($ch);
+		} else {
+			$ctx = stream_context_create(array('https' => array('timeout' => 1)));
+			$data = file_get_contents(Environment::getS("blogRSSURL", "https://blog.furtmeier.it/feed/"), 0, $ctx);
+		}
 		
 		$html = "
 			<div style=\"border-bottom:1px solid #DDD;position:relative;\" class=\"desktopButton\" onclick=\"window.open('".Environment::getS("blogURL", "http://blog.furtmeier.it/")."', '_blank');\">

@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2019, open3A GmbH - Support@open3A.de
  */
 class HTMLForm {
 	protected $id;
@@ -318,7 +318,7 @@ class HTMLForm {
 		$this->saveMode = "rmeP";
 		$this->saveButtonLabel = $saveButtonLabel;
 		$this->saveButtonBGIcon = $saveButtonBGIcon;
-		$this->saveButtonSubmit = ($checkIfValid ? "if($('#$this->id').valid()) " : "")."CustomerPage.rme('handleForm', $('#$this->id').serialize(), $onSuccessFunction);";
+		$this->saveButtonSubmit = ($checkIfValid ? "if($('#$this->id').valid()) " : "")."CustomerPage.rme('handleForm', $('#$this->id').serialize(), function(transport){ var ons = $onSuccessFunction; if(CustomerPage.checkResponse(transport)) ons(transport); });";
 		
 		$this->onSubmit = $this->saveButtonSubmit." return false;";
 	}
@@ -336,7 +336,7 @@ class HTMLForm {
 
 	public function setSaveJSON($saveButtonLabel, $saveButtonBGIcon, $targetClass, $targetClassId, $targetMethod, $onSuccessFunction = null){
 		$this->saveMode = "rmeP";
-		$this->saveButtonLabel = $saveButtonLabel;
+		$this->saveButtonLabel = T::_($saveButtonLabel);
 		$this->saveButtonBGIcon = $saveButtonBGIcon;
 
 		if($this->useRecentlyChanged){

@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2019, open3A GmbH - Support@open3A.de
  */
 
 if(!function_exists("hash_equals")){
@@ -45,6 +45,9 @@ $scripts = array(
 	"./libraries/snap.svg/snap.svg-min.js",
 	"./libraries/touchy/Touchy.js",
 	"./libraries/iconic/iconic.min.js");
+
+if(file_exists(__DIR__."/plugins/WebAuth/WebAuth.js"))
+	$scripts[] = "./plugins/WebAuth/WebAuth.js";
 
 foreach($scripts AS $url)
 	header("Link: <$url>; rel=preload; as=script", false);
@@ -154,12 +157,13 @@ if($_SESSION["S"]->checkIfUserLoggedIn() == false)
 	$_SESSION["CurrentAppPlugins"]->scanPlugins();
 
 $updateTitle = true;
-$title = Environment::getS("renameFramework", "phynx by Furtmeier Hard- und Software");
+$title = Environment::getS("renameFramework", "open3A");
 if(isset($_GET["title"]) AND preg_match("/[a-zA-Z0-9 _-]*/", $_GET["title"])){
 	$title = $_GET["title"];
 	$updateTitle = false;
 }
-$favico = "./images/FHSFavicon.ico";
+
+$favico = Environment::getS("alterFavicon", "./images/FHSFavicon.ico");
 $sephy = Session::physion();
 if($sephy AND isset($sephy[3]) AND $sephy[3])
 		$favico = $sephy[3];
@@ -411,8 +415,8 @@ if(file_exists(Util::getRootPath()."plugins/multiInstall/plugin.xml") AND ($CH =
 			<?php
 			echo Environment::getS("contentLoginTop", "");
 			
-			if(Environment::getS("showCopyright", "1") == "1") { ?>
-			<p style="color:grey;left:10px;position:fixed;bottom:10px;"><a style="color:grey;" target="_blank" href="https://www.open3A.de"><?php echo T::_("Unternehmenssoftware"); ?></a> <?php echo T::_("von Furtmeier Hard- und Software"); ?></p>
+			if(Environment::getS("showBacklink", "1") == "1") { ?>
+			<p style="color:grey;left:10px;position:fixed;bottom:10px;"><a style="color:grey;" target="_blank" href="https://www.open3A.de"><?php echo T::_("Unternehmenssoftware"); ?></a> <?php echo T::_("von der open3A GmbH"); ?></p>
 			<?php } ?>
 			<form id="loginForm" onsubmit="return false;">
 				<table class="loginWindow" style="border-spacing: 0 0px;">
@@ -636,11 +640,22 @@ if(file_exists(Util::getRootPath()."plugins/multiInstall/plugin.xml") AND ($CH =
 				<img
 					class="mouseoverFade"
 					src="./plugins/Users/certificateLogin.png"
-					style="margin-top:15px;margin-right:10px;"
+					style="margin-top:15px;margin-right:10px;cursor:pointer;"
 					onclick="userControl.doCertificateLogin();"
 					id="buttonCertificateLogin"
 					title="<?php echo T::_("Mit Zertifikat anmelden");?>"
 					alt="<?php echo T::_("Mit Zertifikat anmelden");?>"/>
+				<?php } ?>
+				
+				<?php if(extension_loaded("openssl") AND file_exists(__DIR__."/plugins/WebAuth/WebAuth.class.php") AND Environment::getS("showWebAuthLoginButton", "1") == "1") { ?>
+				<img
+					class="mouseoverFade"
+					src="./plugins/WebAuth/webauthLogin.png"
+					style="margin-top:15px;margin-right:10px;cursor:pointer;"
+					onclick="userControl.doWebAuthLogin();"
+					id="buttonWebAuthLogin"
+					title="<?php echo T::_("Per WebAuth anmelden");?>"
+					alt="<?php echo T::_("Per WebAuth anmelden");?>"/>
 				<?php } ?>
 			</div>
 		</div>
@@ -798,7 +813,7 @@ if(file_exists(Util::getRootPath()."plugins/multiInstall/plugin.xml") AND ($CH =
 							alt="Desktop"><xsl:attribute name="src"><xsl:value-of select="iconDesktop" /></xsl:attribute></img>
 					</xsl:if>-->
 					<?php if(Environment::getS("showCopyright", "1") == "1")
-						echo Environment::getS("contentCopyright", 'Copyright (C) 2007 - 2018 by <a href="http://www.Furtmeier.IT">Furtmeier Hard- und Software</a>. This program comes with ABSOLUTELY NO WARRANTY;<br>this is free software, and you are welcome to redistribute it under certain conditions; see <a href="gpl.txt">gpl.txt</a> for details.<!--<br />Thanks to the authors of the libraries and icons used by this program. <a href="javascript:contentManager.loadFrame(\'contentRight\',\'Credits\');">View credits.</a>-->');
+						echo Environment::getS("contentCopyright", 'Copyright (C) 2007 - 2019 by <a href="https://www.open3A.de">open3A GmbH</a>. This program comes with ABSOLUTELY NO WARRANTY;<br>this is free software, and you are welcome to redistribute it under certain conditions; see <a href="gpl.txt">gpl.txt</a> for details.<!--<br />Thanks to the authors of the libraries and icons used by this program. <a href="javascript:contentManager.loadFrame(\'contentRight\',\'Credits\');">View credits.</a>-->');
 					?>
 				</p>
 			</div>
@@ -859,6 +874,9 @@ if(file_exists(Util::getRootPath()."plugins/multiInstall/plugin.xml") AND ($CH =
 					if(Environment::getS("showApplicationsList", "1") == "0" OR count($_SESSION["applications"]->getApplicationsList()) <= 1)
 						echo "\$j('#loginOptions, #altLogins').hide();"
 				?>
+
+				if($j.jStorage.get('phynxUserCert', null) != null && $j('#buttonCertificateLogin').length > 0)
+					$j('#altLogins').show();
 				/*setTimeout(function(){
 					if($j.jStorage.get('phynxUserCert', null) == null && $j('#buttonCertificateLogin').length > 0)
 						$j('#buttonCertificateLogin').css('opacity', '0.2');

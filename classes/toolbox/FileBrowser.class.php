@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2019, open3A GmbH - Support@open3A.de
  */
 class FileBrowser {
 	private $dirs = array();
@@ -101,7 +101,7 @@ class FileBrowser {
 		$this->parameter = $parameter;
 	}
 	
-	public function getAsLabeledArray($interface, $extension, $sorted = false){
+	public function getAsLabeledArray($interface, $extension, $sorted = false, $withCategory = false){
 		$this->addImplementedInterface($interface, $extension);
 		$this->getAsArray();
 		
@@ -109,16 +109,24 @@ class FileBrowser {
 		foreach($this->foundFiles as $key => $value){
 			$class = str_replace($this->onlyExtensions,"",$value);
 			try {
-				if($this->parameter != "nil") $class = new $class($this->parameter);
-				else $class = new $class();
+				if($this->parameter != "nil") 
+					$class = new $class($this->parameter);
+				else
+					$class = new $class();
 
-				if($class->getLabel() == null) continue;
+				if($class->getLabel() == null) 
+					continue;
+				
 				$labeled[$class->getLabel()] = get_class($class);
+				if($withCategory)
+					$labeled[$class->getLabel()] = array(get_class($class), $class->getCategory());
 			} catch(ClassNotFoundException $e){
 				continue;
 			}
 		}
-		if($sorted) ksort($labeled);
+		if($sorted) 
+			ksort($labeled);
+		
 		return $labeled;
 	}
 	

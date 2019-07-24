@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2019, open3A GmbH - Support@open3A.de
  */
 class LoginDataGUI extends LoginData implements iGUIHTML2 {
 	function getHTML($id){
@@ -198,6 +198,22 @@ class LoginDataGUI extends LoginData implements iGUIHTML2 {
 			$gui->label("benutzername", "API key");
 			$gui->descriptionField("server", "Der Pfad zur openMM-Installation inklusive Protokollangabe. Zum Beispiel https://www.meinMailserver.de/openMM");
 			$onSave .= OnEvent::reloadPopup("mVUser");
+		}
+		
+		if($bps != -1 AND isset($bps["preset"]) AND $bps["preset"] == "klickTippAPI"){
+			$gui->type("UserID", "hidden");
+			$this->changeA("UserID", "-1");
+
+			$gui->type("name", "hidden");
+			$this->changeA("name", "KlickTippAPIData");
+
+			$gui->type("optionen", "hidden");
+			#$gui->type("passwort", "hidden");
+			#$gui->type("server", "hidden");
+			
+			$gui->label("server", "API key");
+			
+			$onSave .= OnEvent::reloadPopup("mKlickTipp");
 		}
 		
 		if($bps != -1 AND isset($bps["preset"]) AND $bps["preset"] == "backupFTPServer"){

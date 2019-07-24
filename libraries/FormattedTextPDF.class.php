@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2019, open3A GmbH - Support@open3A.de
  */
 
 class FormattedTextPDF extends FPDI {
@@ -38,7 +38,8 @@ class FormattedTextPDF extends FPDI {
 	public $paragraph = 0;
 	protected $fontStack = array("Helvetica");
 	protected $inHTML = false;
-
+	protected $heightFactor = 1.9;
+	
 	public function stackFont(array $font){
 		if(count($this->fontStack) > 0)
 			$this->fontStack[count($this->fontStack) - 1] = $font[0];
@@ -55,7 +56,7 @@ class FormattedTextPDF extends FPDI {
 		foreach($dom->childNodes as $child){
 			if($child->nodeType == XML_TEXT_NODE){
 				$this->inHTML = $this->getFont();
-				$this->Write($this->heightStack[count($this->heightStack) - 1] / 1.9, utf8_decode($child->nodeValue));
+				$this->Write($this->heightStack[count($this->heightStack) - 1] / $this->heightFactor, utf8_decode($child->nodeValue));
 				$this->inHTML = false;
 				#$this->Write(5, utf8_decode($child->nodeValue));
 			} else {

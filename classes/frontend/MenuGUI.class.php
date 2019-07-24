@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2019, open3A GmbH - Support@open3A.de
  */
 class MenuGUI extends UnpersistentClass implements iGUIHTML2, icontextMenu {
 	function  __construct() {
@@ -176,7 +176,7 @@ class MenuGUI extends UnpersistentClass implements iGUIHTML2, icontextMenu {
 			$BP->style("width:32px;height:32px;");
 			
 			$hideClass = "";
-			if(Session::isUserAdminS() AND Session::isInstallation() AND $value != "mInstallation")
+			if(Session::isUserAdminS() AND Session::isInstallation() AND $value != "mInstallation" AND $value != "mWartung")
 				$hideClass = " installHiddenTab";
 			
 			
@@ -356,14 +356,14 @@ class MenuGUI extends UnpersistentClass implements iGUIHTML2, icontextMenu {
 		Aspect::joinPoint("before", $this, __METHOD__, $MArgs);
 		// </editor-fold>
 		$name = Applications::activeApplicationLabel();
-		echo Environment::getS("renameApplication:$name", $name." ".Applications::activeVersion());
+		echo Environment::getS("renameApplication:$name", $name)." ".Applications::activeVersion();
 	}
 	
 	public function getContextMenuHTML($identifier){
 		$sk = Applications::activeApplication();#$_SESSION["applications"]->getActiveApplication();
 		$kal = Applications::getList();#$_SESSION["applications"]->getApplicationsList();
 		$kal = array_flip($kal);
-
+		natcasesort($kal);
 		#print_r($kal);
 		#foreach($kal as $k => $v)
 		#	$kal[$k] = $k;

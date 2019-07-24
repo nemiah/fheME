@@ -121,18 +121,6 @@
 	});
 })(jQuery);
 
-/*
- Color animation 20120928
- http://www.bitstorm.org/jquery/color-animation/
- Copyright 2011, 2012 Edwin Martin <edwin@bitstorm.org>
- Released under the MIT and GPL licenses.
-*/
-/*(function(d){function m(){var b=d("script:first"),a=b.css("color"),c=false;if(/^rgba/.test(a))c=true;else try{c=a!=b.css("color","rgba(0, 0, 0, 0.5)").css("color");b.css("color",a)}catch(e){}return c}function j(b,a,c){var e="rgb"+(d.support.rgba?"a":"")+"("+parseInt(b[0]+c*(a[0]-b[0]),10)+","+parseInt(b[1]+c*(a[1]-b[1]),10)+","+parseInt(b[2]+c*(a[2]-b[2]),10);if(d.support.rgba)e+=","+(b&&a?parseFloat(b[3]+c*(a[3]-b[3])):1);e+=")";return e}function g(b){var a,c;if(a=/#([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})/.exec(b))c=
-[parseInt(a[1],16),parseInt(a[2],16),parseInt(a[3],16),1];else if(a=/#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])/.exec(b))c=[parseInt(a[1],16)*17,parseInt(a[2],16)*17,parseInt(a[3],16)*17,1];else if(a=/rgb\(\s*([0-9]{1,3})\s*,\s*([0-9]{1,3})\s*,\s*([0-9]{1,3})\s*\)/.exec(b))c=[parseInt(a[1]),parseInt(a[2]),parseInt(a[3]),1];else if(a=/rgba\(\s*([0-9]{1,3})\s*,\s*([0-9]{1,3})\s*,\s*([0-9]{1,3})\s*,\s*([0-9\.]*)\s*\)/.exec(b))c=[parseInt(a[1],10),parseInt(a[2],10),parseInt(a[3],10),parseFloat(a[4])];return c}
-d.extend(true,d,{support:{rgba:m()}});var k=["color","backgroundColor","borderBottomColor","borderLeftColor","borderRightColor","borderTopColor","outlineColor"];d.each(k,function(b,a){d.Tween.propHooks[a]={get:function(c){return d(c.elem).css(a)},set:function(c){var e=c.elem.style,i=g(d(c.elem).css(a)),h=g(c.end);c.run=function(f){e[a]=j(i,h,f)}}}});d.Tween.propHooks.borderColor={set:function(b){var a=b.elem.style,c=[],e=k.slice(2,6);d.each(e,function(h,f){c[f]=g(d(b.elem).css(f))});var i=g(b.end);
-b.run=function(h){d.each(e,function(f,l){a[l]=j(c[l],i,h)})}}}})(jQuery);
-*/
-
 (function($) {
 	$.fn.extend({
 		insertAtCaret: function(myValue){
@@ -195,7 +183,15 @@ var P2J = {
 			element = "#"+element;
 		
 		return element;
-	}
+	},
+	
+	sortableOffsetFix: function(event, ui){
+		var $target = $j(event.target);
+		if (!/html|body/i.test($target.offsetParent()[0].tagName)) {
+			var top = event.pageY - $target.offsetParent().offset().top - (ui.helper.outerHeight(true) / 2);
+			ui.helper.css({'top' : top + 'px'});
+		}
+	},
 };
 
 String.prototype.makeHTML = function() {
@@ -298,10 +294,6 @@ var Ajax = {
 			$j(document).ajaxSuccess(options.onComplete);
 			$j(document).ajaxError(options.onFailure);
 		}
-	},
-	
-	Updater: function(){
-		alert("Ajax.Updater is no longer supported!");
 	}
 };
 
@@ -314,7 +306,7 @@ function Draggable(element, options) {
 }
 
 var Effect = {
-	Appear: function(element, options){
+	/*Appear: function(element, options){
 		if(options.to)
 			$j(P2J.make$(element)).delay(options.delay ? options.delay * 1000 : 0).fadeTo(options.duration ? options.duration * 1000 : 400, options.to);
 		else
@@ -326,7 +318,7 @@ var Effect = {
 			$j(P2J.make$(element)).delay(options.delay ? options.delay * 1000 : 0).fadeTo(options.duration ? options.duration * 1000 : 400, options.to);
 		} else
 			$j(P2J.make$(element)).fadeOut(options.duration ? options.duration * 1000 : 400);
-	},
+	},*/
 	
 	BlindUp: function(element, options){
 		if(typeof options == "undefined") options = {};
@@ -348,12 +340,12 @@ var Effect = {
 			
 	},
 	
-	Move: function(element, options){
+	/*Move: function(element, options){
 		if(options.delay)
 			$j(P2J.make$(element)).delay(options.delay * 1000).animate({"left": options.x}, {"duration" : options.duration * 1000});
 		else
 			$j(P2J.make$(element)).animate({"left": options.x}, {"duration" : options.duration * 1000});
-	},
+	},*/
 
 	SlideDown: function(element, options){
 		$j(P2J.make$(element)).slideDown();
@@ -361,15 +353,15 @@ var Effect = {
 
 	SlideUp: function(element, options){
 		$j(P2J.make$(element)).slideUp();
-	},
+	}/*,
 	
 	Highlight: function (element, options){
 		$j(P2J.make$(element)).effect("highlight", {}, 1000);
-	}
+	}*/
 };
 
 var Sortable = {
-	create: function(element, options){
+	/*create: function(element, options){
 		var cw = false;
 		if(options && options.containment && typeof options.containment == 'string')
 			cw = options.containment;
@@ -392,7 +384,7 @@ var Sortable = {
 			connectWith: cw,
 			dropOnEmpty: true,
 			handle: typeof options.handle != "undefined"  ? $j('.'+options.handle) : false});
-	},
+	},*/
 	
 	serialize: function(element, options){
 		if(typeof options == "undefined")
@@ -405,7 +397,7 @@ var Sortable = {
 		return serial.replace(/&/g,";").replace(/\[\]\=/g,"");
 	}
 };
-
+/*
 var Event = {
 	observe: function(element, action, call){
 		if(action == "load")
@@ -438,7 +430,7 @@ var Builder = {
 		
 		return E;
 	}
-};
+};*/
 
 var qTipSharedRed = {
 	position: {
@@ -635,21 +627,6 @@ $j(function(){
 			$j.jStorage.deleteKey('phynxUseTouch');
 			//$j(this).dialog("close");
 			document.location.reload(true);
-			/*$j("#messageTouchReset").dialog({
-				modal: true,
-				buttons: {
-					"Ja": function() {
-						$j.jStorage.deleteKey('phynxUseTouch');
-						$j(this).dialog("close");
-						document.location.reload(true);
-					},
-					"Abbruch": function() {
-						$j(this).dialog("close");
-					}
-				},
-				resizable: false
-			});*/
-
 		});
 	} else {
 		$j('#buttonTouchReset').hide();
@@ -687,11 +664,7 @@ if(!useTouch){
 			}
 
 		}, event);
-	})/*.each(function(i) {
-	   $j.prop(this, 'oldtitle', $j.prop(this, 'title'));
-	   this.removeAttribute('title');
-	   this.removeAttribute('alt');
-	})*/;
+	});
 
 
 	$j(document).on("click", ".contentBrowser td", function(ev){

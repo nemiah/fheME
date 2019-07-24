@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2019, open3A GmbH - Support@open3A.de
  */
 
 class CookieCart {
@@ -101,7 +101,7 @@ class CookieCart {
 
 	public function A($value){
 		
-		if($this->PostenID == 1010 OR $this->PostenID == 2020){
+		if($this->PostenID == 1010 OR $this->PostenID == 1050 OR $this->PostenID == 2020 OR $this->PostenID == 2011){
 			$values = $this->getA();
 
 			if($value == "CookieCartPreis")
@@ -163,7 +163,9 @@ class CookieCart {
 		$A = new stdClass();
 		$values = array(
 			1010 => array("mwst" => "19.00", "preis" => 0, "artikelnummer" => "10%", "name" => "10% Rabatt"),
-			2020 => array("mwst" => "19.00", "preis" => -16.8067, "artikelnummer" => "20€", "name" => "20€ Rabatt")
+			1050 => array("mwst" => "0.00", "preis" => 0, "artikelnummer" => "50%", "name" => "50% Rabatt"),
+			2020 => array("mwst" => "19.00", "preis" => -16.8067, "artikelnummer" => "20€", "name" => "20€ Rabatt"),
+			2011 => array("mwst" => "0.00", "preis" => -10.00, "artikelnummer" => "10€", "name" => "10€ Rabatt")
 		);
 		
 		switch($this->PostenID){
@@ -183,7 +185,15 @@ class CookieCart {
 				$A->artikelnummer = $values[$this->PostenID]["artikelnummer"];
 			break;
 		
+			case "1050":
+				$A->mwst = $values[$this->PostenID]["mwst"];
+				$A->artikelname = $values[$this->PostenID]["name"];
+				$A->preis = $this->getSum("netto", true) * -0.5;
+				$A->artikelnummer = $values[$this->PostenID]["artikelnummer"];
+			break;
+		
 			case "2020":
+			case "2011":
 				$A->mwst = $values[$this->PostenID]["mwst"];
 				$A->artikelname = $values[$this->PostenID]["name"];
 				$A->preis = $values[$this->PostenID]["preis"];
@@ -526,10 +536,12 @@ class CookieCart {
 					}
 				} catch(Exception $e) { }
 				
-				if(!isset($steuern[$A->getA()->$mwst])) 
-					$steuern[$A->getA()->$mwst] = 0;
+				$mwstSatz = round($A->getA()->$mwst, 2);
 				
-				$steuern[$A->getA()->$mwst] += $A->getA()->$preis * 1 * ($A->getA()->$mwst / 100) * $t[1];
+				if(!isset($steuern[$mwstSatz])) 
+					$steuern[$mwstSatz] = 0;
+				
+				$steuern[$mwstSatz] += $A->getA()->$preis * 1 * ($A->getA()->$mwst / 100) * $t[1];
 				
 				$gesamt += $A->getA()->$preis * 1 * (($A->getA()->$mwst / 100) + 1) * $t[1];
 				$netto += $A->getA()->$preis * 1 * $t[1];
@@ -847,7 +859,7 @@ class CookieCart {
 				
 				$ppName = str_replace(array("Ä", "Ö", "Ü", "ß", "ä" , "ö", "ü"), array("Ae", "Oe", "Ue", "ss", "ae", "oe", "ue"), $tName);
 
-				if($t[2] == "CookieCart" AND ($t[0] == "1" OR $t[0] == "1010" OR $t[0] == "2020"))
+				if($t[2] == "CookieCart" AND ($t[0] == "1" OR $t[0] == "1010" OR $t[0] == "1050" OR $t[0] == "2020"))
 					$paypalHTML .= '<input type="hidden" name="discount_amount_cart" value="'.abs($brutto).'" />';
 				else $paypalHTML .= '
 	<input type="hidden" name="item_name_'.$i.'" value="'.trim($ppName).'"/ >

@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2019, open3A GmbH - Support@open3A.de
  */
 require_once '../libraries/Timer.class.php';
 
@@ -33,7 +33,7 @@ if($build)
 if($_SESSION["S"]->checkIfUserLoggedIn() == true) {
 	#setcookie(session_name(),"",time()-1000);
 	#echo session_id();
-	die("-1");
+	die("NO USER SESSION");
 }
 if(!$_SESSION["S"]->checkIfUserIsAllowed($_GET["p"])) Red::errorD("Sie haben keine Berechtigung, diese Seite zu betrachten!");
 
@@ -79,12 +79,18 @@ try {
 	
 	ob_end_flush();
 } catch (TableDoesNotExistException $e) {
+	if(Util::getCloudHost() != null)
+		throw $e;
+	
 	Red::errorD("Die Datenbank-Tabelle (".$e->getTable().") dieses Plugins wurde noch nicht angelegt. Bitte verwenden Sie das Installations-Plugin im Administrationsbereich.");
 } catch (DatabaseNotSelectedException $e) {
 	Red::errorD("Keine Datenbank ausgewählt. Bitte verwenden Sie das Installations-Plugin im Administrationsbereich.");
 } catch (NoDBUserDataException $e) {
 	Red::errorD("Die Datenbank-Zugangsdaten sind falsch. Bitte verwenden Sie das Installations-Plugin im Administrationsbereich.");
 } catch (FieldDoesNotExistException $e) {
+	if(Util::getCloudHost() != null)
+		throw $e;
+	
 	Red::errorUpdate($e);
 } catch (DatabaseNotFoundException  $e) {
 	Red::errorD("Keine Datenbank ausgewählt. Bitte verwenden Sie das Installations-Plugin im Administrationsbereich.");

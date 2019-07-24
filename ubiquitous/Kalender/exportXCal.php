@@ -16,7 +16,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses></http:>.
  * 
- *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2019, open3A GmbH - Support@open3A.de
  */
 
 session_name("ExtConnpPJob");
@@ -33,6 +33,7 @@ $E->loadPlugin("lightCRM", "Mail", true);
 #$E->addClassPath($absolutePathToPhynx . "/lightCRM/Mail/");
 
 $E->useDefaultMySQLData();
+#$E->useUser();
 
 
 $cutoffDatePast = $_GET["cutoff_past"];
@@ -59,7 +60,7 @@ if(isset($_GET["auth_token"])){
 	$userToken = $_GET["auth_token"];
 	if (!preg_match("/^[a-z0-9]+$/i", $userToken))
 		die("incorrect login information");
-	
+
 	$user = mSync::getUserByToken($userToken);
 	$E->login($user->A("username"), $user->A("SHApassword"), true);
 }

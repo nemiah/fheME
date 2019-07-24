@@ -128,6 +128,7 @@ caption {
 	color:black;
 }
 
+input[type=date],
 input[type=text],
 input[type=submit],
 input[type=password],
@@ -144,6 +145,7 @@ input[type=submit], select, textarea, .AJAXUpload {
 }
 
 .tableWeightLight input[type=text],
+.tableWeightLight input[type=date],
 .tableWeightLight input[type=submit],
 .tableWeightLight input[type=password],
 .tableWeightLight input[type=radio],

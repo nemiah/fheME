@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2019, open3A GmbH - Support@open3A.de
  */
 class GUIFactory {
 
@@ -207,7 +207,7 @@ class GUIFactory {
 
 		if($this->tableMode == "CRMSubframeContainer")
 			$icon = "neu.gif";
-
+			
 		$B = $this->getButton("Eintrag erstellen", "./images/i2/$icon");
 		$B->type("icon");
 		$B->id("buttonNewEntry".$this->className);
@@ -388,7 +388,8 @@ class GUIFactory {
 			$newButton = "";
 			if($this->showNew) {
 				$newButton = $this->getNewButton();
-				$newButton->style("float:right;margin-left:10px;margin-top:-2px;");
+				$newButton->style("margin-left:10px;vertical-align:middle;margin-right:5px;");
+				$newButton = "<a href=\"#\" onclick=\"".$newButton->getAction()." return false;\">".$newButton."Neuer Eintrag</a>";
 			}
 
 			$pageBrowser = $this->getPageBrowser();
@@ -397,7 +398,7 @@ class GUIFactory {
 			<div id=\"subFrameContainer$this->collectionName\" style=\"min-height:500px;\">
 				$prepended
 				<div style=\"width:$widths[0]px;\" class=\"backgroundColor1 Tab\">
-					<p>$newButton<span style=\"float:right;font-weight:normal;\">$pageBrowser</span>$caption</p><div style=\"clear:both;\"></div>
+					<p><span style=\"float:right;font-weight:normal;\">$pageBrowser $newButton</span>$caption</p><div style=\"clear:both;\"></div>
 				</div>
 				<div id=\"subFrameEdit$this->collectionName\" style=\"display:none;width:$widths[0]px;padding-bottom:15px;\"></div>
 				<div id=\"subFrame$this->collectionName\" style=\"width:$widths[0]px;margin-left:10px;\">

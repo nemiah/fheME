@@ -139,6 +139,48 @@ class FhemControlGUI implements iGUIHTML2 {
 
 		$html = "";
 
+		if($f->A("FhemType") == "HUEDevice")
+			switch($f->A("FhemHUEModel")){
+				case "lightDimmable":
+					#$togggle = false;
+					#$onclick = "\$j('.fhemeControl:not(#controls_D".$f->getID().")').hide(); \$j('#controls_D".$f->getID()."').toggle();";
+
+					
+					#if($f->A("FhemHUEModel") == "lightDimmable")
+					#	$values = array("off" => "off", /*6, 12, 18,*/ "dim25%" => "25%", /*31, 37, 43,*/ "dim50%" => "50%", /*56, 62, 68,*/ "dim75%" => "75%", /*81, 87, 93,*/ "dim100%" => "100%");
+
+					#$controls = $this->getSetTable("D".$f->getID(), $values);
+
+					#if($togggle)
+					#	$controls = "";
+					
+					$onclick = "Touchy.wheelOnFire(event, {
+						data: {'off': 'aus', 'dim25': '25%', 'dim31': '31%', 'dim50': '50%', 'dim56': '56%', 'dim75': '75%', 'dim100': '100%'},
+						selection: function(value){
+							".OnEvent::rme($this, "setDevice", array($f->getID(), "value"), "function(){ if(Fhem.doAutoUpdate) Fhem.requestUpdate(); }")."
+						},
+						value: function(){
+							return \$j('#FhemID_".$f->getID()."State').data('value');
+						}
+					})";
+					
+					/*if($f->A("FhemHUEModel") == "light"){
+						$values = array("on" => "on", "off" => "off");
+						$togggle = true;
+						$onclick = OnEvent::rme($this, "toggleDevice", $f->getID(), "if(Fhem.doAutoUpdate) Fhem.requestUpdate();");
+					}*/
+					
+					$html = "<div id=\"FhemControlID_".$f->getID()."\" onclick=\"$onclick\" style=\"cursor:pointer;\" class=\"touchButton\">
+							
+							<div id=\"FhemID_".$f->getID()."\">
+								
+							</div>
+						</div>";
+
+				break;
+			}
+			
+		
 		if($f->A("FhemType") == "FS20")
 			switch($f->A("FhemModel")){
 				case "fs20du":
@@ -671,6 +713,39 @@ class FhemControlGUI implements iGUIHTML2 {
 			} catch(NoServerConnectionException $e) {
 				continue;
 			}
+			
+			if(isset($x->HUEDevice_LIST->HUEDevice) AND count($x->HUEDevice_LIST->HUEDevice))
+				foreach($x->HUEDevice_LIST->HUEDevice AS $k => $v){
+					$F = new mFhemGUI();
+					$F->addAssocV3("FhemServerID","=",$s->getID());
+					$F->addAssocV3("FhemName","=",$v->attributes()->name);
+
+					$F = $F->getNextEntry();
+					
+					if($F == null)
+						continue;
+					
+					if($ID AND $F->getID() != $ID)
+						continue;
+
+					$state = $v->attributes()->state;
+
+					#if($F->A("FhemModel") == "fs20irf") $state = "off";
+
+					$state = strtolower(str_replace("dim", "", $state));
+
+					$FS = new Button("", "./fheME/Fhem/off.png", "icon");
+					$FS->style("float:left;margin-right:5px;");
+
+					if($state != "off" && $state != "aus")
+						$FS->image("./fheME/Fhem/on.png");
+
+					if(!is_numeric(str_replace("%", "", $state)))
+						$state = "";
+
+					$result[$F->getID()] = array("model" => $F->A("FhemModel"), "state" => "$FS<b>".($F->A("FhemAlias") == "" ? $F->A("FhemName") : $F->A("FhemAlias"))."</b> <small style=\"color:grey;\" id=\"FhemID_".$F->getID()."State\">$state</small><div style=\"clear:both;\"></div>");
+					
+				}
 			
 			if(isset($x->HMCCUDEV_LIST->HMCCUDEV) AND count($x->HMCCUDEV_LIST->HMCCUDEV) > 0)
 				foreach($x->HMCCUDEV_LIST->HMCCUDEV AS $k => $v){

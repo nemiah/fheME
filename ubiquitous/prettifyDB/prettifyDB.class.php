@@ -15,26 +15,24 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses></http:>.
  * 
- *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2019, open3A GmbH - Support@open3A.de
  */
 class prettifyDB extends PersistentObject {
 	private static $prettifyerRules = array(
 		"seriesEpisodeNameDownloaded" => array(
-			"^OneDDL.com-|^1-3-3-8.com[_-]|Ddlsource.com_|DDLValley.Me_" => "",
-			"-ctu|-immerse|[-.]2hd|-bia|-wasabi|-Hannibal|-FoV|.immerse|-EVOLVE|c4tv|-HoC|Repack|-compulsion|-ASAP|-SiNNERS|-ECI|BluRay|-AVS|-KILLERS|-LOL|-SPARKS" => "",
-			"[-.]DIMENSION|-MADHACKER|-FEVER|[-.]PiLAF|.PROPER|WEBRip|AAC|-tbs|-convoy|-mtb" => "",
+			"^OneDDL.com-|^1-3-3-8.com[_-]|Ddlsource.com_" => "",
+			"-ctu|-immerse|[-.]2hd|-bia|-wasabi|-Hannibal|-FoV|.immerse|-EVOLVE|c4tv|-HoC|Repack|-compulsion|-ASAP|-SiNNERS|-ECI|BluRay|-AVS|-KILLERS|-LOL" => "",
+			"[-.]DIMENSION|-MADHACKER|-FEVER|[-.]PiLAF|.PROPER|WEBRip|AAC" => "",
 			"s([0-9]+)e([0-9]+)" => "S\\1E\\2",
-			"^([a-z])" => "strtoupper",
-			".hdtv|-orenji|[-.]x264|[-.]h264|[_.]WEB[-.]DL|[._]h.264|-kyr" => "",
+			"^([a-z])" => "strtoupper('\\1')",
+			".hdtv|-orenji|[-.]x264|[_.]WEB[-.]DL|[._]h.264|-kyr" => "",
 			"([0-9]{1,2})×([0-9]{2})" => "S\\1E\\2",
-			"(.[a-z])" => "strtoupper",
-			".web" => "",
-			"Mkv" => "",
-			"Mp4" => "",
+			"(.[a-z])" => "strtoupper('\\1')",
+			"Mkv" => "mkv",
+			"Mp4" => "mp4",
 			".720p" => "",
-			".1080p" => "",
-			".(20[0-9]{2})." => " (\\1) ",
-			"." => " "
+			".(20[0-9]{2})." => "' (\\1) '",
+			"." => "' '"
 		)
 	);
 	
@@ -46,13 +44,8 @@ class prettifyDB extends PersistentObject {
 	}
 	
 	public static function apply($target, $text){
-		foreach(self::rules($target) AS $reg => $replace){
-			if($replace != "strtoupper")
-				$text = preg_replace("/".str_replace(".", "\.", $reg)."/i", str_replace(array("."), array("\."), $replace), $text);
-			else
-				$text = preg_replace_callback("/".str_replace(".", "\.", $reg)."/i", function ($treffer) { return strtoupper($treffer[0]); }, $text);
-			
-		}
+		foreach(self::rules($target) AS $reg => $replace)
+			$text = preg_replace("/".str_replace(".", "\.", $reg)."/ei", str_replace(array("."), array("\."), $replace), $text);
 		
 		return $text;
 	}

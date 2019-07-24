@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2019, open3A GmbH - Support@open3A.de
  */
 
 var Interface = {
@@ -77,7 +77,7 @@ var Interface = {
 	
 	resizeWrapper: function() {
 		size = Overlay.getPageSize(true);
-		$j('#wrapper').css("height", ($j(window).height() - 150)+'px').css("width", (contentManager.maxWidth(true) - 250 - 50)+'px');
+		$j('#wrapper').css("height", ($j(window).height() - 230)+'px').css("width", (contentManager.maxWidth(true) - 250 - 50)+'px');
 	},
 	
 	translateStatusMessage: function(message, writeToFieldID){
@@ -127,14 +127,7 @@ var Interface = {
 	},
 
 	showLoading: function(){
-		/*if(!$('busyBox') || !Interface.isLoading) return;
-
-		else {
-			Effect.Fade('busyBox', {duration: 0.3, from: 1, to: 0.3});
-			Effect.Fade('busyBox', {duration: 0.3, from: 0.3, to: 1, delay: 0.1});
-		}
 		
-		window.setTimeout("Interface.showLoading()", 800);*/
 	},
 	
 	notifyPermission: function(){
@@ -252,8 +245,6 @@ function showMessage(message){
 	//createGrowl(message);
 	$j('#messenger').html(message);
 	$j('#messenger').fadeIn(100, function(){ $j(this).delay(1000).fadeOut(300); });
-	/*new Effect.Move("messenger",{x:0, y:0, mode: 'absolute', duration: 0.2});
-	new Effect.Move("messenger",{x:-210, y:0, mode: 'absolute', delay:2, duration: 0.2});*/
 	
 }
 

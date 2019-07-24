@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2019, open3A GmbH - Support@open3A.de
  */
 
 class SpellbookGUI implements iGUIHTMLMP2 {
@@ -79,6 +79,52 @@ class SpellbookGUI implements iGUIHTMLMP2 {
 		$html .= "<div style=\"float:right;width:160px;padding-top:20px;\" id=\"SpellbookSortTabs\">".$this->getSortable(false)."</div>
 			<div class=\"SpellbookContainer\">";
 		
+		$B = new Button("Benutzer", "users", "icon");
+		$B->style("float:left;margin-right:10px;margin-top:-7px;margin-left:-5px;");
+
+		$BW = "";
+		if(Session::isPluginLoaded("mWebAuth")){
+			
+			$BR = new Button("Token\nregistrieren", "./plugins/WebAuth/WebAuth.png");
+			$BR->onclick("WebAuth.newregistration(function(){".OnEvent::reload("Screen")."});");
+			
+			$U = new User(Session::currentUser()->getID());
+			if($U->A("UserWebAuthCredentials") != ""){
+				$BR = new Button("Token\nlöschen", "./plugins/WebAuth/lock_break.png");
+				$BR->rmePCR("Spellbook", "-1", "clearToken", "", OnEvent::reload("Screen"));
+			}
+			$BR->className("backgroundColor1");
+			$BR->style("margin:10px;");
+			
+			$BW = "<div style=\"border:1px solid #AAA;margin-top:15px;\">
+					<div style=\"margin-top:-10px;width:100px;margin-left:5px;\" class=\"backgroundColor4\">WebAuth</div>
+					$BR
+				</div>";
+		}
+		
+		$BP = new Button("Passwort\nändern", "refresh");
+		$BP->className("backgroundColor1");
+		$BP->style("margin:10px;");
+		$BP->popup("", "Passwort ändern", "Spellbook", "-1", "changePasswordPopup");
+		
+		$html .= "
+		<div style=\"\" class=\"SpellbookSpell\">
+			<div style=\"margin:10px;\" class=\"borderColor1 spell backgroundColor4\">
+				<div class=\"\" style=\"padding:10px;padding-bottom:5px;background-color:#CCC;\">
+					$B<h2 style=\"margin-bottom:0px;margin-top:0px;\">Benutzer</h2>
+				</div>
+				<div style=\"padding:7px;height:187px;overflow:auto;\" class=\"SpellbookDescription\">
+					Angemeldeter Benutzer: <strong>".Session::currentUser()->A("name")."</strong> (".Session::currentUser()->A("username").")
+					$BW
+				
+					<div style=\"border:1px solid #AAA;margin-top:15px;\">
+						<div style=\"margin-top:-10px;width:100px;margin-left:5px;\" class=\"backgroundColor4\">Passwort</div>
+						$BP
+					</div>
+				</div>
+			</div>
+		</div>";
+			
 		$U = new mUserdata();
 		$U->addAssocV3("typ","=","TTP");
 		$collapsedTabs = Environment::getS("collapsedTabs", "0") == "1";
@@ -242,6 +288,42 @@ class SpellbookGUI implements iGUIHTMLMP2 {
 		
 		#echo "</pre>";
 		return $html;
+	}
+	
+	public function clearToken(){
+		$U = new UserGUI(Session::currentUser()->getID());
+		$U->clearWebAuthData();
+	}
+	
+	public function changePasswordPopup(){
+		$F = new HTMLForm("changePW", array("oldPW", "newPW1", "newPW2"));
+		$F->getTable()->setColWidth(1, 120);
+		
+		$F->setLabel("oldPW", "Aktuelles Passwort");
+		$F->setLabel("newPW1", "Neues Passwort");
+		$F->setLabel("newPW2", "Wiederholung");
+		
+		$F->setType("oldPW", "password");
+		$F->setType("newPW1", "password");
+		$F->setType("newPW2", "password");
+		
+		$F->setSaveRMEPCR("Speichern", "", "Spellbook", "-1", "changePasswordDo", OnEvent::closePopup("Spellbook"));
+		
+		echo $F;
+	}
+	
+	public function changePasswordDo($old, $new1, $new2){
+		$U = new User(Session::currentUser()->getID());
+		$U->loadMe(false);
+		
+		if($U->A("SHApassword") != sha1($old))
+			Red::alertD("Aktuelles Passwort falsch!");
+		
+		if($new1 != $new2)
+			Red::alertD("Neue Passwörter nicht identisch!");
+		
+		$U->changeA("SHApassword", $new1);
+		$U->saveMe();
 	}
 	
 	public function getSortable($echo){

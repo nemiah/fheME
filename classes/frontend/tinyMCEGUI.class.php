@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2019, open3A GmbH - Support@open3A.de
  */
 class tinyMCEGUI {
 	private $ID;
@@ -85,7 +85,7 @@ class tinyMCEGUI {
 		#return "";
 		#return '
 		#	$j("#'.$tinyMCEID.'").tinymce();';
-		
+
 		return '
 			$j("#'.$tinyMCEID.'").tinymce({
 				menubar: false,
@@ -111,7 +111,7 @@ class tinyMCEGUI {
 					}
 				],
 				font_formats: "Helvetica=helvetica;Courier=courier;Times New Roman=times new roman'.$fonts.'",
-				fontsize_formats: "6pt 7pt 8pt 9pt 10pt 11pt 12pt 26pt 36pt",
+				fontsize_formats: "6pt 7pt 8pt 9pt 10pt 11pt 12pt 14pt 16pt 18pt 20pt 22pt 24pt 26pt 30pt 36pt",
 				paste_as_text: '.Aspect::joinPoint("paste_as_text", __CLASS__, __METHOD__, array(), "true").',
 				browser_spellcheck : true,
 				content_css : "'.$css.'",

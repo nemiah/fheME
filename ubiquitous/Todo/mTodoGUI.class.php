@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2019, open3A GmbH - Support@open3A.de
  */
 class mTodoGUI extends mTodo implements iGUIHTMLMP2, iKalender {
 	public function  __construct() {
@@ -651,6 +651,13 @@ END:VCALENDAR";
 			$KE->value("Kunde", $O->getHTMLFormattedAddress());
 		}
 		
+		if($T->A("TodoClass") == "Projekt"){
+			$B = new Button("Projekt öffnen", "./lightCRM/Projekt/projekt32.png", "icon");
+			$B->loadPlugin("contentRight", "mProjekt", "", $T->A("TodoClassID"));
+			
+			$KE->value("Projekt", $B);
+		}
+		
 		if($T->A("TodoClass") == "DBMail"){
 			$M = new DBMail($T->A("TodoClassID"));
 			
@@ -661,19 +668,27 @@ END:VCALENDAR";
 			$BAnswer->popup("newMail", "Antworten", "Mail", -1, "writeMail", array($M->A("DBMailMailKontoID"), $T->A("TodoClassID"), "'answer'"), null, "Mail.PopupOptions");
 			$BAnswer->style("margin-left:10px;");
 			
+			$audio = "";
 			$BAttachments = "";
 			if($M->A("DBMailHasAttachment")){
 				$BAttachments = new Button("Anhänge", "./lightCRM/Mail/images/attach.png", "icon");
 				$BAttachments->popup("", "Anhänge", "Mail", "-1", "attachmentsPopup", $M->getID(), "", "{width:1000, hPosition:'center'}");
 				$BAttachments->style("margin-left:10px;");
-				#$BAttachments->className("backgroundColor0");
+				
+				$attachments = $M->getAttachmentsList();
+				foreach($attachments AS $k => $att)
+					if($att["type"] == "AUDIO/MPEG")
+						$audio .= "<audio style=\"width:100%;\" src=\"".DBSoundGUI::link("DBMail", $M->getID(), "getAttachment", $att["part"])."\" controls=\"controls\"></audio>";
 			}
 			
 			$BWindow = new Button("Neues Fenster", "new_window", "iconicL");
 			$BWindow->windowRme("Mail", $M->getID(), "getInWindow");
 			$BWindow->style("margin-left:10px;");
 		
-			$KE->value("E-Mail",$B.$BAnswer.$BAttachments.$BWindow);
+			$KE->value("E-Mail", $B.$BAnswer.$BAttachments.$BWindow);
+			
+			if($audio)
+				$KE->value("Audio", $audio);
 		}
 		
 		$KE->value("Typ", TodoGUI::types($T->A("TodoType")));

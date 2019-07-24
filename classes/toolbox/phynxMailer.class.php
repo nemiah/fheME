@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2019, open3A GmbH - Support@open3A.de
  */
 class phynxMailer {
 	private $exceptions = false;
@@ -62,6 +62,9 @@ class phynxMailer {
 		if(!count($this->from) AND Session::currentUser())
 			$this->from(Session::currentUser()->A("UserEmail"), Session::currentUser()->A("name"));
 		
+		if(!count($this->from) AND !Session::currentUser())
+			$this->from("support@open3A.de", "open3A");
+		
 		$from = $this->from;
 		
 		$mimeMail2 = new PHPMailer($this->exceptions, substr($from[0], stripos($from[0], "@") + 1), $this->skipOwn);
@@ -94,6 +97,8 @@ class phynxMailer {
 		
 		if(!$mimeMail2->Send())
 			throw new Exception("E-Mail: Failed to send e-mail! ".$mimeMail2->ErrorInfo);
+		
+		return true;
 	}
 }
 ?>

@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2019, open3A GmbH - Support@open3A.de
  */
 class CRMHTMLGUI extends HTMLGUIX {
 	#private $types = array();
@@ -136,7 +136,7 @@ class CRMHTMLGUI extends HTMLGUIX {
 			
 			$Buttons .= $B;
 		}
-		
+
 		$abort = "<div>$BA$Buttons</div><div style=\"clear:left;height:10px;\"></div>";
 
 		
@@ -201,7 +201,7 @@ class CRMHTMLGUI extends HTMLGUIX {
 		if($widths == null) $widths = array(700, 132, 218);
 
 		$tab = new HTMLTable(2);
-
+		
 		$tab->setTableStyle("width:$widths[0]px;max-width:$widths[0]px;margin-left:10px;");
 		$tab->setColWidth(1, "50%");
 		$tab->setColWidth(2, "50%");

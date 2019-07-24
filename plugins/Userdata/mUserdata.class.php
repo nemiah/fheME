@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2019, open3A GmbH - Support@open3A.de
  */
 class mUserdata extends anyC {
 	function __construct() {
@@ -302,9 +302,13 @@ class mUserdata extends anyC {
 			exit();
 		}
 		
-		if($UserID == 0)
-			$UserID = $_SESSION["S"]->getCurrentUser()->getID();
+		if($UserID == 0){
+			if($_SESSION["S"]->getCurrentUser() == null)
+				throw new Exception();
 			
+			$UserID = $_SESSION["S"]->getCurrentUser()->getID();
+		}
+		
 		$UD = $this->getUserdata($name, $UserID, $typ);
 
 		if($UD == null){

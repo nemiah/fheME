@@ -1005,9 +1005,9 @@ class htmlMimeMail5 {
 	 * @param string $type       Method to be used to send the mail.
 	 *                           Used to determine the line ending type.
 	 */
-	public function getRFC822($recipients, $type = 'mail') {
+	public function getRFC822($recipients, $type = 'mail', $useDate = null) {
 		// Make up the date header as according to RFC822
-		$this->setHeader('Date', date('D, d M Y H:i:s O'));
+		$this->setHeader('Date', date('D, d M Y H:i:s O', $useDate == null ? time() : $useDate));
 
 		if (!defined('CRLF')) {
 			$this->setCRLF($type == 'mail' ? "\n" : "\r\n");

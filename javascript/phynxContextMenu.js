@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2019, open3A GmbH - Support@open3A.de
  */
 
 var phynxContextMenu = {
@@ -26,33 +26,15 @@ var phynxContextMenu = {
 	goUp: false,
 	
 	init: function(){
-		//var b = document.getElementsByTagName("body");
+		var cMDiv = "<div id='cMDiv' class='contextMenu backgroundColor0' style='position:absolute;display:none;width:200px;'><div id='cMHeader' class='backgroundColor1'></div><div id='cMData'></div></div>";
+		var fakecMDiv = "<div id='fakecMDiv' class='contextMenu backgroundColor0' style='position:absolute;top:-10000px;width:200px'><div id='fakecMHeader' class='backgroundColor1 cMHeader'></div><div id='fakecMData'></div></div>";
 		
-		var cMDiv = Builder.node('div', {id:"cMDiv", "class":"contextMenu backgroundColor0", style:"display:none;width:200px;"});
-		var fakecMDiv = Builder.node('div', {id:"fakecMDiv", style:"top:-10000px;width:200px;", "class":'contextMenu backgroundColor0'});
+		$j('#contentLeft').append(cMDiv);
+		$j('#contentLeft').append(fakecMDiv);
 		
-		var cMHeader = Builder.node('div', {id:"cMHeader", "class":"backgroundColor1"});
-		var fakecMHeader = Builder.node('div', {id:"fakecMHeader", "class":"backgroundColor1 cMHeader"});
-		
-		var cMData = Builder.node('div', {id:"cMData"});
-		var fakecMData = Builder.node('div', {id:"fakecMData"});
-		
-		cMDiv.appendChild(cMHeader);
-		cMDiv.appendChild(cMData);
-		
-		fakecMDiv.appendChild(fakecMHeader);
-		fakecMDiv.appendChild(fakecMData);
-		
-		
-		$('contentLeft').appendChild(cMDiv);
-		$('contentLeft').appendChild(fakecMDiv);
-		//phynxContextMenu.toButton.parentNode.appendChild(cMDiv);
-		phynxContextMenu.container = cMDiv;
-		phynxContextMenu.fakeContainer = fakecMDiv;
+		phynxContextMenu.container = $j('#cMDiv');
+		phynxContextMenu.fakeContainer = $j('#fakecMDiv');
 
-		$('cMDiv').style.position = "absolute";
-		fakecMDiv.style.position = "absolute";
-		
 		$j("#cMDiv").draggable({
 			handle: $j('#cMHeader')
 		});
@@ -62,17 +44,17 @@ var phynxContextMenu = {
 	},
 	
 	reInit: function(){
-		phynxContextMenu.container.style.display = 'none';
+		phynxContextMenu.container.hide();
 	},
 	
 	remove: function(){
 		//var b = document.getElementsByTagName("body");
 		//if($(phynxContextMenu.container.id)) phynxContextMenu.toButton.parentNode.removeChild(phynxContextMenu.container);
 		if(phynxContextMenu.container != null && $(phynxContextMenu.container.id)){
-			$('contentLeft').removeChild(phynxContextMenu.container);
+			$j('#contentLeft').removeChild(phynxContextMenu.container);
 		}
 		if(phynxContextMenu.fakeContainer != null && $(phynxContextMenu.fakeContainer.id)){
-			$('contentLeft').removeChild(phynxContextMenu.fakeContainer);
+			$j('#contentLeft').removeChild(phynxContextMenu.fakeContainer);
 		}
 			
 		phynxContextMenu.container = null;
@@ -84,7 +66,7 @@ var phynxContextMenu = {
 	stop: function(transport){
 		if(transport && transport.responseText != "") alert(transport.responseText);
 	
-		new Effect.Fade(phynxContextMenu.container,{duration: 0.4});
+		phynxContextMenu.container.fadeOut();
 		setTimeout("phynxContextMenu.remove();",450);
 		
 	},
@@ -96,13 +78,14 @@ var phynxContextMenu = {
 	appear: function(transport, options){
 		$('cMData').update(transport.responseText);
 		$('fakecMData').update(transport.responseText);
+		//console.log($j('#cMDiv').css("top"));
+		if(phynxContextMenu.goUp) 
+			$j('#cMDiv').css("top", (parseInt($j('#cMDiv').css("top")) - $j('#fakecMDiv').outerHeight())+"px");
 		
-		if(phynxContextMenu.goUp) $j('#cMDiv').css("top", (parseInt($j('#cMDiv').css("top")) - phynxContextMenu.fakeContainer.offsetHeight)+"px");
-		
+		//console.log($j('#cMDiv').css("top"));
 		$j('#cMDiv').css("width", options.width ? options.width : "200px");
 		
-		
-		new Effect.Appear(phynxContextMenu.container,{duration: 0.4});
+		phynxContextMenu.container.fadeIn();
 	},
 	
 	update: function(targetClass, identifier, label){
@@ -120,8 +103,10 @@ var phynxContextMenu = {
 		phynxContextMenu.toButton = toButton;
 		phynxContextMenu.goUp = (upOrDown && upOrDown == "up");
 	
-		if(phynxContextMenu.container == null) phynxContextMenu.init();
-		else phynxContextMenu.reInit();
+		if(phynxContextMenu.container == null) 
+			phynxContextMenu.init();
+		else 
+			phynxContextMenu.reInit();
 
 		$j('#cMHeader').html(phynxContextMenu.headerText+""+label);
 		$j('#fakecMHeader').html(phynxContextMenu.headerText+""+label);

@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2019, open3A GmbH - Support@open3A.de
  */
 
 class ArrayCollection extends Collection {
@@ -53,6 +53,14 @@ class ArrayCollection extends Collection {
 	
 	public function getCollector(){
 		return $this->collector;
+	}
+	
+	public function getPointer(){
+		return $this->i;
+	}
+	
+	public function setPointer($no){
+		$this->i = $no;
 	}
 }
 ?>

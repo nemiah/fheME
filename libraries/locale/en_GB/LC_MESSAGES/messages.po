@@ -763,3 +763,9 @@ msgstr "Debt collection"
 
 msgid "Kreditkarte"
 msgstr "Credit card"
+
+msgid "Angebote"
+msgstr "Offers"
+
+msgid "Lieferscheine"
+msgstr "Delivery Notes"

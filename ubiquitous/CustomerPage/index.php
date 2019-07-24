@@ -105,7 +105,10 @@ if(isset($I)){
 		echo $meta;
 		?>
 		<title><?php echo $pageTitle; ?></title>
-		
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+		<meta name="mobile-web-app-capable" content="yes" />
+
 		<link rel="stylesheet" type="text/css" href="./lib/jquery-ui-1.8.24.custom.css" />
 		<!--<link rel="stylesheet" type="text/css" href="./lib/default.css" />-->
 		<link rel="stylesheet" type="text/css" href="./lib/default.css?r=<?php echo rand(); ?>" />

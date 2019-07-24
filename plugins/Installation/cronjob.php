@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2019, open3A GmbH - Support@open3A.de
  */
 
 if(isset($argv[1]))
@@ -35,7 +35,8 @@ $e = new ExtConn($absolutePathToPhynx);
 
 $e->addClassPath($absolutePathToPhynx."/plugins/Installation");
 
-$e->useDefaultMySQLData();
+#$e->useDefaultMySQLData(); //DOES NOT WORK IN CLOUD!
+Session::reloadDBData();
 
 $e->useAdminUser();
 

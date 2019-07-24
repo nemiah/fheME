@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2019, open3A GmbH - Support@open3A.de
  */
 if(!file_exists("/var/www/status/cron_".gethostname()))
 	die("Status file missing!");
@@ -24,7 +24,9 @@ ini_set('default_socket_timeout', 7);
 
 if(file_exists("/var/www/status/cron_".gethostname())){
 	$status = file_get_contents("/var/www/status/cron_".gethostname());
-	if(trim($status) !== "active")
+	#if(trim($status) !== "active")
+	#	die();
+	if(gethostname() != "cloud02.furtmeier.it")
 		die();
 }
 

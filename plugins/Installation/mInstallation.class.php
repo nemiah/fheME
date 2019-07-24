@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2019, open3A GmbH - Support@open3A.de
  */
 class mInstallation extends anyC {
 	private $folder = "./system/DBData/";
@@ -114,6 +114,7 @@ class mInstallation extends anyC {
 		#$apps["plugins"] = "ubiquitous";
 
 		$currentPlugins = $_SESSION["CurrentAppPlugins"];
+		$done = array();
 		
 		$return = array();
 		foreach($apps AS $app){
@@ -121,7 +122,11 @@ class mInstallation extends anyC {
 			$AP->scanPlugins("plugins");
 			$p = array_flip($AP->getAllPlugins());
 			#Applications::i()->setActiveApplication($app); //or the autoloader won't work; yes, it does because of addClassPath later on
-		
+
+			foreach($done AS $plugin)
+				if(isset($p[$plugin]))
+					unset($p[$plugin]);
+			
 			foreach($p as $key => $value){
 				if($key == "CIs") continue;
 				if($key == "mInstallation") continue;
@@ -151,11 +156,14 @@ class mInstallation extends anyC {
 						#if(!$c->checkIfMyTableExists())
 							$return[$value] = $c->createMyTable(true);
 					}
+					$done[] = $key;
 				} catch (Exception $e){
-					$return[$value] = "Exception: ".$e->getMessage()."; ".print_r(DBStorage::$lastQuery, true);
+					$return[$value] = get_class($e).": ".get_class($c).", ".$e->getMessage()."; ".print_r(DBStorage::$lastQuery, true);
+					$done[] = $key;
 				}
 			}
 		}
+		#($return);
 		
 		mUserdata::setUserdataS("DBVersion", Phynx::build(), "", -1);
 		$_SESSION["CurrentAppPlugins"] = $currentPlugins;

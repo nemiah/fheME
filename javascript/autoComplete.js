@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2018, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2019, open3A GmbH - Support@open3A.de
  */
  
 function htmlReplaces(string) {
@@ -65,7 +65,9 @@ var AC = {
 	},
 
 	reloadChecker: function(transport){
-		if(ACDiv.style.display == "none") Effect.Appear(ACDiv,{duration:0.4});
+		if(ACDiv.style.display == "none") 
+			$j(ACDiv).fadeIn();
+		
 		$('ACDiv').update(transport.responseText);
 		if($('AutoCompleteNumRows') && $('AutoCompleteNumRows').value == "1")
 			AC.update(40);	
