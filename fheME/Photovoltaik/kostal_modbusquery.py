@@ -857,5 +857,6 @@ if __name__ == "__main__":
     #print ("Powerfromgrid (-) /To Grid (+) is        :", PowertoGrid)
     KostalVal["Total DC power Panels"] = LeftSidePowerGeneration
     KostalVal["Total Grid power"] = PowertoGrid
+    KostalVal["Consumption power Home total"] = TotalHomeconsumption
     #print ("Total current Home consumption is        :", TotalHomeconsumption)
     print(json.dumps(KostalVal, sort_keys=True, indent=4, separators=(',', ': ')))
