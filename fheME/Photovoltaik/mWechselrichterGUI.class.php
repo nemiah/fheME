@@ -31,6 +31,9 @@ class mWechselrichterGUI extends anyC implements iGUIHTMLMP2 {
 		
 		$gui->attributes(array());
 		
+		$B = $gui->addSideButton("Smart Meter", "./fheME/Photovoltaik/chart_curve.png");
+		$B->loadPlugin("contentRight", "mSmartMeter");
+		
 		return $gui->getBrowserHTML($id);
 	}
 
@@ -51,7 +54,7 @@ class mWechselrichterGUI extends anyC implements iGUIHTMLMP2 {
 			$v = new stdClass();
 			$v->data = $json->{"Battery SOC"};
 			$v->label = "";
-			$v->color = "#ddd";
+			$v->color = "#f2f2f2";
 			$empty[] = $v;
 			
 			$v = new stdClass();
@@ -61,8 +64,8 @@ class mWechselrichterGUI extends anyC implements iGUIHTMLMP2 {
 			$empty[] = $v;
 
 
-			$html .= "<div id=\"battChart_".$W->getID()."\" style=\"float:left;width:100px;height:100px;margin-right:10px;margin-top:10px;margin-bottom:10px;\"></div>
-				<div id=\"graphLegendContainer\" style=\"font-size:16px;width:100px;position:absolute;margin-left:0px;margin-top:50px;text-align:center;\">".$json->{"Battery SOC"}."%</div>
+			$html .= "<div id=\"battChart_".$W->getID()."\" style=\"float:left;width:100px;height:100px;margin-right:10px;margin-top:0px;margin-bottom:10px;\"></div>
+				<div id=\"graphLegendContainer\" style=\"font-size:16px;width:100px;position:absolute;margin-left:0px;margin-top:40px;text-align:center;\">".$json->{"Battery SOC"}."%</div>
 					<script type=\"text/javascript\">
 			var plot = \$j.plot(
 				\$j('#battChart_".$W->getID()."'), ". json_encode($empty).", 
@@ -91,11 +94,26 @@ class mWechselrichterGUI extends anyC implements iGUIHTMLMP2 {
 			);
 		</script>";
 				
+			$grid = "";
+			if($W->A("WechselrichterSmartMeterID")){
+				$M = new SmartMeter($W->A("WechselrichterSmartMeterID"));
+				
+				$dataMeter = shell_exec("python3 ".__DIR__."/kostal_em_query_v02.py ".$M->A("SmartMeterIP")." ".$M->A("SmartMeterPort")." 2>&1");
+				$jsonMeter = json_decode($dataMeter);
+				#print_r($jsonMeter);
+				
+				
+				$grid = Util::CLNumberParser($jsonMeter->{"Active power-"})."W <span style=\"color:grey;\">➡</span>";
+				if($jsonMeter->{"Active power+"})
+					$grid = Util::CLNumberParser($jsonMeter->{"Active power+"})."W <span style=\"color:grey;\">⬅</span>";
+			}
+				
 			$html .= "
 				<span style=\"font-size:14px;\">
+					<br>
 					<span style=\"display:inline-block;width:100px;\">Erzeugung:</span> ".Util::CLNumberParser($json->{"Total DC power Panels"})."W<br>
 					<span style=\"display:inline-block;width:100px;\">Verbrauch:</span> ".Util::CLNumberParser($json->{"Consumption power Home total"})."W<br>
-					<span style=\"display:inline-block;width:100px;\">Einspeisen:</span> ".Util::CLNumberParser($json->{"Total Grid power"})."W<br>
+					<span style=\"display:inline-block;width:100px;\">Netz:</span> $grid<br>
 					<span style=\"display:inline-block;width:100px;\">Batterie:</span> ".Util::CLNumberParser($json->{"Consumption power Home Battery"})."W
 				</span>";
 				

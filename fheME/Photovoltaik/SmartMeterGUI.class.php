@@ -17,30 +17,12 @@
  * 
  *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
-class WechselrichterGUI extends Wechselrichter implements iGUIHTML2 {
+class SmartMeterGUI extends SmartMeter implements iGUIHTML2 {
 	function getHTML($id){
 		$gui = new HTMLGUIX($this);
-		$gui->name("Wechselrichter");
+		$gui->name("SmartMeter");
 	
-		$B = $gui->addSideButton("Daten\nabfragen", "system");
-		$B->popup("", "Daten", "Wechselrichter", $this->getID(), "requestDataPopup");
-		
-		$gui->label("WechselrichterSmartMeterID", "Smart Meter");
-		
-		$gui->type("WechselrichterSmartMeterID", "select", anyC::get("SmartMeter"), "SmartMeterName", "kein");
-		
 		return $gui->getEditHTML();
-	}
-	
-	public function requestDataPopup(){
-		echo "<pre>";
-
-		#$C = new SystemCommand();
-		echo shell_exec("python3 ".__DIR__."/kostal_modbusquery.py ".$this->A("WechselrichterIP")." ".$this->A("WechselrichterPort")." 2>&1");
-		#$C->execute();
-		#echo $C->getOutput();
-		
-		echo "</pre>";
 	}
 }
 ?>
