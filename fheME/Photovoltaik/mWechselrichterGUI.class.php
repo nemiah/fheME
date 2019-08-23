@@ -102,20 +102,34 @@ class mWechselrichterGUI extends anyC implements iGUIHTMLMP2 {
 				$jsonMeter = json_decode($dataMeter);
 				#print_r($jsonMeter);
 				
+				$B = new Button("", "arrow_left", "iconicG");
+				$B->style("font-size:16px;margin-left:-5px;");
 				
-				$grid = Util::CLNumberParser($jsonMeter->{"Active power-"})."W <span style=\"color:grey;\">➡</span>";
+				$BR = new Button("", "arrow_right", "iconicG");
+				$BR->style("font-size:16px;margin-left:-5px;");
+				
+				$BH = new Button("", "home", "iconicG");
+				$BH->style("font-size:16px;");
+				
+				$grid = Util::CLNumberParser($jsonMeter->{"Active power-"})."W $BH$BR";
 				if($jsonMeter->{"Active power+"})
-					$grid = Util::CLNumberParser($jsonMeter->{"Active power+"})."W <span style=\"color:grey;\">⬅</span>";
+					$grid = Util::CLNumberParser($jsonMeter->{"Active power+"})."W $BH$B";
 			}
 				
+			$solar = $json->{"Total DC power Panels"};
+			if($solar < 0)
+				$solar = 0;
+			
 			$html .= "
 				<span style=\"font-size:14px;\">
 					<br>
-					<span style=\"display:inline-block;width:100px;\">Erzeugung:</span> ".Util::CLNumberParser($json->{"Total DC power Panels"})."W<br>
-					<span style=\"display:inline-block;width:100px;\">Verbrauch:</span> ".Util::CLNumberParser($json->{"Consumption power Home total"})."W<br>
+					<span style=\"display:inline-block;width:100px;\">Photovoltaik:</span> ".Util::CLNumberParser($solar)."W<br>
+					<span style=\"display:inline-block;width:100px;\">Inverter:</span> ".Util::CLNumberParser($json->{"Inverter power generated"})."W<br>
+					<!--<span style=\"display:inline-block;width:100px;\">Verbrauch:</span> ".Util::CLNumberParser($json->{"Consumption power Home total"})."W<br>-->
 					<span style=\"display:inline-block;width:100px;\">Netz:</span> $grid<br>
-					<span style=\"display:inline-block;width:100px;\">Batterie:</span> ".Util::CLNumberParser($json->{"Consumption power Home Battery"})."W
+					<span style=\"display:inline-block;width:100px;\">Batterie:</span> {$json->{"Actual battery charge-discharge power"}}W
 				</span>";
+					#".Util::CLNumberParser($json->{"Consumption power Home Battery"})."W
 				
 		}
 		$html .= "</div>";

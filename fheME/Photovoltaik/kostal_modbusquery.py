@@ -723,7 +723,7 @@ class kostal_modbusquery:
             self.Adr575[3]=self.ReadS16(self.Adr575[0])
             #self.Adr577[3]=self.ReadU32(self.Adr577[0])
             #self.Adr578[3]=self.ReadU32(self.Adr578[0])        #Having issues with this one
-            #self.Adr582[3]=self.ReadS16(self.Adr582[0])
+            self.Adr582[3]=self.ReadS16(self.Adr582[0])
             
             #self.Adr586[3]=self.ReadU32(self.Adr586[0])
             #self.Adr588[3]=self.ReadU16_1(self.Adr588[0])
@@ -812,7 +812,7 @@ class kostal_modbusquery:
             #self.KostalRegister.append(self.Adr531)
             self.KostalRegister.append(self.Adr575)
             #self.KostalRegister.append(self.Adr577)
-            #self.KostalRegister.append(self.Adr582)
+            self.KostalRegister.append(self.Adr582)
             
             #self.KostalRegister.append(self.Adr586)
             #self.KostalRegister.append(self.Adr588)
