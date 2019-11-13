@@ -27,7 +27,7 @@ class WochenplanProgrammGUI extends WochenplanProgramm implements iGUIHTML2 {
 		if(isset($bps["categoria"]) AND $this->getID() == -1)
 			$this->changeA ("WochenplanProgrammKategorie", $bps["categoria"]);
 		
-		#$gui->type("WochenplanTag", "select", Util::getLangWeekdayNames(Session::currentUser()->A("language")));
+		$gui->type("WochenplanProgrammKategorie", "select", array(1 => "Vormittag", 2 => "Abend"));
 		
 		if($this->getID() != -1){
 			$B = new Button("Eintrag löschen", "trash", "icon");

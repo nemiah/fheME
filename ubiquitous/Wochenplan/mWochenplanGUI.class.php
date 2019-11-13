@@ -22,18 +22,35 @@ class mWochenplanGUI extends anyC implements iGUIHTMLMP2 {
 
 	public function getHTML($id, $page){
 		$html = "";
+		
+		$BX = new Button("Schließen", "x", "touch");
+		$BX->style("width:120px;margin:10px;display:inline-block;border:1px solid #ccc;text-overflow:hidden;overflow: hidden;white-space: nowrap;");
+		$BX->loadPlugin("contentScreen", "mfheOverview");
+		
+		$B = new Button("Tages-<br>eintrag", "plus", "touch");
+		$B->style("width:120px;margin:10px;display:inline-block;border:1px solid #ccc;text-overflow:hidden;overflow: hidden;white-space: nowrap;");
+		$B->editInPopup("Wochenplan", -1, "Eintrag erstellen");
+		
+		$BN = new Button("Programm-<br>eintrag", "plus", "touch");
+		$BN->style("width:120px;margin:10px;display:inline-block;border:1px solid #ccc;text-overflow:hidden;overflow: hidden;white-space: nowrap;");
+		$BN->editInPopup("WochenplanProgramm", -1, "Eintrag erstellen");
+		
+		
+		$html .= "<div style=\"height:60px;\" class=\"backgroundColor4\">
+			$BX$B$BN</div>";
+		
 		for($i = 1; $i <= 7; $i++)
 			$html .= $this->getGiorno($i);
 	
 		
 		$html .= "<div class=\"giorno\" style=\"display:inline-block;width:calc(100% / 8);vertical-align:top;box-sizing:border-box;\">";
 		
-		$B = new Button("Neuer Eintrag", "./images/i2/new.png", "icon");
-		$B->style("float:right;margin-top:7px;");
-		$B->editInPopup("WochenplanProgramm", -1, "Eintrag erstellen", "WochenplanProgrammGUI;categoria:1");
+		#$B = new Button("Neuer Eintrag", "./images/i2/new.png", "icon");
+		#$B->style("float:right;margin-top:7px;");
+		#$B->editInPopup("WochenplanProgramm", -1, "Eintrag erstellen", "WochenplanProgrammGUI;categoria:1");
 		
 		$html .= "<div class=\"mezzaGiornata\" style=\"width:100%;display:inline-block;vertical-align:top;box-sizing:border-box;\">";
-		$html .= "<h2 class=\"prettySubtitle backgroundColor3\" style=\"padding-top:10px;margin-top:0px;\">{$B}Vormittag</h2>";
+		$html .= "<h2 class=\"prettySubtitle backgroundColor3\" style=\"padding-top:10px;margin-top:0px;\">Vormittag</h2>";
 		
 		$html .= $this->getProgramm("1");
 		
@@ -46,12 +63,12 @@ class mWochenplanGUI extends anyC implements iGUIHTMLMP2 {
 		}*/
 		$html .= "</div>";
 		
-		$B = new Button("Neuer Eintrag", "./images/i2/new.png", "icon");
-		$B->style("float:right;margin-top:7px;");
-		$B->editInPopup("WochenplanProgramm", -1, "Eintrag erstellen", "WochenplanProgrammGUI;categoria:2");
+		#$B = new Button("Neuer Eintrag", "./images/i2/new.png", "icon");
+		#$B->style("float:right;margin-top:7px;");
+		#$B->editInPopup("WochenplanProgramm", -1, "Eintrag erstellen", "WochenplanProgrammGUI;categoria:2");
 		
 		$html .= "<div class=\"mezzaGiornata\" style=\"width:100%;display:inline-block;vertical-align:top;box-sizing:border-box;\">";
-		$html .= "<h2 class=\"prettySubtitle backgroundColor3\" style=\"padding-top:10px;margin-top:0px;\">{$B}Abend</h2>";
+		$html .= "<h2 class=\"prettySubtitle backgroundColor3\" style=\"padding-top:10px;margin-top:0px;\">Abend</h2>";
 		
 		$html .= $this->getProgramm("2");
 		
@@ -59,7 +76,7 @@ class mWochenplanGUI extends anyC implements iGUIHTMLMP2 {
 		
 		$html .= "</div>";
 		
-		return $html.OnEvent::script("\$j('.giorno').css('height', contentManager.maxHeight());\$j('.mezzaGiornata').css('height', contentManager.maxHeight() / 2);");
+		return $html.OnEvent::script("\$j('.giorno').css('height', contentManager.maxHeight() - 60);\$j('.mezzaGiornata').css('height', contentManager.maxHeight() / 2);");
 	}
 	
 	private function getProgramm($categoria, $config = true){
@@ -100,12 +117,8 @@ class mWochenplanGUI extends anyC implements iGUIHTMLMP2 {
 
 		$html = "<div class=\"giorno borderColor1\" style=\"display:inline-block;{$style}vertical-align:top;box-sizing:border-box;\">";
 
-		$B = new Button("Neuer Eintrag", "./images/i2/new.png", "icon");
-		$B->style("float:right;margin-top:7px;");
-		$B->editInPopup("Wochenplan", -1, "Eintrag erstellen", "WochenplanGUI;giorno:$i");
-		
 		if($config)
-			$html .= "<h2 class=\"prettySubtitle backgroundColor4\" style=\"padding-top:10px;margin-top:0px;margin-bottom:0;\">$B".Util::CLWeekdayName($j)."</h2>";
+			$html .= "<h2 class=\"prettySubtitle\" style=\"padding-top:10px;margin-top:0px;margin-bottom:0;\">".Util::CLWeekdayName($j)."</h2>";
 		
 		if($config)
 			$html .= "<div style=\"padding-left:5px;padding-top:5px;padding-bottom:5px;\" class=\"backgroundColor3\">Vormittagsprogramm</div>";
@@ -133,11 +146,17 @@ class mWochenplanGUI extends anyC implements iGUIHTMLMP2 {
 	}
 	
 	public function getOverviewContent($echo = true){
-		$html = "<div class=\"touchHeader\"><span class=\"lastUpdate\" id=\"lastUpdatemWochenplanGUI\"></span><p>Wochenplan: ".Util::CLWeekdayName(date("w"))."</p></div>
+		$html = "<div class=\"touchHeader\"><span class=\"lastUpdate\" id=\"lastUpdatemWochenplanGUI\"></span><p>Wochenplan</p></div>
 			<div style=\"padding:10px;\">";
 		
-		
-		$html .= $this->getGiorno(date("w"), "width:100%;", false);
+
+		$B = new Button("Wochenplan anzeigen", "calendar", "iconicL");
+		$html .= "
+		<div class=\"touchButton\" onclick=\"contentManager.loadPlugin('contentScreen', 'mWochenplan', '', null, {});\">
+			".$B."
+			<div class=\"label\">Wochenplan anzeigen</div>
+			<div style=\"clear:both;\"></div>
+		</div>";
 		
 		
 		$html .= "</div>";
@@ -149,8 +168,8 @@ class mWochenplanGUI extends anyC implements iGUIHTMLMP2 {
 	}
 	
 	public static function getOverviewPlugin(){
-		$P = new overviewPlugin("mWochenplanGUI", "Wochenplan", 360);
-		$P->updateInterval(3600);
+		$P = new overviewPlugin("mWochenplanGUI", "Wochenplan", 0);
+		#$P->updateInterval(3600);
 		#$P->updateFunction("function(){ if(!Fhem.doAutoUpdate) return; ".OnEvent::rme(new FhemControlGUI(-1), "updateGUI", "", "function(transport){ fheOverview.updateTime('mFhemGUI'); Fhem.updateControls(transport); }")."}");
 		
 		return $P;
