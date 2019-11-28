@@ -142,18 +142,6 @@ class FhemControlGUI implements iGUIHTML2 {
 		if($f->A("FhemType") == "HUEDevice")
 			switch($f->A("FhemHUEModel")){
 				case "lightDimmable":
-					#$togggle = false;
-					#$onclick = "\$j('.fhemeControl:not(#controls_D".$f->getID().")').hide(); \$j('#controls_D".$f->getID()."').toggle();";
-
-					
-					#if($f->A("FhemHUEModel") == "lightDimmable")
-					#	$values = array("off" => "off", /*6, 12, 18,*/ "dim25%" => "25%", /*31, 37, 43,*/ "dim50%" => "50%", /*56, 62, 68,*/ "dim75%" => "75%", /*81, 87, 93,*/ "dim100%" => "100%");
-
-					#$controls = $this->getSetTable("D".$f->getID(), $values);
-
-					#if($togggle)
-					#	$controls = "";
-					
 					$onclick = "Touchy.wheelOnFire(event, {
 						data: {'off': 'aus', 'dim25': '25%', 'dim31': '31%', 'dim50': '50%', 'dim56': '56%', 'dim75': '75%', 'dim100': '100%'},
 						selection: function(value){
@@ -164,12 +152,6 @@ class FhemControlGUI implements iGUIHTML2 {
 						}
 					})";
 					
-					/*if($f->A("FhemHUEModel") == "light"){
-						$values = array("on" => "on", "off" => "off");
-						$togggle = true;
-						$onclick = OnEvent::rme($this, "toggleDevice", $f->getID(), "if(Fhem.doAutoUpdate) Fhem.requestUpdate();");
-					}*/
-					
 					$html = "<div id=\"FhemControlID_".$f->getID()."\" onclick=\"$onclick\" style=\"cursor:pointer;\" class=\"touchButton\">
 							
 							<div id=\"FhemID_".$f->getID()."\">
@@ -177,6 +159,26 @@ class FhemControlGUI implements iGUIHTML2 {
 							</div>
 						</div>";
 
+				break;
+			
+				case "plugToggle":
+					$togggle = false;
+					$onclick = "\$j('.fhemeControl:not(#controls_D".$f->getID().")').hide(); \$j('#controls_D".$f->getID()."').toggle();";
+					
+					$values = array("on" => "on", "off" => "off");
+					$togggle = true;
+					$onclick = OnEvent::rme($this, "toggleDevice", $f->getID(), "if(Fhem.doAutoUpdate) Fhem.requestUpdate();");
+					
+					
+					if($f->A("FhemModel") == "fs20du")
+						$values = array("off" => "off", /*6, 12, 18,*/ "dim25%" => "25%", /*31, 37, 43,*/ "dim50%" => "50%", /*56, 62, 68,*/ "dim75%" => "75%", /*81, 87, 93,*/ "dim100%" => "100%");
+
+					
+					$html = "<div id=\"FhemControlID_".$f->getID()."\" onclick=\"$onclick\" style=\"cursor:pointer;\" class=\"touchButton\">
+							<div id=\"FhemID_".$f->getID()."\">
+								
+							</div>
+						</div>";
 				break;
 			}
 			
@@ -709,7 +711,14 @@ class FhemControlGUI implements iGUIHTML2 {
 
 		while($s = $S->getNextEntry()){
 			try {
-				$x = simplexml_load_string($s->getListXML());
+				libxml_use_internal_errors(true);
+				$x = simplexml_load_string(utf8_encode($s->getListXML()));
+				if ($x === false) {
+					echo "Laden des XML fehlgeschlagen\n";
+					foreach(libxml_get_errors() as $error) {
+						echo "\t", $error->message;
+					}
+				}
 			} catch(NoServerConnectionException $e) {
 				continue;
 			}

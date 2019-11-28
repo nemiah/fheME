@@ -94,7 +94,7 @@ class FhemGUI extends Fhem implements iGUIHTML2 {
 
 		$gui->type("FhemFHTModel", "select", array("" => "none", "fht80b" => "80B"));
 
-		$gui->type("FhemHUEModel", "select", array("" => "none", "lightDimmable" => "Licht dimmbar"));
+		$gui->type("FhemHUEModel", "select", array("" => "none", "lightDimmable" => "Licht dimmbar", "plugToggle" => "Steckdose ein/aus"));
 		
 		$gui->type("FhemType", "select", 
 				array(
