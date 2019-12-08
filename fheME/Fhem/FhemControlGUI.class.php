@@ -471,7 +471,7 @@ class FhemControlGUI implements iGUIHTML2 {
 	
 	public function toggleDevice($FhemID){
 		$status = $this->getDeviceStatus($FhemID);
-		
+
 		if($status == null)
 			$this->setDevice($FhemID, "off");
 		
@@ -699,6 +699,14 @@ class FhemControlGUI implements iGUIHTML2 {
 					$state = "off";
 					
 				return $state;
+			}
+			
+		if(isset($x->HUEDevice_LIST->HUEDevice) AND count($x->HUEDevice_LIST->HUEDevice))
+			foreach($x->HUEDevice_LIST->HUEDevice AS $k => $v){
+				if($v->attributes()->name != $F->A("FhemName"))
+					continue;
+				
+				return $v->attributes()->state;
 			}
 			
 		return null;
