@@ -20,6 +20,36 @@
 class Installation extends PersistentObject {
 	private $folder = "./system/DBData/";
 	
+	public static function getMandanten($uniqueDB = false){
+		$CH = Util::getCloudHost();
+		$usedDB = array();
+		$mandanten = array();
+		if(file_exists(Util::getRootPath()."plugins/multiInstall/plugin.xml") AND ($CH == null OR get_class($CH) == "CloudHostAny")){
+			list($folder) = Installation::getDBFolder();
+			$MI = new mInstallation();
+			$MI->changeFolder($folder);
+			while($I = $MI->n()){
+				if($I->A("httpHost") == "cloudData")
+					continue;
+
+				if(trim($I->A("httpHost")) == "")
+					continue;
+				
+				if(trim($I->A("host")) == "")
+					continue;
+				
+				if($uniqueDB AND isset($usedDB[$I->A("host").$I->A("datab")]))
+					continue;
+				
+				$usedDB[$I->A("host").$I->A("datab")] = true;
+				
+				$mandanten[$I->getID()] = $I->A("httpHost");
+			}
+		}
+		
+		return $mandanten;
+	}
+	
 	public static function getDBFolder($folder = null){
 		$external = false;
 		

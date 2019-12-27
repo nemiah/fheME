@@ -113,7 +113,7 @@ var phynxContextMenu = {
 		
 		var topPos = ($j(toButton).offset().top + $j(toButton).height() / 2);
 		var leftPos = $j(toButton).offset().left  + $j(toButton).width() / 2;
-		if(Interface.isDesktop){
+		if(contentManager.layout == "desktop"){
 			leftPos -= $j('#navTabsWrapper').outerWidth();
 			topPos -= parseInt($j('#desktopWrapper').css("margin-top")) + $j(window).scrollTop();
 		}

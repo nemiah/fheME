@@ -179,14 +179,14 @@ class CookieCart {
 			break;
 		
 			case "1010":
-				$A->mwst = $values[$this->PostenID]["mwst"];
+				$A->mwst = $this->getMwStSatz();#$values[$this->PostenID]["mwst"];
 				$A->artikelname = $values[$this->PostenID]["name"];
 				$A->preis = $this->getSum("netto", true) * -0.1;
 				$A->artikelnummer = $values[$this->PostenID]["artikelnummer"];
 			break;
 		
 			case "1050":
-				$A->mwst = $values[$this->PostenID]["mwst"];
+				$A->mwst = $this->getMwStSatz();#$values[$this->PostenID]["mwst"];
 				$A->artikelname = $values[$this->PostenID]["name"];
 				$A->preis = $this->getSum("netto", true) * -0.5;
 				$A->artikelnummer = $values[$this->PostenID]["artikelnummer"];
@@ -750,6 +750,35 @@ class CookieCart {
 		$this->elementPointer = $temp;
 		
 		return Util::kRound($summe);
+	}
+	
+	public function getMwStSatz(){
+		#if($this->sum == null)
+		#	$this->getCartText();
+		
+		$temp = $this->elementPointer;
+		$this->resetPointer();
+		$mwstSatz = -1;
+		while($t = $this->getNextElement()){
+			$num = array_search($t[2], $this->useClass);
+			
+			if($t[2] != "CookieCart"){
+				$c = $this->useClass[$num];
+				$A = new $c($t[0], false);
+				$A->loadMe();
+
+				$mwst = $this->mwstField[$num];
+				#$preis = $this->preisField[$num];
+				
+			}
+
+			$AA = $A->getA();
+
+			$mwstSatz = $AA->$mwst;
+		}
+		$this->elementPointer = $temp;
+		
+		return $mwstSatz;
 	}
 	
 	public function getCount(){

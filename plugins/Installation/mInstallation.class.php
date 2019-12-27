@@ -158,7 +158,7 @@ class mInstallation extends anyC {
 					}
 					$done[] = $key;
 				} catch (Exception $e){
-					$return[$value] = get_class($e).": ".get_class($c).", ".$e->getMessage()."; ".print_r(DBStorage::$lastQuery, true);
+					$return[$value] = get_class($e).": ".get_class($c).", ".$e->getMessage()."; ".$e->getTraceAsString();
 					$done[] = $key;
 				}
 			}

@@ -376,15 +376,20 @@ class DBStorage {
 			$view = true;
 		
 		if(!$view)
-			preg_match("/CREATE TABLE `([a-zA-Z0-9]*)`/",$CIA->MySQL,$regs);
+			preg_match("/CREATE TABLE `([a-zA-Z0-9]*)`/", $CIA->MySQL, $regs);
 		else
-			preg_match("/CREATE VIEW `([a-zA-Z0-9]*)`/",$CIA->MySQL,$regs);
+			preg_match("/CREATE VIEW `([a-zA-Z0-9]*)`/", $CIA->MySQL, $regs);
 
 		$_SESSION["messages"]->addMessage("executing MySQL: $CIA->MySQL");
 		$this->cWrite->query($CIA->MySQL);
 		DBStorage::$queryCounter++;
 		if($this->cWrite->error AND $this->cWrite->errno == 1046) 
 			throw new DatabaseNotSelectedException();
+		
+		$result = new stdClass();
+		$result->error = $this->cWrite->error;
+		$result->errno = $this->cWrite->errno;
+		$result->affected_rows = $this->cWrite->affected_rows;
 		
 		if(strpos($CIA->MySQL, "INSERT INTO") === false AND !$view){
 			$sql = "ALTER TABLE `$regs[1]` COMMENT = '".$_SESSION["applications"]->getActiveApplication()."_".$_SESSION["applications"]->getRunningVersion().";'";
@@ -395,7 +400,8 @@ class DBStorage {
 			if(stripos(php_uname("s"), "windows") === 0)
 				$this->cWrite->query("ALTER TABLE `$regs[1]` ENGINE = 'MyISAM';");
 		}
-		return $this->c;
+		
+		return $result;
 	}
 
 	function saveSingle2($table, $id, $A) {
@@ -457,11 +463,11 @@ class DBStorage {
 		$sql = "SHOW COLUMNS FROM $forWhat";
 		self::$lastQuery[] = $sql;
 		$result = $this->c->query($sql);
+		if($this->c->error AND $this->c->errno == 1146) 
+			throw new TableDoesNotExistException($forWhat);
 		if(!$result)
 			throw new Exception("SQL error: SHOW COLUMNS FROM $forWhat; ".$this->c->error);
 		DBStorage::$queryCounter++;
-		if($this->c->error AND $this->c->errno == 1146) 
-			throw new TableDoesNotExistException($forWhat);
 		
 		$a = new stdClass();
 		while ($row = $result->fetch_assoc()){
@@ -571,7 +577,7 @@ class DBStorage {
 			$ons = "";
 			for($i=0;$i<count($conditions);$i++){
 				if($i == 0)
-					$ons .= ((!strpos($conditions[$i][0],".") AND $conditions[$i][0]{0} != " ") ? "t1." : "")."".$conditions[$i][0]." ".$conditions[$i][1]." t$t.".$conditions[$i][2];
+					$ons .= ((!strpos($conditions[$i][0],".") AND $conditions[$i][0][0] != " ") ? "t1." : "")."".$conditions[$i][0]." ".$conditions[$i][1]." t$t.".$conditions[$i][2];
 				else {
 					if($conditions[$i][2] != "NOT NULL" AND $conditions[$i][2] != "NULL") $conditions[$i][2] = "'".$conditions[$i][2]."'";
 					$ons .= " AND t$t.".$conditions[$i][0]." ".$conditions[$i][1]." ".$conditions[$i][2]."";
@@ -753,7 +759,7 @@ class DBStorage {
 			$ons = "";
 			for($i=0;$i<count($conditions);$i++){
 				#$ons .= ($i != 0 ? " AND " : "")."t1.".$conditions[$i][0]." ".$conditions[$i][1];#.((in_array("t1.".$conditions[$i][2],$statement->fields) OR in_array($conditions[$i][2],$statement->fields)) ? " t1.".$conditions[$i][2] : " '".$conditions[$i][2]."'");
-				if($i == 0) $ons .= ((!strpos($conditions[$i][0],".") AND $conditions[$i][0]{0} != " ") ? "t1." : "")."".$conditions[$i][0]." ".$conditions[$i][1]." t$t.".$conditions[$i][2];
+				if($i == 0) $ons .= ((!strpos($conditions[$i][0],".") AND $conditions[$i][0][0] != " ") ? "t1." : "")."".$conditions[$i][0]." ".$conditions[$i][1]." t$t.".$conditions[$i][2];
 				else {
 					if($conditions[$i][2] != "NOT NULL" AND $conditions[$i][2] != "NULL") $conditions[$i][2] = "'".$conditions[$i][2]."'";
 					$ons .= " AND t$t.".$conditions[$i][0]." ".$conditions[$i][1]." ".$conditions[$i][2]."";
@@ -888,6 +894,7 @@ class DBStorage {
 		$_SESSION["messages"]->addMessage("executing MySQL: $sql");
 		Timer::now("sql start", __FILE__, __LINE__);
 	    $this->cWrite->query($sql);
+		self::$lastQuery[] = $sql;
 		Timer::now("sql end", __FILE__, __LINE__);
 		DBStorage::$queryCounter++;
 	

@@ -28,8 +28,8 @@ class FileBrowser {
 	private $foundFiles = array();
 	
 	public function addDir($dir){
-		if($dir{strlen($dir) - 1} == "/") {
-			$dir{strlen($dir) - 1} = " ";
+		if($dir[strlen($dir) - 1] == "/") {
+			$dir[strlen($dir) - 1] = " ";
 			$dir = trim($dir);
 		}
 		
@@ -37,12 +37,12 @@ class FileBrowser {
 	}
 	
 	public function addExcludedExtension($ext){
-		if($ext{0} != ".") $ext = ".".$ext;
+		if($ext[0] != ".") $ext = ".".$ext;
 		$this->excludeExtensions[] = strtolower(trim($ext));
 	}
 	
 	public function addOnlyExtension($ext){
-		if($ext{0} != ".") $ext = ".".$ext;
+		if($ext[0] != ".") $ext = ".".$ext;
 		$this->onlyExtensions[] = $ext;
 	}
 	
@@ -61,7 +61,7 @@ class FileBrowser {
 			return;
 		while(($file = readdir($fp)) !== false) {
 			if(is_dir("$dir/$file") AND !$this->isRecursive) continue;
-			elseif($this->isRecursive AND is_dir("$dir/$file") AND $file{0} != ".")
+			elseif($this->isRecursive AND is_dir("$dir/$file") AND $file[0] != ".")
 				$this->searchFolder("$dir/$file");
 
 			$c = false;

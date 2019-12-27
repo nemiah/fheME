@@ -505,13 +505,13 @@ class Util {
 
 		if($ren){
 			for($i = 0; $i < $digits; $i++){
-				if($stringNumber{strlen($stringNumber) - 1 - $i} == "0") $stringNumber{strlen($stringNumber) - 1 - $i} = " ";
+				if($stringNumber[strlen($stringNumber) - 1 - $i] == "0") $stringNumber[strlen($stringNumber) - 1 - $i] = " ";
 				else break;
 			}
 			
 			$stringNumber = trim($stringNumber);
-			if($stringNumber{strlen($stringNumber) - 1} == $format[0]) {
-				$stringNumber{strlen($stringNumber) - 1} = " ";
+			if($stringNumber[strlen($stringNumber) - 1] == $format[0]) {
+				$stringNumber[strlen($stringNumber) - 1] = " ";
 				$stringNumber = trim($stringNumber);
 			}
 		}
@@ -528,9 +528,12 @@ class Util {
 		return Util::formatNumber($_SESSION["S"]->getUserLanguage(), $number * 1, $digits, $showZero, $endingZeroes, $thousandSeparator);
 	}
 	
-	public static function formatByCurrency($currency, $number, $useSymbol = false, $dezimalstellen = null){
+	public static function formatByCurrency($currency, $number, $useSymbol = false, $dezimalstellen = null, $maxZeroes = null){
 		$format = Util::getCurrencyFormat($currency, $useSymbol);
-
+		
+		if($maxZeroes === null)
+			$maxZeroes = $dezimalstellen;
+		
 		$float = $number * 1;
 		
 		$negative = false;
@@ -540,7 +543,24 @@ class Util {
 		if($dezimalstellen != null)
 			$format[4] = $dezimalstellen;
 
-		$stringCurrency = number_format(Util::kRound($float, $format[4]), $format[4], $format[3], $format[5]);
+		if($maxZeroes < $dezimalstellen){
+			$dec = $float - floor($float);
+			$hinterkomma = ($dec * pow(10, $dezimalstellen))."";
+			if($dec == 0)
+				$hinterkomma = str_pad ("", $dezimalstellen, "0");
+			
+			for($i = strlen($hinterkomma) - 1; $i >= 0; $i--){
+				if($hinterkomma[$i] == "0")
+					$format[4]--;
+				else
+					break;
+			}
+			
+			if($format[4] < 2)
+				$format[4] = 2;
+		}
+		
+		$stringCurrency = number_format(Util::kRound($float, $format[4]), $format[4], $format[3], $format[5]);		
 		$stringCurrency = str_replace("n", $stringCurrency, $negative ? $format[2] : $format[1]);
 		
 		return $stringCurrency;

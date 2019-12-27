@@ -27,7 +27,8 @@ class CCService extends CCAuftrag implements iCustomContent {
 		$this->loadPlugin("open3A", "Niederlassungen", true);
 		#$this->showPosten = false;
 		$this->showPrices = false;
-				
+		$this->showSignature = true;
+		
 		if(Session::currentUser() == null AND isset($_POST["benutzer"]) AND Users::login($_POST["benutzer"], $_POST["password"], "open3A"))
 			$this->loggedIn = true;
 	}
@@ -80,8 +81,9 @@ class CCService extends CCAuftrag implements iCustomContent {
 				\$('#contentLeft ').css('height', $(window).height() - $('h1').outerHeight() - 25)*/");
 
 	}
+	
 	public function getScriptFiles(){
-		return array("../../libraries/tinymce/tinymce.min.js", "../../libraries/tinymce/jquery.tinymce.min.js", "./lib/jquery.signaturepad.min.js");
+		return array_merge(parent::getScriptFiles(), array("../../libraries/tinymce/tinymce.min.js", "../../libraries/tinymce/jquery.tinymce.min.js"));
 	}
 	
 	public function getStyleFiles(){
@@ -159,9 +161,6 @@ class CCService extends CCAuftrag implements iCustomContent {
 			
 			$T->addRowStyle("border-bottom:1px solid #ccc;");
 			
-			#if($i % 2 == 1)
-			#	$T->addRowStyle ("background-color:#eee;");
-			
 			$event = "
 				$(this).addClass('selected');
 				CCAuftrag.lastTextbausteinUnten = null;
@@ -206,7 +205,6 @@ class CCService extends CCAuftrag implements iCustomContent {
 		$IA = new HTMLInput("GRLBMServiceIsAbgeschlossen", "checkbox", $Beleg->A("GRLBMServiceIsAbgeschlossen"));
 		$IE = new HTMLInput("GRLBMServiceIsBerechnung", "checkbox", $Beleg->A("GRLBMServiceIsBerechnung"));
 		
-		$IID = new HTMLInput("GRLBMID", "hidden", $Beleg->getID());
 		
 		$I = new Button("Arbeitszeit", "info", "iconic");
 		
@@ -219,43 +217,11 @@ class CCService extends CCAuftrag implements iCustomContent {
 		$T->addRow(array("", "<label>Abgeschlossen?:</label>", $IA));
 		$T->addRow(array("", "<label>Berechnung:</label>", $IE));
 		
-		$TA = new HTMLTable(1, "Unterschrift Auftragnehmer");
-		$TA->setTableStyle("width:100%;");
-		
-		$P = new Button("Unterschrift", "pen_alt2", "iconic");
-		$P->style("float:left;");
-		
-		$padAN = $P.'
-	<div class="sigPadAN" style="margin-left:30px;">
-		<canvas class="pad" width="300" height="150" style="border:1px solid grey;"></canvas>
-		<input type="hidden" id="sigAN" name="sigAN" class="output">
-		<br>
-		<span class="clearButton"><a href="#" onclick="return false;">Nochmal</a></span>
-	</div>';
-		
-		$TA->addRow(array($padAN));
-		
-		
-		$TK = new HTMLTable(1, "Unterschrift Kunde");
-		$TK->setTableStyle("width:100%;");
-		
-		$padKunde = $P.'
-	<div class="sigPadKunde" style="margin-left:30px;">
-		<canvas class="pad" width="300" height="150" style="border:1px solid grey;"></canvas>
-		<input type="hidden" id="sigKunde" name="sigKunde" class="output">
-		<br>
-		<span class="clearButton"><a href="#" onclick="return false;">Nochmal</a></span>
-	</div>';
-		
-		$TK->addRow(array($padKunde));
 		
 		return "
 			<div style=\"width:50%;\">
-				$T$IID
-			</div>
-			<div style=\"width:50%;display:inline-block;vertical-align:top;\">$TA</div><div style=\"width:49%;display:inline-block;vertical-align:top;margin-left:1%;\">$TK</div>
-			".OnEvent::script("$('.sigPadAN').signaturePad({drawOnly:true, lineTop: 100}).regenerate(".$Beleg->A("GRLBMServiceSigAN").");
-				$('.sigPadKunde').signaturePad({drawOnly:true, lineTop: 100}).regenerate(".$Beleg->A("GRLBMServiceSigAG").");");
+				$T
+			</div>".parent::getBottom($Beleg);
 	}
 	
 	public function getAdresse($Beleg){

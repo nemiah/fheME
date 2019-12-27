@@ -28,6 +28,23 @@ class OpenWeatherMap extends PersistentObject {
 		return $A;
 	}
 	
+	public function current(){
+		$UID = Session::currentUser()->getID();
+		$AC = anyC::get("OpenWeatherMap");
+		$AC->addAssocV3("OpenWeatherMapUserIDs", "LIKE", $UID.";:;%");
+		$AC->addAssocV3("OpenWeatherMapUserIDs", "=", $UID, "OR");
+		$AC->addAssocV3("OpenWeatherMapUserIDs", "LIKE", "%;:;".$UID.";:;%", "OR");
+		$AC->addAssocV3("OpenWeatherMapUserIDs", "LIKE", "%;:;".$UID);
+		$W = $AC->n();
+		if(!$W)
+			return null;
+		
+		if($W->A("OpenWeatherMapLastUpdate") + 15 * 60 < time())
+			$W->download();
+		
+		return $W;
+	}
+	
 	public function download(){
 		$update = false;
 		$dataCurrent = file_get_contents("http://api.openweathermap.org/data/2.5/weather?id=".$this->A("OpenWeatherMapCityID")."&lang=de&units=metric&APPID=".$this->apiKey());

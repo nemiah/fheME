@@ -95,18 +95,18 @@ class PhpFileDB {
 		$table = "";
 		
 		for($i=0;$i<strlen($sql);$i++){
-			if($sql{$i} == "(")
+			if($sql[$i] == "(")
 				$mode = "fields";
 				
 			if($mode == "table")
-				$table .= $sql{$i};
+				$table .= $sql[$i];
 				
-			if($mode == "fields" AND preg_match("/[a-zA-Z0-9]/",$sql{$i})){
+			if($mode == "fields" AND preg_match("/[a-zA-Z0-9]/",$sql[$i])){
 				if(!isset($this->insertField[$f])) $this->insertField[$f] = "";
-				$this->insertField[$f] .= $sql{$i};
+				$this->insertField[$f] .= $sql[$i];
 			}
 			
-			if($sql{$i} == "," AND $mode == "fields")
+			if($sql[$i] == "," AND $mode == "fields")
 				$f++;
 		}
 		$this->tableParser($table);
@@ -118,17 +118,17 @@ class PhpFileDB {
 		$this->selectField = array();
 		
 		for($i=0;$i<strlen($sql);$i++){
-			if(preg_match("/[a-zA-Z0-9\*]/",$sql{$i})){
+			if(preg_match("/[a-zA-Z0-9\*]/",$sql[$i])){
 				if(!isset($this->selectField[$f])) $this->selectField[$f] = "";
-				$this->selectField[$f] .= $sql{$i};
-			} else if($sql{$i} == ",") {
+				$this->selectField[$f] .= $sql[$i];
+			} else if($sql[$i] == ",") {
 				$f++;
-			} else if($sql{$i} == " ") true;
-			  else if($sql{$i} == ".") {
+			} else if($sql[$i] == " ") true;
+		else if($sql[$i] == ".") {
 			  	$this->selectField[$f] = "";
 			  }
 			  else {
-				echo "Found unknown symbol '".$sql{$i}."' near $sql";
+				echo "Found unknown symbol '".$sql[$i]."' near $sql";
 				exit();
 			}
 		}
@@ -142,29 +142,29 @@ class PhpFileDB {
 		$mode = "none";
 		$submode = "none";
 		for($i=0;$i<strlen($sql);$i++){
-			if($mode == "none" AND $sql{$i} == "("){
+			if($mode == "none" AND $sql[$i] == "("){
 				$mode = "values";
 				continue;
 			}
 				
-			if($mode == "values" AND $submode == "invalue" AND $sql{$i} == "'" AND $sql{$i-1} != "\\"){
+			if($mode == "values" AND $submode == "invalue" AND $sql[$i] == "'" AND $sql[$i-1] != "\\"){
 				$submode = "none";
 				continue;
 			}
 			
-			if($mode == "values" AND $submode != "invalue" AND $sql{$i} == "'"){
+			if($mode == "values" AND $submode != "invalue" AND $sql[$i] == "'"){
 				$submode = "invalue";
 				if(!isset($this->insertValue[$f])) $this->insertValue[$f] = array();
 				if(!isset($this->insertValue[$f][$v])) $this->insertValue[$f][$v] = "";
 				continue;
 			}
 			
-			if($mode == "values" AND $submode != "invalue" AND $sql{$i} == ","){
+			if($mode == "values" AND $submode != "invalue" AND $sql[$i] == ","){
 				$v++;
 				continue;
 			}
 				
-			if($mode == "values" AND $submode != "invalue" AND $sql{$i} == ")"){
+			if($mode == "values" AND $submode != "invalue" AND $sql[$i] == ")"){
 				$mode = "none";
 				$f++;
 				$v = 0;
@@ -176,7 +176,7 @@ class PhpFileDB {
 			}
 			
 			if($submode == "invalue"){
-				$this->insertValue[$f][$v] .= $sql{$i};
+				$this->insertValue[$f][$v] .= $sql[$i];
 			}
 			
 		}
@@ -188,10 +188,10 @@ class PhpFileDB {
 		$sql = trim($sql);
 		
 		for($i=0;$i<strlen($sql);$i++){
-			if(preg_match("/[a-zA-Z0-9]/",$sql{$i}))
-				$this->table .= $sql{$i};
-			if($sql{$i} == " "){
-				if(isset($sql{$i+2}) AND $sql{$i+1}.$sql{$i+2} == "AS"){
+			if(preg_match("/[a-zA-Z0-9]/",$sql[$i]))
+				$this->table .= $sql[$i];
+			if($sql[$i] == " "){
+				if(isset($sql[$i+2]) AND $sql[$i+1].$sql[$i+2] == "AS"){
 					echo "Aliases for tables or fields are not supported!";
 					exit();
 				}
@@ -216,65 +216,65 @@ class PhpFileDB {
 		$table = "";
 		
 		for($i=0;$i<strlen($sql);$i++){
-			/*if(ereg("'",$sql{$i}) AND $mode == "none"){
+			/*if(ereg("'",$sql[$i]) AND $mode == "none"){
 				$mode = "table";
 				continue;	
 			}*/
 			/*
-			if(ereg("'",$sql{$i}) AND $mode == "table"){
+			if(ereg("'",$sql[$i]) AND $mode == "table"){
 				$mode = "none";
 				continue;
 			}*/
 			
-			if($sql{$i} == "(" AND $mode == "table"){
+			if($sql[$i] == "(" AND $mode == "table"){
 				$mode = "creates";
 				continue;
 			}
 			
 			if($mode == "table")
-				$table .= $sql{$i};
+				$table .= $sql[$i];
 			
 			if($mode == "creates"){
-				if($sql{$i} == "'" AND $submode == "none"){
+				if($sql[$i] == "'" AND $submode == "none"){
 					$submode = "field";
 					continue;
 				}
 				
-				if($sql{$i} == "'" AND $submode == "field"){
+				if($sql[$i] == "'" AND $submode == "field"){
 					$submode = "type";
 					continue;
 				}
 					
-				if($sql{$i} == "(" AND $submode == "type"){
+				if($sql[$i] == "(" AND $submode == "type"){
 					$submode = "length";
 					continue;
 				}
 					
-				if($sql{$i} == ")" AND $submode == "length"){
+				if($sql[$i] == ")" AND $submode == "length"){
 					$submode = "rest";
 					continue;
 				}
 					
-				if($sql{$i} == "," AND $submode == "rest"){
+				if($sql[$i] == "," AND $submode == "rest"){
 					$f++;
 					$submode = "none";
 					continue;
 				}
 				
 				
-				if($submode == "field" AND preg_match("/[a-zA-Z0-9]/",$sql{$i})){
+				if($submode == "field" AND preg_match("/[a-zA-Z0-9]/",$sql[$i])){
 					if(!isset($this->createField[$f])) $this->createField[$f] = "";
-					$this->createField[$f] .= $sql{$i};
+					$this->createField[$f] .= $sql[$i];
 				}
 				
-				if($submode == "type" AND preg_match("/[a-zA-Z]/",$sql{$i})){
+				if($submode == "type" AND preg_match("/[a-zA-Z]/",$sql[$i])){
 					if(!isset($this->createType[$f])) $this->createType[$f] = "";
-					$this->createType[$f] .= $sql{$i};
+					$this->createType[$f] .= $sql[$i];
 				}
 				
-				if($submode == "length" AND preg_match("/[0-9,]/",$sql{$i})){
+				if($submode == "length" AND preg_match("/[0-9,]/",$sql[$i])){
 					if(!isset($this->createLength[$f])) $this->createLength[$f] = "";
-					$this->createLength[$f] .= $sql{$i};
+					$this->createLength[$f] .= $sql[$i];
 				}
 			}
 			
@@ -291,20 +291,20 @@ class PhpFileDB {
 		
 		for($i=0;$i<strlen($sql);$i++){
 			if($mode == "fields"){
-				if(preg_match("/[a-zA-Z0-9]/",$sql{$i})) {
+				if(preg_match("/[a-zA-Z0-9]/",$sql[$i])) {
 					if(!isset($this->updateField[$f])) $this->updateField[$f] = "";
-					$this->updateField[$f] .= $sql{$i};
+					$this->updateField[$f] .= $sql[$i];
 				}
-				if($sql{$i} == "'"){
+				if($sql[$i] == "'"){
 					$mode = "values";
 					continue;
 				}
 			}
 			if($mode == "values"){
 				if(!isset($this->updateValue[$f])) $this->updateValue[$f] = "";
-				if($sql{$i} != "'" OR $sql{$i-1} == "\\") $this->updateValue[$f] .= $sql{$i};
+				if($sql[$i] != "'" OR $sql[$i-1] == "\\") $this->updateValue[$f] .= $sql[$i];
 				
-				if($sql{$i} == "'" AND $sql{$i-1} != "\\"){
+				if($sql[$i] == "'" AND $sql[$i-1] != "\\"){
 					$mode = "fields";
 					$f++;
 				}
@@ -321,41 +321,41 @@ class PhpFileDB {
 		$this->whereOperator = array();
 		
 		for($i=0;$i<strlen($sql);$i++){
-			if($mode == "fields" AND isset($sql{$i+1}) AND ($sql{$i}.$sql{$i+1} == "OR" OR $sql{$i}.$sql{$i+1} == "||")){
+			if($mode == "fields" AND isset($sql[$i+1]) AND ($sql[$i].$sql[$i+1] == "OR" OR $sql[$i].$sql[$i+1] == "||")){
 				echo "Only 'AND' or '&&' is supported in WHERE-statements.";
 				exit();
 			}
 				
-			if($mode == "fields" AND isset($sql{$i+2}) AND $sql{$i}.$sql{$i+1}.$sql{$i+2} == "AND")
+			if($mode == "fields" AND isset($sql[$i+2]) AND $sql[$i].$sql[$i+1].$sql[$i+2] == "AND")
 				$i+=3;
 				
-			if($mode == "fields" AND isset($sql{$i+1}) AND $sql{$i}.$sql{$i+1} == "&&")
+			if($mode == "fields" AND isset($sql[$i+1]) AND $sql[$i].$sql[$i+1] == "&&")
 				$i+=2;
 			
-			if($mode == "fields" AND ($sql{$i} == "(" OR $sql{$i} == ")")){
+			if($mode == "fields" AND ($sql[$i] == "(" OR $sql[$i] == ")")){
 				echo "Brackets are not supported in the WHERE-statement.";
 				exit();
 			}
 			
 			if($mode == "fields"){
-				if(preg_match("/[a-zA-Z0-9]/",$sql{$i})) {
+				if(preg_match("/[a-zA-Z0-9]/",$sql[$i])) {
 					if(!isset($this->whereField[$f])) $this->whereField[$f] = "";
-					$this->whereField[$f] .= $sql{$i};
+					$this->whereField[$f] .= $sql[$i];
 				}
-				if(preg_match("/[!=]/",$sql{$i})){
+				if(preg_match("/[!=]/",$sql[$i])){
 					if(!isset($this->whereOperator[$f])) $this->whereOperator[$f] = "";
-					$this->whereOperator[$f] .= $sql{$i};
+					$this->whereOperator[$f] .= $sql[$i];
 				}
-				if($sql{$i} == "'"){
+				if($sql[$i] == "'"){
 					$mode = "values";
 					continue;
 				}
 			}
 			if($mode == "values"){
 				if(!isset($this->whereValue[$f])) $this->whereValue[$f] = "";
-				if($sql{$i} != "'" OR $sql{$i-1} == "\\") $this->whereValue[$f] .= $sql{$i};
+				if($sql[$i] != "'" OR $sql[$i-1] == "\\") $this->whereValue[$f] .= $sql[$i];
 				
-				if($sql{$i} == "'" AND $sql{$i-1} != "\\"){
+				if($sql[$i] == "'" AND $sql[$i-1] != "\\"){
 					$mode = "fields";
 					$f++;
 				}
@@ -373,23 +373,23 @@ class PhpFileDB {
 
 		$mode = "";
 		for($i=0;$i<6;$i++)
-			if($sql{$i} != " ")
-				$mode .= $sql{$i};
+			if($sql[$i] != " ")
+				$mode .= $sql[$i];
 			else break;
 
 		
 		$next = "";
-		while(isset($sql{$i}) AND $sql{$i} == " ") $i++;
+		while(isset($sql[$i]) AND $sql[$i] == " ") $i++;
 		
 		$collector = "";
-		if(isset($sql{$i+2})) {
+		if(isset($sql[$i+2])) {
 			while(
-				(isset($sql{$i+4}) AND $sql{$i}.$sql{$i+1}.$sql{$i+2}.$sql{$i+3}.$sql{$i+4} != "TABLE" )
-				AND (isset($sql{$i+3}) AND $sql{$i}.$sql{$i+1}.$sql{$i+2}.$sql{$i+3} != "INTO" )
-				AND (isset($sql{$i+3}) AND $sql{$i}.$sql{$i+1}.$sql{$i+2}.$sql{$i+3} != "FROM" )
-				AND (isset($sql{$i+2}) AND $sql{$i}.$sql{$i+1}.$sql{$i+2} != "SET")){
+				(isset($sql[$i+4]) AND $sql[$i].$sql[$i+1].$sql[$i+2].$sql[$i+3].$sql[$i+4] != "TABLE" )
+				AND (isset($sql[$i+3]) AND $sql[$i].$sql[$i+1].$sql[$i+2].$sql[$i+3] != "INTO" )
+				AND (isset($sql[$i+3]) AND $sql[$i].$sql[$i+1].$sql[$i+2].$sql[$i+3] != "FROM" )
+				AND (isset($sql[$i+2]) AND $sql[$i].$sql[$i+1].$sql[$i+2] != "SET")){
 
-				$collector .= $sql{$i};
+				$collector .= $sql[$i];
 				$i++;
 			}
 		}
@@ -409,8 +409,8 @@ class PhpFileDB {
 		
 		$collector = "";
 		
-		while(isset($sql{$i}) AND $sql{$i} != " ") {
-			$collector .= $sql{$i};
+		while(isset($sql[$i]) AND $sql[$i] != " ") {
+			$collector .= $sql[$i];
 			$i++;
 		}
 		
@@ -439,19 +439,19 @@ class PhpFileDB {
 		 	exit();
 		}
 		
-		while(isset($sql{$i}) AND $sql{$i} == " ") $i++;
+		while(isset($sql[$i]) AND $sql[$i] == " ") $i++;
 		
 		$collector = "";
 		if(strpos($sql,"WHERE") OR strpos($sql,"VALUES"))
 			while(
-				(isset($sql{$i+4}) AND $sql{$i}.$sql{$i+1}.$sql{$i+2}.$sql{$i+3}.$sql{$i+4} != "WHERE" )
-				AND (isset($sql{$i+5}) AND $sql{$i}.$sql{$i+1}.$sql{$i+2}.$sql{$i+3}.$sql{$i+4}.$sql{$i+5} != "VALUES" )){
+				(isset($sql[$i+4]) AND $sql[$i].$sql[$i+1].$sql[$i+2].$sql[$i+3].$sql[$i+4] != "WHERE" )
+				AND (isset($sql[$i+5]) AND $sql[$i].$sql[$i+1].$sql[$i+2].$sql[$i+3].$sql[$i+4].$sql[$i+5] != "VALUES" )){
 
-				$collector .= $sql{$i};
+				$collector .= $sql[$i];
 				$i++;
 			}
 		else
-			while(isset($sql{$i})) $collector .= $sql{$i++};
+			while(isset($sql[$i])) $collector .= $sql[$i++];
 		
 		$collector = trim($collector);
 		
@@ -475,21 +475,21 @@ class PhpFileDB {
 		
 		
 		$collector = "";
-		while(isset($sql{$i}) AND $sql{$i} != " ") $next .= $sql{$i++};
+		while(isset($sql[$i]) AND $sql[$i] != " ") $next .= $sql[$i++];
 		if($next != "")
 			if($next == "WHERE"){
 				if(strpos($sql,"LIMIT"))
 					while(
-						(isset($sql{$i+4}) AND $sql{$i}.$sql{$i+1}.$sql{$i+2}.$sql{$i+3}.$sql{$i+4} != "LIMIT")){
+						(isset($sql[$i+4]) AND $sql[$i].$sql[$i+1].$sql[$i+2].$sql[$i+3].$sql[$i+4] != "LIMIT")){
 
-						$collector .= $sql{$i};
+						$collector .= $sql[$i];
 						$i++;
 					} else
-					while(isset($sql{$i})) $collector .= $sql{$i++};
+					while(isset($sql[$i])) $collector .= $sql[$i++];
 				$this->whereParser($collector);
 				
 			} else if($next == "VALUES"){
-				while(isset($sql{$i})) $collector .= $sql{$i++};
+				while(isset($sql[$i])) $collector .= $sql[$i++];
 				$this->valuesParser($collector);
 			} else {
 				echo "$sql\nStatement '$next' unknown.";
@@ -644,7 +644,7 @@ class PhpFileDB {
 	### -------------------------------------------- public functions -----------------------------------------------------------
 	### -------------------------------------------- setFolder
 	public function setFolder($folder){
-		if($folder{strlen($folder)-1} != "/") {
+		if($folder[strlen($folder)-1] != "/") {
 			echo "Please use a '/' at the end of the directory path.";
 			exit();
 		}

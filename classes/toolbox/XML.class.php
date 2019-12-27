@@ -97,8 +97,11 @@ class XML {
 	}
 	
 	public function lCV4(){
-		if($this->xml == null) return;
-		if($this->parsed == null) $this->parseXML();
+		if($this->xml == null) 
+			return;
+		
+		if($this->parsed == null) 
+			$this->parseXML();
 		
 		$class = null;
 		$collector = array();

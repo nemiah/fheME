@@ -198,7 +198,7 @@ class UsersGUI extends Users implements iGUIHTML2{
 			die();
 		}
 		
-		if($r === 0)
+		if($r === 0 AND $arguments["loginUsername"] != "0")
 			sleep (2);
 		
 		echo $r;

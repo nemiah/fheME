@@ -189,7 +189,8 @@ class SpellbookGUI implements iGUIHTMLMP2 {
 			$IM->id("minPlugin$value");
 			$IM->onchange("Menu.toggleTab('$value');");
 			
-			if(isset($_COOKIE["phynx_layout"]) AND ($_COOKIE["phynx_layout"] == "vertical" OR $_COOKIE["phynx_layout"] == "desktop"))
+			$layout = mUserdata::getUDValueS("phynxLayout", "horizontal");
+			if($layout == "vertical" OR $layout == "desktop")
 				$IM->isDisabled (true);
 			
 			if(!in_array($value, $appMenuDisplayed))

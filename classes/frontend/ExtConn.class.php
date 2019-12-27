@@ -81,6 +81,7 @@ class ExtConn {
 			$this->paths[] = $this->absolutePath."classes/toolbox/EUCountries.class.php";
 			$this->paths[] = $this->absolutePath."classes/toolbox/Registry.class.php";
 			$this->paths[] = $this->absolutePath."classes/toolbox/LoginAD.class.php";
+			$this->paths[] = $this->absolutePath."classes/toolbox/phynxMailer.class.php";
 
 			$this->paths[] = $this->absolutePath."classes/interfaces/iFileBrowser.class.php";
 			$this->paths[] = $this->absolutePath."classes/interfaces/iLDAPExport.class.php";
@@ -108,8 +109,8 @@ class ExtConn {
 			$this->paths[] = $this->absolutePath."classes/frontend/HTMLGUI2.class.php";
 			$this->paths[] = $this->absolutePath."classes/frontend/HTMLGUIX.class.php";
 			$this->paths[] = $this->absolutePath."classes/frontend/GUIFactory.class.php";
-			$this->paths[] = $this->absolutePath."classes/frontend/HTML_de_DE.class.php";
-			$this->paths[] = $this->absolutePath."classes/frontend/HTML_en_US.class.php";
+			#$this->paths[] = $this->absolutePath."classes/frontend/HTML_de_DE.class.php";
+			#$this->paths[] = $this->absolutePath."classes/frontend/HTML_en_US.class.php";
 			$this->paths[] = $this->absolutePath."classes/frontend/UnifiedTable.class.php";
 			$this->paths[] = $this->absolutePath."classes/frontend/HTMLTable.class.php";
 			$this->paths[] = $this->absolutePath."classes/frontend/JSLoader.class.php";

@@ -254,11 +254,11 @@ class GUIFactory {
 			$pageLinks .= "<a href=\"javascript:".str_replace(array("%TARGET","%PAGE"), array($this->multiPageDetails["target"], $this->multiPageDetails["page"] - 1), $this->functionPagePrevious)."\"><span class=\"iconic arrow_left\" style=\"margin-right:7px;\"></span></a> ";
 		else $pageLinks .= "<span class=\"iconic arrow_left inactive\" style=\"margin-right:7px;\"></span> ";
 
-		if($this->multiPageDetails["page"] != $pages - 1)
+		if($this->multiPageDetails["page"] != $pages - 1 AND $pages > 1)
 			$pageLinks .= "<a href=\"javascript:".str_replace(array("%TARGET","%PAGE"), array($this->multiPageDetails["target"], $this->multiPageDetails["page"] + 1), $this->functionPageNext)."\"><span class=\"iconic arrow_right\" style=\"margin-left:7px;\"></span></a> ";
 		else $pageLinks .= "<span class=\"iconic arrow_right inactive\" style=\"margin-left:7px;\"></span> ";
 
-		if($this->multiPageDetails["page"] != $pages - 1)
+		if($this->multiPageDetails["page"] != $pages - 1 AND $pages > 1)
 			$pageLinks .= "<a href=\"javascript:".str_replace(array("%TARGET","%PAGE"), array($this->multiPageDetails["target"], $pages - 1), $this->functionPageLast)."\"><span class=\"iconic arrow_right\" style=\"border-right-width:2px;\"></span></a> | ";
 		else $pageLinks .= "<span class=\"iconic arrow_right inactive\" style=\"border-right-width:2px;\"></span> | ";
 

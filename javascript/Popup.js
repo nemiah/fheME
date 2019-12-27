@@ -59,6 +59,9 @@ var Popup = {
 	},
 
 	refresh: function(targetPlugin, bps, firstParameter){
+		if(typeof Popup.lastPopups[targetPlugin] == "undefined")
+			return;
+		
 		var values = Popup.lastPopups[targetPlugin];
 		var arrayCopy = values[4].slice(0, values[4].length); //because targetPluginMethodParameters is only a reference
 		if(typeof firstParameter != "undefined"){
@@ -88,7 +91,7 @@ var Popup = {
 		if(typeof type == "undefined")
 			type = "";
 		
-		Popup.create(type,name,title, options, ignoreWidth);
+		Popup.create(type, name, title, options, ignoreWidth);
 		Popup.update(transport, type, name, options);
 	},
 
@@ -201,7 +204,7 @@ var Popup = {
 				if(options.position == "left"){
 					left = $j('#contentLeft').offset().left + $j('#contentLeft').width();
 					top = $j('#contentLeft').offset().top + parseInt($j('#contentLeft').css('padding-top'));
-					if($j('#desktopWrapper').length)
+					if(contentManager.layout == "desktop")
 						top = $j('#wrapper').offset().top + parseInt($j('#contentLeft').css('padding-top'));
 				}
 			}

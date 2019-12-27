@@ -43,10 +43,16 @@ class MenuGUI extends UnpersistentClass implements iGUIHTML2, icontextMenu {
 		$newAppIco = Aspect::joinPoint("appLogo", $this, __METHOD__, array($_SESSION["applications"]->getActiveApplication()));
 		if($newAppIco != null) $appIco = $newAppIco;
 		// </editor-fold>
-
+		
+		try {
+			$layout = mUserdata::getUDValueS("phynxLayout", "horizontal");
+		} catch (Exception $e){
+			$layout = "horizontal";
+		}
+		
 		$appMenuHidden = "";
 		$appMenuDisplayed = "";
-		$appMenuActive = (!$_SESSION["S"]->isUserAdmin() AND (!isset($_COOKIE["phynx_layout"]) OR $_COOKIE["phynx_layout"] == "fixed" OR $_COOKIE["phynx_layout"] == "horizontal" OR $_COOKIE["phynx_layout"] == "desktop" OR $_COOKIE["phynx_layout"] == "vertical"));
+		$appMenuActive = (!$_SESSION["S"]->isUserAdmin() AND ($layout == "fixed" OR $layout == "horizontal" OR $layout == "desktop" OR $layout == "vertical"));
 
 		// <editor-fold defaultstate="collapsed" desc="Aspect:jP">
 		$aspectAppMenuActive = Aspect::joinPoint("appMenuActive", $this, __METHOD__);
@@ -64,7 +70,7 @@ class MenuGUI extends UnpersistentClass implements iGUIHTML2, icontextMenu {
 		
 
 		$bigWorld = false;
-		if(isset($_COOKIE["phynx_layout"]) AND ($_COOKIE["phynx_layout"] == "desktop" OR $_COOKIE["phynx_layout"] == "vertical"))
+		if($layout == "desktop" OR $layout == "vertical")
 			$bigWorld = true;
 		
 		if(!$_SESSION["S"]->isUserAdmin()) {
@@ -127,7 +133,7 @@ class MenuGUI extends UnpersistentClass implements iGUIHTML2, icontextMenu {
 
 			$key = Aspect::joinPoint("renameTab", $this, __METHOD__, array($key), $key);
 			
-			if(isset($_COOKIE["phynx_layout"]) AND ($_COOKIE["phynx_layout"] == "vertical" OR $_COOKIE["phynx_layout"] == "desktop"))
+			if($layout == "vertical" OR $layout == "desktop")
 				$t = "big";
 
 			#$emptyFrame = "contentLeft";
@@ -347,7 +353,7 @@ class MenuGUI extends UnpersistentClass implements iGUIHTML2, icontextMenu {
 			$U->setUserdata("ToggleTab$plugin","big","TTP");
 	}
 	
-	public function getActiveApplicationName(){
+	public function getActiveApplicationName($return = false){
 		// <editor-fold defaultstate="collapsed" desc="Aspect:jP">
 		try {
 			$MArgs = func_get_args();
@@ -355,8 +361,14 @@ class MenuGUI extends UnpersistentClass implements iGUIHTML2, icontextMenu {
 		} catch (AOPNoAdviceException $e) {}
 		Aspect::joinPoint("before", $this, __METHOD__, $MArgs);
 		// </editor-fold>
+		
 		$name = Applications::activeApplicationLabel();
-		echo Environment::getS("renameApplication:$name", $name)." ".Applications::activeVersion();
+		$n = Environment::getS("renameApplication:$name", $name)." ".Applications::activeVersion();
+		
+		if($return)
+			return $n;
+		
+		echo $n;
 	}
 	
 	public function getContextMenuHTML($identifier){

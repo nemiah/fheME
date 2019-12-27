@@ -171,11 +171,17 @@ abstract class Collection {
 		#if(!$this->checkIfMyTableExists()) {
 
 			$creates = $this->getMyTablesInfos();
-			$message = "Führe SQL aus...<br />";
+			$message = "Führe SQL aus...<br>";
 			
 			$CI = $creates->getNextEntry();
 			while($CI != null){
 				$CIA = $CI->getA();
+				if(trim($CIA->MySQL) == ""){
+					$message .= "Keine Tabellen-Information!";
+					$CI = $creates->getNextEntry();
+					continue;
+				}
+				
 				$CIA->MySQL = str_replace("%%&ESCSLASH%%&","\'",$CIA->MySQL);
 				$CIA->MSSQL = str_replace("%%&ESCSLASH%%&","\'",$CIA->MSSQL);
 				$message .= SqlFormatter::format(htmlentities($CIA->MySQL), false);
@@ -187,9 +193,11 @@ abstract class Collection {
 					$connection->affected_rows = mysql_affected_rows();
 				}
 				$CI = $creates->getNextEntry();
-				$message .= "<br /><br />Anzahl betroffener Datensätze: ".$connection->affected_rows."<br />";
-				if($connection->error) $message .= "<span style=\"color:red;\">Es ist ein SQL-Fehler aufgetreten: ".$connection->error."</span><br />";
-				else $message .= "<span style=\"color:green;\">Es ist kein MySQL-Fehler aufgetreten</span><br />";
+				$message .= "<br><br>Anzahl betroffener Datensätze: ".$connection->affected_rows."<br>";
+				if($connection->error) 
+					$message .= "<span style=\"color:red;\">Es ist ein SQL-Fehler aufgetreten: ".$connection->error."</span><br>";
+				else 
+					$message .= "<span style=\"color:green;\">Es ist kein MySQL-Fehler aufgetreten</span><br>";
 				#$message .= "<br /><br />";
 			}
 		#} else $message = "Diese Tabelle wurde bereits angelegt";

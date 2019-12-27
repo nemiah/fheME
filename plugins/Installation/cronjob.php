@@ -36,24 +36,48 @@ $e = new ExtConn($absolutePathToPhynx);
 $e->addClassPath($absolutePathToPhynx."/plugins/Installation");
 
 #$e->useDefaultMySQLData(); //DOES NOT WORK IN CLOUD!
-Session::reloadDBData();
 
-$e->useAdminUser();
+if($argv[2] == "All"){
+	$mandanten = Installation::getMandanten(true);
+	$data = array();
+	foreach($mandanten AS $httpHost){
+		$_SERVER["HTTP_HOST"] = $httpHost;
+		
+		Session::reloadDBData();
+		$e->useAdminUser();
+		
+		$I = new mInstallation();
+		$data[$httpHost] = $I->updateAllTables();
+	}
+} else {
+	Session::reloadDBData();
+
+	$e->useAdminUser();
+
+	$I = new mInstallation();
+	$data = array("*" => $I->updateAllTables());
+}
 
 $CH = Util::getCloudHost();
-
-
-$I = new mInstallation();
-$data = $I->updateAllTables();
+if($CH == null OR !isset($CH->emailAdmin)){
+	foreach($data AS $host => $sub){
+		echo "Checking $host …\n";
+		foreach($sub AS $k => $v)
+			echo $k.": ".trim($v)."\n";
+		echo "Done $host …\n";
+	}
+	$e->cleanUp();
+	exit();
+}
 
 $T = new HTMLTable(2);
 $T->setTableStyle("font-size:10px;font-family:sans-serif;");
 
 $T->addColStyle(1, "vertical-align:top;");
-
-foreach($data AS $k => $v)
-	$T->addRow(array($k, "<pre>".trim($v)."</pre>"));
-
+foreach($data AS $host => $sub){
+	foreach($sub AS $k => $v)
+		$T->addRow(array($k, "<pre>".trim($v)."</pre>"));
+}
 
 $mimeMail2 = new PHPMailer(true, "", true);
 $mimeMail2->SMTPOptions = array(

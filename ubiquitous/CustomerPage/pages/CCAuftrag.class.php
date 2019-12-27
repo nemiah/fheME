@@ -27,6 +27,8 @@ class CCAuftrag extends CCPage implements iCustomContent {
 	protected $showButtonCheckWithGoogle = false;
 	protected $showPrices = true;
 	protected $showPosten = true;
+	protected $showSignature = false;
+	
 	function __construct() {
 		$this->customize();
 		
@@ -275,7 +277,41 @@ class CCAuftrag extends CCPage implements iCustomContent {
 	}
 	
 	public function getBottom($Beleg){
-		return "";
+		$TA = new HTMLTable(1, "Unterschrift Auftragnehmer");
+		$TA->setTableStyle("width:100%;");
+		
+		$P = new Button("Unterschrift", "pen_alt2", "iconic");
+		$P->style("float:left;");
+		
+		$padAN = $P.'
+	<div class="sigPadAN" style="margin-left:30px;">
+		<canvas class="pad" width="300" height="150" style="border:1px solid grey;"></canvas>
+		<input type="hidden" id="sigAN" name="sigAN" class="output">
+		<br>
+		<span class="clearButton"><a href="#" onclick="return false;">Nochmal</a></span>
+	</div>';
+		
+		$TA->addRow(array($padAN));
+		
+		
+		$TK = new HTMLTable(1, "Unterschrift Kunde");
+		$TK->setTableStyle("width:100%;");
+		
+		$padKunde = $P.'
+	<div class="sigPadKunde" style="margin-left:30px;">
+		<canvas class="pad" width="300" height="150" style="border:1px solid grey;"></canvas>
+		<input type="hidden" id="sigKunde" name="sigKunde" class="output">
+		<br>
+		<span class="clearButton"><a href="#" onclick="return false;">Nochmal</a></span>
+	</div>';
+		
+		$TK->addRow(array($padKunde));
+		
+		$IID = new HTMLInput("GRLBMID", "hidden", $Beleg->getID());
+		
+		return "$IID<div style=\"width:50%;display:inline-block;vertical-align:top;\">$TA</div><div style=\"width:49%;display:inline-block;vertical-align:top;margin-left:1%;\">$TK</div>
+			".OnEvent::script("$('.sigPadAN').signaturePad({drawOnly:true, lineTop: 100}).regenerate(".$Beleg->A("GRLBMServiceSigAN").");
+				$('.sigPadKunde').signaturePad({drawOnly:true, lineTop: 100}).regenerate(".$Beleg->A("GRLBMServiceSigAG").");");
 	}
 	
 	public function getAdresse($Beleg){
@@ -313,6 +349,14 @@ class CCAuftrag extends CCPage implements iCustomContent {
 		$TAdresse->setColStyle(1, "vertical-align:top;");
 		
 		return $TAdresse;
+	}
+	
+	public function getScriptFiles(){
+		$files = array();
+		if($this->showSignature)
+			$files[] = "./lib/jquery.signaturepad.min.js";
+		
+		return $files;
 	}
 	
 	public function getScript(){
@@ -762,6 +806,21 @@ class CCAuftrag extends CCPage implements iCustomContent {
 			return "TIMEOUT";
 		
 		return "<iframe src=\"index.php?CC=Lieferschein&M=getPDF&GRLBMID=$data[GRLBMID]&_=".rand(0, 99999999)."\" style=\"border:0px;height:500px;width:100%;\"></iframe>";
+	}
+	
+	public function getEMailViewer($data){
+		if(!$this->loggedIn)
+			return "TIMEOUT";
+		
+		
+		
+		$I = new HTMLInput("emailBody", "textarea", "<p>TEST</p>");
+		
+		return $I.OnEvent::script("\$j('[name=emailBody]').trumbowyg({
+			lang: 'de',
+			resetCss: true,
+			btns: [['undo', 'redo'], ['bold', 'italic', 'underline', 'removeformat'], ['fullscreen', 'viewHTML']]
+		});");
 	}
 	
 	public function getPDF($data){

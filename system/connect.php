@@ -204,7 +204,7 @@ function log_error($errno, $errmsg, $filename, $linenum) {
 register_shutdown_function('fatalErrorShutdownHandler');
 function fatalErrorShutdownHandler() {
 	$last_error = error_get_last();
-	if ($last_error['type'] !== E_ERROR) 
+	if (isset($last_error['type']) AND $last_error['type'] !== E_ERROR) 
 		return;
 	
 	log_error(E_ERROR, $last_error['message'], $last_error['file'], $last_error['line']);

@@ -95,11 +95,14 @@ class mxCalGUI extends anyC implements iGUIHTMLMP2 {
 	}
 	
 	// getCalendarData (wie in der Todo)
-	public static function getCalendarData($firstDay, $lastDay, $UserID = null) {
+	public static function getCalendarData($firstDay, $lastDay, $UserID = null, $xCalID = null) {
 		$calendar = new Kalender();
 		
 		$AC = anyC::get("xCal", "xCalUserID", $UserID);
 		$AC->addAssocV3("xCalServerActive", "=", "1");
+		if($xCalID)
+			$AC = anyC::get("xCal", "xCalID", $xCalID);
+		
 		while ($server = $AC->getNextEntry()) {
 			// XML
 			$xmlBuffer = xCalUtil::getSimpleXmlByXCal($server->A("xCalCache"));

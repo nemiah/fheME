@@ -34,6 +34,8 @@ class OpenWeatherMapGUI extends OpenWeatherMap implements iGUIHTML2 {
 		$gui->space("OpenWeatherMapLastUpdate");
 		$gui->space("OpenWeatherMapDataCurrent");
 		
+		$gui->type("OpenWeatherMapUserIDs", "select-multiple", Users::getUsersArray());
+		
 		$gui->parser("OpenWeatherMapDataCurrent", "parserJSON");
 		$gui->parser("OpenWeatherMapDataForecastDaily", "parserJSON");
 		$gui->parser("OpenWeatherMapDataForecast", "parserJSONForecast");

@@ -98,7 +98,7 @@ T::load(Util::getRootPath()."libraries");
 /*
 $E = new Environment();
 */
-$cssColorsDir = Environment::getS("cssColorsDir", (isset($_COOKIE["phynx_color"]) ? $_COOKIE["phynx_color"] : "standard"));
+$cssColorsDir = Environment::getS("cssColorsDir", "standard");
 $cssCustomFiles = Environment::getS("cssCustomFiles", null);
 /*
 if(file_exists(Util::getRootPath()."plugins/Cloud/Cloud.class.php")){
@@ -269,7 +269,7 @@ try {
 } catch (Exception $ex) {
 
 }
-$CH = Util::getCloudHost();
+/*$CH = Util::getCloudHost();
 $mandanten = array();
 if(file_exists(Util::getRootPath()."plugins/multiInstall/plugin.xml") AND ($CH == null OR get_class($CH) == "CloudHostAny")){
 	$selected = false;
@@ -285,7 +285,13 @@ if(file_exists(Util::getRootPath()."plugins/multiInstall/plugin.xml") AND ($CH =
 		
 		$mandanten[$I->getID()] = $I->A("httpHost");
 	}
-}
+}*/
+$selected = false;
+$mandanten = Installation::getMandanten();
+foreach($mandanten AS $ID => $host)
+	if($host == $_SERVER["HTTP_HOST"])
+			$selected = $I->getID();
+
 
 ?><!DOCTYPE html>
 <html>
@@ -375,9 +381,9 @@ if(file_exists(Util::getRootPath()."plugins/multiInstall/plugin.xml") AND ($CH =
 		} else
 			echo "<link rel=\"stylesheet\" type=\"text/css\" href=\"./styles/standard/merge.css\" />";
 		
-		if($cssColorsDir != "standard") 
+		#if($cssColorsDir != "standard") 
 			echo '
-		<link rel="stylesheet" type="text/css" href="./styles/'.$cssColorsDir.'/colors.css" />';
+		<link rel="stylesheet" id="interfaceColors" type="text/css" href="./styles/'.$cssColorsDir.'/colors.css" />';
 		
 		if($cssCustomFiles != null){
 			foreach (explode("\n", $cssCustomFiles) AS $cssFile)
@@ -385,17 +391,17 @@ if(file_exists(Util::getRootPath()."plugins/multiInstall/plugin.xml") AND ($CH =
 		<link rel="stylesheet" type="text/css" href="'.$cssFile.'" />';
 		}
 		
-		if((isset($_COOKIE["phynx_layout"]) AND $_COOKIE["phynx_layout"] == "vertical"))
+		#if((isset($_COOKIE["phynx_layout"]) AND $_COOKIE["phynx_layout"] == "vertical"))
 			echo '
-		<link rel="stylesheet" type="text/css" href="./styles/standard/vertical.css" />';
+		<link rel="stylesheet" id="interfaceLayout" type="text/css" href="./styles/standard/horizontal.css" />';
 		
-		if((isset($_COOKIE["phynx_layout"]) AND $_COOKIE["phynx_layout"] == "desktop"))
-			echo '
-		<link rel="stylesheet" type="text/css" href="./styles/standard/desktop.css" />';
+		#if((isset($_COOKIE["phynx_layout"]) AND $_COOKIE["phynx_layout"] == "desktop"))
+		#	echo '
+		#<link rel="stylesheet" type="text/css" href="./styles/standard/desktop.css" />';
 		
-		if((isset($_COOKIE["phynx_layout"]) AND $_COOKIE["phynx_layout"] == "fixed"))
-			echo '
-		<link rel="stylesheet" type="text/css" href="./styles/standard/fixed.css" />';
+		#if((isset($_COOKIE["phynx_layout"]) AND $_COOKIE["phynx_layout"] == "fixed"))
+		#	echo '
+		#<link rel="stylesheet" type="text/css" href="./styles/standard/fixed.css" />';
 		
 			echo '
 		<link rel="stylesheet" type="text/css" href="./styles/standard/mobile.css" />';
@@ -673,50 +679,29 @@ if(file_exists(Util::getRootPath()."plugins/multiInstall/plugin.xml") AND ($CH =
 		<div id="container" style="display:none;">
 			<div id="messenger" style="display:none;" class="backgroundColor3 borderColor1"></div>
 			<div id="navigation"></div>
-			<?php if(isset($_COOKIE["phynx_layout"]) AND $_COOKIE["phynx_layout"] == "desktop"){ ?>
-				<div id="desktopWrapper">
-					<div id="wrapperHandler" class=""></div>
-					<div id="wrapper">
-						<div id="contentScreen"></div>
-						<div id="wrapperTable" style="display:none;"></div><!-- Remove some time -->
-						<div id="wrapperTableTd2">
-							<div id="contentRight"></div>
-						</div>
-						<div id="wrapperTableTd3">
-							<div id="contentCenter"></div>
-						</div>
-						<div id="wrapperTableTd1">
-							<div id="contentLeft">
-								<p><?php echo T::_("Sie haben JavaScript nicht aktiviert."); ?><br />
-								<?php echo T::_("Bitte aktivieren Sie JavaScript, damit diese Anwendung funktioniert."); ?></p>
-							</div>
-						</div>
-						<div style="clear:both;"></div>
-						
-						<div id="contentBelow" style="display:none;"><div id="contentBelowContent"></div></div>
-					</div>
-				</div>
-			<?php } else { ?>
+			<div id="desktopWrapper">
+				<div id="wrapperHandler" class=""></div>
 				<div id="wrapper">
 					<div id="contentScreen"></div>
-						<div id="wrapperTable" style="display:none;"></div><!-- Remove some time -->
-						<div id="wrapperTableTd2">
-							<div id="contentRight"></div>
+					<div id="wrapperTableTd2">
+						<div id="contentRight"></div>
+					</div>
+					<div id="wrapperTableTd3">
+						<div id="contentCenter"></div>
+					</div>
+					<div id="wrapperTableTd1">
+						<div id="contentLeft">
+							<p><?php echo T::_("Sie haben JavaScript nicht aktiviert."); ?><br />
+							<?php echo T::_("Bitte aktivieren Sie JavaScript, damit diese Anwendung funktioniert."); ?></p>
 						</div>
-						<div id="wrapperTableTd3">
-							<div id="contentCenter"></div>
-						</div>
-						<div id="wrapperTableTd1">
-							<div id="contentLeft">
-								<p><?php echo T::_("Sie haben JavaScript nicht aktiviert."); ?><br />
-								<?php echo T::_("Bitte aktivieren Sie JavaScript, damit diese Anwendung funktioniert."); ?></p>
-							</div>
-						</div>
-						<div style="clear:both;"></div>
-						
-					<div id="contentBelow" style="display:none;"><div id="contentBelowContent"></div></div>
+					</div>
+					<div style="clear:both;"></div>
+
+					<div id="contentBelow" style="display:none;">
+						<div id="contentBelowContent"></div>
+					</div>
 				</div>
-			<?php } ?>
+			</div>
 			<div id="windows"></div>
 			<div id="windowsPersistent"></div>
 			<div id="stash"></div>
@@ -860,7 +845,7 @@ if(file_exists(Util::getRootPath()."plugins/multiInstall/plugin.xml") AND ($CH =
 				contentManager.updateTitle = false;";
 				
 
-				echo "contentManager.init('".(isset($_COOKIE["phynx_layout"]) ? $_COOKIE["phynx_layout"] : "horizontal")."');";
+				echo "contentManager.init();";
 				
 				?>
 				

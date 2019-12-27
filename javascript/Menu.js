@@ -70,8 +70,12 @@ var Menu = {
 				userControl.doTestLogin();
 				Overlay.show();
 				return;
-			} else Overlay.hide();
-
+			} else {
+				Interface.setup(function(){
+					Overlay.hide();
+				});
+			}
+			
 			if($('morePluginsMenuEntry')){
 				contentManager.loadFrame('contentLeft','morePlugins', -1, 0,'morePluginsGUI;-');
 				Menu.setHighLight($('morePluginsMenuEntry'));
@@ -83,7 +87,8 @@ var Menu = {
 				contentManager.loadDesktop();
 
 			contentManager.loadJS();
-			contentManager.loadTitle();
+			//contentManager.loadTitle();
+			
 		}, true);
 	},
 	

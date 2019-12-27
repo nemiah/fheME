@@ -147,7 +147,7 @@ class AppPlugins {
 
 			foreach($plugins as $key => $file){
 				$f = explode(".",$file);
-				if($f[0]{0} == "-") continue;
+				if($f[0][0] == "-") continue;
 
 				#if($f[1] == "xml") {
 				$c = new XMLPlugin("$p/$folder/$file", $allowedPlugins);

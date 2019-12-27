@@ -460,7 +460,7 @@ class FPDF {
 		$w = 0;
 		$l = $this->strlen($s);
 		for ($i = 0; $i < $l; $i++)
-			$w+=$cw[$s{$i}];
+			$w+=$cw[$s[$i]];
 		return $w * $this->FontSize / 1000;
 	}
 
@@ -752,7 +752,7 @@ class FPDF {
 		$nl = 1;
 		while ($i < $nb) {
 			//Get next character
-			$c = $s{$i};
+			$c = $s[$i];
 			if ($c == "\n") {
 				//Explicit line break
 				if ($this->ws > 0) {
@@ -830,7 +830,7 @@ class FPDF {
 		$nl = 1;
 		while ($i < $nb) {
 			//Get next character
-			$c = $s{$i};
+			$c = $s[$i];
 			if ($c == "\n") {
 				//Explicit line break
 				$this->Cell($w, $h, $this->substr($s, $j, $i - $j), 0, 2, '', 0, $link);
@@ -1165,12 +1165,12 @@ class FPDF {
 			fclose($f);
 			$compressed = ($this->substr($file, -2) == '.z');
 			if (!$compressed && isset($info['length2'])) {
-				$header = (ord($font{0}) == 128);
+				$header = (ord($font[0]) == 128);
 				if ($header) {
 					//Strip first binary header
 					$font = $this->substr($font, 6);
 				}
-				if ($header && ord($font{$info['length1']}) == 128) {
+				if ($header && ord($font[$info['length1']]) == 128) {
 					//Strip second binary header
 					$font = $this->substr($font, 0, $info['length1']) . $this->substr($font, $info['length1'] + 6);
 				}
@@ -1412,7 +1412,7 @@ class FPDF {
 		if (!$orientation)
 			$orientation = $this->DefOrientation;
 		else {
-			$orientation = strtoupper($orientation{0});
+			$orientation = strtoupper($orientation[0]);
 			if ($orientation != $this->DefOrientation)
 				$this->OrientationChanges[$this->page] = true;
 		}

@@ -1,0 +1,401 @@
+@CHARSET "UTF-8";
+
+/**
+  * GENERAL
+  **/
+  
+.borderColor0 {
+	border-color:white;
+}
+
+.borderColor1 {
+	border-color:#acaced;/*#6868C9;*/
+}
+
+.backgroundColor0 {
+	background-color: #222;
+}
+
+.backgroundColor1 {
+	background-color:#c9c9f0;/*#B8B8F0;*/
+}
+.backgroundColor2 {
+	background-color:#797987;/*#ddddff;/*#D1D1FF;*/
+}
+
+.backgroundColor3 {
+	background-color:#9f9fae;/*#E6E6FF;*/
+}
+
+.backgroundColor4 {
+	background-color:#f4f4f4;
+}
+
+.backgroundColorHeader td:not(.ACCell) {
+	background-color:#222;
+}
+
+.backgroundColorHeader .iconic {
+	color:#DDD;
+}
+
+.backgroundColorHeader, .backgroundColorHeader a:visited, .backgroundColorHeader a:link, .backgroundColorHeader a:active {
+	color:#444;
+}
+
+.browserSeparatorBottom td {
+	border-bottom:1px solid #DDD;
+}
+
+.browserSeparatorTop td {
+	border-top:1px solid #DDD;
+}
+
+.seamlessButton {
+	padding:3px;
+	padding-left:5px;
+	padding-bottom:1px;
+	display:inline-block;
+	border:1px solid #BBB;
+	border-radius:3px;
+	cursor:pointer;
+	-moz-transition: background-color .3s;
+	-webkit-transition: background-color .3s;
+	-o-transition: background-color .3s;
+	transition: background-color .3s;
+	margin-left:5px;
+	margin-right:5px;
+}
+
+.phynxNoTouch .seamlessButton:hover {
+	background-color:rgba(0,0,0,0.1);
+	
+	-moz-transition: background-color .3s;
+	-webkit-transition: background-color .3s;
+	-o-transition: background-color .3s;
+	transition: background-color .3s;
+}
+
+.phynxNoTouch .seamlessButton:hover .iconic,
+.phynxNoTouch .lastSelected .iconic {
+	color:#555;
+	opacity:1;
+}
+
+.seamlessButton:active  {
+	background-color:rgba(0,0,0,0.2);
+}
+
+.highlight {
+	background-color:rgba(255,204,0,0.3) !important;
+}
+
+.confirm {
+	background-color:#d1e769;
+}
+
+.error {
+	background-color:rgba(220, 50, 0, 0.5) !important;
+}
+
+label {
+	color:#444;
+}
+
+/*.backgroundColorHeader td + td {
+	background-color:#FCFCFC;
+}*/
+
+.FormSeparatorWithLabel {
+	background-color:white;
+}
+/**
+  * ELEMENTS
+  **/
+  
+
+body {
+	/*background-color:#d8d8d8;*/
+	background-color:#222;
+	color:#222;
+}
+
+a:link, a:active, a:visited {
+	color:black;
+}
+
+caption {
+	background-color:red;
+	color:black;
+}
+
+input[type=date],
+input[type=text],
+input[type=submit],
+input[type=password],
+input[type=radio],
+input[type=checkbox],
+input[type=button],
+input[type=submit], select, textarea, .AJAXUpload {
+	border-bottom-color:#9E9EF0;
+	
+	-moz-transition: background-color 1s;
+	-webkit-transition: background-color 1s;
+	-o-transition: background-color 1s;
+	transition: background-color 1s;
+}
+
+.tableWeightLight input[type=text],
+.tableWeightLight input[type=date],
+.tableWeightLight input[type=submit],
+.tableWeightLight input[type=password],
+.tableWeightLight input[type=radio],
+.tableWeightLight input[type=checkbox],
+.tableWeightLight input[type=button],
+.tableWeightLight input[type=submit], .tableWeightLight select, .tableWeightLight textarea, .tableWeightLight .AJAXUpload {
+	background-color:white;
+	border-bottom-color:white;
+}
+
+.tableWeightLight input[name=currentSaveButton] {
+	background-color:transparent;
+	border-bottom-color:transparent;
+}	
+/**
+  * BECAUSE CHROME HAS ISSUES WITH DROPDOWNS AS OF 20140125
+  * MAY BE REMOVED IN THE FUTURE
+  **/
+select {
+	-moz-transition: none;
+	-webkit-transition: none;
+	-o-transition: none;
+	transition: none;
+}
+
+/**
+  * SPECIAL
+  **/
+  
+.hasFocus {
+	background-color:white !important;
+	border-bottom-color:#9E9EF0 !important;
+}
+
+.tableWeightLight .hasFocus {
+	background-color:white !important;
+	border-bottom-color:white !important;
+}
+
+.recentlyChanged {
+	/*background-color:#b8de9a;*/
+	background-color: rgba(184, 222, 154, 0.5) !important;
+	
+	-moz-transition: background-color .3s;
+	-webkit-transition: background-color .3s;
+	-o-transition: background-color .3s;
+	transition: background-color .3s;
+}
+
+::-webkit-input-placeholder {
+	color:#999;
+}
+:-moz-placeholder {
+	color:#999;
+}
+:-ms-input-placeholder {
+	color:#999;
+}
+
+/**
+  * FRAMES
+  **/
+  
+#wrapper {
+	border-color:#888888;
+	background-color:#222;
+}
+
+#wrapperHandler {
+	color:white;
+	font-weight:bold;
+}
+
+#desktopWrapper #wrapper, #desktopWrapper #wrapperHandler {
+	border-color:#aaa;
+}
+
+#contentLeft table, #contentRight table, #windows table {
+	border-color:#B8B8F0;
+}
+
+#contentRight .contentBrowser tr,
+#contentLeft .contentBrowser tr,
+#contentScreen tr {
+	-moz-transition: background-color .3s;
+	-webkit-transition: background-color .3s;
+	-o-transition: background-color .3s;
+	transition: background-color .3s;
+}
+
+.phynxNoTouch #contentRight .contentBrowser tr:not(.noHover):not(.lastSelected):hover,
+.phynxNoTouch #contentLeft .contentBrowser tr:not(.noHover):not(.lastSelected):hover,
+.phynxNoTouch #contentScreen tr:not(.noHover):not(.lastSelected):hover {
+	background-color:white;
+	
+	-moz-transition: background-color .3s;
+	-webkit-transition: background-color .3s;
+	-o-transition: background-color .3s;
+	transition: background-color .3s;
+}
+
+.phynxNoTouch #contentRight tr:hover .iconic,
+.phynxNoTouch #contentLeft tr:hover .iconic,
+.phynxNoTouch .Tab:hover .iconic,
+.phynxNoTouch #contentScreen tr:hover .iconic,
+.phynxNoTouch .popup tr:hover .iconic,
+.phynxNoTouch .popupSidePanel tr:hover .iconic,
+.phynxNoTouch .selectionRow:hover .iconic {
+	color:#777;
+	border-color:#777;
+	
+	-moz-transition: color .7s, border-color .7s;
+	-webkit-transition: color .7s, border-color .7s;
+	-o-transition: color .7s, border-color .7s;
+	transition: color .7s, border-color .7s;
+}
+
+.phynxNoTouch #contentRight .contentBrowser tr:hover .iconic.inactive,
+.phynxNoTouch .popup .contentBrowser tr:hover .iconic.inactive,
+.phynxNoTouch #contentLeft .contentBrowser tr:hover .iconic.inactive,
+.phynxNoTouch .Tab:hover .iconic.inactive,
+.phynxNoTouch #contentScreen tr:hover .iconic.inactive {
+	color:#ffb587;
+	border-color:#ffb587;
+	
+	-moz-transition: color .7s, border-color .7s;
+	-webkit-transition: color .7s, border-color .7s;
+	-o-transition: color .7s, border-color .7s;
+	transition: color .7s, border-color .7s;
+}
+
+
+#contentBelowContent {
+	border-top-color:#DDD;
+	border-top-style:solid;
+	border-bottom-color:#DDD;
+	border-bottom-style:solid;
+	background-color:#EEE;
+}
+
+#footer {
+	background-color:#333;
+	color:#999;
+}
+
+#footer a:link, #footer a:visited, #footer a:active {
+	color:#999;
+}
+
+/**
+  * NAVIGATION
+  **/
+
+.navBackgroundColor {
+	background-color:rgba(0,0,0,0.1);
+	/*background-color:#7f7fdf;*/
+}
+
+.navBorderColor {
+	border-color:transparent;/*#4e4e96;*/
+	border-bottom-color:#888888;/*#444444;*/
+}
+
+.phynxNoTouch #navTabsWrapper .navTab:not(.theOne):hover {
+	background-color:#BBB;
+	color:#222;
+}
+
+.navTab {
+	color:#AAA;
+}
+
+#navigation {
+	background-color:#666;
+	background-image: none;
+}
+
+#navigation div.theOne {
+	background-color:#AAA;
+	border-color:#444444;
+	border-bottom-color:white;
+	color:#222;
+}
+
+.phynxNoTouch .selectionBox:hover,
+.phynxNoTouch .tableForSelection tr:not(.lastSelected):hover {
+	background-color:white;
+	
+	-moz-transition: background-color .3s;
+	-webkit-transition: background-color .3s;
+	-o-transition: background-color .3s;
+	transition: background-color .3s;
+}
+
+.lastSelected {
+	/*background-color:rgba(255, 204, 0, 0.3);*/
+	background-color:rgba(255, 255, 255, 0.5);
+}
+
+.tableWeightLight .lastSelected {
+	background-color:rgb(237, 237, 237);
+}
+
+.tableWeightLightColored .lastSelected {
+	background-color:rgba(255,204,0,0.3);
+}
+
+.topBG {
+	background-color:#fefefe;
+	/*background-image: linear-gradient(bottom, rgb(183,185,180) 0%, rgb(220,222,216) 1%, rgb(255,255,255) 5%);
+	background-image: -o-linear-gradient(bottom, rgb(183,185,180) 0%, rgb(220,222,216) 1%, rgb(255,255,255) 5%);
+	background-image: -moz-linear-gradient(bottom, rgb(183,185,180) 0%, rgb(220,222,216) 1%, rgb(255,255,255) 5%);
+	background-image: -webkit-linear-gradient(bottom, rgb(183,185,180) 0%, rgb(220,222,216) 1%, rgb(255,255,255) 5%);
+	background-image: -ms-linear-gradient(bottom, rgb(183,185,180) 0%, rgb(220,222,216) 1%, rgb(255,255,255) 5%);
+
+	background-image: -webkit-gradient(
+		linear,
+		left bottom,
+		left top,
+		color-stop(0, rgb(183,185,180)),
+		color-stop(0.01, rgb(220,222,216)),
+		color-stop(0.05, rgb(255,255,255))
+	);*/
+}
+
+.selectionRow {
+	border-bottom: 1px solid #eee;
+	
+	color:#222;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.phynxNoTouch .selectionRow:hover {
+	background-color:rgb(248, 248, 248);
+}
+
+.selectionRow .selectionRowHeightSetter {
+	padding:5px;
+}
+
+.tableWeightLightColored tr:nth-child(odd):not(.lastSelected) {
+	background-color:#e5e5e5;
+}
+
+.tableWeightLightColored tr:nth-child(even):not(.lastSelected){
+	background-color:#f4f4f4;
+}

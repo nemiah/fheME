@@ -290,10 +290,11 @@ class Session {
 		
 		$c = $this->getCurrentUser();
 		$d = array();
-		$d["loginUsername"] = $c->getA()->username;
-		$d["loginSHAPassword"] = $c->getA()->SHApassword;
-		$d["loginSprache"] = $c->getA()->language;
+		$d["loginUsername"] = $c->A("username");
+		$d["loginSHAPassword"] = $c->A("SHApassword");
+		$d["loginSprache"] = $c->A("language");
 		$d["anwendung"] = $application;
+		$d["loginMandant"] = $_SESSION["DBData"]["InstallationID"];
 		$U->doLogin($d);
 		ob_end_clean();
 	}

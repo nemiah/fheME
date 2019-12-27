@@ -26,6 +26,7 @@ class CCLieferschein extends CCAuftrag implements iCustomContent {
 		parent::__construct();
 		
 		$this->showPrices = false;
+		$this->showSignature = true;
 	}
 
 	function getLabel(){
@@ -55,10 +56,10 @@ class CCLieferschein extends CCAuftrag implements iCustomContent {
 		return "
 		<div style=\"max-width:1200px;\">
 			<div id=\"frameEdit\" style=\"display:none;\">
-				<div style=\"display:inline-block;width:48%;vertical-align:top;margin-right:3%;\" id=\"contentLeft\">
+				<div style=\"display:inline-block;width:61%;vertical-align:top;margin-right:3%;\" id=\"contentLeft\">
 						".$this->getAuftrag(array("GRLBMID" => 0))."
 				</div>
-				<div style=\"display:inline-block;width:48%;vertical-align:top;\" id=\"contentRight\">
+				<div style=\"display:inline-block;width:35%;vertical-align:top;\" id=\"contentRight\">
 				
 				</div>
 			</div>
@@ -84,9 +85,11 @@ class CCLieferschein extends CCAuftrag implements iCustomContent {
 		$html = "";
 		
 		
-		$T = new HTMLTable(2);#, "Bitte wählen Sie einen Lieferschein");
+		$T = new HTMLTable(5);#, "Bitte wählen Sie einen Lieferschein");
 		$T->setTableStyle("width:100%;margin-top:10px;");
 		$T->setColWidth(1, 130);
+		$T->setColWidth(4, 200);
+		$T->setColWidth(5, 200);
 		$T->useForSelection(false);
 		$T->maxHeight(400);
 		
@@ -100,8 +103,30 @@ class CCLieferschein extends CCAuftrag implements iCustomContent {
 		#$AC->addJoinV3("Adresse", "t2.AdresseID", "=", "AdresseID");
 		$i = 0;
 		while($B = $AC->n()){
+			$BPDF = new Button("PDF anzeigen");
+			$BPDF->className("submitFormButton");
+			$BPDF->style("background-color:#DDD;color:grey;float:right;");
+			$BPDF->onclick("CustomerPage.popup('Beleg PDF', 'getPDFViewer', {GRLBMID: '".$B->getID()."'}, {width:'800px'});");
+			
+			$BM = new Button("Per E-Mail");
+			$BM->className("submitFormButton");
+			$BM->style("background-color:#DDD;color:grey;float:right;");
+			$BM->onclick("CustomerPage.popup('Per E-Mail', 'getEMailViewer', {GRLBMID: '".$B->getID()."'}, {width:'800px'});");
+			$BM = "";
+			
+			$BOK = "";
+			if($B->A("GRLBMServiceSigAG") != "" AND $B->A("GRLBMServiceSigAG") != "[]"){
+				$BOK = new Button("Kunde hat unterschrieben", "check", "iconic");
+				$BOK->style("font-size:55px;");
+			}
+			
 			$Adresse = new Adresse($B->A("AdresseID"));
-			$T->addRow(array("<span style=\"font-size:20px;font-weight:bold;\">".$B->A("prefix").$B->A("nummer")."</span><br><span style=\"color:grey;\">".Util::CLDateParser($B->A("datum"))."</span>", $Adresse->getHTMLFormattedAddress()));
+			$T->addRow(array(
+				"<span style=\"font-size:20px;font-weight:bold;\">".$B->A("prefix").$B->A("nummer")."</span><br><span style=\"color:grey;\">".Util::CLDateParser($B->A("datum"))."</span>", 
+				$Adresse->getHTMLFormattedAddress(),
+				$BOK,
+				$BM,
+				$BPDF));
 			$T->addCellStyle(1, "vertical-align:top;");
 			
 			$T->addRowStyle("cursor:pointer;border-bottom:1px solid #ccc;");
@@ -109,13 +134,14 @@ class CCLieferschein extends CCAuftrag implements iCustomContent {
 			#if($i % 2 == 1)
 			#	$T->addRowStyle ("background-color:#eee;");
 			
-			
-			$T->addRowEvent("click", "
+			$event = "
 				$(this).addClass('selected');
+				CCAuftrag.lastTextbausteinUnten = null;
 				
 				CustomerPage.rme('getAuftrag', {GRLBMID: ".$B->getID()."}, function(transport){ 
 						if(transport == 'TIMEOUT') { document.location.reload(); return; } 
 						$('#contentLeft').html(transport); 
+						$('#frameSelect').hide(); $('#frameEdit').show();
 					}, 
 					function(){},
 					'POST');
@@ -124,10 +150,17 @@ class CCLieferschein extends CCAuftrag implements iCustomContent {
 						if(transport == 'TIMEOUT') { document.location.reload(); return; } 
 						$('#contentRight').html(transport); 
 						$('.selected').removeClass('selected');
-						$('#frameSelect').hide(); $('#frameEdit').show();
 					}, 
 					function(){},
-					'POST');");
+					'POST');";
+			
+			if($B->A("GRLBMServiceSigAG") == "" OR $B->A("GRLBMServiceSigAG") == "[]"){
+				$T->addCellEvent(1, "click", $event);
+				$T->addCellEvent(2, "click", $event);
+				$T->addRowStyle("cursor:pointer;");
+			} else
+				$T->addRowStyle("cursor:default;");
+			
 			
 			$i++;
 		}
@@ -147,21 +180,62 @@ class CCLieferschein extends CCAuftrag implements iCustomContent {
 		parent::handleForm($valuesAssocArray);
 	}
 	
+	
 	public function buttonCancel($data){
+		$IOK = new Button("Abbrechen");
+		$IOK->className("submitFormButton");
+		$IOK->style("background-color:#DDD;color:grey;float:none;");
+		$IOK->onclick("$('#frameSelect').show(); $('#frameEdit').hide();");
+		
+		return $IOK;
+	}
+	
+	/*public function buttonCancel($data){
 		$IOK = new Button("PDF anzeigen");
 		$IOK->className("submitFormButton");
 		$IOK->style("background-color:#DDD;color:grey;float:none;");
 		$IOK->onclick("CustomerPage.popup('Lieferschein PDF', 'getPDFViewer', {GRLBMID: '$data[GRLBMID]'}, {width:'800px'});");
 		
 		return $IOK;
-	}
+	}*/
 	
 	public function buttonDone($data){
+		$IOK = new Button("Belegdaten speichern");
+		$IOK->className("submitFormButton");
+		$IOK->onclick("CustomerPage.rme('saveLieferschein', $('#contentLeft :input').serialize(), function(){ document.location.reload();/*$('#frameSelect').show(); $('#frameEdit').hide();*/ }, function(){}, 'POST');");
+		
+		return $IOK;
+	}
+	
+	public function saveLieferschein($data){
+		#print_r($data);
+		if(!$this->loggedIn)
+			return "TIMEOUT";
+		
+		$G = new GRLBM($data["GRLBMID"]);
+		#$G->changeA("textbausteinUnten", $data["textbausteinUnten"]);
+		#$G->changeA("GRLBMServiceVon", Util::CLTimeParserE($data["GRLBMServiceVon"], "store"));
+		#$G->changeA("GRLBMServiceBis", Util::CLTimeParserE($data["GRLBMServiceBis"], "store"));
+		#$G->changeA("GRLBMServiceStunden", Util::CLTimeParserE($data["GRLBMServiceStunden"], "store"));
+		
+		#$G->changeA("GRLBMServiceIsGarantie", $data["GRLBMServiceIsGarantie"] == "on" ? 1 : 0);
+		#$G->changeA("GRLBMServiceIsAbgeschlossen", $data["GRLBMServiceIsAbgeschlossen"] == "on" ? 1 : 0);
+		#$G->changeA("GRLBMServiceIsBerechnung", $data["GRLBMServiceIsBerechnung"] == "on" ? 1 : 0);
+		
+		$G->changeA("GRLBMServiceSigAN", $data["sigAN"]);
+		if($data["sigAN"])
+			$G->changeA ("GRLBMServiceSigANDate", time());
+		
+		$G->changeA("GRLBMServiceSigAG", $data["sigKunde"]);
+		$G->saveMe();
+	}
+	
+	/*public function buttonDone($data){
 		$IOK = new Button("Fertig");
 		$IOK->className("submitFormButton");
 		$IOK->onclick("$('#frameSelect').show(); $('#frameEdit').hide();");
 		
 		return $IOK;
-	}
+	}*/
 }
 ?>

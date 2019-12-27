@@ -47,7 +47,7 @@ var contentManager = {
 			footerHeight = 0;
 		
 		if(contentManager.layout == "desktop")
-			return $j('#wrapper').height() - $j('#wrapperTable').height() - 20; // 20 px padding on contentLeft and contentRight
+			return $j('#wrapper').height() + parseInt($j('#wrapper').css("padding-bottom")) - /*$j('#wrapperTable').height() -*/ 20; // 20 px padding on contentLeft and contentRight
 		
 		if(contentManager.layout == "vertical")
 			return $j(window).height() - footerHeight - 20; // 20 px padding on contentLeft and contentRight
@@ -59,7 +59,7 @@ var contentManager = {
 	},
 			
 	maxWidth: function(getWindow){
-		if(!getWindow && $j('#desktopWrapper').length > 0)
+		if(!getWindow && contentManager.layout == "desktop")
 			return $j('#wrapper').width();
 		
 		if(contentManager.layout == "vertical")
@@ -126,10 +126,9 @@ var contentManager = {
 			$j('#contentLeft').append("<div style=\"height:"+contentManager.maxHeight()+"px\"></div>");
 	},
 	
-	init: function(layout){
+	init: function(){
 		Interface.init();
 		Overlay.init();
-		contentManager.layout = layout;
 		
 		Menu.loadMenu();
 		$('contentLeft').update();
@@ -212,9 +211,10 @@ var contentManager = {
 		Popup.closePersistent();
 		Menu.refresh();
 		contentManager.emptyFrame("contentScreen");
+		Interface.setup(function(){ });
 		contentManager.loadDesktop();
 		contentManager.loadJS();
-		contentManager.loadTitle();
+		//contentManager.loadTitle();
 		contentManager.clearHistory();
 	},
 
@@ -336,16 +336,18 @@ var contentManager = {
     	});
 	},
 
-	loadTitle: function(){
+	/*loadTitle: function(){
 		if(!contentManager.updateTitle)
 			return;
 		
 		contentManager.rmePCR("Menu", "-1", "getActiveApplicationName", "",  function(transport){
-			if(!Interface.isDesktop) document.title = transport.responseText;
-			else $("wrapperHandler").update(transport.responseText);
+			if(contentManager.layout != "desktop") 
+				document.title = transport.responseText;
+			else 
+				$("wrapperHandler").update(transport.responseText);
     	});
 		
-	},
+	},*/
 
 	setRoot: function(path){
 		contentManager.rootPath = path;
@@ -807,7 +809,11 @@ var contentManager = {
 
 		if(mode == "hide")
 			for (var f = 0; f < fields.length; f++) {
-				var fieldS = $j(formID+'select[name='+fields[f]+'],'+formID+'input[name='+fields[f]+'],'+formID+'textarea[name='+fields[f]+'],'+formID+'span[name='+fields[f]+']').parent().parent();
+				var fieldS = $j(formID+'select[name='+fields[f]+'],'+formID+'input[name='+fields[f]+'],'+formID+'textarea[name='+fields[f]+'],'+formID+'span[name='+fields[f]+']');
+				if(fieldS.prop("type") == "hidden")
+					continue;
+				
+				fieldS = fieldS.parent().parent();
 				fieldS.css("display", "none");
 				if(fieldS.prev().hasClass("FormSeparatorWithLabel") || fieldS.prev().hasClass("FormSeparatorWithoutLabel"))
 					fieldS.prev().css("display", "none");
@@ -815,7 +821,11 @@ var contentManager = {
 
 		if(mode == "show")
 			for (var f = 0; f < fields.length; f++) {
-				var fieldS = $j(formID+'select[name='+fields[f]+'],'+formID+'input[name='+fields[f]+'],'+formID+'textarea[name='+fields[f]+'],'+formID+'span[name='+fields[f]+']').parent().parent();
+				var fieldS = $j(formID+'select[name='+fields[f]+'],'+formID+'input[name='+fields[f]+'],'+formID+'textarea[name='+fields[f]+'],'+formID+'span[name='+fields[f]+']');
+				if(fieldS.prop("type") == "hidden")
+					continue;
+				
+				fieldS = fieldS.parent().parent();
 				fieldS.css("display", "");
 				
 				if(fieldS.prev().hasClass("FormSeparatorWithLabel") || fieldS.prev().hasClass("FormSeparatorWithoutLabel"))

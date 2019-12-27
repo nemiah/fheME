@@ -53,6 +53,10 @@ class UserGUI extends User implements iGUIHTML2 {
 		#$gui->setObject();
 		$gui->name("Benutzer");
 		
+		if(Session::isPluginLoaded("mMultiLanguage"))
+			$gui->activateFeature("addAnotherLanguageButton", $this, "UserPosition");
+		
+		
 		$gui->attributes(array(
 			"name",
 			"username",

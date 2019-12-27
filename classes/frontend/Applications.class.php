@@ -62,7 +62,7 @@ class Applications {
 				require Util::getRootPath()."applications/$file";
 				
 				$f = explode(".",$file);
-				if($f[0]{0} == "-") continue;
+				if($f[0][0] == "-") continue;
 				
 				$_SESSION["messages"]->startMessage("trying to register application $f[0]: ");
 				$f = $f[0];

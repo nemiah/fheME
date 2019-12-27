@@ -20,8 +20,8 @@
 class phynxMailer {
 	private $exceptions = false;
 	private $to = array();
-	#private $cc = array();
-	#private $bcc = array();
+	private $cc = array();
+	private $bcc = array();
 	private $from = array();
 	private $subject = "";
 	private $body = "";
@@ -32,6 +32,14 @@ class phynxMailer {
 		$this->to($to);
 		$this->subject($subject);
 		$this->body($body);
+	}
+	
+	function bcc($bcc){
+		$this->bcc[] = $bcc;
+	}
+	
+	function cc($cc){
+		$this->cc[] = $cc;
 	}
 	
 	function body($body){
@@ -89,6 +97,12 @@ class phynxMailer {
 				'allow_self_signed' => true
 			)
 		);
+		
+		foreach($this->bcc AS $bcc)
+			$mimeMail2->addBCC($bcc);
+		
+		foreach($this->cc AS $cc)
+			$mimeMail2->addCC($cc);
 		
 		foreach($this->attachments AS $attachment)
 			$mimeMail2->AddAttachment($attachment);

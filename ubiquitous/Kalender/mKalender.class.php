@@ -187,6 +187,10 @@ END:VCALENDAR";
 	public static function getBerichteDir(){
 		return dirname(__FILE__);
 	}
+	
+	public static function getExportDir(){
+		return dirname(__FILE__);
+	}
 }
 
 ?>

@@ -38,7 +38,7 @@ class LoginAD extends Collection {
 		  $int .= $sint;
 	  }
 
-	  return $int % 2147483647;
+	  return ((int) ($int / 2147483647));
 	}
 
 	private static function getADEntry($result){
@@ -67,11 +67,19 @@ class LoginAD extends Collection {
 			return null;
 		
 		$adServer = "ldap://".$LD->A("server");
-		$ex = explode("@", $LD->A("benutzername"));
 		if($username == null)
 			$username = $LD->A("benutzername");
-		else
-			$username = $username."@".$ex[1];
+		else {
+			if(strpos($LD->A("benutzername"), "@") !== false){
+				$ex = explode("@", $LD->A("benutzername"));
+				$username = $username."@".$ex[1];
+			}
+			
+			if(strpos($LD->A("benutzername"), "\\") !== false){
+				$ex = explode("\\", $LD->A("benutzername"));
+				$username = $ex[0]."\\".$username;
+			}
+		}
 		
 		if($password == null)
 			$password = $LD->A("passwort");
@@ -142,7 +150,9 @@ class LoginAD extends Collection {
 			
 			
 		} catch(Exception $e){}
-		
+		#echo "<pre>";
+		#print_r($collection);
+		#echo "</pre>";
 		
 		$this->collector = array_merge($this->collector, $collection);
 	}

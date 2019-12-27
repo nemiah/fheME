@@ -96,7 +96,7 @@ class HTMLGUI implements icontextMenu {
 	private $classParentName;
 	#private $infoDropDown = array();
 	
-	protected $languageClass;
+	#protected $languageClass;
 	protected $texts;
 	
 	private $RowIDPrefix = "BrowserMain";
@@ -247,7 +247,7 @@ class HTMLGUI implements icontextMenu {
 	}
 	
 	function __construct(){
-		$this->languageClass = $this->loadLanguageClass("HTML");
+		#$this->languageClass = $this->loadLanguageClass("HTML");
 	}
 
 	/**
@@ -274,7 +274,7 @@ class HTMLGUI implements icontextMenu {
 	 * @param string $class
 	 * @return unknown_type
 	 */
-	function loadLanguageClass($class){
+	/*7function loadLanguageClass($class){
 		try {
 			$n = $class."_".$_SESSION["S"]->getUserLanguage();
 			$c = new $n();
@@ -287,7 +287,7 @@ class HTMLGUI implements icontextMenu {
 			}
 		}
 		return $c;
-	}
+	}*/
 	
 	function setRowIDPrefix($prefix){
 		$this->RowIDPrefix = $prefix."Browser";
@@ -872,10 +872,10 @@ class HTMLGUI implements icontextMenu {
 	function getOperationsHTML($pluginName, $id = -1){
 		$userCanDelete = mUserdata::isDisallowedTo("cantDelete".$pluginName);
 		$userCanCreate = mUserdata::isDisallowedTo("cantCreate".$pluginName);
-		if($this->texts == null) {
-			$c = $this->loadLanguageClass("HTML");
-			$this->texts = $c->getEditTexts();
-		}
+		#if($this->texts == null) {
+			#$c = $this->loadLanguageClass("HTML");
+			#$this->texts = $c->getEditTexts();
+		#}
 
 		$html = "";
 		if(PMReflector::implementsInterface($pluginName,"iNewWithValues") AND $userCanCreate) $os = "1";
@@ -929,7 +929,7 @@ class HTMLGUI implements icontextMenu {
 		
 		$userHiddenFields = mUserdata::getHides($pluginName);
 		
-		$this->texts = $this->languageClass->getEditTexts();
+		#$this->texts = $this->languageClass->getEditTexts();
 
 		if(!$userCanEdit AND (($userCanCreate AND $this->editedID != -1) OR !$userCanCreate)){
 			$html .= "
@@ -1133,8 +1133,8 @@ class HTMLGUI implements icontextMenu {
 			foreach($this->prependedElements AS $E)
 				$top .= $E;
 		
-		$this->texts = $this->languageClass->getBrowserTexts();
-		$singularLanguageClass = $this->loadLanguageClass($this->singularClass);
+		#$this->texts = $this->languageClass->getBrowserTexts();
+		$singularLanguageClass = null;#$this->loadLanguageClass($this->singularClass);
 		
 		
 		
@@ -1691,14 +1691,14 @@ class HTMLGUI implements icontextMenu {
 					$onDeleteQuestion = $c->getOnDeleteQuestion();
 				}
 
-				$texts = $this->languageClass->getEditTexts();
+				#$texts = $this->languageClass->getEditTexts();
 
 				#$BRepeatable = "";
 
 				$T = new HTMLTable(1);
 				
 				$Buttons = "";
-				if($s[3]{0} == "1"){
+				if($s[3][0] == "1"){
 					$B = new Button("Neu mit Werten", "new", "icon");
 					$B->onclick(OnEvent::reload("Left", "HTMLGUI;insertAsNew:true")/*"contentManager.reloadFrameLeft('HTMLGUI;insertAsNew:true');"*/);
 					$B->style("margin-right:10px;");
@@ -1706,7 +1706,7 @@ class HTMLGUI implements icontextMenu {
 					$Buttons .= $B;
 				}
 				
-				if($s[3]{1} == "1"){
+				if($s[3][1] == "1"){
 					$B = new Button("Kopieren", "seiten", "icon");
 					$B->rmePCR(str_replace("GUI", "", $s[1]), $s[2], 'cloneMe', "", "function(transport){ lastLoadedLeft = (transport.responseText == '' ? -1 : transport.responseText); contentManager.reloadFrameLeft(); contentManager.reloadFrameRight(); }");
 					#$B->onclick("rme('$s[1]','$s[2]','cloneMe','', 'lastLoadedLeft = (transport.responseText == \'\' ? -1 : transport.responseText); contentManager.reloadFrameLeft(); contentManager.reloadFrameRight();');");
@@ -1715,15 +1715,15 @@ class HTMLGUI implements icontextMenu {
 					$Buttons .= $B;
 				}
 				
-				if($s[3]{2} == "1"){
+				if($s[3][2] == "1"){
 					$B = new Button("Löschen", "trash", "icon");
-					$B->onclick("deleteClass('".str_replace("GUI", "", $s[1])."','$s[2]',".($onDeleteEvent == "" ? "function() {  contentManager.reloadFrameRight(); if(typeof lastLoadedLeft != 'undefined' && lastLoadedLeft == '$s[2]') $('contentLeft').update(''); }" : $onDeleteEvent).",'".($onDeleteQuestion == "" ? $texts["Wirklich löschen?"] : $onDeleteQuestion)."');");
+					$B->onclick("deleteClass('".str_replace("GUI", "", $s[1])."','$s[2]',".($onDeleteEvent == "" ? "function() {  contentManager.reloadFrameRight(); if(typeof lastLoadedLeft != 'undefined' && lastLoadedLeft == '$s[2]') $('contentLeft').update(''); }" : $onDeleteEvent).",'".($onDeleteQuestion == "" ? "Wirklich löschen?" : $onDeleteQuestion)."');");
 					$B->style("margin-right:10px;");
 					
 					$Buttons .= $B;
 				}
 				
-				if($s[3]{3} == "1"){
+				if($s[3][3] == "1"){
 					$BRepeatable = new Button("Repeatable erstellen","redo");
 					$BRepeatable->type("icon");
 					$BRepeatable->onclick("contentManager.newClassButton('Repeatable','','contentLeft','RepeatableGUI;RepeatablePlugin:$s[1];RepeatablePluginElementID:$s[2]');");
@@ -1731,7 +1731,7 @@ class HTMLGUI implements icontextMenu {
 					$Buttons .= $BRepeatable;
 				}
 				
-				if($s[3]{4} == "1"){
+				if($s[3][4] == "1"){
 					$B = new Button("XML Export", "export", "icon");
 					$B->onclick("windowWithRme('$s[1]', '$s[2]', 'getXML', '');phynxContextMenu.stop();");
 					$B->style("margin-right:10px;");
@@ -2004,12 +2004,12 @@ class HTMLGUI implements icontextMenu {
 	 * @param string $plugin
 	 */
 	public function VersionCheck($plugin){
-		$l = $this->languageClass->getBrowserTexts();
+		#$l = $this->languageClass->getBrowserTexts();
 
 		if(Util::versionCheck($_SESSION["applications"]->getRunningVersion(), $_SESSION["CurrentAppPlugins"]->getVersionOfPlugin($plugin) , "!=")){
 					
 			$t = new HTMLTable(1);
-			$t->addRow(str_replace(array("%1","%2"),array($_SESSION["CurrentAppPlugins"]->getVersionOfPlugin($plugin), $_SESSION["applications"]->getRunningVersion()),$l["versionError"]));
+			$t->addRow(str_replace(array("%1","%2"),array($_SESSION["CurrentAppPlugins"]->getVersionOfPlugin($plugin), $_SESSION["applications"]->getRunningVersion()),"Sie verwenden eine alte Version dieses Plugins (%1) mit einer neueren Version des Frameworks (%2).<br>Wenn Sie diese Anwendung aktualisiert haben, verwenden Sie bitte nachfolgenden Knopf, um sie neu zu laden."));
 			$t->addRow(Installation::getReloadButton());
 			die($t->getHTML());
 		}

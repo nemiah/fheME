@@ -49,7 +49,7 @@ class BackgroundPluginState {
 		if(!strstr($string,"SysMessages;")) $_SESSION["messages"]->addMessage("BPS: setByString:$string","BPS");
 		
 		$isAdd = false;
-		if($string{0} == "_") {
+		if($string[0] == "_") {
 			$isAdd = true;
 			$string = substr($string,1);
 		}
@@ -170,7 +170,7 @@ class BackgroundPluginState {
 	public function setACProperty($property, $value){
 		$add = false;
 		$sub = false;
-		if($property{0} == "_") {
+		if($property[0] == "_") {
 			$add = true;
 			$property = substr($property,1);
 			if($this->state[$this->actual] == -1)
@@ -180,7 +180,7 @@ class BackgroundPluginState {
 				$this->state[$this->actual][$property] = "";
 		}
 		
-		if($property{0} == "-") {
+		if($property[0] == "-") {
 			$sub = true;
 			$property = substr($property,1);
 			

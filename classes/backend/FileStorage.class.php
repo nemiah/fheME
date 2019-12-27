@@ -78,7 +78,32 @@ class FileStorage {
 			$A->FileName = $ex[count($ex) - 1];
 			$A->FileIsDir = $isDir;
 			$A->FileSize = filesize($file);
-			if(is_readable($file) AND $isDir == "0" AND function_exists("mime_content_type")) $A->FileMimetype = mime_content_type($file);
+			if(is_readable($file) AND $isDir == "0" AND function_exists("mime_content_type")) 
+				$A->FileMimetype = mime_content_type($file);
+			
+			if(is_readable($file) AND $isDir == "0" AND !function_exists("mime_content_type")) {
+				switch(Util::ext($file)){
+					case "pdf":
+						$A->FileMimetype = "application/pdf";
+					break;
+				
+					case "jpg":
+					case "jpeg":
+						$A->FileMimetype = "image/jpeg";
+					break;
+				
+					case "png":
+					case "svg":
+						$A->FileMimetype = "image/".Util::ext($file);
+					break;
+				
+					case "htm":
+					case "html":
+						$A->FileMimetype = "text/html";
+					break;
+				}
+			}
+			
 			$A->FileIsWritable = is_writable($file);
 			$A->FileIsReadable = is_readable($file);
 			$A->FileCreationDate = filectime($file);
@@ -119,7 +144,7 @@ class FileStorage {
 				chmod($dir, 0777);
 			}
 			
-			return realpath($dir)."/";
+			return str_replace("\\", "/", realpath($dir))."/";
 		}
 		
 		if(Session::isPluginLoaded("multiInstall") AND isset($_SESSION["DBData"]) AND isset($_SESSION["DBData"]["httpHost"])){# AND $_SESSION["DBData"]["httpHost"] != "*"){
@@ -131,7 +156,7 @@ class FileStorage {
 			}
 		}
 		
-		return $path;
+		return str_replace("\\", "/", $path);
 	}
 	
 	public static function getElementDir($class, $id){

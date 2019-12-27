@@ -52,7 +52,7 @@ class HTMLGUIX {
 	protected $appended = array();
 	protected $prepended = array();
 
-	protected $languageClass;
+	#protected $languageClass;
 
 	protected $sideButtons = array();
 	protected $sideButtonsAlways = array();
@@ -93,7 +93,7 @@ class HTMLGUIX {
 		if($object != null)
 			$this->object($object, $collectionName);
 
-		$this->languageClass = $this->loadLanguageClass("HTML");
+		#$this->languageClass = $this->loadLanguageClass("HTML");
 	}
 	
 	public function placeholder($fieldName, $value){
@@ -986,7 +986,7 @@ class HTMLGUIX {
 	 * @param string $class
 	 * @return unknown_type
 	 */
-	function loadLanguageClass($class){
+	/*function loadLanguageClass($class){
 		try {
 			$n = $class."_".$_SESSION["S"]->getUserLanguage();
 			$c = new $n();
@@ -999,7 +999,7 @@ class HTMLGUIX {
 			}
 		}
 		return $c;
-	}
+	}*/
 
 	/**
 	 * You may use this default version check to see if the version of the plugin matches the application's version
@@ -1007,12 +1007,12 @@ class HTMLGUIX {
 	 * @param string $plugin
 	 */
 	public function version($plugin){
-		$l = $this->languageClass->getBrowserTexts();
+		#$l = $this->languageClass->getBrowserTexts();
 
 		if(Util::versionCheck($_SESSION["applications"]->getRunningVersion(), $_SESSION["CurrentAppPlugins"]->getVersionOfPlugin($plugin) , "!=")){
 
 			$t = new HTMLTable(1);
-			$t->addRow(str_replace(array("%1","%2"),array($_SESSION["CurrentAppPlugins"]->getVersionOfPlugin($plugin), $_SESSION["applications"]->getRunningVersion()),$l["versionError"]));
+			$t->addRow(str_replace(array("%1","%2"),array($_SESSION["CurrentAppPlugins"]->getVersionOfPlugin($plugin), $_SESSION["applications"]->getRunningVersion()),"Sie verwenden eine alte Version dieses Plugins (%1) mit einer neueren Version des Frameworks (%2).<br />Wenn Sie diese Anwendung aktualisiert haben, verwenden Sie bitte nachfolgenden Knopf, um sie neu zu laden."));
 			$t->addRow(Installation::getReloadButton());
 			die($t->getHTML());
 		}

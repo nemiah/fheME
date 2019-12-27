@@ -242,7 +242,7 @@ class mInstallationGUI extends mInstallation implements iGUIHTML2 {
 					$BReload->style("float:right;margin:10px;");
 					
 					if(!$File->A("FileIsWritable"))
-						$BR = "Bitte machen Sie die Datei /system/connect.php für den Webserver beschreibbar, damit phynx auf die ältere Verbindungsart umstellen kann.<br /><br />Verwenden Sie dazu Ihr FTP-Programm. Klicken Sie mit der rechten Maustaste auf die Datei auf dem Server, wählen Sie \"Eigenschaften\", und geben Sie den Modus 666 an, damit sie durch den Besitzer, die Gruppe und alle Anderen les- und schreibbar ist.$BReload";
+						$BR = "Bitte machen Sie die Datei /system/connect.php für den Webserver beschreibbar, damit open3A auf die ältere Verbindungsart umstellen kann.<br /><br />Verwenden Sie dazu Ihr FTP-Programm. Klicken Sie mit der rechten Maustaste auf die Datei auf dem Server, wählen Sie \"Eigenschaften\", und geben Sie den Modus 666 an, damit sie durch den Besitzer, die Gruppe und alle Anderen les- und schreibbar ist.$BReload";
 					$t->addRow(array("$B <b>Möglicherweise ist die MySQLi-Erweiterung auf Ihrem Server nicht korrekt konfiguriert.</b><br /><br />$BR"));
 					$t->addRowClass("backgroundColor0");
 					
@@ -429,7 +429,7 @@ class mInstallationGUI extends mInstallation implements iGUIHTML2 {
 					$B->id("recheckButton");
 					
 					if(!$File->A("FileIsWritable"))
-						$BR = "<p style=\"margin-top:20px;\">Bitte machen Sie die Datei /system/connect.php für den Webserver beschreibbar, damit phynx auf die ältere Verbindungsart umstellen kann.<br /><br />Verwenden Sie dazu Ihr FTP-Programm. Klicken Sie mit der rechten Maustaste auf die Datei auf dem Server, wählen Sie \"Eigenschaften\", und geben Sie den Modus 666 an, damit sie durch den Besitzer, die Gruppe und alle Anderen les- und schreibbar ist.
+						$BR = "<p style=\"margin-top:20px;\">Bitte machen Sie die Datei /system/connect.php für den Webserver beschreibbar, damit open3A auf die ältere Verbindungsart umstellen kann.<br /><br />Verwenden Sie dazu Ihr FTP-Programm. Klicken Sie mit der rechten Maustaste auf die Datei auf dem Server, wählen Sie \"Eigenschaften\", und geben Sie den Modus 666 an, damit sie durch den Besitzer, die Gruppe und alle Anderen les- und schreibbar ist.
 							</p><div style=\"width:350px;margin:auto;padding-top:20px;padding-bottom:20px;\">".$this->box($B, $A, "Erneut<br />prüfen")."</div>";
 
 					
@@ -526,11 +526,11 @@ class mInstallationGUI extends mInstallation implements iGUIHTML2 {
 		} catch(Exception $e){
 			die("<p style=\"padding:5px;color:red;\">Fehler beim Übergeben der E-Mail. ".$e->getMessage()."</p>");
 		}
-		$mail->setFrom("phynx Mailtest <".$mailfrom.">");
+		$mail->setFrom("open3A Mailtest <".$mailfrom.">");
 		if(!ini_get('safe_mode')) $mail->setReturnPath($mailfrom);
-		$mail->setSubject("phynx Mailtest");
+		$mail->setSubject("open3A Mailtest");
 
-		$mail->setText(wordwrap("Diese Nachricht wurde vom phynx Mailtester erzeugt. Ihre E-Mail-Einstellungen sind korrekt.", 80));
+		$mail->setText(wordwrap("Diese Nachricht wurde vom open3A Mailtester erzeugt. Ihre E-Mail-Einstellungen sind korrekt.", 80));
 		$adressen = array();
 		$adressen[] = $mailto;
 		if($mail->send($adressen)){
@@ -607,7 +607,7 @@ class mInstallationGUI extends mInstallation implements iGUIHTML2 {
 		set_time_limit(0);
 		
 		try {
-			$C = new Customizer();
+			$C = new Customizer(-1);
 			Customizer::updates("CustomizerPakete");
 		} catch (Exception $ex) { }
 		

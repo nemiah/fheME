@@ -30,13 +30,10 @@ var Interface = {
 	},
 	
 	init: function(){
-		if($('wrapperHandler')){
-			Interface.isDesktop = true;
+		Interface.resizeWrapper();
+		$j(window).on('resize', function() {
 			Interface.resizeWrapper();
-			$j(window).on('resize', function() {
-				Interface.resizeWrapper();
-			});
-		}
+		});
 		
 		$j(window).on("online", function(){
 			Interface.online();
@@ -59,6 +56,27 @@ var Interface = {
 		$j('#offlineMessage').remove();
 	},
 	
+	setup: function(callback){
+		contentManager.rmePCR("Colors", "-1", "getInterface", "",  function(transport){
+			contentManager.layout = transport.responseData.layout;
+			$j('#interfaceLayout').prop('href', "./styles/standard/"+transport.responseData.layout+".css");
+			$j('#interfaceColors').prop('href', "./styles/"+transport.responseData.colors+"/colors.css");
+			
+			Interface.resizeWrapper();
+			
+			if(typeof callback != "undefined")
+				callback();
+			
+			if(!contentManager.updateTitle)
+				return;
+
+			if(contentManager.layout != "desktop") 
+				document.title = transport.responseData.title;
+			else
+				$j("#wrapperHandler").html(transport.responseData.title);
+    	});
+	},
+	
 	/**
 	 * @deprecated text
 	 */
@@ -76,6 +94,11 @@ var Interface = {
 	},
 	
 	resizeWrapper: function() {
+		if(contentManager.layout != "desktop"){
+			$j('#wrapper').css("height", "auto").css("width", "auto");
+			return;
+		}
+		
 		size = Overlay.getPageSize(true);
 		$j('#wrapper').css("height", ($j(window).height() - 230)+'px').css("width", (contentManager.maxWidth(true) - 250 - 50)+'px');
 	},

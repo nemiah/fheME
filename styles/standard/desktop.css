@@ -12,6 +12,7 @@ html {
 #wrapperHandler {
 	background-color: #eee;
 	color:#aaa;
+	display:block;
 }
 
 #desktopWrapper {
