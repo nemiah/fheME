@@ -80,7 +80,7 @@ class mRSSParserGUI extends anyC implements iGUIHTMLMP2 {
 					$B->style($B->getStyle()."float:left;margin-right:10px;margin-top:-5px;margin-bottom:10px;");
 				}
 				
-				$list->addItem($B."<div id=\"RSSParserItem$i\" style=\"display:none;\">".$item->description."</div>".($item->description != "" ? "<a href=\"#\" onclick=\"\$j('#RSSParserItemList').hide(); \$j('#RSSParserItemText').html(\$j('#RSSParserItem$i').html()).show();\" >" : "").$item->title.($item->description != "" ? "</a>" : ""));
+				$list->addItem($item->description);
 				$list->addItemStyle("clear:both;display:block;margin-left:0px;");
 				
 				$i++;
