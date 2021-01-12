@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 class SupportGUI {
 	
@@ -25,31 +25,39 @@ class SupportGUI {
 		return array("Furtmeier Hard- und Software", "Support@Furtmeier.IT");
 	}
 	
-	public function fatalError($error, $request = ""){
+	public function fatalError($error, $request = "", $return = false, $inWindow = false){
 		
 		$error = trim($error."\n\nZeit:\n".Util::CLDateTimeParser(time())."\n\nBrowser-Anfrage:\n".htmlentities($request));
 		
-		$B = new Button("Fehler", "./images/big/sad.png", "icon");
+		$B = new Button("Fehler", ($inWindow ? "." : "")."./images/big/sad.png", "icon");
 		$B->style("float:left;margin-right:10px;margin-bottom:20px;");
 		
-		echo "<div id=\"questionContainer\"><h1>$B Es ist ein Fehler aufgetreten, das tut mir leid!</h1><p>Sie können mit diesem Modul nicht arbeiten,<br />möglicherweise funktionieren aber die anderen.</p>";
-		echo "<pre style=\"padding:5px;font-size:10px;max-width:590px;overflow:auto;clear:both;color:grey;\">".preg_replace("/^\<br[ \/]*\>\s*/", "", stripslashes(trim($error)))."</pre>";
+		$r = "<div id=\"questionContainer\"><h1>$B Es ist ein Fehler aufgetreten, das tut mir leid!</h1><p>Sie können mit diesem Modul nicht arbeiten,<br />möglicherweise funktionieren aber die Anderen.</p>";
+		$r .= "<pre style=\"padding:5px;font-size:10px;max-width:590px;overflow:auto;clear:both;color:grey;\">".preg_replace("/^\<br[ \/]*\>\s*/", "", stripslashes(trim($error)))."</pre>";
 		
-		$BJa = new Button("Ja", "bestaetigung");
+		$BJa = new Button("Ja", ($inWindow ? "." : "")."./images/navi/bestaetigung.png");
 		$BJa->style("float:right;margin:10px;");
 		$BJa->onclick("\$j('#questionContainer').slideUp(); \$j('#mailContainer').slideDown();");
 		
-		$BNein = new Button("Nein,\ndanke", "stop");
+		$BNein = new Button("Nein,\ndanke", ($inWindow ? "." : "")."./images/navi/stop.png");
 		$BNein->style("margin:10px;");
-		$BNein->onclick(OnEvent::closePopup("Support"));
+		if(!$inWindow)
+			$BNein->onclick(OnEvent::closePopup("Support"));
+		else
+			$BNein->onclick("window.close();");
 		
-		echo "<h2>Möchten Sie die Fehlermeldung an den Support übertragen?</h2>$BJa$BNein</div>";
+		$r .= "<h2>Möchten Sie die Fehlermeldung an den Support übertragen?</h2>$BJa$BNein</div>";
 		
 		SupportGUI::$errorMessage = stripslashes(strip_tags($error));
-		echo "<div style=\"display:none;\" id=\"mailContainer\">".UtilGUI::EMailPopup("SupportGUI", "-1", null, "function(transport){ \$j('#messageContainer').html(transport.responseText); \$j('#mailContainer').slideUp(); \$j('#messageContainer').slideDown(); }", OnEvent::closePopup("Support"), true)."</div><div style=\"display:none;\" id=\"messageContainer\"></div>";
+		$r .= "<div style=\"display:none;\" id=\"mailContainer\">".UtilGUI::EMailPopup("SupportGUI", "-1", $inWindow ? "1" :"0", "function(transport){ \$j('#messageContainer').html(transport.responseText); \$j('#mailContainer').slideUp(); \$j('#messageContainer').slideDown(); }", !$inWindow ? OnEvent::closePopup("Support") : "window.close();", true, true)."</div><div style=\"display:none;\" id=\"messageContainer\"></div>";
+		
+		if($return)
+			return $r;
+		
+		echo $r;
 	}
 	
-	public static function sendEmail($subject, $body, $recipient, $callback, $files, $cc, $sender){
+	public static function sendEmail($subject, $body, $recipient, $inWindow, $files, $cc, $sender){
 		$S = new SupportGUI();
 		$data = $S->getEMailData();
 		
@@ -85,11 +93,14 @@ class SupportGUI {
 		$mimeMail2->Body = wordwrap($body, 80);
 		$mimeMail2->AddAddress($mailto);
 		
-		$B = new Button("Danke!", "./images/big/thanks.png", "icon");
+		$B = new Button("Danke!", ($inWindow ? "." : "")."./images/big/thanks.png", "icon");
 		$B->style("float:left;margin-right:10px;margin-bottom:20px;");
 		
-		$BOK = new Button("OK", "bestaetigung");
-		$BOK->onclick(OnEvent::closePopup("Support"));
+		$BOK = new Button("OK", ($inWindow ? "." : "")."./images/navi/bestaetigung.png");
+		if(!$inWindow)
+			$BOK->onclick(OnEvent::closePopup("Support"));
+		else
+			$BOK->onclick ("window.close();");
 		$BOK->style("float:right;margin:10px;");
 
 		if($mimeMail2->Send())

@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 
 var Interface = {
@@ -24,6 +24,9 @@ var Interface = {
 	TabBarLastTab: null,
 	isLoading: false,
 	mobileMaxWidth: 1000,
+	BroadcastChannel: null,
+	locale: 'de_DE',
+	application: null,
 	
 	mobile: function(){
 		return $j(window).width() <= Interface.mobileMaxWidth;
@@ -174,17 +177,20 @@ var Interface = {
 
 	},
 	
-	notify: function(title, message){
+	notify: function(title, message, timeout){
 		if(typeof Notification != "function")
 			return;
 		
 		if(Interface.notifyPermission() != "granted")
 			return;
 		
-		Interface.notifySend(title, message);
+		Interface.notifySend(title, message, timeout);
 	},
 			
-	notifySend: function(title, message){
+	notifySend: function(title, message, timeout){
+		if(typeof timeout == 'undefined')
+			timeout = 5000;
+		
 		var N = new Notification(title, {
 			body: message
 		});
@@ -192,7 +198,7 @@ var Interface = {
 		if(typeof N.close == "function")
 			setTimeout(function(){
 				N.close();
-			}, 5000);
+			}, timeout);
 
 	},
 			

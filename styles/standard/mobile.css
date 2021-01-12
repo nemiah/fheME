@@ -1,41 +1,42 @@
+#contentRight .sideTableLeft tr.extendedButton {
+	display:none;
+}
+
+#contentLeft .sideTableRight tr.extendedButton {
+	display:none;
+}
+
+
 @media only screen and (max-width: 1200px) and (min-width: 1000px) {
-	.sideTableRight .bigButton, .sideTableLeft .bigButton {
-		width:38px;
-		background-position:3px;
-		text-indent: 100px;
-		font-size: 0px;
-		overflow: hidden;
-	}
-
-	.sideTableRight .MPBigButton, .sideTableLeft .MPBigButton {
-		margin-right:0px;
+	#contentLeft .sideTableRight tr.extendedButton {
+		display:table-row;
 	}
 	
-	.sideTableLeft .bigButton {
-		float:right;
-	}
-
-	#contentRight .sideTableLeft {
-		width:60px;
-		margin-left:-70px;
-	}
-
-	#contentLeft .sideTableRight {
-		width:60px;
-		margin-right:-70px;
-	}
-	
-	.sideTableRight .buttonSettings {
-		margin-right:-10px;
+	#contentLeft .sideTableRight tr:not(.extendedButton) {
+		display:none;
 	}
 }
 
+@media only screen and (max-width: 1080px) and (min-width: 1000px) {
+	#contentRight .sideTableLeft tr.extendedButton {
+		display:table-row;
+	}
+
+	#contentRight .sideTableLeft tr:not(.extendedButton) {
+		display:none;
+	}
+}
+
+	
 .SpellbookContainer {
 	margin-right:160px;
 }
 
 .SpellbookSpell {
-	width:33%;float:left;
+	width:33.333%;
+	display:inline-block;
+	box-sizing: border-box;
+	vertical-align:top;
 }
 
 .DesktopCol {
@@ -48,6 +49,9 @@
 }
 
 @media only screen and (max-width: 1000px) {
+	.sideTableMobileButton {
+		display:block;
+	}
 	.sideTableMobileButton {
 		display:block;
 	}
@@ -129,7 +133,7 @@
 		display:block;
 	}
 	
-	#SpellbookSortTabs, .SpellbookMinPlugin, .SpellbookUsePlugin, .SpellbookDescription {
+	#SpellbookSortTabs, .SpellbookMinPlugin, .SpellbookUsePlugin, .SpellbookDescription:not(.SpellbookKeepDescription) {
 		display:none;
 	}
 

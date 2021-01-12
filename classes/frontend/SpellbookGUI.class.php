@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 
 class SpellbookGUI implements iGUIHTMLMP2 {
@@ -79,51 +79,6 @@ class SpellbookGUI implements iGUIHTMLMP2 {
 		$html .= "<div style=\"float:right;width:160px;padding-top:20px;\" id=\"SpellbookSortTabs\">".$this->getSortable(false)."</div>
 			<div class=\"SpellbookContainer\">";
 		
-		$B = new Button("Benutzer", "users", "icon");
-		$B->style("float:left;margin-right:10px;margin-top:-7px;margin-left:-5px;");
-
-		$BW = "";
-		if(Session::isPluginLoaded("mWebAuth")){
-			
-			$BR = new Button("Token\nregistrieren", "./plugins/WebAuth/WebAuth.png");
-			$BR->onclick("WebAuth.newregistration(function(){".OnEvent::reload("Screen")."});");
-			
-			$U = new User(Session::currentUser()->getID());
-			if($U->A("UserWebAuthCredentials") != ""){
-				$BR = new Button("Token\nlöschen", "./plugins/WebAuth/lock_break.png");
-				$BR->rmePCR("Spellbook", "-1", "clearToken", "", OnEvent::reload("Screen"));
-			}
-			$BR->className("backgroundColor1");
-			$BR->style("margin:10px;");
-			
-			$BW = "<div style=\"border:1px solid #AAA;margin-top:15px;\">
-					<div style=\"margin-top:-10px;width:100px;margin-left:5px;\" class=\"backgroundColor4\">WebAuth</div>
-					$BR
-				</div>";
-		}
-		
-		$BP = new Button("Passwort\nändern", "refresh");
-		$BP->className("backgroundColor1");
-		$BP->style("margin:10px;");
-		$BP->popup("", "Passwort ändern", "Spellbook", "-1", "changePasswordPopup");
-		
-		$html .= "
-		<div style=\"\" class=\"SpellbookSpell\">
-			<div style=\"margin:10px;\" class=\"borderColor1 spell backgroundColor4\">
-				<div class=\"\" style=\"padding:10px;padding-bottom:5px;background-color:#CCC;\">
-					$B<h2 style=\"margin-bottom:0px;margin-top:0px;\">Benutzer</h2>
-				</div>
-				<div style=\"padding:7px;height:187px;overflow:auto;\" class=\"SpellbookDescription\">
-					Angemeldeter Benutzer: <strong>".Session::currentUser()->A("name")."</strong> (".Session::currentUser()->A("username").")
-					$BW
-				
-					<div style=\"border:1px solid #AAA;margin-top:15px;\">
-						<div style=\"margin-top:-10px;width:100px;margin-left:5px;\" class=\"backgroundColor4\">Passwort</div>
-						$BP
-					</div>
-				</div>
-			</div>
-		</div>";
 			
 		$U = new mUserdata();
 		$U->addAssocV3("typ","=","TTP");
@@ -171,7 +126,7 @@ class SpellbookGUI implements iGUIHTMLMP2 {
 			$BG->style("float:right;margin-top:-7px;");
 			
 			$B = new Button($key, $icons[$value], "icon");
-			$B->style("float:left;margin-right:10px;margin-top:-7px;margin-left:-5px;");
+			$B->style("float:left;margin-right:10px;margin-top:-7px;margin-left:-5px;width:32px;");
 			
 			$I = new HTMLInput("usePlugin$value", "checkbox", in_array($value, $appMenuDisplayed) ? "1" : "0");
 			$I->id("usePlugin$value");
@@ -197,8 +152,7 @@ class SpellbookGUI implements iGUIHTMLMP2 {
 				$IM->isDisabled (true);
 			
 			#border-width:1px;border-style:solid;
-			$html .= "
-			<div style=\"\" class=\"SpellbookSpell\">
+			$html .= "<div style=\"\" class=\"SpellbookSpell\">
 				<div style=\"margin:10px;\" class=\"borderColor1 spell\">
 					<div class=\"backgroundColor2\" style=\"padding:10px;padding-bottom:5px;\">
 						$BG$B<h2 style=\"margin-bottom:0px;margin-top:0px;\">$key</h2>
@@ -273,8 +227,7 @@ class SpellbookGUI implements iGUIHTMLMP2 {
 			$B->style("float:left;margin-right:10px;margin-top:-7px;margin-left:-5px;");
 			
 			#border-width:1px;border-style:solid;
-			$html .= "
-			<div style=\"\" class=\"SpellbookSpell\">
+			$html .= "<div style=\"\" class=\"SpellbookSpell\">
 				<div style=\"margin:10px;border-radius:5px;\" class=\"borderColor1 spell\">
 					<div class=\"backgroundColor2\" style=\"padding:10px;padding-bottom:5px;\">
 						$B<span style=\"float:right;margin-top:7px;\">".($isAdmin ? "Admin!" : "")."</span><h2  style=\"margin-bottom:0px;margin-top:0px;\">$key</h2>

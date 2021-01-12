@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 abstract class Collection {
 	protected $A = null;
@@ -605,7 +605,8 @@ abstract class Collection {
 			$sort = $sort->getUDValue("OrderByFieldInHTMLGUI".$this->getClearClass());
 			if($sort != null) {
 				$field = substr($sort, 0, strpos($sort, ";"));
-				if(($field * 1)."" === $field){
+				#if(($field * 1)."" === $field){
+				if(is_numeric($field)){
 					$o = $this->getOrderByFields();
 					foreach($o[$field]->orderBy AS $k => $n){
 						if($k == 0)
@@ -823,7 +824,7 @@ abstract class Collection {
 		return $this->getNextEntry($lazyLoad);
 	}
 	
-	public function setTableLock(string $table, boolean $lock){
+	public function setTableLock(string $table, bool $lock){
 		if($this->Adapter == null)
 			$this->loadAdapter();
 		

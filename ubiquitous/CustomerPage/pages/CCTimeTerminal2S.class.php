@@ -15,13 +15,17 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 require_once dirname(__FILE__)."/CCTimeTerminal2.class.php";
 
 class CCTimeTerminal2S extends CCTimeTerminal2 implements iCustomContent {
 	function __construct(){
 		$this->switch = true;
+	}
+	
+	function getLabel(){
+		return "Zeiterfassungs-Terminal 2 getauscht";
 	}
 	
 }

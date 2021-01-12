@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 class LoginAD extends Collection {
 	public function lCV3($id = -1, $returnCollector = true, $lazyload = false){
@@ -83,14 +83,14 @@ class LoginAD extends Collection {
 		
 		if($password == null)
 			$password = $LD->A("passwort");
-
+		
 		$ldap = ldap_connect($adServer);
 
 		ldap_set_option($ldap, LDAP_OPT_PROTOCOL_VERSION, 3);
 		ldap_set_option($ldap, LDAP_OPT_REFERRALS, 0);
 
 		$bind = ldap_bind($ldap, $username, $password);
-
+		
 		if(!$bind) 
 			throw new Exception("Keine Verbindung zu AD-Server");
 

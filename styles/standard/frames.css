@@ -46,25 +46,26 @@
 }
 
 #wrapperTableTd1 {
-	display:inline-block;
+	/*display:inline-block;*/
 	padding:0px;
-	vertical-align:top;
+	/*vertical-align:top;*/
 	margin:0px;
+	float:left;
 }
 
 #wrapperTableTd3 {
-	display:inline-block;
+	/*display:inline-block;*/
 	padding:0px;
 	float:right;
-	vertical-align:top;
+	/*vertical-align:top;*/
 	margin:0px;
 }
 
 #wrapperTableTd2 {
-	display:inline-block;
+	/*display:inline-block;*/
 	float:right;
 	padding:0px;
-	vertical-align:top;
+	/*vertical-align:top;*/
 	margin:0px;
 
 }

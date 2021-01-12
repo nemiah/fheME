@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 
 /*
@@ -151,7 +151,28 @@
 	});
 })(jQuery);
 
+/*extension String {
 
+    var containsEmoji: Bool {
+        for scalar in unicodeScalars {
+            switch scalar.value {
+            case 0x1F600...0x1F64F, // Emoticons
+                 0x1F300...0x1F5FF, // Misc Symbols and Pictographs
+                 0x1F680...0x1F6FF, // Transport and Map
+                 0x2600...0x26FF,   // Misc symbols
+                 0x2700...0x27BF,   // Dingbats
+                 0xFE00...0xFE0F,   // Variation Selectors
+                 0x1F900...0x1F9FF, // Supplemental Symbols and Pictographs
+                 0x1F1E6...0x1F1FF: // Flags
+                return true
+            default:
+                continue
+            }
+        }
+        return false
+    }
+
+}*/
 
 var $j = jQuery.noConflict();
 
@@ -254,6 +275,7 @@ var Ajax = {
 				if(window.console && request.getResponseHeader('X-Timers')){
 					var obj = jQuery.parseJSON(request.getResponseHeader('X-Timers'));
 					console.log(counter+": Timers");
+					var previous = 0;
 					$j.each(obj, function(k, v){
 						while(v[1].length < 6)
 							v[1] = " "+v[1];
@@ -262,7 +284,11 @@ var Ajax = {
 						while(v[0].length < 8)
 							v[0] = v[0]+" ";
 						
-						console.log("%c "+v[0]+" "+v[1]+" ("+v[2]+":"+v[3]+")", "color:grey;");
+						if(parseInt(v[1]) - previous > 30)
+							console.warn("%c "+v[0]+" "+v[1]+" ("+v[2]+":"+v[3]+")", "color:grey;");
+						else
+							console.log("%c "+v[0]+" "+v[1]+" ("+v[2]+":"+v[3]+")", "color:grey;");
+						previous = parseInt(v[1]);
 					});
 					console.log(" total:    "+duration+"ms");
 				}
@@ -713,7 +739,7 @@ $j(document).on('mouseover', '.bigButton', function(event) {
 });
 
 $j(document).on("keyup", function(event){
-	if($j(event.target).prop("id") == "loginPassword" || $j(event.target).prop("id") == "loginUsername")
+	if($j(event.target).prop("id") == "loginPassword" || $j(event.target).prop("id") == "loginUsername" || $j(event.target).prop("id") == "anwendung" || $j(event.target).prop("id") == "loginMandant")
 		return;
 	
 	if(Date.now() - Ajax.lastRequestTime > 5 * 60 * 1000)

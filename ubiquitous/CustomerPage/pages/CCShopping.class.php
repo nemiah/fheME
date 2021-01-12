@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 class CCShopping implements iCustomContent {
 	function getLabel(){
@@ -24,6 +24,10 @@ class CCShopping implements iCustomContent {
 	
 	function getTitle(){
 		return "Einkaufsliste";
+	}
+	
+	public function getApps(){
+		return [];
 	}
 	
 	#function getViewport(){
@@ -177,11 +181,15 @@ class CCShopping implements iCustomContent {
 	}
 	
 	public static function setBought($args){
+		registerClassPath("Einkaufszettel", Util::getRootPath()."fheME/Einkaufszettel/Einkaufszettel.class.php");
+		
 		$E = new Einkaufszettel($args["P0"]);
 		$E->setBought();
 	}
 	
 	public static function setUnBought($args){
+		registerClassPath("Einkaufszettel", Util::getRootPath()."fheME/Einkaufszettel/Einkaufszettel.class.php");
+		
 		$E = new Einkaufszettel($args["P0"]);
 		$E->setUnBought();
 	}

@@ -104,12 +104,12 @@ class Timer {
 	public static function secondsToTimeString($time) {
 		$ms = round($time * 1000);
 
-		foreach (self::$times as $unit => $value) {
+		/*foreach (self::$times as $unit => $value) {
 			if ($ms >= $value) {
 				$time = floor($ms / $value * 100.0) / 100.0;
 				return $time . ' ' . ($time == 1 ? $unit : $unit);
 			}
-		}
+		}*/
 
 		return $ms . 'ms';
 	}

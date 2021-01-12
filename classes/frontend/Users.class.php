@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 class Users extends anyC {
 	function __construct(){
@@ -36,6 +36,8 @@ class Users extends anyC {
 			$U = new Users();
 			$U->addAssocV3("isAdmin", "=", "0");
 			$U->addAssocV3("UserType", "=", $type);
+			
+			Aspect::joinPoint("alterSystem", __CLASS__, __METHOD__, [$U]);
 		}
 
 		return $U;

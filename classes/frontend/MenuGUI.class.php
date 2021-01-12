@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 class MenuGUI extends UnpersistentClass implements iGUIHTML2, icontextMenu {
 	function  __construct() {
@@ -139,8 +139,10 @@ class MenuGUI extends UnpersistentClass implements iGUIHTML2, icontextMenu {
 			#$emptyFrame = "contentLeft";
 			#if(isset($ts[$value]) AND $ts[$value] == "contentLeft") $emptyFrame = "contentRight";
 
+			$class = Aspect::joinPoint("alterClass", $this, __METHOD__, array($value), $value);
+			
 			#$onclick = "contentManager.emptyFrame('contentLeft'); contentManager.emptyFrame('contentRight'); contentManager.emptyFrame('contentScreen'); contentManager.loadFrame('".(isset($ts[$value]) ? $ts[$value] : "contentRight")."', '$value', -1, 0, '{$value}GUI;-');$('windows').update('');";
-			$onclick = "contentManager.loadPlugin('".(isset($ts[$value]) ? $ts[$value] : "contentRight")."', '$value', '{$value}GUI;-');";
+			$onclick = "contentManager.loadPlugin('".(isset($ts[$value]) ? $ts[$value] : "contentRight")."', '$class', '{$class}GUI;-');";
 			
 			$B = new Button($key,$icons[$value], "icon");
 			$B->style("float:left;margin-right:10px;");
@@ -189,7 +191,7 @@ class MenuGUI extends UnpersistentClass implements iGUIHTML2, icontextMenu {
 			echo "
 				
 				<div
-					id=\"".$value."MenuEntry\"
+					id=\"".$class."MenuEntry\"
 					class=\"navBackgroundColor navBorderColor ".(($t == null OR $t == "big") ? "" : " smallTab")." navTab$hideClass\"
 					$style
 					>
@@ -230,7 +232,7 @@ class MenuGUI extends UnpersistentClass implements iGUIHTML2, icontextMenu {
 			$ex = explode("_", $U->A("language"));
 			if(isset($ex[2]))
 				unset($ex[2]);
-			echo "<script type=\"text/javascript\">\$j.datepicker.setDefaults(\$j.datepicker.regional['".  implode("_", $ex)."']); ".(Session::physion() ? "\$j('#navigation').hide();" : "")."</script>";
+			echo "<script type=\"text/javascript\">Interface.application = '".Applications::activeApplication()."'; Interface.locale = '".implode("_", $ex)."'; \$j.datepicker.setDefaults(\$j.datepicker.regional['".implode("_", $ex)."']); ".(Session::physion() ? "\$j('#navigation').hide();" : "")."</script>";
 		} catch (Exception $e){ }
 	}
 
@@ -390,7 +392,7 @@ class MenuGUI extends UnpersistentClass implements iGUIHTML2, icontextMenu {
 		}
 			
 		$gui = new HTMLGUI();
-		echo "<div style=\"max-height:400px;overflow:auto;\">".$gui->getContextMenu($kal, 'Menu','1',$sk,'phynxContextMenu.stop(); contentManager.switchApplication();')."</div>";
+		echo "<div style=\"max-height:400px;overflow:auto;\">".$gui->getContextMenu($kal, 'Menu','1',$sk,'phynxContextMenu.stop(); contentManager.switchApplication(\'%KEY\', true);')."</div>";
 		echo "<div class=\"backgroundColor1\" id=\"cMLogout\" onclick=\"userControl.doLogout();\" onmouseover=\"this.className='backgroundColor3';\" onmouseout=\"this.className='backgroundColor1';\" style=\"padding:5px;cursor:pointer;\"><img style=\"float:left;\" title=\"Abmelden\" src=\"./images/i2/logout.png\" onclick=\"userControl.doLogout();\" /><p style=\"padding-top:7px;padding-bottom:7px;padding-left:50px;\"><b>Abmelden</b></p></div>";
 	}
 

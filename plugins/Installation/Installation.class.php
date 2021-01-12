@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 class Installation extends PersistentObject {
 	private $folder = "./system/DBData/";
@@ -76,8 +76,9 @@ class Installation extends PersistentObject {
 
 	public static function getReloadButton(){
 		$B = new Button("Anwendung\nneu laden", "refresh");
-		$B->onclick("Installation.reloadApp();");
-
+		#$B->onclick("Installation.reloadApp();");
+		$B->rmePCR("Util", -1, "reloadApplication", [], "function(){ location.reload(true); }");
+		
 		return $B;
 	}
 
@@ -89,8 +90,9 @@ class Installation extends PersistentObject {
 	function saveMe($checkUserData = true, $output = false){
         parent::saveMe($checkUserData, false);
         
-        $_SESSION["DBData"] = $_SESSION["S"]->getDBData();
-
+        #$_SESSION["DBData"] = $_SESSION["S"]->getDBData(null, $_SESSION["DBData"]["InstallationID"]);
+		Session::reloadDBData();
+		
 		if(PHYNX_MAIN_STORAGE == "MySQL")
 			$DB = new DBStorage();
 		else

@@ -15,11 +15,24 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 class Util {
 	public static function ext($filename){
 		return trim(strtolower(pathinfo($filename, PATHINFO_EXTENSION)));
+	}
+	
+	public static function alienAutloaderLoad($path){
+		spl_autoload_unregister("phynxAutoloader");
+		require $path;
+	}
+	
+	public static function alienAutloaderUnload(){
+		$functions = spl_autoload_functions();
+		foreach($functions as $function) 
+			spl_autoload_unregister($function);
+		
+		spl_autoload_register("phynxAutoloader");
 	}
 	
 	public static function isDirEmpty($dir) {
@@ -134,7 +147,9 @@ class Util {
 				"h3" => "font-size: 15pt;font-family:sans-serif;",
 				"h4" => "font-size: 13pt;font-family:sans-serif;",
 				"h5" => "font-size: 13pt;font-family:sans-serif;",
-				"h6" => "font-size: 13pt;font-family:sans-serif;"
+				"h6" => "font-size: 13pt;font-family:sans-serif;",
+				"td" => "font-size: 12pt;font-family:sans-serif;",
+				"th" => "font-family:sans-serif;"
 			);
 		
 		foreach($styles AS $tag => $style){
@@ -146,7 +161,7 @@ class Util {
   <head>
     <meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\">
   </head>
-  <body style=\"background-color:#FFFFFF;color:#222222;\">
+  <body style=\"background-color:#FFFFFF;color:#222222;font-family:sans-serif;\">
   ".$html."
   </body>
 </html>";
@@ -475,6 +490,59 @@ class Util {
 		return $res;
 	}
 
+	public static function getOS(){
+		$user_agent = $_SERVER['HTTP_USER_AGENT'];
+
+		// https://stackoverflow.com/questions/18070154/get-operating-system-info-with-php
+		$os_array = [
+			'windows'								     =>  'Windows',
+			'mac os x 10.1[^0-9]'                        =>  'MacOS',
+			'macintosh|mac os x'                         =>  'MacOS',
+			'mac_powerpc'                                =>  'MacOS',
+			'linux'                                      =>  'Linux',
+			'ubuntu'                                     =>  'Linux',
+			'iphone'                                     =>  'iPhone',
+			'ipad'                                       =>  'iPad',
+			'android'                                    =>  'Android',
+
+			'(win)([0-9]{1,2}\.[0-9x]{1,2})'=>'Windows',
+			'(win)([0-9]{2})'=>'Windows',
+			'(windows)([0-9x]{2})'=>'Windows',
+
+			// Doesn't seem like these are necessary...not totally sure though..
+			//'(winnt)([0-9]{1,2}\.[0-9]{1,2}){0,1}'=>'Windows NT',
+			//'(windows nt)(([0-9]{1,2}\.[0-9]{1,2}){0,1})'=>'Windows NT', // fix by bg
+
+			'win32'=>'Windows',
+			'(fedora)'=>'Linux',
+			'(kubuntu)'=>'Linux',
+			'(ubuntu)'=>'Linux',
+			'(debian)'=>'Linux',
+			'(CentOS)'=>'Linux',
+			'(Mandriva).([0-9]{1,3}(\.[0-9]{1,3})?(\.[0-9]{1,3})?)'=>'Linux',
+			'(SUSE).([0-9]{1,3}(\.[0-9]{1,3})?(\.[0-9]{1,3})?)'=>'Linux',
+			'(Dropline)'=>'Linux',
+			'(ASPLinux)'=>'Linux',
+			'(Red Hat)'=>'Linux',
+			// Loads of Linux machines will be detected as unix.
+			// Actually, all of the linux machines I've checked have the 'X11' in the User Agent.
+			//'X11'=>'Unix',
+			'(linux)'=>'Linux',
+			'(amigaos)([0-9]{1,2}\.[0-9]{1,2})'=>'AmigaOS'
+		];
+
+		// https://github.com/ahmad-sa3d/php-useragent/blob/master/core/user_agent.php
+		$arch_regex = '/\b(x86_64|x86-64|Win64|WOW64|x64|ia64|amd64|ppc64|sparc64|IRIX64)\b/ix';
+		$arch = preg_match($arch_regex, $user_agent) ? '64' : '32';
+
+		foreach ($os_array as $regex => $value) {
+			if (preg_match('{\b('.$regex.')\b}i', $user_agent)) {
+				return $value.'_'.$arch;
+			}
+		}
+
+		return 'Unknown';
+	}
 
 	public static function isWindowsHost(){
 		return stripos(getenv("OS"), "Windows") !== false;
@@ -611,7 +679,7 @@ class Util {
 	}*/
 	
 	public static function CLFormatCurrency($number, $withSymbol = false){
-		return Util::formatCurrency($_SESSION["S"]->getUserLanguage(), $number * 1, $withSymbol);
+		return Util::formatCurrency($_SESSION["S"]->getUserLanguage(), (float) $number, $withSymbol);
 	}
 	
 	public static function CLNumberParser($number, $l = "load"){
@@ -673,7 +741,7 @@ class Util {
 		}
 	}
 	
-	public static function formatAnrede($language, Adresse $Adresse, $shortmode = false, $lessFormal = false, $perDu = false){
+	public static function formatAnrede($language, Adresse $Adresse, $shortmode = false, $lessFormal = false, $perDu = false, $liebe = false){
 		$format = self::getLangAnrede($language, $lessFormal);
 
 		switch($Adresse->A("anrede")){
@@ -688,6 +756,9 @@ class Util {
 				
 				if($perDu == true)
 					$A = "Hallo ".trim($Adresse->A("vorname"));
+				
+				if($perDu == true AND $liebe == true)
+					$A = "Lieber ".trim($Adresse->A("vorname"));
 			break;
 			case "1":
 				if($shortmode) 
@@ -700,6 +771,9 @@ class Util {
 				
 				if($perDu == true)
 					$A = "Hallo ".trim($Adresse->A("vorname"));
+				
+				if($perDu == true AND $liebe == true)
+					$A = "Liebe ".trim($Adresse->A("vorname"));
 			break;
 			case "3":
 				if($shortmode) 
@@ -1696,16 +1770,8 @@ class Util {
 		$head .= "X-Version: ".$_SESSION["applications"]->getRunningVersion()."\r\n";
 		$head .= "X-PHPVersion: ".phpversion()."\r\n";
 		$head .= "X-UserID: ".(Session::currentUser() ? Session::currentUser()->getID() : "0")."\r\n";
-		try {
-			$xml = new SimpleXMLElement(file_get_contents(Util::getRootPath()."system/build.xml"));
-			if($xml->build AND $xml->build->customer)
-				$head .= "X-CustomerID: ".$xml->build->customer."\r\n";
-			
-		} catch (Exception $ex) {
-
-		}
+		$head .= "X-CustomerID: ".Phynx::customer()."\r\n";
 		
-
 		$head .= 'Connection: close'."\r\n"."\r\n";
 		
 		### 4 ###
@@ -1896,7 +1962,26 @@ class Util {
 			p {
 				padding:5px;
 			}
-		</style><p class=\"backgroundColor0\">".$message."</p>";
+			
+			#questionContainer p, #questionContainer pre, #questionContainer h2 {
+				margin-left:5px;
+			}
+
+			#questionContainer table, #mailContainer table, #messageContainer table {
+				width:100%;
+			}
+			
+			#questionContainer, #mailContainer, #messageContainer {
+				border:1px solid grey;
+				width:calc(100% - 20px);
+				margin:auto;
+			}
+		</style>
+		<script type=\"text/javascript\">
+			contentManager.setRoot('../');
+		</script>
+		
+		<p class=\"backgroundColor0\">".$message."</p>";
 		
 		return Util::getBasicHTML($message, $title);
 	}

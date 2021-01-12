@@ -91,7 +91,7 @@
 }
 
 .confirm {
-	background-color:#d1e769;
+	background-color:#d1e769 !important;
 }
 
 .error {
@@ -236,9 +236,9 @@ select {
 	transition: background-color .3s;
 }
 
-.phynxNoTouch #contentRight .contentBrowser tr:not(.noHover):not(.lastSelected):hover,
-.phynxNoTouch #contentLeft .contentBrowser tr:not(.noHover):not(.lastSelected):hover,
-.phynxNoTouch #contentScreen tr:not(.noHover):not(.lastSelected):hover {
+.phynxNoTouch #contentRight .contentBrowser tr:not(.noHover):not(.lastSelected):not(.extendedButton):hover,
+.phynxNoTouch #contentLeft .contentBrowser tr:not(.noHover):not(.lastSelected):not(.extendedButton):hover,
+.phynxNoTouch #contentScreen tr:not(.noHover):not(.lastSelected):not(.extendedButton):hover {
 	background-color:white;
 	
 	-moz-transition: background-color .3s;
@@ -389,5 +389,9 @@ select {
 }
 
 .tableWeightLightColored tr:nth-child(even):not(.lastSelected){
+	background-color:#f4f4f4;
+}
+
+.tableWeightLightlyColored tr:not(.lastSelected) {
 	background-color:#f4f4f4;
 }

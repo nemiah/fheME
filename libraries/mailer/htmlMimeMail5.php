@@ -271,11 +271,11 @@ class htmlMimeMail5 {
 	 */
 	public function setCRLF($crlf = "\n") {
 		if (!defined('CRLF')) {
-			define('CRLF', $crlf, true);
+			define('CRLF', $crlf);
 		}
 
 		if (!defined('MAIL_MIMEPART_CRLF')) {
-			define('MAIL_MIMEPART_CRLF', $crlf, true);
+			define('MAIL_MIMEPART_CRLF', $crlf);
 		}
 	}
 	
@@ -310,6 +310,13 @@ class htmlMimeMail5 {
 
 	public function getSMTPParams(){
 		return $this->smtp_params;
+	}
+
+	public function getSMTPLog(){
+		if($this->smtp_conn === null)
+			return "";
+		
+		return trim($this->smtp_conn->getLog());
 	}
 	
 	/**

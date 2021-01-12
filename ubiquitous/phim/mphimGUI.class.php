@@ -15,13 +15,20 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 
 class mphimGUI extends anyC implements iGUIHTMLMP2 {
 	static $users;
 	public function getHTML($id, $page){
+		if(Session::physion() AND $id == -1)
+			return OnEvent::script(OnEvent::frame("Screen", "mphim", "1"));
+		
+		if(Session::physion() AND $id == 1)
+			return $this->chatView();
+		
 		$TID = BPS::getProperty("mphimGUI", "with", 0);
+		$permissions = mUserdata::getPluginSpecificData("mphim");
 		
 		if($TID[0] != "g"){
 			$this->addAssocV3("phimFromUserID", "=", Session::currentUser()->getID(), "AND", "1");
@@ -33,9 +40,7 @@ class mphimGUI extends anyC implements iGUIHTMLMP2 {
 		} else {
 			$this->addAssocV3("phimphimGruppeID", "=", str_replace("g", "", $TID));
 		}
-		#$this->addJoinV3("User", $field1)
-		#$this->addOrderV3("phimToUserID", "DESC");
-		#$this->addOrderV3($order)
+
 		$this->addOrderV3("phimTime", "DESC");
 		$this->addOrderV3("phimID", "DESC");
 		$this->setFieldsV3(array(
@@ -60,36 +65,40 @@ class mphimGUI extends anyC implements iGUIHTMLMP2 {
 		
 		$gui->attributes(array("phimRead", "phimFromUserID", "phimMessage"));
 		
-		$B = $gui->addSideButton("Gruppen", "./ubiquitous/phim/group.png");
-		$B->loadPlugin("contentRight", "mphimGruppe");
+		$B = $gui->addSideButton("phim\nanzeigen", "newWindow");
+		$B->newSession("phim", "lightCRM", "mphim", "Nachrichten", "./ubiquitous/phim/phim.ico");
+
+		if($permissions["pluginSpecificCanCreateGroups"]){
+			$B = $gui->addSideButton("Gruppen", "./ubiquitous/phim/gruppen.svg");
+			$B->loadPlugin("contentRight", "mphimGruppe");
+		}
 		
-		$B = $gui->addSideButton("System-\nBenutzer", "./ubiquitous/phim/phimUser.png");
-		$B->loadPlugin("contentRight", "mphimUser");
+		#$B = $gui->addSideButton("System-\nBenutzer", "./ubiquitous/phim/phimUser.png");
+		#$B->loadPlugin("contentRight", "mphimUser");
 		
-		$B = $gui->addSideButton("Benutzer\nausblenden", "./ubiquitous/phim/hidden.png");
-		$B->loadPlugin("contentRight", "mphimUserHidden");
+		if($permissions["pluginSpecificCanHideUsers"]){
+			$B = $gui->addSideButton("Benutzer\nausblenden", "./ubiquitous/phim/hidden.png");
+			$B->loadPlugin("contentRight", "mphimUserHidden");
+		}
+		$AC = anyC::get("phimUserHidden");
+		$hidden = $AC->toArray("phimUserHiddenUserID");
 		
-		$B = $gui->addSideButton("phim\nanzeigen", "new");
-		$B->onclick("windowWithRme('mphim', -1, 'chatPopup', [], '', 'window', {height: 300, width:550, left: \$j.jStorage.get('phimX', 20), top: \$j.jStorage.get('phimY', 20), name: 'phim', scroll: false});");
-		
-		$B = $gui->addSideButton("Config-Datei", "new");
-		$B->windowRme("mphim", "-1", "getConfigFile");
-		
-		$B = $gui->addSideButton("Einstellungen", "system");
-		$B->popup("", "Einstellungen", "mphim", "-1", "settingsPopup");
-		
-		$users = self::$users = Users::getUsersArray("Alle", true);
+		$users = self::$users = Users::getUsersArray();
 
 		$T = new HTMLTable(1, "Konversation mit");
 		$T->setTableStyle("width:100%");
 		$T->weight("light");
 		$T->useForSelection(false);
 		foreach($users AS $ID => $U){
+			if(in_array($ID, $hidden))
+				continue;
+			
 			$T->addRow(array($U));
 			$T->addRowEvent("click", OnEvent::frame("contentRight", "mphim", "-1", 0, "", "mphimGUI;with:$ID"));
 			if($ID."" === $TID."")
 				$T->addRowClass ("highlight");
 			
+			$T->addCellStyle(1, "padding:3px;");	
 		}
 		
 		$AC = anyC::get("phimGruppe");
@@ -105,12 +114,430 @@ class mphimGUI extends anyC implements iGUIHTMLMP2 {
 			if("g".$G->getID() === $TID."")
 				$TG->addRowClass ("highlight");
 			
+			$TG->addCellStyle(1, "padding:3px;");
 		}
 		
 		$gui->addSideRow($T);
 		$gui->addSideRow($TG);
 		
 		return $gui->getBrowserHTML($id);
+	}
+	
+	private function chatView(){
+		$S = anyC::getFirst("Websocket", "WebsocketUseFor", "phim");
+	
+		$Users = Users::getUsersArray();
+		
+		$AC = anyC::get("phimGruppe");
+		$AC->addAssocV3("INSTR(phimGruppeMembers, ';".Session::currentUser()->getID().";')", ">", "0");
+		$AC->addAssocV3("INSTR(phimGruppeClosed, ';".Session::currentUser()->getID().";')", "=", "0");
+			
+		$groups = array();
+		$chatGroups = "";
+		while($G = $AC->n()){
+			$groups[] = $G->getID();
+			$chatGroups .= $this->chatPopup("g".$G->getID());
+		}
+		
+		asort($Users);
+		
+		$hidden = $this->hiddenUsers();
+		$chatUsers = "";
+		foreach($Users AS $ID => $U){
+			if($ID == Session::currentUser()->getID())
+				continue;
+			
+			if(isset($hidden[$ID]))
+				continue;
+			
+			#$I = new HTMLInput("newMessage");
+			#$I->style("width:100%;background-color:white;");
+			#$I->onEnter("phimChat.send('$ID', \$j(this));");
+			
+			#$BC = new Button("Fenster schließen", "x", "iconic");
+			#$BC->style("float:right;");
+			#$BC->rmePCR("mphim", "-1", "windowStatus", [$ID, "'hidden'"], "function(){ \$j('#chatWindow$ID').hide(); }");
+			
+			$chatUsers .= $this->chatPopup($ID);
+		}
+		
+		$BU = new Button("Benutzer", "users", "icon");
+		$BU->style("margin:10px;");
+		$BU->popup("", "Benutzer", "mphim", "-1", "usersPopup", ["'users'"]);
+		
+		$BG = new Button("Gruppen", "./ubiquitous/phim/gruppen.svg", "icon");
+		$BG->style("margin:10px;margin-left:0;height:32px;");
+		$BG->popup("", "Gruppen", "mphim", "-1", "usersPopup", ["'groups'"]);
+		
+		$BR = new Button("Rückfragen", "./ubiquitous/phim/callbacks.svg", "icon");
+		$BR->style("margin:10px;margin-left:0;height:32px;");
+		$BR->popup("", "Rückfragen", "mphim", "-1", "usersPopup", ["'callbacks'"]);
+		
+		$BNotificationsConfig = new Button("Benachrichtigungen konfigurieren", "rss", "iconicL");
+		$BNotificationsConfig->style("margin:10px;margin-left:0;height:32px;");
+		$BNotificationsConfig->popup("", "Benachrichtigungen konfigurieren", "mphim", "-1", "configureDesktopNotificationsPopup");
+		$BNotificationsConfig->id("BNotificationsConfig");
+		
+		$BEmoji = new Button("Emojis anzeigen", "./ubiquitous/phim/emoji.svg", "icon");
+		$BEmoji->style("margin:10px;margin-left:0;height:32px;");
+		$BEmoji->popup("", "Emojis", "mphim", "-1", "emojisPopup", [], "", "{remember: true, hPosition: 'right'}");
+		
+		$savedPermission = mUserdata::getUDValueS("phimUseNotifications", "default");
+		
+		$content = '
+		<script type="text/javascript" src="./plugins/Websocket/autobahn.min.js"></script>
+		<script type="text/javascript" src="./ubiquitous/phim/phimChat.js"></script>
+		<script type="text/javascript" src="./ubiquitous/phim/emojiPicker.js"></script>
+
+		<script type="text/javascript">
+			$j(function(){
+				phimChat.init(
+					"ws'.($S->A("WebsocketSecure") ? "s" : "").'://'.$S->A("WebsocketServer").":".$S->A("WebsocketServerPort").'/",
+					"'.$S->A("WebsocketRealm").'",
+					"'.Util::eK().'",
+					'.Session::currentUser()->getID().', 
+					"'.Session::currentUser()->A("name").'",
+					"'.$S->A("WebsocketToken").'",
+					['.implode(",", $groups).'],
+					"'.($savedPermission == "granted" ? "true" : "false").'");
+						
+				phimChat.scroll("chatText0");
+				//$j("#userList").css("height", contentManager.maxHeight());
+				phimChat.draggable();
+				phimChat.updateUnread();
+				/*var link = document.querySelector("link[rel*=\'shortcut icon\']");// || document.createElement(\'link\');
+				link.href = \'./lightCRM/Mail/mMail.ico\';
+				document.getElementsByTagName(\'head\')[0].appendChild(link);*/
+			});
+			
+		</script>';
+		
+		$content .= "
+			<style type=\"text/css\">
+			p {
+				padding:5px;
+			}
+			
+			.username {
+				font-weight:bold;
+			}
+			
+			.time {
+				color:grey;
+				font-size:.8em;
+				display:block;
+			}
+			
+			.chatWindow {
+			}
+			
+			.chatHeader {
+				padding:5px;
+				cursor:move;
+			 }
+			
+			.chatContent{
+				height:320px;
+				overflow-y: auto;
+				padding-bottom:5px;
+				background-color:white;
+			}
+			
+			.chatMessage {
+				padding:5px;
+			}
+
+			.newMessage {
+				display:none;
+			}
+			
+			.highlight .newMessage {
+				display:block;
+			}
+			
+			#darkOverlay {
+				position:fixed;
+				top:0;
+				left:0;
+			}
+			
+			.picker {
+				position:absolute;
+				background-color:white;
+				width:400px;
+				margin-top:10px;
+				overflow:auto;
+				max-height:150px;
+			}
+
+			.emoji {
+				width: auto;
+				display: inline-block;
+				font-size: 25px;
+				padding: 4px 8px;
+				margin: 4px;
+				border: 2px solid grey;
+				cursor: pointer;
+			}
+
+			.emoji:hover {
+				border-color: hotpink;
+			}
+		</style>
+		<div style=\"\">
+			$BU$BG$BR$BEmoji$BNotificationsConfig
+			$chatUsers$chatGroups
+		</div>
+		<div id=\"offlineOverlay\" style=\"background-color:rgba(0,0,0,.7);color:white;z-index:10000;position:absolute;top:0;left:0;\"></div>";
+		
+		return $content;
+	}
+	
+	public function emojisPopup(){
+		$data = file_get_contents(__DIR__."/emojiAll.json");
+
+		$all = json_decode($data);
+		
+		$category = [];
+		foreach($all->emojis AS $emoji){
+			$ex = explode("(", $emoji->category);
+			$main = trim($ex[0]);
+			$sub = trim($ex[1], ")")
+					;
+			if(!isset($category[$main]))
+				$category[$main] = [];
+			
+			if(!isset($category[$main][$sub]))
+				$category[$main][$sub] = [];
+			
+			$category[$main][$sub][] = $emoji;
+		}
+		
+		$i = 0;
+		foreach($category AS $name => $sub){
+			if($name == "Component")
+				continue;
+			
+			echo "<p class=\"prettySubtitle\" onmouseover=\"\$j(this).addClass('backgroundColor4')\" onmouseout=\"\$j(this).removeClass('backgroundColor4')\" style=\"cursor:pointer;\" onclick=\"\$j('.emojiCat').hide(); \$j('#emojiCat_$i').toggle();\">$name</p>";
+			echo "<p style=\"font-size:23px;display:none;\" id=\"emojiCat_$i\" class=\"emojiCat\">";
+			foreach($sub AS $emojis){
+				foreach($emojis AS $emoji){
+					if(strpos($emoji->shortname, "skin_tone") !== false)
+						continue;
+					
+					echo "<span title=\"$emoji->shortname\">".$emoji->html."</span> ";
+				}
+
+			}
+			echo "</p>";
+			
+			$i++;
+		}
+	}
+	
+	public function configureDesktopNotificationsPopup(){
+		echo "<p>In diesem Fenster können Sie Desktop-Benachrichtungen konfigurieren. Damit erhalten Sie eine Anzeige auf Ihrem Desktop, wenn eine neue E-Mail eingetroffen ist.</p>
+			<p>Die Benachrichtigungen sind aktuell <span id=\"DNStatus\" style=\"font-weight:bold;\"></span></p>";
+		
+		$savedPermission = mUserdata::getUDValueS("phimUseNotifications", "default");
+		
+		$BActivate = new Button("Aktivieren", "bestaetigung");
+		$BActivate->style("margin:10px;display:none;");
+		$BActivate->onclick("Interface.notifyRequest(function(perm){ ".OnEvent::rme($this, "saveDesktopNotifications", array("perm"), OnEvent::reloadPopup("mphim"))." });");
+		$BActivate->id("DNActivate");
+		
+		echo $BActivate;
+		
+		$BDisable = new Button("Deaktivieren", "stop");
+		$BDisable->style("margin:10px;display:none;");
+		$BDisable->rmePCR("mphim", "-1", "saveDesktopNotifications", array("'denied'"), OnEvent::reloadPopup("mphim"));
+		$BDisable->id("DNDisable");
+		
+		echo $BDisable;
+		
+		echo OnEvent::script("if(typeof Notification == 'function') {
+			if(Interface.notifyPermission() == 'granted' && '$savedPermission' != 'denied'){
+				\$j('#DNDisable').show();
+				\$j('#DNStatus').html('aktiviert');
+				phimChat.showNotification = true;
+			} else {
+				\$j('#DNActivate').show();
+				\$j('#DNStatus').html('deaktiviert');
+				phimChat.showNotification = false;
+			}
+		}");
+	}
+	
+	public function saveDesktopNotifications($permission){
+		mUserdata::setUserdataS("phimUseNotifications", $permission);
+	}
+	
+	public function chatPopup($target, $unhide = false, $echo = false){
+		$about = "";
+		$content = "";
+		$Users = Users::getUsersArray();
+		#$Users[0] = "Alle";
+		$BOn = "";
+		$BOff = "";
+		if($target[0] == "g"){
+			$GID = substr($target, 1);
+			$G = new phimGruppe($GID);
+			
+			#if($GID == 0)
+			#	$G->changeA("phimGruppeName", "Alle");
+			
+			$name = $G->A("phimGruppeName");
+			
+			if($G->A("phimGruppeClassName") == "DBMail"){
+				$BRC = new Button("Erledigt", "bestaetigung", "icon");
+				$BRC->style("float:right;margin-left:10px;");
+				$BRC->className("backgroundColor2");
+				$BRC->rmePCR("mphim", -1, "callbackClose", [$GID], "\$j('#chatWindow".$target."').hide();");
+
+				$Mail = new DBMail($G->A("phimGruppeClassID"));
+
+				$BShow = new Button("Mail anzeigen", "./lightCRM/Mail/Mail.png", "icon");
+				$BShow->popup("", "Mail anzeigen", "mDBMail2Object", "-1", "showMail", array($G->A("phimGruppeClassID"), "''", 1), "", "Mail.PopupOptions");
+				$BShow->style("float:right;margin-left:10px;");
+			
+				$BAnswer = new Button("Antworten", "./lightCRM/Mail/images/mail-reply-sender.png", "icon");
+				$BAnswer->popup("newMail", "Antworten", "Mail", -1, "writeMail", array($Mail->A("DBMailMailKontoID"), $G->A("phimGruppeClassID"), "'answer'"), null, "Mail.PopupOptions");
+				$BAnswer->style("float:right;margin-left:10px;");
+				if($Mail->A("DBMailAnswered"))
+					$BAnswer->className ("confirm");
+				
+				$about = "<div class=\"backgroundColor2\" style=\"padding:5px;height:32px;\">$BShow$BAnswer$BRC E-Mail von<br>".$Mail->A("DBMailFromName")."</div>";
+			}	
+			
+			$ACS = anyC::get("phim");
+			$ACS->addAssocV3("phimToUserID", "=", "0");
+			$ACS->addAssocV3("phimphimGruppeID", "=", $GID);
+			$ACS->addOrderV3("phimID", "DESC");
+			$ACS->setLimitV3(50);
+			while($M = $ACS->n())
+				$content = "<div class=\"chatMessage ".(($M->A("phimFromUserID") != Session::currentUser()->getID() AND strpos($M->A("phimReadBy"), ";".Session::currentUser()->getID().";") === false) ? "highlight" : "")."\"><span class=\"time\">".Util::CLDateTimeParser($M->A("phimTime"))."</span><span class=\"username\">".$Users[$M->A("phimFromUserID")].": </span>".$M->A("phimMessage")."</div>".$content;
+
+			if($unhide){
+				$G->changeA("phimGruppeClosed", str_replace(";".Session::currentUser()->getID().";", "", $G->A("phimGruppeClosed")));
+				$G->saveMe();
+			}
+		} else {
+			$name = $Users[$target];
+			
+			$BOn = new Button("Online", "./ubiquitous/phim/userOnline.png", "icon");
+			$BOn->style("float:left;display:none;margin-right:3px;margin-top:-2px;");
+			$BOn->className("online_$target");
+
+			$BOff = new Button("Offline", "./ubiquitous/phim/userOffline.png", "icon");
+			$BOff->style("float:left;margin-right:3px;margin-top:-2px;");
+			$BOff->className("offline_$target");
+		
+			$content = "";
+			$AC = anyC::get("phim");
+			$AC->addAssocV3("phimFromUserID", "=", Session::currentUser()->getID(), "AND", "1");
+			$AC->addAssocV3("phimToUserID", "=", $target, "AND", "1");
+			$AC->addAssocV3("phimFromUserID", "=", $target, "OR", "2");
+			$AC->addAssocV3("phimToUserID", "=", Session::currentUser()->getID(), "AND", "2");
+			$AC->addOrderV3("phimID", "DESC");
+			$AC->setLimitV3(50);
+			while($M = $AC->n())
+				$content = phim::formatMessage($M).$content;
+			
+		}
+		
+		if($unhide)
+			mUserdata::setUserdataS("chatWindow".$target, "visible");
+		
+		
+		$I = new HTMLInput("newMessage", "textarea");
+		$I->style("width:100%;background-color:#f4f4f4;border:0px;padding:8px;resize: vertical;font-size:1.4em;height:100px;");
+		#$I->onEnter("phimChat.send('$target', \$j(this));");
+		$I->onkeyup("if(\$j(this).val().trim() !== '') phimChat.writing('$target'); if(!event.ctrlKey && event.keyCode == 13) { phimChat.send('$target', \$j(this)); }");
+		$I->id("newMessageTA$target");
+
+		$BC = new Button("Fenster schließen", "x", "iconic");
+		$BC->style("float:right;");
+		$BC->rmePCR("mphim", "-1", "windowStatus", ["'$target'", "'hidden'"], "function(){ \$j('#chatWindow".$target."').hide(); }");
+			
+			
+		$content = "<div style=\"width:400px;".mUserdata::getUDValueS("chatWindowPosition".$target, "").(mUserdata::getUDValueS("chatWindow".$target) == "hidden" ? "display:none;" : "")."\" id=\"chatWindow".$target."\" class=\"chatWindow popup\" style=\"\">
+				<div class=\"chatHeader backgroundColor1\">$BOn$BOff$BC".$name."<div style=\"clear:both;\"></div></div>
+				$about
+				<div class=\"chatContent\" style=\"".(!$about ? "height:calc(320px + 32px + 10px);" : "")."\" id=\"chatText".$target."\">$content</div>
+				$I
+			</div>";
+		
+		if($echo)
+			echo $content;
+		
+		return $content.OnEvent::script("\$j(function(){ phimChat.scroll('chatText".$target."');}); emojiPicker.init('newMessageTA$target');");
+	}
+	
+	public function callbackClose($GID){
+		$G = new phimGruppe($GID);
+		$G->changeA("phimGruppeClosed", $G->A("phimGruppeClosed").";".Session::currentUser()->getID().";");
+		$G->saveMe();
+		
+		$this->windowStatus("g$GID", "hidden");
+	}
+	
+	public function usersPopup($target){
+		$Users = Users::getUsersArray();
+		
+		$B = new Button("Neue Nachricht", "star", "iconic");
+		$B->style("color:orange;float:right;margin-top:-3px;");
+		$B->className("newMessage");
+		
+		$hidden = $this->hiddenUsers();
+		
+		$L = new HTMLList();
+		$L->setListID("userList");
+		$L->addListStyle("overflow:auto;box-sizing:border-box;padding:3px;");
+		#$L->addListClass("backgroundColor2");
+		$L->noDots();
+		
+		if($target == "groups" OR $target == "callbacks"){
+			$AC = anyC::get("phimGruppe");
+			$AC->addAssocV3("INSTR(phimGruppeMembers, ';".Session::currentUser()->getID().";')", ">", "0");
+			#$AC->addAssocV3("INSTR(phimGruppeClosed, ';".Session::currentUser()->getID().";')", "=", "0");
+			if($target == "callbacks")
+				$AC->addAssocV3("phimGruppeClassName", "!=", "");
+			else
+				$AC->addAssocV3("phimGruppeClassName", "=", "");
+			while($G = $AC->n()){
+				$L->addItem($B.$G->A("phimGruppeName"));
+				$L->addItemEvent("onclick", "phimChat.openWindow('g".$G->getID()."');");#.OnEvent::rme($this, "windowStatus", ["'g".$G->getID()."'", "'visible'"]));
+				$L->addItemStyle("cursor:pointer;margin-left:0;padding:5px;");
+				$L->setItemID("groupg".$G->getID());
+			}
+		}
+		
+		asort($Users);
+		if($target == "users"){
+			foreach($Users AS $ID => $U){
+				if($ID == Session::currentUser()->getID())
+					continue;
+
+				if(isset($hidden[$ID]))
+					continue;
+
+				$L->addItem($B.$U);
+				$L->addItemEvent("onclick", OnEvent::rme("phim", "setRead", $ID)."\$j(this).removeClass('highlight'); \$j('#chatWindow$ID').show(); phimChat.scroll('chatText$ID'); \$j('#userList .backgroundColor0').removeClass('backgroundColor0'); \$j(this).addClass('backgroundColor0');".OnEvent::rme($this, "windowStatus", ["'$ID'", "'visible'"]));
+				$L->addItemStyle("cursor:pointer;margin-left:0;padding:5px;");
+				$L->setItemID("user$ID");
+			}
+		}
+		
+		echo $L;
+	}
+	
+	private function hiddenUsers(){
+		$AC = anyC::get("phimUserHidden");
+		$hidden = array();
+		while($h = $AC->n())
+			$hidden[$h->A("phimUserHiddenUserID")] = true;
+		
+		return $hidden;
 	}
 	
 	public function settingsPopup(){
@@ -136,63 +563,12 @@ class mphimGUI extends anyC implements iGUIHTMLMP2 {
 		echo mUserdata::getUDValueS("phimAutostart", "0");
 	}
 	
-	public function getConfigFile(){
-		$T = mUserdata::getGlobalSettingValue("phimServerToken");
-		if(!$T){
-			mUserdata::setUserdataS("phimServerToken", Util::genPassword(100), "", -1);
-			$T = mUserdata::getGlobalSettingValue("phimServerToken");
-		}
-		
-		header('Content-disposition: attachment; filename="phim.exe.config"');
-		header('Content-type: "text/xml"; charset="utf8"');
-		
-		echo '﻿<?xml version="1.0" encoding="utf-8" ?>
-<configuration>
-    <configSections>
-        <sectionGroup name="userSettings" type="System.Configuration.UserSettingsGroup, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" >
-            <section name="phim.Properties.Settings" type="System.Configuration.ClientSettingsSection, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" allowExeDefinition="MachineToLocalUser" requirePermission="false" />
-        </sectionGroup>
-    
-        <sectionGroup name="applicationSettings" type="System.Configuration.ApplicationSettingsGroup, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" >
-            <section name="phim.Properties.Settings" type="System.Configuration.ClientSettingsSection, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" requirePermission="false" />
-        </sectionGroup>
-    </configSections>
-    <startup> 
-        <supportedRuntime version="v4.0" sku=".NETFramework,Version=v4.5.2" />
-    </startup>
-    <userSettings>
-        <phim.Properties.Settings>
-            <setting name="server" serializeAs="String">
-                <value />
-            </setting>
-            <setting name="user" serializeAs="String">
-                <value />
-            </setting>
-            <setting name="password" serializeAs="String">
-                <value />
-            </setting>
-            <setting name="cloud" serializeAs="String">
-                <value />
-            </setting>
-            <setting name="position" serializeAs="String">
-                <value>20, 20</value>
-            </setting>
-        </phim.Properties.Settings>
-    </userSettings>
-<applicationSettings>
-        <phim.Properties.Settings>
-                <setting name="authServerUrl" serializeAs="String">
-                        <value>'.$_SERVER["HTTP_HOST"].'</value>
-                </setting>
-                <setting name="authServerToken" serializeAs="String">
-                        <value>'.$T.'</value>
-                </setting>
-                <setting name="authServerCloud" serializeAs="String">
-                        <value>'.(isset($_SESSION["phynx_customer"]) ? $_SESSION["phynx_customer"] : "").'</value>
-                </setting>
-        </phim.Properties.Settings>
-    </applicationSettings>
-</configuration>';
+	public function windowStatus($name, $state){
+		mUserdata::setUserdataS("chatWindow$name", $state);
+	}
+	
+	public function windowPosition($name, $left, $top){
+		mUserdata::setUserdataS("chatWindowPosition$name", "left:".$left."px;top:".$top."px;");
 	}
 	
 	public static function parserDG($w){
@@ -212,303 +588,5 @@ class mphimGUI extends anyC implements iGUIHTMLMP2 {
 	public static function parserRead($w){
 		return Util::catchParser($w);
 	}
-	
-	public function chatPopup($root = ""){
-	
-		$S = anyC::getFirst("Websocket", "WebsocketUseFor", "phim");
-	
-	
-		$I = new HTMLInput("newMessage");
-		$I->style("width:100%;background-color:white;");
-		$I->onEnter("phimChat.send();");
-		
-		$IC = new HTMLInput("channel", "hidden", "0");
-		$IC->id("channel");
-		
-		$B = new Button("Neue Nachricht", "star", "iconic");
-		$B->style("color:orange;float:right;margin-top:-3px;");
-		$B->className("newMessage");
-		
-		$BOn = new Button("Online", "$root../ubiquitous/phim/userOnline.png", "icon");
-		$BOn->style("float:left;display:none;margin-right:3px;margin-top:-2px;");
-		$BOn->className("online");
-		
-		$BOff = new Button("Offline", "$root../ubiquitous/phim/userOffline.png", "icon");
-		$BOff->style("float:left;margin-right:3px;margin-top:-2px;");
-		$BOff->className("offline");
-		
-		$AC = anyC::get("phimUserHidden");
-		$hidden = array();
-		while($h = $AC->n())
-			$hidden[$h->A("phimUserHiddenUserID")] = true;
-		
-		$Users = Users::getUsersArray();
-		$L = new HTMLList();
-		$L->setListID("userList");
-		$L->addListStyle("overflow:auto;box-sizing:border-box;");
-		$L->noDots();
-		
-		$L->addItem($B."Alle");
-		$L->addItemEvent("onclick", "\$j(this).removeClass('highlight'); \$j('.chatWindow').hide(); \$j('#chatText0').show(); phimChat.scroll('chatText0'); \$j('#userList .backgroundColor0').removeClass('backgroundColor0'); \$j(this).addClass('backgroundColor0'); \$j('#channel').val('0');");
-		$L->addItemStyle("cursor:pointer;margin-left:0;padding:5px;");
-		$L->addItemClass("backgroundColor0");
-		$L->setItemID("user0");
-		
-		
-		
-		$content = "";
-		$AC = anyC::get("phim");
-		$AC->addAssocV3("phimToUserID", "=", "0");
-		$AC->addAssocV3("phimphimGruppeID", "=", "0");
-		$AC->addOrderV3("phimID", "DESC");
-		$AC->setLimitV3(50);
-		while($M = $AC->n())
-			$content = "<div><span class=\"username\">".(isset($Users[$M->A("phimFromUserID")]) ? $Users[$M->A("phimFromUserID")] : "Unbekannt").": </span>".$M->A("phimMessage")."</div>".$content;
-		
-		
-		$chatAll = "<div class=\"chatWindow\" id=\"chatText0\">$content</div>";
-		
-		
-		$AC = anyC::get("phimGruppe");
-		$AC->addAssocV3("INSTR(phimGruppeMembers, ';".Session::currentUser()->getID().";')", ">", "0");
-			
-		$groups = array();
-		$chatGroups = "";
-		while($G = $AC->n()){
-			$L->addItem($B.$G->A("phimGruppeName"));
-			$L->addItemEvent("onclick", "\$j(this).removeClass('highlight'); \$j('.chatWindow').hide(); \$j('#chatTextg".$G->getID()."').show(); phimChat.scroll('chatTextg".$G->getID()."'); \$j('#userList .backgroundColor0').removeClass('backgroundColor0'); \$j(this).addClass('backgroundColor0'); \$j('#channel').val('g".$G->getID()."');");
-			$L->addItemStyle("cursor:pointer;margin-left:0;padding:5px;");
-			#$L->addItemClass("backgroundColor0");
-			$L->setItemID("groupg".$G->getID());
-			
-			$content = "";
-			$ACS = anyC::get("phim");
-			$ACS->addAssocV3("phimToUserID", "=", "0");
-			$ACS->addAssocV3("phimphimGruppeID", "=", $G->getID());
-			$ACS->addOrderV3("phimID", "DESC");
-			$ACS->setLimitV3(50);
-			while($M = $ACS->n())
-				$content = "<div><span class=\"username\">".$Users[$M->A("phimFromUserID")].": </span>".$M->A("phimMessage")."</div>".$content;
-			
-			$groups[] = $G->getID();
-			
-			$chatGroups .= "<div class=\"chatWindow\" style=\"display:none;\" id=\"chatTextg".$G->getID()."\">$content</div>";
-		}
-		
-		asort($Users);
-		
-		$chatUsers = "";
-		foreach($Users AS $ID => $U){
-			if($ID == Session::currentUser()->getID())
-				continue;
-			
-			if(isset($hidden[$ID]))
-				continue;
-			
-			$unread = false;
-			$content = "";
-			$AC = anyC::get("phim");
-			$AC->addAssocV3("phimFromUserID", "=", Session::currentUser()->getID(), "AND", "1");
-			$AC->addAssocV3("phimToUserID", "=", $ID, "AND", "1");
-			$AC->addAssocV3("phimFromUserID", "=", $ID, "OR", "2");
-			$AC->addAssocV3("phimToUserID", "=", Session::currentUser()->getID(), "AND", "2");
-			$AC->addOrderV3("phimID", "DESC");
-			$AC->setLimitV3(50);
-			while($M = $AC->n()){
-				$content = "<div><span class=\"username\">".$Users[$M->A("phimFromUserID")].": </span>".$M->A("phimMessage")."</div>".$content;
-			
-				if(!$M->A("phimRead") AND $M->A("phimToUserID") == Session::currentUser()->getID())
-					$unread = true;
-			}
-			
-			$L->addItem($BOn.$BOff.$B.$U);
-			$L->addItemEvent("onclick", OnEvent::rme("phim", "setRead", $ID)."\$j(this).removeClass('highlight'); \$j('.chatWindow').hide(); \$j('#chatText$ID').show(); phimChat.scroll('chatText$ID'); \$j('#userList .backgroundColor0').removeClass('backgroundColor0'); \$j(this).addClass('backgroundColor0');\$j('#channel').val('$ID');");
-			$L->addItemStyle("cursor:pointer;margin-left:0;padding:5px;");
-			$L->setItemID("user$ID");
-			if($unread)
-				$L->addItemClass ("highlight");
-			
-			
-			$chatUsers .= "<div style=\"display:none;\" class=\"chatWindow\" id=\"chatText$ID\">$content</div>";
-		}
-		
-		
-		$content = "<div style=\"width:68%;display:inline-block;vertical-align:top;\">
-				$chatAll
-				$chatUsers
-				$chatGroups
-				<div>$I</div>
-			</div><div style=\"width:32%;display:inline-block;vertical-align:top;\">$L$IC</div>";
-		
-		
-		$rp = str_replace("interface/rme.php", "", $_SERVER["SCRIPT_NAME"]);
-		if(strpos($_SERVER["SCRIPT_NAME"], "phim.php") !== false)
-			$rp = "../../";
-		
-		$physion = "default";
-		if(isset($_GET["physion"]))
-			$physion = $_GET["physion"];
-		
-		echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-	<head>
-		<title>phim</title>
-		<script type="text/javascript" src="'.$root.'../libraries/jquery/jquery-1.9.1.min.js"></script>
-		<script type="text/javascript" src="'.$root.'../libraries/jquery/jquery-ui-1.10.1.custom.min.js"></script>
-		<script type="text/javascript" src="'.$root.'../libraries/iconic/iconic.min.js"></script>
-		<script type="text/javascript" src="'.$root.'../libraries/jquery/jquery.qtip.min.js"></script>
-		<script type="text/javascript" src="'.$root.'../javascript/P2J.js"></script>
-		<script type="text/javascript" src="'.$root.'../javascript/Aspect.js"></script>
-		<script type="text/javascript" src="'.$root.'../javascript/handler.js"></script>
-		<script type="text/javascript" src="'.$root.'../javascript/contentManager.js"></script>
-		<script type="text/javascript" src="'.$root.'../javascript/Interface.js"></script>
-		<script type="text/javascript" src="'.$root.'../javascript/Overlay.js"></script>
-		<script type="text/javascript" src="'.$root.'../libraries/webtoolkit.base64.js"></script>
-		
-		<script type="text/javascript" src="'.$root.'../ubiquitous/phim/autobahn.min.js"></script>
-		<script type="text/javascript" src="'.$root.'../ubiquitous/phim/phimChat.js"></script>
-		<script type="text/javascript">
-			contentManager.setRoot("'.$rp.'");
-			$j(function(){
-				Ajax.physion = "'.$physion.'";
-					
-				phimChat.init(
-					"ws'.($S->A("WebsocketSecure") ? "s" : "").'://'.$S->A("WebsocketServer").":".$S->A("WebsocketServerPort").'/",
-					"'.$S->A("WebsocketRealm").'", 
-					'.Session::currentUser()->getID().', 
-					"'.Session::currentUser()->A("name").'",
-					"'.$S->A("WebsocketToken").'",
-					['.implode(",", $groups).'],
-					"'.$root.'");
-						
-				phimChat.scroll("chatText0");
-				$j("#userList").css("height", $j(window).height());
-			});
-		</script>
-		<link rel="stylesheet" type="text/css" href="'.$root.'../libraries/jquery/jquery.qtip.min.css" />
-		<link rel="stylesheet" type="text/css" href="'.$root.'../styles/'.(isset($_COOKIE["phynx_color"])? $_COOKIE["phynx_color"] : "standard").'/colors.css"></link>
-		<link rel="stylesheet" type="text/css" href="'.$root.'../styles/standard/general.css"></link>
-		<style type="text/css">
-			p {
-				padding:5px;
-			}
-			
-			body {
-				background-color:#ddd;
-			}
-			
-			html {
-				overflow-y: auto;
-			}
-
-			.username {
-				font-weight:bold;
-			}
-			
-			.chatWindow {
-				padding:5px;
-				box-sizing:border-box;
-				overflow-y: auto;
-				height:270px;
-				background-color:white;
-				border-bottom:3px solid grey;
-			}
-			
-			.newMessage {
-				display:none;
-			}
-			
-			.highlight .newMessage {
-				display:block;
-			}
-			
-			#darkOverlay {
-				position:fixed;
-				top:0;
-				left:0;
-			}
-			
-			#userList li {
-				white-space: nowrap;
-				overflow:hidden;
-				margin-top:0;
-			}
-		</style>
-	</head>
-	<body>
-		<div id="darkOverlay" style="background-color:rgba(0,0,0,.7);color:white;"></div>
-		'.$content.'
-	</body>
-</html>';
-	}
-
-	/*public function getInit(){
-
-		$U = Users::getUsers();
-		# = array();
-		#while($us = $U->getNextEntry())
-		#	$users[$us->getID()] = $us->A("name");
-		
-		$L = new HTMLList();
-		$L->addListStyle("list-style-type:none;margin-bottom:10px;");
-		#$AC = anyC::get("phim", "phimUserID", Session::currentUser()->getID());
-		#while($p = $AC->getNextEntry()){
-		while($us = $U->getNextEntry()){
-			if($us->getID() == Session::currentUser()->getID())
-				continue;
-			
-			$B = new Button("Status", "./ubiquitous/phim/userOffline.png", "icon");
-			$B->style("float:left;margin-right:5px;margin-top:-2px;margin-left:-15px;");
-			$B->className("phimUserStatus");
-			$B->id("phimUserStatus".$us->getID());
-				
-			$L->addItem($B.$us->A("name")." <span id=\"phimUserUnread".$us->getID()."\"></span>");
-			$L->addItemEvent("onclick", "phim.getChatWindow(".$us->getID().", '".$this->user2id($us->getID())."');");
-			$L->addItemStyle("cursor:pointer;");
-		}
-		
-		echo "<div class=\"\" style=\"width:180px;margin-left:0px;margin-top:20px;\">".$L.OnEvent::script("phim.currentUser = ".Session::currentUser()->getID())."</div>";
-	}
-	
-	public function user2id($id){
-		$U = new User($id);
-		return $U->A("name");
-	}
-	
-	public function getChatWindow($phimTargetUserID){
-		$I = new HTMLInput("phimSendTo$phimTargetUserID", "text");
-		$I->style("width:99%;");
-		$I->onEnter("{ phim.send(this.value, '".Session::currentUser()->getID()."', $phimTargetUserID); this.value = ''; }");
-		$I->id("phimSendTo$phimTargetUserID");
-		
-		$other = new User($phimTargetUserID);
-		
-		$AC = anyC::get("phim");
-		$AC->addAssocV3("phimFromUserID", "=", Session::currentUser()->getID(), "AND", "1");
-		$AC->addAssocV3("phimToUserID", "=", $phimTargetUserID, "AND", "1");
-		
-		$AC->addAssocV3("phimFromUserID", "=", $phimTargetUserID, "OR", "2");
-		$AC->addAssocV3("phimToUserID", "=", Session::currentUser()->getID(), "AND", "2");
-		
-		$AC->setOrderV3("phimTime", "DESC");
-		$AC->setLimitV3("30");
-		
-		$messages = array();
-		while($M = $AC->getNextEntry()){
-			$from = $M->A("phimFromUserID");
-			if($from == $phimTargetUserID)
-				$from = $other->A("name");
-			else
-				$from = Session::currentUser()->A("name");
-			
-			$messages[] = "<p style=\"padding:3px;line-height:1.5;\"><span style=\"color:grey;\">(".Util::CLDateTimeParser($M->A("phimTime")).")</span> <b>$from:</b> ".$M->A("phimMessage")."</p>";
-		}
-		
-		sort($messages);
-		
-		$html = "<div id=\"phimMessages$phimTargetUserID\" class=\"borderColor1\" style=\"border-bottom-style:solid;border-bottom-width:3px;height:200px;overflow:auto;\">".  implode("", $messages)."</div>$I";
-		
-		echo $html.OnEvent::script("setTimeout(function(){ $('phimMessages$phimTargetUserID').scrollTop = $('phimMessages$phimTargetUserID').scrollHeight; \$j('#phimSendTo$phimTargetUserID').trigger('focus'); },100); phim.ids2users['$phimTargetUserID'] = '".$this->user2id($phimTargetUserID)."'; phim.ids2users['".Session::currentUser()->getID()."'] = '".Session::currentUser()->A("name")."';");
-	}*/
 }
 ?>

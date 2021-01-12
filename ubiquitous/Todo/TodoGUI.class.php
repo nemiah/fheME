@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 class TodoGUI extends Todo implements iGUIHTML2 {
 	public $GUI;
@@ -128,7 +128,7 @@ class TodoGUI extends Todo implements iGUIHTML2 {
 			$this->changeA("TodoFromTime", $this->A("TodoTillTime"));
 		}
 
-		$gui->attributes(array(
+		$fields = array(
 			"TodoType",
 			"TodoClass",
 			"TodoClassID",
@@ -145,21 +145,7 @@ class TodoGUI extends Todo implements iGUIHTML2 {
 			#"TodoStatus",
 			"TodoUserID"
 			#"TodoIsPublic"
-			));
-
-		$gui->type("TodoType","select", TodoGUI::types());
-		
-		$gui->type("TodoRemind","select", array("-1" => "keine Erinnerung", "60" => "1 Minute vorher", "300" => "5 Minuten vorher", "600" => "10 Minuten vorher", "900" => "15 Minuten vorher", "1800" => "30 Minuten vorher", "2700" => "45 Minuten vorher", "3600" => "1 Stunde vorher", 60 * 60 * 24 => "1 Tag vorher", 60 * 60 * 24 * 7 => "1 Woche vorher"));
-
-		$gui->type("TodoClass","hidden");
-		$gui->type("TodoDescription","textarea");
-		$gui->type("TodoAllDay", "checkbox");
-
-		$gui->addFieldEvent("TodoAllDay", "onchange", "\$j('#TodoFromTimeDisplay').css('display', this.checked ? 'none' : 'inline'); \$j('#TodoTillTimeDisplay').css('display', this.checked ? 'none' : 'inline');");
-		
-		$gui->parser("TodoFromDay", "TodoGUI::dayFromParser");
-		$gui->parser("TodoTillDay", "TodoGUI::dayTillParser");
-
+		);
 		
 		$ac = Users::getUsers();
 		$users = array();
@@ -188,7 +174,40 @@ class TodoGUI extends Todo implements iGUIHTML2 {
 			$users[Session::currentUser()->getID()] = Session::currentUser()->A("name");
 		
 		$users["-1"] = "Alle";
+		
+		if($id == -1){
+			$fields[] = "TodoTeilnehmer";
+			
+			$gui->hideLine("TodoTeilnehmer");
+			
+			$usersAdd = $users;
+			unset($usersAdd[-1]);
+			unset($usersAdd[Session::currentUser()->getID()]);
+			
+			$gui->type("TodoTeilnehmer","select-multiple", $usersAdd);
+			
+			$gui->label("TodoTeilnehmer", "Mehr");
+			
+			$B = $gui->addFieldButton("TodoUserID", "Weitere Benutzer", "./images/i2/add.png");
+			$B->onclick("contentManager.toggleFormFields('show', ['TodoTeilnehmer']);");
+		}
+		
+		$gui->attributes($fields);
 
+		$gui->type("TodoType","select", TodoGUI::types());
+		
+		$gui->type("TodoRemind","select", array("-1" => "keine Erinnerung", "60" => "1 Minute vorher", "300" => "5 Minuten vorher", "600" => "10 Minuten vorher", "900" => "15 Minuten vorher", "1800" => "30 Minuten vorher", "2700" => "45 Minuten vorher", "3600" => "1 Stunde vorher", 60 * 60 * 24 => "1 Tag vorher", 60 * 60 * 24 * 7 => "1 Woche vorher"));
+
+		$gui->type("TodoClass","hidden");
+		$gui->type("TodoDescription","textarea");
+		$gui->type("TodoAllDay", "checkbox");
+
+		$gui->addFieldEvent("TodoAllDay", "onchange", "\$j('#TodoFromTimeDisplay').css('display', this.checked ? 'none' : 'inline'); \$j('#TodoTillTimeDisplay').css('display', this.checked ? 'none' : 'inline');");
+		
+		$gui->parser("TodoFromDay", "TodoGUI::dayFromParser");
+		$gui->parser("TodoTillDay", "TodoGUI::dayTillParser");
+
+		
 		if(Session::isPluginLoaded("mWAdresse") AND ($this->A("TodoClass") == "WAdresse" OR $this->A("TodoClass") == "Kalender"))
 			$gui->parser("TodoClassID", "TodoGUI::parserKunde");
 		else

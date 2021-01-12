@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 class HTMLSideTable extends HTMLTable  {
 	private $where;
@@ -74,6 +74,23 @@ class HTMLSideTable extends HTMLTable  {
 			$BM->style("z-index:110;position:fixed;padding:15px;top:5px;right:70px;");
 			$BM->onclick("\$j('#$this->tableID').toggle();");
 			$BM->className("sideTableMobileButton");
+		}
+		
+		if($this->where == "right" AND count($this->content)){
+			$BMT = new Button("Erweitert", "extended", "icon");
+			$BMT->onclick("\$j('#$this->tableID tr:not(.extendedButton)').toggle(); \$j('.sideTableLeft tr').css('display', 'none'); \$j('.sideTableLeft tr.extendedButton').css('display', 'table-row');");
+			
+			$this->addRowTop(array($BMT));
+			$this->addRowTopClass("extendedButton");
+		}
+		
+		if($this->where == "left" AND count($this->content)){
+			$BMT = new Button("Erweitert", "extended", "icon");
+			$BMT->style("float:right;");
+			$BMT->onclick("\$j('#$this->tableID tr:not(.extendedButton)').toggle(); \$j('.sideTableRight tr').css('display', 'none'); \$j('.sideTableRight tr.extendedButton').css('display', 'table-row');");
+			
+			$this->addRowTop(array($BMT));
+			$this->addRowTopClass("extendedButton");
 		}
 		
 		return $BM.parent::__toString();

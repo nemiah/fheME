@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 class HTMLGUIX {
 
@@ -88,12 +88,19 @@ class HTMLGUIX {
 	protected $hiddenJS = "";
 	protected $tableWeight;
 	protected $placeholders = array();
+	protected $cols = 2;
+	protected $widths = null;
 	
 	public function __construct($object = null, $collectionName = null){
 		if($object != null)
 			$this->object($object, $collectionName);
 
 		#$this->languageClass = $this->loadLanguageClass("HTML");
+	}
+	
+	public function cols($cols, $widths = null){
+		$this->cols = $cols;
+		$this->widths = $widths;
 	}
 	
 	public function placeholder($fieldName, $value){
@@ -296,6 +303,9 @@ class HTMLGUIX {
 	}
 	
 	public function addFieldEvent($fieldName, $onEvent, $action){
+		if(substr($onEvent, 0, 2) != "on")
+			$onEvent = "on$onEvent";
+		
 		$this->fieldEvents[] = array($fieldName, $onEvent, $action);
 	}
 
@@ -615,6 +625,7 @@ class HTMLGUIX {
 		$F = new HTMLForm($this->formID == null ? "edit".get_class($this->object) : $this->formID, $this->attributes == null ? $this->object : $this->attributes, strpos($this->displayMode, "popup") === false ? $this->operationsButton().T::_($this->name) : null);
 		$F->getTable()->setColWidth(1, 120);
 		$F->getTable()->addTableClass("contentEdit");
+		$F->cols($this->cols, $this->widths);
 		
 		$ID = $this->object->getID();
 		if(BPS::getProperty("HTMLGUI", "insertAsNew", false)) {
@@ -764,11 +775,14 @@ class HTMLGUIX {
 			$Tab->useScreenHeight($this->multiPageDetails["perPage"] > 0 ? ceil($this->multiPageDetails["total"] / $this->multiPageDetails["perPage"]) - 1 : 1);
 		
 		if($this->header != null AND $this->object->numLoaded() > 0){
-			if(count(count($this->attributes))){
+			if(count($this->attributes)){
 				while(count($this->header) <= count($this->attributes) + 1)
 					$this->header[] = "";
 			
 				if(!$this->showEdit)
+					unset($this->header[count($this->header) - 1]);
+			
+				if(!$this->showTrash)
 					unset($this->header[count($this->header) - 1]);
 			}
 			
@@ -858,7 +872,7 @@ class HTMLGUIX {
 			$this->addSideButtonAlways($B);
 		
 		
-		return "<div class=\"browserContainer contentBrowser\">".$prepend.$this->sideButtons($bps).$GUIF->getContainer($Tab, $this->caption, $appended, $this->topButtons($bps))."</div>".str_replace("%CLASSNAME", $this->className, $this->sortable).$this->tip;
+		return "<div class=\"browserContainer contentBrowser\">".$this->sideButtons($bps).$prepend.$GUIF->getContainer($Tab, $this->caption, $appended, $this->topButtons($bps))."</div>".str_replace("%CLASSNAME", $this->className, $this->sortable).$this->tip;
 	}
 	// </editor-fold>
 
@@ -937,6 +951,11 @@ class HTMLGUIX {
 
 	// <editor-fold defaultstate="collapsed" desc="invokeParser">
 	protected function invokeParser($function, $value, $element){
+		if($function instanceof Closure){
+			return $function($value, $element, $element);
+			return;
+		}
+		
 		$c = explode("::", $function);
 		$method = new ReflectionMethod($c[0], $c[1]);
 		try {
@@ -1011,6 +1030,8 @@ class HTMLGUIX {
 
 		if(Util::versionCheck($_SESSION["applications"]->getRunningVersion(), $_SESSION["CurrentAppPlugins"]->getVersionOfPlugin($plugin) , "!=")){
 
+			require_once Util::getRootPath()."plugins/Installation/Installation.class.php";
+			
 			$t = new HTMLTable(1);
 			$t->addRow(str_replace(array("%1","%2"),array($_SESSION["CurrentAppPlugins"]->getVersionOfPlugin($plugin), $_SESSION["applications"]->getRunningVersion()),"Sie verwenden eine alte Version dieses Plugins (%1) mit einer neueren Version des Frameworks (%2).<br />Wenn Sie diese Anwendung aktualisiert haben, verwenden Sie bitte nachfolgenden Knopf, um sie neu zu laden."));
 			$t->addRow(Installation::getReloadButton());
@@ -1058,7 +1079,10 @@ class HTMLGUIX {
 				#$new = "contentManager.editInPopup('%CLASSNAME', %CLASSID, 'Eintrag bearbeiten', ''".($par1 != null ? ", $par1" : "").");";
 				#$this->GUIFactory->replaceEvent("onNew", $new);
 				#$this->GUIFactory->replaceEvent("onEdit", $new);
-				$this->GUIFactory->editInPopup($par1);
+				if($par2 === null)
+					$par2 = "{}";
+				
+				$this->GUIFactory->editInPopup($par1, $par2);
 			break;
 			
 			case "addSaveDefaultButton":

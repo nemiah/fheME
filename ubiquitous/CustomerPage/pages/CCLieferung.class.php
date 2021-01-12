@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 
 ini_set('session.gc_maxlifetime', 24 * 60 * 60);
@@ -31,7 +31,11 @@ class CCLieferung implements iCustomContent {
 	}
 	
 	function getLabel(){
-		return "Lieferungs-Erfassung";
+		return "Lieferungen";
+	}
+	
+	public function getApps(){
+		return [];
 	}
 	
 	function getCMSHTML() {

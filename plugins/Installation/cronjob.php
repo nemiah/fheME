@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 
 if(isset($argv[1]))
@@ -43,16 +43,25 @@ if($argv[2] == "All"){
 	foreach($mandanten AS $httpHost){
 		$_SERVER["HTTP_HOST"] = $httpHost;
 		
-		Session::reloadDBData();
-		$e->useAdminUser();
+		Session::reloadDBData(false);
+		try {
+			$e->useAdminUser();
+		} catch (NoDBUserDataException $ex){
+			echo $httpHost.": ".get_class($ex)."\n";
+			continue;
+		}
 		
 		$I = new mInstallation();
 		$data[$httpHost] = $I->updateAllTables();
 	}
 } else {
 	Session::reloadDBData();
-
-	$e->useAdminUser();
+	try {
+		$e->useAdminUser();
+	} catch (TableDoesNotExistException $ex){
+		if($ex->getTable() != "User")
+			throw $ex;
+	}
 
 	$I = new mInstallation();
 	$data = array("*" => $I->updateAllTables());

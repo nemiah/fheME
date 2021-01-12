@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses></http:>.
  * 
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 class phimGruppeGUI extends phimGruppe implements iGUIHTML2 {
 	function getHTML($id){
@@ -34,8 +34,14 @@ class phimGruppeGUI extends phimGruppe implements iGUIHTML2 {
 	public static function parserMembers($w, $l, $E){
 		$Users = Users::getUsersArray();
 		
+		$AC = anyC::get("phimUserHidden");
+		$hidden = $AC->toArray("phimUserHiddenUserID");
+		
 		$r = "";
 		foreach($Users AS $ID => $U){
+			if(in_array($ID, $hidden))
+				continue;
+			
 			$I = new HTMLInput("user_$ID", "checkbox", strpos($w, ";$ID;") !== false ? "1" : "0");
 			$I->onchange("if(this.checked) \$j('[name=phimGruppeMembers]').val(\$j('[name=phimGruppeMembers]').val()+';$ID;'); else  \$j('[name=phimGruppeMembers]').val(\$j('[name=phimGruppeMembers]').val().replace(';$ID;', ''));");
 			

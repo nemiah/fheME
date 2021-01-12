@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 class ExtConn {
 	protected $absolutePath;
@@ -36,7 +36,7 @@ class ExtConn {
 		if($propagateViaInterface AND ! defined("PHYNX_VIA_INTERFACE"))
 			define("PHYNX_VIA_INTERFACE", true);
 
-		if($absolutePathToPhynx{strlen($absolutePathToPhynx) - 1} != "/") $absolutePathToPhynx .= "/";
+		if($absolutePathToPhynx[strlen($absolutePathToPhynx) - 1] != "/") $absolutePathToPhynx .= "/";
 		
 		$this->absolutePath = $absolutePathToPhynx;
 		

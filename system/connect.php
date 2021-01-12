@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 
 /**
@@ -36,7 +36,7 @@
 define("PHYNX_USE_TEMP_HTACCESS", true);
 define("PHYNX_USE_SVG", true);
 
-if(isset($_SERVER["HTTP_HOST"]) AND $_SERVER["HTTP_HOST"] == "cloud.furtmeier.it"){
+if(isset($_SERVER["HTTP_HOST"]) AND $_SERVER["HTTP_HOST"] == "cloud.open3a.de"){
 	define("PHYNX_USE_SYSLOG", true);
 	openlog('phynx', LOG_CONS | LOG_PID, LOG_USER);
 } else 
@@ -68,6 +68,9 @@ if(session_name() == get_cfg_var("session.name"))
 	session_name("phynx_".sha1(__FILE__).($physion != "default" ? "_$physion" : ""));
 
 spl_autoload_register("phynxAutoloader");
+
+if(version_compare(PHP_VERSION, '7.3.0', ">="))
+	session_set_cookie_params(array("httponly" => true, "samesite" => "Strict"));
 
 if(
 	ini_get("session.save_handler") == "files" 
@@ -204,6 +207,9 @@ function log_error($errno, $errmsg, $filename, $linenum) {
 register_shutdown_function('fatalErrorShutdownHandler');
 function fatalErrorShutdownHandler() {
 	$last_error = error_get_last();
+	if($last_error === null)
+		return;
+	
 	if (isset($last_error['type']) AND $last_error['type'] !== E_ERROR) 
 		return;
 	

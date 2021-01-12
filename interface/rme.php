@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 $par = "";
 
@@ -106,7 +106,7 @@ $_GET["parameters"]		//Parameters to call method $_GET["method"] with
 $c = $cla."GUI";
 $d = new $c($con);
 
-$par = (get_magic_quotes_gpc() ? stripslashes($par) : $par);
+#$par = (get_magic_quotes_gpc() ? stripslashes($par) : $par);
 
 #$phpversion = str_replace(".","",phpversion())*1;
 

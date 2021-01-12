@@ -16,7 +16,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 class mKalender extends UnpersistentClass {
 	public function getEMailData($parameters){
@@ -29,7 +29,7 @@ class mKalender extends UnpersistentClass {
 		
 		$adresse = $data->getAdresse();
 		$emailData = $adresse->getEMailData();
-		
+		$K = Kappendix::getKappendixToAdresse($adresse->getID());
 		
 		$sum = $data->summary();
 		if(strpos($sum, "<p") !== false)
@@ -48,6 +48,23 @@ Beschreibung: ".$sum."
 
 Freundliche Grüße<br>
 ".Session::currentUser()->A("name");
+		
+		$TB = Textbausteine::getDefaultID("emailTerminbestätigung", "");
+		if($TB != 0){
+			$body = Textbaustein::getTextOf($TB);
+			$body = str_replace("{StartTag}", Util::CLDateParser(Kalender::parseDay($data->getDay())), $body);
+			$body = str_replace("{EndeTag}", Util::CLDateParser(Kalender::parseDay($data->getEndDay())), $body);
+			$body = str_replace("{StartUhrzeit}", Util::CLTimeParser(Kalender::parseTime($data->getTime())), $body);
+			$body = str_replace("{EndeUhrzeit}", Util::CLTimeParser(Kalender::parseTime($data->getEndTime())), $body);
+			$body = str_replace("{Beschreibung}", $sum, $body);
+			$body = str_replace("{Benutzername}", Session::currentUser()->A("name"), $body);
+			$body = str_replace("{Datum}", Util::CLDateParser(time()), $body);
+			$body = str_replace("{Firma}", $adresse->A("firma"), $body);
+			if($K)
+				$body = str_replace("{Kundennummer}", $K->A("kundennummer"), $body);
+			
+			$emailData["body"] = $body;
+		}
 		
 		$emailData["subject"] = "Termininformation";
 		
@@ -145,6 +162,8 @@ END:VCALENDAR";
 		
 		$adresse->replaceByAnsprechpartner($recipientID);
 		$body = str_replace("{Anrede}", Util::formatAnrede($_SESSION["S"]->getUserLanguage(), $adresse), $body);
+		$body = str_replace("{Vorname}", $adresse->A("vorname"), $body);
+		$body = str_replace("{Nachname}", $adresse->A("nachname"), $body);
 		
 		if($action == "notification")
 			$mail->setCalendar($ics, "REQUEST");
@@ -153,10 +172,12 @@ END:VCALENDAR";
 		
 		$mail->setTextCharset("UTF-8");
 		$mail->setCalendarCharset("UTF-8");
-		$mail->setText($body);
+		#$mail->setHTMLCharset("UTF-8");
 		
-		#print_r($mail->getRFC822(array("Rainer@Furtmeier.de")));
-		#die();
+		if(strpos($body, "<p") !== false)
+			$body = Html2Text::convert($body);
+		
+		$mail->setText($body);
 		
 		$mail->send(array($emailData["recipients"][$recipientID][1]));
 		
@@ -190,6 +211,12 @@ END:VCALENDAR";
 	
 	public static function getExportDir(){
 		return dirname(__FILE__);
+	}
+	
+	public static function getTextbausteineData(){
+		return array(
+			array("601", "E-Mail Terminbestätigung", array("Anrede", "Benutzername", "Datum", "Firma", "Vorname", "Nachname", "Kundennummer", "StartTag", "StartUhrzeit", "EndeTag", "EndeUhrzeit", "Beschreibung"))
+		);
 	}
 }
 

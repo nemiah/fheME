@@ -129,7 +129,7 @@ class Mail_MIMEPart
     public function __construct($body = '', $params = array())
     {
         if (!defined('MAIL_MIMEPART_CRLF')) {
-            define('MAIL_MIMEPART_CRLF', defined('MAIL_MIME_CRLF') ? MAIL_MIME_CRLF : "\r\n", true);
+            define('MAIL_MIMEPART_CRLF', defined('MAIL_MIME_CRLF') ? MAIL_MIME_CRLF : "\r\n");
         }
 
         foreach ($params as $key => $value) {
@@ -288,8 +288,8 @@ class Mail_MIMEPart
         $escape = '=';
         $output = '';
 
-        while(list(, $line) = each($lines)){
-
+        #while(list(, $line) = each($lines)){
+		foreach($lines AS $line){
             $linlen     = strlen($line);
             $newline = '';
 

@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 class ADesktopGUI extends UnpersistentClass implements iGUIHTML2 {
 	function  __construct() {
@@ -48,33 +48,48 @@ class ADesktopGUI extends UnpersistentClass implements iGUIHTML2 {
 		}
 	}
 	
-	public function getOffice3aRSS(){
+	public function getOpen3AVersion(){
+		$this->currentVersion = $_SESSION["applications"]->getRunningVersion();
+
+		$hpVersion = null;
+		
+		$version = Util::httpTestAndLoad("http://www.open3a.de/open3AcurrentVersion.php", 2);
+		#var_dump($version);
+		$XML = new XMLC();
+		$XML->setXML($version["_response"]);
+		try {
+			$XML->lCV3();
+			$t = $XML->getNextEntry();
+			if($t != null)
+				$hpVersion = $t->getA()->Version;
+		} catch (Exception $e){}
+		
+		$html = "";
+		
+		if($hpVersion != null AND (Util::versionCheck($hpVersion, $this->currentVersion) OR Util::versionCheck($hpVersion, $this->currentVersion, "<"))) 
+			$html .= "
+				
+					".(Util::versionCheck($hpVersion, $this->currentVersion) ? "Auf der Homepage steht eine neue Version von open3A Faktura zur Verfügung ($hpVersion). Sie benutzen Version $this->currentVersion." : (Util::versionCheck($hpVersion, $this->currentVersion, "==") ? "Ihre open3A Faktura-Version ist auf dem aktuellen Stand." : "Ihre open3A Faktura-Version ist aktueller als die Version auf der Homepage!"))."
+				";
+		
+		$B = new Button("Zur\nRegistrierung", "navigation");
+		$B->onclick("window.open('https://www.open3a.de/page-Registrierung', '_blank');");
+		$B->style("float:right;margin-top:-27px;");
+			
+		
+		$htmlSub = T::_("Registrieren Sie sich noch heute kostenlos auf open3A.de und Sie erhalten die aktuellsten News zu open3A in Ihr Postfach.");
+		$A = Applications::i();
+		$versionen = "";
+		foreach($A->getVersions() AS $app => $version)
+			$versionen .= "<div style=\"display:inline-block;width:33.3333%;vertical-align:top;\">$app $version</div>";
+		
+		echo "<div style=\"height:calc(187px - 7px - 7px);\">".($html != "" ? "<br><br>" : "").$htmlSub."<br><br>".$versionen."</div>$B";
+
+	}
+		
+	public function getOffice3aRSS(){ //noch bisschen lassen, falls Leute die Installation nur überschreiben 20200922
 		if(Environment::getS("blogShow", "1") == "0")
 			return "";
-		
-		/*Timer::$enabled = true;
-		Timer::start();
-		echo gethostbyname("blog.furtmeier.it");
-		Timer::now("Start", __FILE__, __LINE__);
-		
-		$filename = "https://blog.furtmeier.it/feed/";
-		$handle = fopen($filename, "rb");
-		Timer::now("fopen", __FILE__, __LINE__);
-		
-		$headers = get_headers($filename, 1);
-		Timer::now("get_headers", __FILE__, __LINE__);
-		#echo "<pre>";
-		#print_r($headers);
-		#echo "</pre>";
-        $data = "";
-        while ($buffer = fgets($handle, 4096)) 
-            $data .= $buffer;
-        
-		fclose($handle);
-		Timer::now("fgets", __FILE__, __LINE__);
-		echo "<pre>";
-		print_r(Timer::getLogged());
-		echo "</pre>";*/
 		
 		if(function_exists("curl_init")){
 			$ch = curl_init();
@@ -122,6 +137,45 @@ class ADesktopGUI extends UnpersistentClass implements iGUIHTML2 {
 		} catch (Exception $e){
 			return "";
 		}
+	}
+	
+	public static function dataUpdate(){
+		if(function_exists("curl_init")){
+			$ch = curl_init();
+			curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
+			curl_setopt($ch, CURLOPT_TIMEOUT, 1); //timeout in seconds
+			curl_setopt($ch, CURLOPT_URL, Environment::getS("dataURL", "http://data.open3a.de/?section=dashboard")); //use http, it's faster
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			$data = curl_exec($ch);
+			curl_close($ch);
+		} else {
+			$ctx = stream_context_create(array('https' => array('timeout' => 1)));
+			$data = file_get_contents(Environment::getS("dataURL", "http://data.open3a.de/?section=dashboard"), 0, $ctx);
+		}
+		
+		if($data === false)
+			$data = "{}";
+		
+		mUserdata::setUserdataS("dashboardData", $data, "", -1);
+		
+	}
+	
+	public static function dataGet(){
+		$data = mUserdata::getGlobalSettingValue("dashboardData", null);
+		if($data === null){
+			
+			self::dataUpdate();
+			$data = mUserdata::getGlobalSettingValue("dashboardData", "{}");
+		}
+		
+		$json = json_decode($data);
+		
+		if(isset($json->time) AND time() - $json->time > 3600 * 24 * 3){
+			self::dataUpdate();
+			json_decode(mUserdata::getGlobalSettingValue("dashboardData", "{}"));
+		}
+		
+		return $json;
 	}
 }
 ?>

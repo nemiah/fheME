@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 function BackupManagerGUIFatalErrorShutdownHandler() {
 	$last_error = error_get_last();
@@ -69,7 +69,7 @@ class BackupManagerGUI implements iGUIHTML2 {
 		} catch(TableDoesNotExistException $e){
 			
 		}
-		$FTPServer = null;
+		$FTPsServer = null;
 		try {
 			$FTPsServer = LoginData::get("BackupFTPsServerUserPass");
 		} catch(TableDoesNotExistException $e){
@@ -97,7 +97,7 @@ class BackupManagerGUI implements iGUIHTML2 {
 		
 		$FTPsServerID = $FTPsServer == null ? -1 : $FTPsServer->getID();
 		$BFTP = $ST->addButton("FTPs-Server\neintragen", "./plugins/Installation/serverMail.png");
-		$BFTP->popup("edit", "FTPs-Server", "LoginData", $FTPsServerID, "getPopup", "", "LoginDataGUI;preset:backupFTPServer");
+		$BFTP->popup("edit", "FTPs-Server", "LoginData", $FTPsServerID, "getPopup", "", "LoginDataGUI;preset:backupFTPsServer");
 		
 		if(extension_loaded("ssh2")){
 			$SFTPServerID = $SFTPServer == null ? -1 : $SFTPServer->getID();
@@ -131,9 +131,11 @@ class BackupManagerGUI implements iGUIHTML2 {
 	
 	public function backupDirChangeSave($verzeichnis){
 		$verzeichnis = str_replace("\\", "/", $verzeichnis);
-		$verzeichnis = rtrim($verzeichnis, "/")."/";
+		if(trim($verzeichnis) != "")
+			$verzeichnis = rtrim($verzeichnis, "/")."/";
 		
-		if(Util::getRootPath()."system/Backup/" == $verzeichnis){
+		
+		if(Util::getRootPath()."system/Backup/" == $verzeichnis OR trim($verzeichnis) == ""){
 			$U = new mUserdata();
 			$U->delUserdata("BackupManagerDir", -1);
 			
@@ -203,13 +205,17 @@ class BackupManagerGUI implements iGUIHTML2 {
 	public function displayBackup($name){
 		if($_SESSION["S"]->isUserAdmin() == "0")
 			throw new AccessDeniedException();
-
-		$html = Util::getBasicHTML("", $name);
-		$html = str_replace("</html>","", $html);
-		$html = str_replace("</body>","", $html);
-		echo "$html<pre>";
+		
+		header('Content-Type: application/octet-stream');
+		#header("Content-Transfer-Encoding: Binary"); 
+		header("Content-disposition: attachment; filename=\"" . basename($name) . "\"");
+		header("Content-Length: ". filesize(self::getBackupDir().$name));
+		#$html = Util::getBasicHTML("", $name);
+		#$html = str_replace("</html>","", $html);
+		#$html = str_replace("</body>","", $html);
+		#echo "$html<pre>";
 		readfile(self::getBackupDir().$name);
-		echo "</pre></body></html>";
+		#echo "</pre></body></html>";
 	}
 
 	private function noBackupButton(){
@@ -221,7 +227,7 @@ class BackupManagerGUI implements iGUIHTML2 {
 			$BSave = new Button("Einstellung\nspeichern","save");
 			$BSave->style("float:right;");
 			$BSave->onclick("if($('BackupGoAway').checked) ");
-			$BSave->rmePCR("BackupManager", "", "GoAway", "", "Popup.close('','BackupManagerGUI'); contentManager.reloadFrame('contentLeft');");
+			$BSave->rmePCR("BackupManager", "", "GoAway", "", "Popup.close('','BackupManagerGUI'); contentManager.reloadFrame('contentScreen');");
 
 			return $BSave.$GoAway." <label for=\"BackupGoAway\" style=\"float:none;text-align:left;width:auto;\">Diese Meldung nicht mehr anzeigen, ich erstelle meine Backups selbst.</label>";
 	}
@@ -271,7 +277,7 @@ class BackupManagerGUI implements iGUIHTML2 {
 				$B->type("icon");
 				$B->style("float:left;margin-right:10px;");
 
-				$T->addRow($B."Das Backup wurde erfolgreich abgeschlossen!<br />Die Größe der Sicherungsdatei beträgt <strong>".Util::formatByte($F->A("FileSize"), 2)."</strong>");
+				$T->addRow($B."Das Backup wurde erfolgreich abgeschlossen!<br>Die Größe der Sicherungsdatei beträgt <strong>".Util::formatByte($F->A("FileSize"), 2)."</strong>");
 				$T->addRowClass("backgroundColor0");
 				
 				try {
@@ -315,7 +321,7 @@ class BackupManagerGUI implements iGUIHTML2 {
 				$T->addRow($B."Beim Erstellen des Backups ist ein Fehler aufgetreten: $BOK");
 				$html .= $T;
 			}
-			$html .= OnEvent::script(OnEvent::frame("desktopLeft", "Desktop", "2"));#"<script type=\"text/javascript\">contentManager.reloadFrame('contentLeft');</script>";
+			$html .= OnEvent::script(OnEvent::frame("Screen", "Desktop"));#"<script type=\"text/javascript\">contentManager.reloadFrame('contentLeft');</script>";
 		}
 
 
@@ -413,7 +419,7 @@ class BackupManagerGUI implements iGUIHTML2 {
 		return $data;
 	}
 	
-	private static function getNewBackupName(){
+	public static function getNewBackupName(){
 		return self::getBackupDir().$_SESSION["DBData"]["datab"].".".date("Ymd")."_utf8.sql.gz";
 	}
 
@@ -476,13 +482,20 @@ require valid-user
 		$benutzername = $FTPServer->A("benutzername");
 		$passwort = $FTPServer->A("passwort");
 
-		$connection_id = ftp_ssl_connect($ftp_server);
+		$port = 21;
+		$ex = explode(":", $ftp_server);
+		if(isset($ex[1])){
+			$port = $ex[1];
+			$ftp_server = $ex[0];
+		}
+		
+		$connection_id = ftp_ssl_connect($ftp_server, $port);
 		
 		if (!$connection_id) 
 			throw new Exception("Verbindung mit FTPs-Server $ftp_server nicht möglich!");
 
 		$login_result = ftp_login($connection_id, $benutzername, $passwort);
-
+		
 		if (!$login_result) 
 			throw new Exception("Anmeldung als Benutzer $benutzername nicht möglich!");
 		
@@ -495,6 +508,11 @@ require valid-user
 		$lokale_datei = $filename;
 
 		$upload = ftp_put($connection_id, $zieldatei, $lokale_datei, FTP_ASCII);
+		
+		if (!$upload){
+			ftp_pasv($connection_id, true);
+			$upload = ftp_put($connection_id, $zieldatei, $lokale_datei, FTP_ASCII);
+		}
 		
 		if (!$upload)
 		  throw new Exception("Beim FTP-Upload ist ein Fehler aufgetreten");
@@ -514,13 +532,20 @@ require valid-user
 		$benutzername = $FTPServer->A("benutzername");
 		$passwort = $FTPServer->A("passwort");
 
-		$connection_id = ftp_connect($ftp_server);
+		$port = 21;
+		$ex = explode(":", $ftp_server);
+		if(isset($ex[1])){
+			$port = $ex[1];
+			$ftp_server = $ex[0];
+		}
+		
+		$connection_id = ftp_connect($ftp_server, $port);
 		
 		if (!$connection_id) 
 			throw new Exception("Verbindung mit FTP-Server $ftp_server nicht möglich!");
 
 		$login_result = ftp_login($connection_id, $benutzername, $passwort);
-
+		
 		if (!$login_result) 
 			throw new Exception("Anmeldung als Benutzer $benutzername nicht möglich!");
 		
@@ -533,6 +558,11 @@ require valid-user
 		$lokale_datei = $filename;
 
 		$upload = ftp_put($connection_id, $zieldatei, $lokale_datei, FTP_ASCII);
+		
+		if (!$upload){
+			ftp_pasv($connection_id, true);
+			$upload = ftp_put($connection_id, $zieldatei, $lokale_datei, FTP_ASCII);
+		}
 		
 		if (!$upload)
 		  throw new Exception("Beim FTP-Upload ist ein Fehler aufgetreten");

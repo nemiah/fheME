@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 class HTMLForm {
 	protected $id;
@@ -143,17 +143,20 @@ class HTMLForm {
 		$this->style = $style;
 	}
 
-	public function cols($cols){
+	public function cols($cols, $widths = null){
 		if($cols != 2 AND $cols != 4 AND $cols != 1) return;
 
-		$widths = Aspect::joinPoint("changeWidths", $this, __METHOD__);
+		$widths = Aspect::joinPoint("changeWidths", $this, __METHOD__, null, $widths);
 
 		$this->table = new HTMLTable($cols, $this->title);
 		$this->cols = $cols;
 
 		if($cols == 4){
 			if($widths == null) $widths = array(700, 132, 218);
-			$this->table->setTableStyle("width:$widths[0]px;max-width:$widths[0]px;margin-left:10px;");
+			if(is_numeric($widths[0]))
+				$widths[0] .= "px";
+			
+			$this->table->setTableStyle("width:$widths[0];max-width:$widths[0];margin-left:10px;");
 
 			$this->table->addColStyle(1, "width:$widths[1]px;");
 			$this->table->addColStyle(2, "width:$widths[2]px;");
@@ -377,10 +380,12 @@ class HTMLForm {
 		
 		$values = "";
 		foreach($this->fields AS $f){
-			if(!isset($this->types[$f]) OR $this->types[$f] != "checkbox")
+			if(!isset($this->types[$f]) OR ($this->types[$f] != "checkbox" AND $this->types[$f] != "select-multiple"))
 				$values .= ($values != "" ? ", " : "")."\$('$this->id').$f.value";
-			else
+			elseif($this->types[$f] == "checkbox")
 				$values .= ($values != "" ? ", " : "")."\$('$this->id').$f.checked ? '1' : '0'";
+			elseif($this->types[$f] == "select-multiple")
+				$values .= ($values != "" ? ", " : "")."\$j('#$this->id [name=$f]').val().join(';:;')";
 		}
 		
 		foreach($this->virtualFields AS $f){
@@ -509,6 +514,14 @@ class HTMLForm {
 	public function getSpaces(){
 		return $this->spaces;
 	}
+
+	public function getTypes(){
+		return $this->types;
+	}
+	
+	public function getOptions(){
+		return $this->options;
+	}
 	
 	public function insertLineAbove($fieldName, $label = ""){
 		$this->spaceLines[$fieldName] = $label;
@@ -593,8 +606,13 @@ class HTMLForm {
 			
 			$Input->isDisplayMode(!$this->editable);
 		} else {
-			$method = explode("::", $this->options[$v][0]);
-			$Input = Util::invokeStaticMethod($method[0], $method[1], array(isset($this->values[$v]) ? $this->values[$v] : null, "", isset($this->options[$v][1]) ? $this->options[$v][1] : null, (isset($this->options[$v][2]) ? $this->options[$v][2] : null)));
+			if($this->options[$v][0] instanceof Closure){
+				$f = $this->options[$v][0];
+				$Input = $f(isset($this->values[$v]) ? $this->values[$v] : null, "", isset($this->options[$v][1]) ? $this->options[$v][1] : null, (isset($this->options[$v][2]) ? $this->options[$v][2] : null));
+			} else {
+				$method = explode("::", $this->options[$v][0]);
+				$Input = Util::invokeStaticMethod($method[0], $method[1], array(isset($this->values[$v]) ? $this->values[$v] : null, "", isset($this->options[$v][1]) ? $this->options[$v][1] : null, (isset($this->options[$v][2]) ? $this->options[$v][2] : null)));
+			}
 		}
 
 		return $Input;

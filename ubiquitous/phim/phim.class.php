@@ -15,10 +15,25 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 class phim extends PersistentObject {
+	private static $Users = null;
+	public static function formatMessage(phim $M){
+		if(self::$Users === null)
+			self::$Users = Users::getUsersArray();
+		
+		$BR = new Button("Gelesen", "check", "iconicG");
+		$BR->id("phim_".$M->getID());
+		$BR->addClass("isread_".$M->A("phimToUserID"));
+		$BR->style("font-size:10px;".(strpos($M->A("phimReadBy"), ";".$M->A("phimToUserID").";") === false ? "display:none;" : ""));
 
+		if($M->A("phimFromUserID") != Session::currentUser()->getID())
+			$BR = "";
+
+		return "<div class=\"chatMessage ".(($M->A("phimFromUserID") != Session::currentUser()->getID() AND strpos($M->A("phimReadBy"), ";".Session::currentUser()->getID().";") === false) ? "highlight" : "")."\"><span class=\"time\">".Util::CLDateTimeParser($M->A("phimTime"))."$BR</span><span class=\"username\">".self::$Users[$M->A("phimFromUserID")].": </span><span class=\"content\">".$M->A("phimMessage")."</span></div>";
+	}
+	
 	function sendMessage($to, $text){
 		$F = new Factory("phim");
 		
@@ -27,6 +42,12 @@ class phim extends PersistentObject {
 		if($to[0] == "g"){
 			$group = str_replace("g", "", $to);
 			$to = 0;
+		}
+		
+		if($group){
+			$G = new phimGruppe($group);
+			$G->changeA("phimGruppeClosed", "");
+			$G->saveMe();
 		}
 		
 		$F->sA("phimFromUserID", Session::currentUser()->getID());
@@ -44,13 +65,19 @@ class phim extends PersistentObject {
 		$message->time = time();
 		$message->group = $group;
 		
-		$F->store();
+		$MID = $F->store();
+		
+		$M = new phim($MID);
+		$append = self::formatMessage($M);
 		
 		$this->go($message, $target);
+		
+		echo $append;
 	}
 	
 	protected function go($message, $to){
 		$S = anyC::getFirst("Websocket", "WebsocketUseFor", "phim");
+		$instance = Util::eK();
 		
 		$realm = $S->A("WebsocketRealm");
 		
@@ -58,8 +85,6 @@ class phim extends PersistentObject {
 		
 		require Util::getRootPath().'PWS/Thruway/vendor/autoload.php';
 
-		require_once __DIR__.'/ClientPhimAuthenticator.php';
-		
 		Thruway\Logging\Logger::set(new Psr\Log\NullLogger());
 		$connection = new \Thruway\Connection([
 			"realm"   => $realm,
@@ -67,43 +92,61 @@ class phim extends PersistentObject {
 		]);
 
 		$client = $connection->getClient();
-		$client->addClientAuthenticator(new ClientPhimAuthenticator($realm, "phimUser", $S->A("WebsocketToken")));
+		$auth = new Thruway\Authentication\ClientWampCraAuthenticator("client", $S->A("WebsocketToken"));
+		$client->setAuthId('client');
+		$client->addClientAuthenticator($auth);
+		
+		$connection->on('open', function (\Thruway\ClientSession $session) use ($connection, $message, $to, $instance) {
+			if(!is_array($message)){
+				
+				if($message->method == "message"){
+					$newMessage = new stdClass();
+					$newMessage->method = "newMessage";
+					$newMessage->to = $to;
+					$newMessage->from = $message->from;
+					#$newMessage->group = $message->group;
 
-		$connection->on('open', function (\Thruway\ClientSession $session) use ($connection, $message, $to) {
-			$session->publish('it.furtmeier.phim_'.$to, [json_encode($message, JSON_UNESCAPED_UNICODE)], [], ["acknowledge" => true])->then(
-				function () use ($connection) {
-					$connection->close();
-				}, function ($connection) {
-					$connection->close();
+					$session->publish('it.furtmeier.'.$instance.'.phim_Watchdog', [json_encode($newMessage, JSON_UNESCAPED_UNICODE)], [], ["acknowledge" => true]);
 				}
-			);
+				
+				$session->publish('it.furtmeier.'.$instance.'.phim_'.$to, [json_encode($message, JSON_UNESCAPED_UNICODE)], [], ["acknowledge" => true])->then(
+					function () use ($connection) {
+						$connection->close();
+					}, function ($connection) {
+						$connection->close();
+					}
+				);
+			} else {
+				foreach($message AS $k => $singleMessage){
+					$close = ($k == count($message) - 1);
+					
+					if($singleMessage->method == "message"){
+						$newMessage = new stdClass();
+						$newMessage->method = "newMessage";
+						$newMessage->to = $to;
+						$newMessage->from = $message->from;
+						#$newMessage->group = $message->group;
+
+						$session->publish('it.furtmeier.'.$instance.'.phim_Watchdog', [json_encode($newMessage, JSON_UNESCAPED_UNICODE)], [], ["acknowledge" => true]);
+					}
+					
+					$session->publish('it.furtmeier.'.$instance.'.phim_'.$to, [json_encode($singleMessage, JSON_UNESCAPED_UNICODE)], [], ["acknowledge" => true])->then(
+						function () use ($connection, $close) {
+							if($close)
+								$connection->close();
+						}, function ($connection) {
+							$connection->close();
+						}
+					);
+				}
+			}
+		});
+		
+		$connection->on('error', function($reason){
+			print_r($reason);
 		});
 
 		$connection->open();
-		
-		/*$client = new Thruway\Peer\Client($realm);
-		$client->addClientAuthenticator(new ClientPhimAuthenticator($realm, "phimUser", $S->A("WebsocketToken")));
-		
-		$client->addTransportProvider(new Thruway\Transport\PawlTransportProvider("ws".($S->A("WebsocketSecure") ? "s" : "")."://".$S->A("WebsocketServer").":".$S->A("WebsocketServerPort")."/"));
-
-		$client->on('open', function (Thruway\ClientSession $session) use ($message, $to) {
-
-			$session->publish('it.furtmeier.phim_'.$to, [json_encode($message, JSON_UNESCAPED_UNICODE)], [], ["acknowledge" => true])->then(
-				function () {
-					echo "Publish Acknowledged!\n";
-					die();
-				},
-				function ($error) {
-					// publish failed
-					echo "Publish Error {$error}\n";
-				}
-			);
-
-			//$session->close();
-		});
-
-
-		$client->start();*/
 	}
 	
 	function newAttributes() {

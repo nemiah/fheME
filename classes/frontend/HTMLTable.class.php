@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 class HTMLTable extends UnifiedTable implements iUnifiedTable  {
 	private $colStyles = array();
@@ -242,93 +242,108 @@ class HTMLTable extends UnifiedTable implements iUnifiedTable  {
 
 	function getHTMLForUpdate($addTR = false, $tablePart = "tbody"){
 		$rows = "";
+		#print_r($this->contentTop);
+		foreach($this->contentTop as $K => $V)
+			$rows .= $this->getRow($K, $V, $addTR, $tablePart, true);
+		
+		foreach($this->content as $K => $V)
+			$rows .= $this->getRow($K, $V, $addTR, $tablePart);
+		
 
-		foreach($this->content as $K => $V){
-			if(isset($this->tablePart[$K]) AND $this->tablePart[$K] != $tablePart)
-				continue;
-			
-			if(!isset($this->tablePart[$K]) AND $tablePart != "tbody")
-				continue;
-			
-			$events = "";
-			if(isset($this->rowEvents[$K]))
-				foreach($this->rowEvents[$K] AS $n => $a)
-					$events .= "on$n=\"$a\"";
-			
-			if(isset($this->insertSpaceBefore[$K-1]) AND $this->insertSpaceBefore[$K-1] == "")
+		return $rows;
+	}
+	
+	private function getRow($K, $V, $addTR, $tablePart, $isTop = false){
+		$rows = "";
+		
+		if(isset($this->tablePart[$K]) AND $this->tablePart[$K] != $tablePart)
+			return "";
+
+		if(!isset($this->tablePart[$K]) AND $tablePart != "tbody")
+			return "";
+
+		$classes = isset($this->rowClasses[$K]) ? $this->rowClasses[$K] : "";
+		if($isTop)
+			$classes = isset($this->rowTopClasses[$K]) ? $this->rowTopClasses[$K] : "";
+		
+		$events = "";
+		if(isset($this->rowEvents[$K]))
+			foreach($this->rowEvents[$K] AS $n => $a)
+				$events .= "on$n=\"$a\"";
+
+		if(isset($this->insertSpaceBefore[$K-1]) AND $this->insertSpaceBefore[$K-1] == "")
+		$rows .= "
+		<tr>
+			<td class=\"backgroundColor0\"></td>
+		</tr>";
+
+		if(isset($this->insertSpaceBefore[$K-1]) AND $this->insertSpaceBefore[$K-1] != "" AND !$this->tabs[$K-1]) $rows .= "
+		<tr>
+			<td class=\"backgroundColor0\"></td>
+		</tr>
+		<tr>
+			<td class=\"backgroundColor1\" style=\"font-weight:bold;\" colspan=\"$this->numCols\">".$this->insertSpaceBefore[$K-1]."</td>
+		</tr>";
+
+		if(isset($this->insertSpaceBefore[$K-1]) AND $this->insertSpaceBefore[$K-1] != "" AND $this->tabs[$K-1]) {
+			if($this->tab > 1) $rows .= "
+		</table>
+		</form>
+		</div>";
+
 			$rows .= "
-			<tr>
-				<td class=\"backgroundColor0\"></td>
-			</tr>";
-
-			if(isset($this->insertSpaceBefore[$K-1]) AND $this->insertSpaceBefore[$K-1] != "" AND !$this->tabs[$K-1]) $rows .= "
-			<tr>
-				<td class=\"backgroundColor0\"></td>
-			</tr>
-			<tr>
-				<td class=\"backgroundColor1\" style=\"font-weight:bold;\" colspan=\"$this->numCols\">".$this->insertSpaceBefore[$K-1]."</td>
-			</tr>";
-
-			if(isset($this->insertSpaceBefore[$K-1]) AND $this->insertSpaceBefore[$K-1] != "" AND $this->tabs[$K-1]) {
-				if($this->tab > 1) $rows .= "
-			</table>
-			</form>
-			</div>";
-
-				$rows .= "
-			<div onclick=\"if($('Tab$this->uID$this->tab').style.display == 'none') new Effect.BlindDown('Tab$this->uID$this->tab', {queue: 'end'}); else new Effect.BlindUp('Tab$this->uID$this->tab', {queue: 'end'});\" class=\"backgroundColor1 Tab borderColor1\">
-				<p>".$this->insertSpaceBefore[$K-1]."</p>
-			</div>
-			<div id=\"Tab$this->uID$this->tab\" style=\"display:none;\">
-			<form ".($this->forms[$K-1] != "" ? "id=\"".$this->forms[$K-1]."\"" : "").">
-			<table ".($this->tableStyle != null ? "style=\"$this->tableStyle\"" : "").">
-				<colgroup>$cols
-				</colgroup>";
-				$this->tab++;
-			}
-
-			$data = "";
-			if(isset($this->data[$K]))
-				foreach($this->data[$K] AS $key => $value)
-					$data .= " data-".strtolower($key)."=\"$value\"";
-			
-			
-			if($addTR) $rows .= "
-			<tr $events $data ".(isset($this->rowIDs[$K]) ? "id=\"".$this->rowIDs[$K]."\" " : "")."".(isset($this->rowStyles[$K]) ? "style=\"".$this->rowStyles[$K]."\"" : "")." ".(isset($this->rowClasses[$K]) ? "class=\"".$this->rowClasses[$K]."\"" : "").">";
-
-			#foreach($V AS $l => $inhalt){
-				#print_r($this->rowColspan[$K]);
-				#if(isset($this->rowColspan[$K]) AND $this->rowColspan[$K][0] == $j+1 AND $this->rowColspan[$K][1] > 0)
-				#	continue;#$l += $this->rowColspan[$K][1] - 1;
-				
-				#if($l > $this->numCols - 1)
-				#	break;
-			for($l = 0; $l < $this->numCols; $l++){
-				
-				if($this->colOrder != null AND isset($this->colOrder[$l]))
-					$j = $this->colOrder[$l] - 1;
-				else $j = $l;
-
-				$style = (isset($this->colStyles[$j+1]) ? $this->colStyles[$j+1] : "");
-				if(isset($this->cellStyles[$K][$j+1])) $style .= $this->cellStyles[$K][$j+1];
-
-				if($style != "") $style = "style=\"$style\"";
-
-				$cellEvents = "";
-				if(isset($this->cellEvents[$K][$j+1]))
-					foreach($this->cellEvents[$K][$j+1] as $on => $ac)
-						$cellEvents .= " on$on=\"$ac\"";
-
-				$rows .= "
-				<td ".(isset($this->cellClasses[$K][$j+1]) ? "class=\"".$this->cellClasses[$K][$j+1]."\"" : "")." $cellEvents ".((isset($this->cellIDs[$K]) AND isset($this->cellIDs[$K][$j+1])) ? "id=\"".$this->cellIDs[$K][$j+1]."\"" : "")." ".((isset($this->rowColspan[$K]) AND $this->rowColspan[$K][0] == $j+1) ? "colspan=\"".$this->rowColspan[$K][1]."\"" : "")." ".((isset($this->colRowspan[$K]) AND $this->colRowspan[$K][0] == $j+1) ? "rowspan=\"".$this->colRowspan[$K][1]."\"" : "")." ".$style.">".(isset($this->content[$K][$j]) ? $this->content[$K][$j] : "")."</td>";
-				
-				if(isset($this->rowColspan[$K]) AND $this->rowColspan[$K][0] == $j+1 AND $this->rowColspan[$K][1] > 0)
-					$l += $this->rowColspan[$K][1] - 1;
-			}
-			if($addTR) $rows .= "
-			</tr>";
+		<div onclick=\"if($('Tab$this->uID$this->tab').style.display == 'none') new Effect.BlindDown('Tab$this->uID$this->tab', {queue: 'end'}); else new Effect.BlindUp('Tab$this->uID$this->tab', {queue: 'end'});\" class=\"backgroundColor1 Tab borderColor1\">
+			<p>".$this->insertSpaceBefore[$K-1]."</p>
+		</div>
+		<div id=\"Tab$this->uID$this->tab\" style=\"display:none;\">
+		<form ".($this->forms[$K-1] != "" ? "id=\"".$this->forms[$K-1]."\"" : "").">
+		<table ".($this->tableStyle != null ? "style=\"$this->tableStyle\"" : "").">
+			<colgroup>
+			</colgroup>";
+			$this->tab++;
 		}
 
+		$data = "";
+		if(isset($this->data[$K]))
+			foreach($this->data[$K] AS $key => $value)
+				$data .= " data-".strtolower($key)."=\"$value\"";
+
+
+		if($addTR) $rows .= "
+		<tr $events $data ".(isset($this->rowIDs[$K]) ? "id=\"".$this->rowIDs[$K]."\" " : "")."".(isset($this->rowStyles[$K]) ? "style=\"".$this->rowStyles[$K]."\"" : "")." ".($classes ? "class=\"".$classes."\"" : "").">";
+
+		#foreach($V AS $l => $inhalt){
+			#print_r($this->rowColspan[$K]);
+			#if(isset($this->rowColspan[$K]) AND $this->rowColspan[$K][0] == $j+1 AND $this->rowColspan[$K][1] > 0)
+			#	continue;#$l += $this->rowColspan[$K][1] - 1;
+
+			#if($l > $this->numCols - 1)
+			#	break;
+		for($l = 0; $l < $this->numCols; $l++){
+
+			if($this->colOrder != null AND isset($this->colOrder[$l]))
+				$j = $this->colOrder[$l] - 1;
+			else $j = $l;
+
+			$style = (isset($this->colStyles[$j+1]) ? $this->colStyles[$j+1] : "");
+			if(isset($this->cellStyles[$K][$j+1])) $style .= $this->cellStyles[$K][$j+1];
+
+			if($style != "") $style = "style=\"$style\"";
+
+			$cellEvents = "";
+			if(isset($this->cellEvents[$K][$j+1]))
+				foreach($this->cellEvents[$K][$j+1] as $on => $ac)
+					$cellEvents .= " on$on=\"$ac\"";
+
+			$rows .= "
+			<td ".(isset($this->cellClasses[$K][$j+1]) ? "class=\"".$this->cellClasses[$K][$j+1]."\"" : "")." $cellEvents ".((isset($this->cellIDs[$K]) AND isset($this->cellIDs[$K][$j+1])) ? "id=\"".$this->cellIDs[$K][$j+1]."\"" : "")." ".((isset($this->rowColspan[$K]) AND $this->rowColspan[$K][0] == $j+1) ? "colspan=\"".$this->rowColspan[$K][1]."\"" : "")." ".((isset($this->colRowspan[$K]) AND $this->colRowspan[$K][0] == $j+1) ? "rowspan=\"".$this->colRowspan[$K][1]."\"" : "")." ".$style.">".(isset($V[$j]) ? $V[$j] : "")."</td>";
+
+			if(isset($this->rowColspan[$K]) AND $this->rowColspan[$K][0] == $j+1 AND $this->rowColspan[$K][1] > 0)
+				$l += $this->rowColspan[$K][1] - 1;
+		}
+		if($addTR) $rows .= "
+		</tr>";
+		
 		return $rows;
 	}
 

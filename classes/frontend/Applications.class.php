@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 class Applications {
 	private $apps = array();
@@ -167,6 +167,10 @@ class Applications {
 		if(array_search($appCheck,$this->apps) !== false) $appCheck = array_search($appCheck,$this->apps);
 
 		return isset($this->versions[$appCheck]) ? $this->versions[$appCheck] : null;
+	}
+	
+	public function getVersions(){
+		return $this->versions;
 	}
 	
 	public function getHTMLOptions($selected = null){

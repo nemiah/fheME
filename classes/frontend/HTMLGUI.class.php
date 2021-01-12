@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 
 class HTMLGUI implements icontextMenu {
@@ -379,6 +379,7 @@ class HTMLGUI implements icontextMenu {
 	 * @param string $a
 	 */
 	function hideAttribute($a){ $this->dontShow[$a] = 1; }
+	function unhideAttribute($a){ if(isset($this->dontShow[$a])) unset($this->dontShow[$a]); }
 	
 	function isQuickSearchable($plugin){
 		$this->quickSearchPlugin = $plugin;
@@ -1616,7 +1617,7 @@ class HTMLGUI implements icontextMenu {
 		$html = "
 		<table>";
 		foreach($keysAndLabels as $key => $label){
-			$action = "phynxContextMenu.saveSelection('$saveTo','$identifier','$key','".addslashes(stripslashes($onSuccessFunction))."');";
+			$action = "phynxContextMenu.saveSelection('$saveTo','$identifier','$key','". str_replace("%KEY", $key, addslashes(stripslashes($onSuccessFunction)))."');";
 
 			if($onClickFunction != "")
 				$action = str_replace("%VALUE", $key, $onClickFunction);

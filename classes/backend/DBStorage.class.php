@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 
 class DBStorage {
@@ -110,7 +110,8 @@ class DBStorage {
 				OR mysqli_connect_errno() == 2002 
 				OR mysqli_connect_errno() == 2003 
 				OR mysqli_connect_errno() == 2005
-				OR mysqli_connect_errno() == 1698)) 
+				OR mysqli_connect_errno() == 1698
+				OR mysqli_connect_errno() == 1130)) 
 			throw new NoDBUserDataException(mysqli_connect_errno().":".mysqli_connect_error()."; ".$this->data["user"]."@".$this->data["host"]);
 		
 		if(mysqli_connect_error() AND (mysqli_connect_errno() == 1049 OR mysqli_connect_errno() == 1044)) 
@@ -121,7 +122,7 @@ class DBStorage {
 		if($this->c->error AND PHYNX_USE_SYSLOG)
 			syslog(LOG_ERR, "MySQL: ".$this->c->error."(".$this->c->errno.")");
 		
-		$this->c->set_charset("utf8");
+		$this->c->set_charset("utf8mb4");
 		$this->c->query("SET SESSION sql_mode='';");
 		
 		self::$globalConnection[get_class($this)] = $this->c;
@@ -136,7 +137,7 @@ class DBStorage {
 		if($this->cWrite->error AND PHYNX_USE_SYSLOG)
 			syslog(LOG_ERR, "MySQL: ".$this->cWrite->error."(".$this->cWrite->errno.")");
 		
-		$this->cWrite->set_charset("utf8");
+		$this->cWrite->set_charset("utf8mb4");
 		$this->cWrite->query("SET SESSION sql_mode='';");
 		
 		self::$globalConnectionWrite[get_class($this)] = $this->cWrite;
@@ -243,6 +244,9 @@ class DBStorage {
 			self::$lastQuery[] = $sql;
 			if(count(self::$lastQuery) > 5)
 				array_shift(self::$lastQuery);
+			
+			if($this->cWrite->errno == 1118)
+				throw new RowSizeTooLargeException($regs[1], $newSQL);
 			
 			if($this->cWrite->error)
 				throw new Exception($this->cWrite->error);

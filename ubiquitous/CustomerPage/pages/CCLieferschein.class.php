@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 
 ini_set('session.gc_maxlifetime', 24 * 60 * 60);
@@ -30,7 +30,11 @@ class CCLieferschein extends CCAuftrag implements iCustomContent {
 	}
 
 	function getLabel(){
-		return "Lieferschein-Erfassung";
+		return "Lieferscheine";
+	}
+	
+	public function getApps(){
+		return ["open3A"];
 	}
 	
 	function getCMSHTML() {
@@ -108,16 +112,21 @@ class CCLieferschein extends CCAuftrag implements iCustomContent {
 			$BPDF->style("background-color:#DDD;color:grey;float:right;");
 			$BPDF->onclick("CustomerPage.popup('Beleg PDF', 'getPDFViewer', {GRLBMID: '".$B->getID()."'}, {width:'800px'});");
 			
-			$BM = new Button("Per E-Mail");
-			$BM->className("submitFormButton");
-			$BM->style("background-color:#DDD;color:grey;float:right;");
-			$BM->onclick("CustomerPage.popup('Per E-Mail', 'getEMailViewer', {GRLBMID: '".$B->getID()."'}, {width:'800px'});");
-			$BM = "";
 			
+			$BM = "";
 			$BOK = "";
 			if($B->A("GRLBMServiceSigAG") != "" AND $B->A("GRLBMServiceSigAG") != "[]"){
 				$BOK = new Button("Kunde hat unterschrieben", "check", "iconic");
 				$BOK->style("font-size:55px;");
+				
+				$BM = new Button("Per E-Mail");
+				$BM->className("submitFormButton");
+				$BM->style("float:right;");
+				if(!$B->A("isEMailed")){
+					$BM->onclick("if(!confirm('Soll der Lieferschein per E-Mail verschickt werden?')) return; CustomerPage.rme('sendViaEMail', {GRLBMID: '".$B->getID()."', AuftragID: '".$B->A("AuftragID")."'}, function(transport){ document.location.reload(); });");
+					$BM->style ("background-color:#DDD;color:grey;");
+				}
+				#$BM->onclick("CustomerPage.popup('Per E-Mail', 'getEMailViewer', {GRLBMID: '".$B->getID()."'}, {width:'800px'});");
 			}
 			
 			$Adresse = new Adresse($B->A("AdresseID"));

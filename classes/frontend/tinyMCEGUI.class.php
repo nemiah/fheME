@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 class tinyMCEGUI {
 	private $ID;
@@ -95,8 +95,10 @@ class tinyMCEGUI {
 					"lists link image print preview hr",
 					"code fullscreen noneditable",
 					"save table",
-					"paste textcolor"
+					"paste textcolor",
+					"pagebreak"
 				],
+				pagebreak_separator: \'<br pagebreak="true"/>\',
 				style_formats:[
 					{
 						title: "Headers",
@@ -153,16 +155,16 @@ class tinyMCEGUI {
 		
 		$ITA = new HTMLInput("tinyMCEEditor", "textarea");
 		$ITA->id($tinyMCEID);
-		$ITA->style("width:".($variablesCallback != null ? "830" : "1000")."px;height:300px;");
+		$ITA->style("width:".($variablesCallback != null ? "830" : "1000")."px;height:500px;");
 		
 		if($variablesCallback != null)
-			echo "<div style=\"float:right;width:158px;margin:5px;height:324px;overflow-y:auto;overflow-x:hidden;\">
+			echo "<div style=\"float:right;width:158px;margin:5px;height:524px;overflow-y:auto;overflow-x:hidden;\">
 					<p><small id=\"tinyMCEVarsDescription\"></small></p>
 					<p style=\"margin-top:5px;\" id=\"tinyMCEVars\"></p></div>";
 
 		echo "<div style=\"width:".($variablesCallback != null ? "830" : "1000")."px;\">".$ITA."</div>";
 		
-		$buttons = "save | undo redo | pastetext | styleselect fontsizeselect fontselect | bold italic underline forecolor | hr code";
+		$buttons = "save | undo redo | pastetext | styleselect fontsizeselect fontselect | bold italic underline forecolor | hr pagebreak code";
 		if($picturesDir AND Session::isPluginLoaded("mFile")){
 			$buttons .= " table phynximage";
 			$buttons = str_replace("fontselect", "", $buttons);

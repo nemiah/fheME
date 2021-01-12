@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 class mAutoLogin extends anyC {
 	function __construct(){
@@ -24,9 +24,13 @@ class mAutoLogin extends anyC {
 	
 	public static function doAutoLogin($username = null, $SHAPassword = null, $language = null, $AutoLoginApp = null){
 		if($username == null){
+			$ex = explode(".", $_SERVER["REMOTE_ADDR"]);
+			$ex[3] = "*";
+			
 			$al = new mAutoLogin();
 			$al->addAssocV3("AutoLoginIP", "=", $_SERVER["REMOTE_ADDR"]);
 			$al->addAssocV3("AutoLoginIP", "=", "*", "OR");
+			$al->addAssocV3("AutoLoginIP", "=", implode(".", $ex), "OR");
 			$al->addJoinV3("User","AutoLoginUserID","=","UserID");
 			try {
 				$c = $al->getNextEntry();

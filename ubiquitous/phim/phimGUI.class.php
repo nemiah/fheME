@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 		
 class phimGUI extends phim implements iGUIHTML2 {
@@ -28,48 +28,120 @@ class phimGUI extends phim implements iGUIHTML2 {
 		return $gui->getEditHTML();
 	}
 	
-	function ping(){ //dummy for keeping the session alive
+	#function ping(){ //dummy for keeping the session alive
 		
+	#}
+	
+	public function communicationPopup($class, $classID){
+		$AC = anyC::get("phimGruppe", "phimGruppeClassName", $class);
+		$AC->addAssocV3("phimGruppeClassID", "=", $classID);
+		$G = $AC->n();
+		
+		if(!$G){
+			$Users = Users::getUsersArray();
+
+			$AC = anyC::get("phimUserHidden");
+			$hidden = $AC->toArray("phimUserHiddenUserID");
+
+			$T = new HTMLTable(2);
+			$T->setColWidth(1, 20);
+			$T->useForSelection(false);
+			foreach($Users AS $ID => $U){
+				if(in_array($ID, $hidden))
+					continue;
+
+				
+				$I = new HTMLInput("user_$ID", "checkbox", $ID == Session::currentUser()->getID() ? "1" : "0");
+				$I->onchange("if(this.checked) \$j('[name=phimGruppeMembers]').val(\$j('[name=phimGruppeMembers]').val()+';$ID;'); else  \$j('[name=phimGruppeMembers]').val(\$j('[name=phimGruppeMembers]').val().replace(';$ID;', ''));");
+
+				$T->addRow([$I, $U]);
+				$T->addCellEvent(2, "click", "\$j('[name=user_$ID]').prop('checked', !\$j('[name=user_$ID]').prop('checked')).trigger('change');");
+				if($ID == Session::currentUser()->getID())
+					$T->addRowStyle ("display:none;");
+			}
+
+			$I = new HTMLInput("phimGruppeMembers", "hidden", ";".Session::currentUser()->getID().";");
+			
+			$B = new Button("Rückfrage\nerstellen", "bestaetigung");
+			$B->style("margin:10px;float:right;");
+			$B->rmePCR("phim", "-1", "communicationNewGroup", ["'$class'", "'$classID'", "\$j('[name=phimGruppeMembers]').val()"], OnEvent::reloadPopup("phim"));
+			
+			echo $T.$I.$B;
+			return;
+		}
+		
+		$users = Users::getUsersArray(null, true);
+		$AC = anyC::get("phim", "phimphimGruppeID", $G->getID());
+		echo "<p>";
+		while($M = $AC->n()){
+			echo "<strong>".$users[$M->A("phimFromUserID")].":</strong> ".$M->A("phimMessage")."<br>";
+			
+			if(strpos($M->A("phimReadBy"), ";".Session::currentUser()->getID().":") === false){
+				$M->changeA("phimReadBy", ";".Session::currentUser()->getID().":".time().";");
+				$M->saveMe();
+			}
+		}
+		echo "</p>";
+		
+		echo "<div class=\"backgroundColor3\" style=\"border-top:1px solid grey;\">";
+		$I = new HTMLInput("newMessage", "textarea");
+		$I->style("width:100%;background-color:white;");
+		$I->onEnter(OnEvent::rme($this, "sendMessage", ["'g".$G->getID()."'", "\$j('[name=newMessage]').val()"], OnEvent::reloadPopup("phim")));
+		
+		echo $I."</div>";
+		echo OnEvent::script("\$j('#phimButton_{$class}_$classID').removeClass('highlight');");
+		if($class == "DBMail")
+			echo OnEvent::script ("\$j('#BrowserMain$classID').removeClass('confirm');");
+		#contentManager.rmePCR('phim', -1, 'sendMessage', [$j('#channel').val(), $j('[name=newMessage]').val()], function(){ $j('[name=newMessage]').val(''); }, '', 1);
 	}
 	
-	function offline(){
-		$message = new stdClass();
-		$message->method = "offline";
-		$message->user = Session::currentUser()->getID();
+	function communicationNewGroup($class, $classID, $members){
+		$F = new Factory("phimGruppe");
+		$F->sA("phimGruppeName", "Rückfrage");
+		$F->sA("phimGruppeMasterUserID", Session::currentUser()->getID());
+		$F->sA("phimGruppeMembers", $members);
+		$F->sA("phimGruppeClassName", $class);
+		$F->sA("phimGruppeClassID", $classID);
 		
-		$this->go($message, 0);
+		$F->store();
 	}
 	
-	function online(){
-		$message = new stdClass();
-		$message->method = "online";
-		$message->user = Session::currentUser()->getID();
-		
-		$this->go($message, 0);
-	}
 	
-	function setRead($fromUserID){
+	function setRead($from){
+		if($from[0] == "g"){
+			$AC = anyC::get("phim");
+			$AC->addAssocV3("phimphimGruppeID", "=", substr($from, 1));
+			$AC->addAssocV3("INSTR(phimReadBy, ';".Session::currentUser()->getID().";')", "=", "0");
+			
+			while($P = $AC->n()){
+				$P->changeA("phimReadBy", $P->A("phimReadBy").";".Session::currentUser()->getID().";");
+				$P->saveMe();
+			}
+			
+			return;
+		}
+		
 		$AC = anyC::get("phim");
-		$AC->addAssocV3("phimFromUserID", "=", $fromUserID);
+		$AC->addAssocV3("phimFromUserID", "=", $from);
 		$AC->addAssocV3("phimToUserID", "=", Session::currentUser()->getID());
-		$AC->addAssocV3("phimRead", "=", "0");
+		#$AC->addAssocV3("phimReadBy", "=", "0");
+		$AC->addAssocV3("INSTR(phimReadBy, ';".Session::currentUser()->getID().";')", "=", "0");
 		while($P = $AC->n()){
-			echo $P->getID()."\n";
-			$P->changeA("phimRead", "1");
+			$P->changeA("phimReadBy", $P->A("phimReadBy").";".Session::currentUser()->getID().";");
 			$P->saveMe();
 		}
 		
 		$message = new stdClass();
 		$message->method = "read";
 		#$message->content = $text;
-		$message->from = $fromUserID;
+		$message->from = Session::currentUser()->getID();
 		#$message->fromUser = Session::currentUser()->A("name");
-		$message->to = Session::currentUser()->getID();
+		$message->to = $from;
 		$message->time = time();
 		
 		#$F->store();
 		
-		$this->go($message, Session::currentUser()->getID());
+		$this->go($message, $from);
 	}
 }
 ?>

@@ -30,6 +30,7 @@
 	top:4px;
 	z-index:99;
 	width:430px;
+	padding:20px;
 	/*padding:4px;
 	border-style:solid;
 	border-width:1px;
@@ -47,6 +48,30 @@
 	border-color: #777;
 	border-style:solid;
 	border-width:1px;
+}
+
+#boxInOverlay label {
+	text-align:left;
+}
+
+#boxInOverlay .loginLogo {
+	width:180px;
+	margin-left:calc(50% - 90px);
+	margin-bottom:1.2em;
+}
+
+#boxInOverlay .loginAction {
+	background-color:#EEE;
+	padding-left:5px;
+}
+
+#boxInOverlay .loginAction .bigButton {
+	border:0;
+	margin:-3px;
+	height:50px;
+	width:180px;
+	font-size:1.1em;
+	padding-left:10px;
 }
 
 #overlayText ul { /*PRESENTATION*/

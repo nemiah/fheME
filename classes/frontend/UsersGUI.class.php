@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 class UsersGUI extends Users implements iGUIHTML2{
 	public function getHTML($id){
@@ -185,13 +185,16 @@ class UsersGUI extends Users implements iGUIHTML2{
 			
 		$r = parent::doLogin($ps);
 		
-		parse_str($ps, $arguments);
+		$arguments =[];
+		if(!is_array($ps))
+			parse_str($ps, $arguments);
 		if(isset($arguments["forwardTo"])){
 			if($r){
 				$_SESSION["phynx_customer"] = $arguments["forceCloud"];
 				#print_r($r);
-				#echo "Anmeldung erfolgreich! <a href=\"$arguments[forwardTo]\">Weiter zur Anwendung</a>";
-				header("Location: $arguments[forwardTo]");
+				echo "<!DOCTYPE html><html><head>️<title>Hi ❤</title></head><body><p><strong>Anmeldung erfolgreich!</strong></p>
+					<p>Wenn es nicht automatisch weitergeht: <a href=\"$arguments[forwardTo]\">Hier gehts zur Anwendung</a></p></body></html>".OnEvent::script("document.location.href = '$arguments[forwardTo]';");
+				#header("Location: $arguments[forwardTo]");
 			} else
 				echo "Anmeldung fehlgeschlagen!";
 			

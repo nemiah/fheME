@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 class mInstallationGUI extends mInstallation implements iGUIHTML2 {
 
@@ -217,7 +217,7 @@ class mInstallationGUI extends mInstallation implements iGUIHTML2 {
 		}
 		catch (NoDBUserDataException $e) { 
 			if(BPS::getProperty("mInstallationGUI", "showErrorText", false)){
-				$t->addRow(isset($text["wrongData"]) ? $text["wrongData"] : "Mit den angegebenen Datenbank-Zugangsdaten kann keine Verbindung aufgebaut werden.<br /><br />Wenn sie korrekt sind, werden hier weitere Möglichkeiten angezeigt angezeigt.");
+				$t->addRow("Mit den angegebenen Datenbank-Zugangsdaten kann keine Verbindung aufgebaut werden.<br><br>Wenn sie korrekt sind, werden hier weitere Möglichkeiten angezeigt angezeigt.");
 				$t->addRowClass("backgroundColor0");
 				$t->addRowStyle("color:red;");
 			}
@@ -393,9 +393,9 @@ class mInstallationGUI extends mInstallation implements iGUIHTML2 {
 			}
 			
 		} catch (NoDBUserDataException $e) {
-			$message = "<p style=\"padding:10px;font-size:20px;color:#555;text-align:center;color:red;\">Mit den angegebenen Datenbank-Zugangsdaten kann keine Verbindung aufgebaut werden.</p>";
+			$message = "<p style=\"padding:10px;font-size:20px;color:#555;text-align:center;color:red;\">Mit den angegebenen Datenbank-Zugangsdaten kann keine Verbindung aufgebaut werden.<br><small style=\"color:grey;\">".$e->getMessage()."</small></p>";
 			
-			echo OnEvent::script("contentManager.loadFrame('contentLeft','Installation','1');");
+			echo OnEvent::script("contentManager.loadFrame('contentLeft','Installation','".(isset($_SESSION["DBData"]) ? $_SESSION["DBData"]["InstallationID"] : 1)."');");
 			
 			if(PHYNX_MAIN_STORAGE == "MySQL") {
 				try {
@@ -444,7 +444,7 @@ class mInstallationGUI extends mInstallation implements iGUIHTML2 {
 		catch (DatabaseNotFoundException $e) {
 			$message = "<p style=\"padding:10px;font-size:20px;color:#555;text-align:center;color:red;\">Die angegebene Datenbank konnte nicht gefunden werden.</p>";
 			
-			echo OnEvent::script("contentManager.loadFrame('contentLeft','Installation','1');");
+			echo OnEvent::script("contentManager.loadFrame('contentLeft', 'Installation','".(isset($_SESSION["DBData"]) ? $_SESSION["DBData"]["InstallationID"] : 1)."');");
 		}
 		catch (TableDoesNotExistException $e){
 			$message = OnEvent::script("\$j('.installHiddenTab').hide();")."<p style=\"padding:10px;font-size:20px;color:#555;margin-bottom:40px;text-align:center;\">Ihre Datenbank hat derzeit noch keinen Inhalt.</p>";
@@ -620,8 +620,11 @@ class mInstallationGUI extends mInstallation implements iGUIHTML2 {
 			}
 			echo "</pre>";
 		}
-		$message = "<p style=\"padding:10px;font-size:20px;color:green;margin-bottom:40px;text-align:center;\">Ihre Datenbank wurde erfolgreich aktualisiert.</p>";
-		
+		if(count($this->updateExeptions) == 0)
+			$message = "<p style=\"padding:10px;font-size:20px;color:green;margin-bottom:40px;text-align:center;\">Ihre Datenbank wurde erfolgreich aktualisiert.</p>";
+		else
+			$message = "<p style=\"padding:10px;font-size:20px;color:red;margin-bottom:40px;text-align:center;\">Bei der Aktualisierung ist ein Fehler aufgetreten! <a href=\"#\" onclick=\"Popup.load('Fehlerausgabe', 'mInstallation', '-1', 'updateAllTables', Array('1'), '', 'edit');return false;\">Fehler anzeigen</a></p>";
+			
 		$action = "userControl.doLogout();";
 		
 		$B = new Button("Benutzer abmelden", "./plugins/Installation/abmelden.png", "icon");

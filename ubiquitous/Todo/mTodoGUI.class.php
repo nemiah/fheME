@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 class mTodoGUI extends mTodo implements iGUIHTMLMP2, iKalender {
 	public function  __construct() {
@@ -662,7 +662,7 @@ END:VCALENDAR";
 			$M = new DBMail($T->A("TodoClassID"));
 			
 			$B = new Button("Mail anzeigen", "./lightCRM/Mail/Mail.png", "icon");
-			$B->popup("", "Mail anzeigen", "mDBMail2Object", "-1", "showMail", array($T->A("TodoClassID"), $w, 1), "", "Mail.PopupOptions");
+			$B->popup("", "Mail anzeigen", "mDBMail2Object", "-1", "showMail", array($T->A("TodoClassID"), "''", 1), "", "Mail.PopupOptions");
 			
 			$BAnswer = new Button("Antworten", "./lightCRM/Mail/images/mail-reply-sender.png", "icon");
 			$BAnswer->popup("newMail", "Antworten", "Mail", -1, "writeMail", array($M->A("DBMailMailKontoID"), $T->A("TodoClassID"), "'answer'"), null, "Mail.PopupOptions");

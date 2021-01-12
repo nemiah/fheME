@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 class HTMLTidy {
 	protected $content;
@@ -23,6 +23,7 @@ class HTMLTidy {
 	private $done = false;
 	private $cleanedFile;
 	private $errorsFile;
+	protected $isUTF8 = false;
 
 	function __construct($uri = null){
 		if($uri != null)
@@ -56,7 +57,7 @@ class HTMLTidy {
 
 		$SC = new SystemCommand();
 		if(!Util::isWindowsHost())
-			$SC->setCommand("tidy -asxhtml -numeric < $temp > $this->cleanedFile 2> $this->errorsFile");
+			$SC->setCommand("tidy -asxhtml -numeric ".($this->isUTF8 ? "-utf8" : "")." < $temp > $this->cleanedFile 2> $this->errorsFile");
 		else
 			$SC->setCommand("c:/tidy.exe -asxhtml -numeric < $temp > $this->cleanedFile");
 		$SC->execute();

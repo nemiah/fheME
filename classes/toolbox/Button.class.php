@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 class Button {
 	
@@ -36,6 +36,7 @@ class Button {
 	private $before = "";
 	private $loading = false;
 	private $link = null;
+	private $useCustom = true;
 	/**
 	 * Use this class to display a button
 	 * You may omitt the whole path to the $image and only give the image name e.g. "new", if the image is in the folder ./images/navi/.
@@ -49,6 +50,10 @@ class Button {
 		$this->type($type);
 	}
 
+	public function useCustom($bool){
+		$this->useCustom = $bool;
+	}
+	
 	function link($toFrame = null){
 		$this->link = $toFrame;
 	}
@@ -203,8 +208,8 @@ class Button {
 		$this->rme = "rmeP('$targetClass', '$targetClassId', '$targetMethod', Array(".(is_array($targetMethodParameters) ? implode(",",$targetMethodParameters) : "'".$targetMethodParameters."'")."), '$onSuccessFunction', '$bps');";
 	}
 
-	function editInPopup($targetClass, $targetClassId, $title = "Eintrag bearbeiten", $bps = ""){
-		$this->rme = "contentManager.editInPopup('$targetClass', '$targetClassId', '".T::_($title)."', '$bps');";
+	function editInPopup($targetClass, $targetClassId, $title = "Eintrag bearbeiten", $bps = "", $options = "{}"){
+		$this->rme = "contentManager.editInPopup('$targetClass', '$targetClassId', '".T::_($title)."', '$bps', $options);";
 	}
 	
 	/**
@@ -257,8 +262,8 @@ class Button {
 		$this->onclick .= $value;
 	}
 	
-	function windowRme($targetClass, $targetClassId, $targetMethod, $targetMethodParameters = "", $bps = "", $target = "window"){
-		$this->rme = "windowWithRme('$targetClass', '$targetClassId', '$targetMethod', Array(".(is_array($targetMethodParameters) ? implode(",",$targetMethodParameters) : "'".$targetMethodParameters."'")."), '$bps', '$target');";
+	function windowRme($targetClass, $targetClassId, $targetMethod, $targetMethodParameters = "", $bps = "", $target = "window", $windowOptions = "{}"){
+		$this->rme = "windowWithRme('$targetClass', '$targetClassId', '$targetMethod', Array(".(is_array($targetMethodParameters) ? implode(",",$targetMethodParameters) : "'".$targetMethodParameters."'")."), '$bps', '$target', $windowOptions);";
 	}
 	
 	function windowRmeP($targetClass, $targetClassId, $targetMethod, $targetMethodParameters = "", $bps = "", $target = "window"){
@@ -308,10 +313,29 @@ class Button {
 		if($this->image != "" AND $this->image[0] != "." AND strpos($this->image, ":") === false AND $this->image[0] != "/" AND $this->type != "iconic" AND $this->type != "seamless" AND $this->type != "touch")
 			$this->image = "./images/navi/$this->image.png";# : $this->image );
 
-		if(defined("PHYNX_USE_SVG") AND PHYNX_USE_SVG AND file_exists(Util::getRootPath().str_replace(array(".png", ".gif"), ".svg", $this->image))){
+		$iconSet = SpeedCache::getCache("phynxIcons", null);
+		if($iconSet === null){
+			try {
+				$iconSet = mUserdata::getUDValueS("phynxIcons", "default");
+			} catch (Exception $e){ }
+			SpeedCache::setCache("phynxIcons", $iconSet);
+		}
+		
+		$useCustom = false;
+		if($this->useCustom AND $iconSet != "default"){
+			$ex = explode("::", $iconSet);
+			if(Session::isPluginLoaded("m$ex[0]")){
+				$c = $ex[0];
+				$replace = $c::replace($iconSet, $this->image);
+				if($replace){
+					$this->image = $replace;
+					$useCustom = true;
+				}
+			}
+		}
+		
+		if(!$useCustom AND defined("PHYNX_USE_SVG") AND PHYNX_USE_SVG AND file_exists(Util::getRootPath().str_replace(array(".png", ".gif"), ".svg", $this->image))){
 			$this->image = str_replace(array(".png", ".gif"), ".svg", $this->image);
-			#if($this->type == "icon")
-			#	$this->style .= "width:32px;";
 			if($this->type == "bigButton" OR $this->type == "LPBig" OR $this->type == "MPBig")
 				$this->style .= "background-size:32px;";
 		}

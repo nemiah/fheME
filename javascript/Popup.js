@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 var Popup = {
 	windowsOpen: 0,
@@ -27,7 +27,7 @@ var Popup = {
 	attached: Array(),
 	
 	presets: {
-		large: {hPosition: "center", width:1000},
+		large: {hPosition: "center", width:1000, top: 20},
 		center: {hPosition: "center"}
 	},
 
@@ -342,12 +342,16 @@ var Popup = {
 			}
 		});
 		//Event.observe(type+'DetailsCloseWindow'+ID, 'click', function() {Popup.close(ID, type);});
-		$j('#'+type+'DetailsCloseWindow'+ID).click(function() {Popup.close(ID, type);});
+		$j('#'+type+'DetailsCloseWindow'+ID).click(function() { 
+			Popup.close(ID, type);
+			if(options.onClose)
+				options.onClose();
+		});
 		if(hasMinimize){
 			/*Event.observe(type+'DetailsMinimizeWindow'+ID, 'click', function() {Popup.minimize(ID, type);});
 			Event.observe(type+'DetailsRestoreWindow'+ID, 'click', function() {Popup.restore(ID, type);});*/
-			$j('#'+type+'DetailsMinimizeWindow'+ID).click(function() {Popup.minimize(ID, type);});
-			$j('#'+type+'DetailsRestoreWindow'+ID).click(function() {Popup.restore(ID, type);});
+			$j('#'+type+'DetailsMinimizeWindow'+ID).click(function() { Popup.minimize(ID, type); });
+			$j('#'+type+'DetailsRestoreWindow'+ID).click(function() { Popup.restore(ID, type); });
 		}
 		
 		if(fullscreen){

@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 class UtilGUI extends Util {
 	function __construct($nonSense = ""){}
@@ -43,7 +43,7 @@ class UtilGUI extends Util {
 	 * @param string $dataClass
 	 * @param string $dataClassID 
 	 */
-	public static function EMailPopup($dataClass, $dataClassID, $callbackParameter = null, $onSuccessFunction = null, $onAbortFunction = null, $return = false){
+	public static function EMailPopup($dataClass, $dataClassID, $callbackParameter = null, $onSuccessFunction = null, $onAbortFunction = null, $return = false, $inWindow = false){
 		$c = new $dataClass($dataClassID);
 		$data = $c->getEMailData($callbackParameter);
 		
@@ -142,10 +142,13 @@ class UtilGUI extends Util {
 			$onSuccessFunction = "".OnEvent::reload("Left")." Popup.close('Util', 'edit');";
 		
 
-		$BAbort = new Button("Abbrechen","stop");
-		if($onAbortFunction == null)
-			$BAbort->onclick("Popup.close('Util', 'edit');");
-		else
+		$BAbort = new Button("Abbrechen", ($inWindow ? "." : "")."./images/navi/stop.png");
+		if($onAbortFunction == null){
+			if($inWindow)
+				$BAbort->onclick("window.close();");
+			else
+				$BAbort->onclick("Popup.close('Util', 'edit');");
+		} else
 			$BAbort->onclick($onAbortFunction);
 		$BAbort->style("margin-bottom:10px;margin-top:10px;");
 		
@@ -154,7 +157,7 @@ class UtilGUI extends Util {
 			$optional .= "\$j('#UtilEmailFormAttachments input[type=checkbox]:checked').each(function(k, v){ files += \$j(v).data('value')+'##'; });";
 		}
 		
-		$BGo = new Button("E-Mail\nsenden","okCatch");
+		$BGo = new Button("E-Mail\nsenden", ($inWindow ? "." : "")."./images/navi/okCatch.png");
 		$BGo->style("float:right;margin-top:10px;");
 		$BGo->loading();
 		$BGo->doBefore("$optional %AFTER");

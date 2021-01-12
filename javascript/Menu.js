@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 
 mouseIsOver = new Array();
@@ -93,7 +93,12 @@ var Menu = {
 	},
 	
 	setHighLight: function(obj){
-		if(lastHighLight != null) lastHighLight.className = lastHighLight.className.replace(/ *theOne/,"");
+		if(lastHighLight != null) 
+			lastHighLight.className = lastHighLight.className.replace(/ *theOne/,"");
+		
+		if(obj == null)
+			return;
+		
 		obj.className += " theOne";
 		lastHighLight = obj;
 	}

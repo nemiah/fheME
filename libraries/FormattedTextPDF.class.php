@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 
 class FormattedTextPDF extends FPDI {
@@ -110,7 +110,8 @@ class FormattedTextPDF extends FPDI {
 		if($xml->getName() == "hr")
 			$this->Line($this->GetMargin("L") , $this->GetY() + 2, $this->w - $this->GetMargin("R") , $this->GetY() + 2);
 
-		
+		if($xml->getName() == "br" AND isset($xml->attributes()["pagebreak"]) AND $xml->attributes()["pagebreak"] == true)
+			$this->AddPage();
 		
 		foreach($xml->attributes() AS $k => $a){
 			if($k == "style"){

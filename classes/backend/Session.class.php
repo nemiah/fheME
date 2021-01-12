@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 class Session {
 	static $instance;
@@ -48,8 +48,8 @@ class Session {
 			AppPlugins::init();
 	}
 	
-	public static function reloadDBData() {
-		$_SESSION["DBData"] = $_SESSION[self::$sessionVariable]->getDBData();
+	public static function reloadDBData($useSame = true) {
+		$_SESSION["DBData"] = $_SESSION[self::$sessionVariable]->getDBData(null, $useSame ? $_SESSION["DBData"]["InstallationID"] : null);
 		
 		$DBWrite = Environment::getS("databaseDataWrite", null);
 		if($DBWrite !== null)
@@ -232,7 +232,7 @@ class Session {
 
 		if(!isset($_SESSION["CurrentAppPlugins"])) 
 			return false;
-		
+
 		return $_SESSION["CurrentAppPlugins"]->isPluginLoaded($pluginName);
 		#return in_array($pluginName,$_SESSION["CurrentAppPlugins"]->getAllPlugins());
 	}

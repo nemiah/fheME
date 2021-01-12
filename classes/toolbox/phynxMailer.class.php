@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 class phynxMailer {
 	private $exceptions = false;
@@ -26,12 +26,18 @@ class phynxMailer {
 	private $subject = "";
 	private $body = "";
 	private $attachments = array();
+	private $embedded = [];
 	private $skipOwn = false;
+	private $smtpData = [];
 	
 	function __construct($to, $subject, $body) {
 		$this->to($to);
 		$this->subject($subject);
 		$this->body($body);
+	}
+	
+	function SMTPData($host, $user, $password){
+		$this->smtpData = ["host" => $host, "user" => $user, "pass" => $password];
 	}
 	
 	function bcc($bcc){
@@ -62,6 +68,10 @@ class phynxMailer {
 		$this->attachments[] = $filename;
 	}
 	
+	function embed($filename, $cid){
+		$this->embedded[] = [$filename, $cid];
+	}
+	
 	function skipOwnServer($bool){
 		$this->skipOwn = $bool;
 	}
@@ -77,6 +87,15 @@ class phynxMailer {
 		
 		$mimeMail2 = new PHPMailer($this->exceptions, substr($from[0], stripos($from[0], "@") + 1), $this->skipOwn);
 
+		if(count($this->smtpData)){
+			$mimeMail2->IsSMTP();
+
+			$mimeMail2->Host = $this->smtpData["host"];
+			$mimeMail2->SMTPAuth = $this->smtpData["user"] != "";
+			$mimeMail2->Username = $this->smtpData["user"];
+			$mimeMail2->Password = $this->smtpData["pass"];
+		}
+		
 		$mimeMail2->CharSet = "UTF-8";
 		$mimeMail2->Subject = $this->subject;
 		
@@ -106,6 +125,9 @@ class phynxMailer {
 		
 		foreach($this->attachments AS $attachment)
 			$mimeMail2->AddAttachment($attachment);
+		
+		foreach($this->embedded AS $embedded)
+			$mimeMail2->addEmbeddedImage($embedded[0], $embedded[1]);
 		
 		#$mimeMail2->SMTPDebug = 2;
 		

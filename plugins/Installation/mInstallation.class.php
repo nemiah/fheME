@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 class mInstallation extends anyC {
 	private $folder = "./system/DBData/";
@@ -108,6 +108,8 @@ class mInstallation extends anyC {
 		return $return;
 	}
 	
+	protected $updateExeptions = [];
+	
 	public function updateAllTables(){
 		$apps = Applications::getList();
 		$apps["plugins"] = "plugins";
@@ -148,7 +150,7 @@ class mInstallation extends anyC {
 				}
 				try {
 					if(!$c->checkIfMyDBFileExists())
-						$return[$value] = "Keine DB-Datei!";
+						$return[$value] = "<span style=\"color:grey;\">Nichts zu tun, keine DB-Datei!</span>";
 					else {
 						if($c->checkIfMyTableExists())
 							$return[$value] = $c->checkMyTables(true);
@@ -157,8 +159,13 @@ class mInstallation extends anyC {
 							$return[$value] = $c->createMyTable(true);
 					}
 					$done[] = $key;
+				} catch (RowSizeTooLargeException $e){
+					$this->updateExeptions[] = $e;
+					$return[$value] = "<span style=\"color:red;\">".get_class($e).": ".get_class($c)." (".$e->getTable().", ".$e->getField().");\n".$e->getTraceAsString()."</span>";
+					$done[] = $key;
 				} catch (Exception $e){
-					$return[$value] = get_class($e).": ".get_class($c).", ".$e->getMessage()."; ".$e->getTraceAsString();
+					$this->updateExeptions[] = $e;
+					$return[$value] = "<span style=\"color:red;\">".get_class($e).": ".get_class($c).", ".$e->getMessage().";\n".$e->getTraceAsString()."</span>";
 					$done[] = $key;
 				}
 			}

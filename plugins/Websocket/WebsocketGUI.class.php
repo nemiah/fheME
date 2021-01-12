@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 class WebsocketGUI extends Websocket implements iGUIHTML2 {
 	
@@ -40,7 +40,7 @@ class WebsocketGUI extends Websocket implements iGUIHTML2 {
 		$gui->label("WebsocketServerPort", "Port");
 		
 		$gui->type("WebsocketSecure", "checkbox");
-		$gui->type("WebsocketUseFor", "select", array("phim" => "phim", "fheME" => "fheME"));
+		$gui->type("WebsocketUseFor", "select", array("phim" => "phim/Hotline", "fheME" => "fheME"));
 		
 		$gui->space("WebsocketServer");
 		$gui->space("WebsocketRealm");

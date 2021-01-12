@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 
 class KalenderViewMonat {
@@ -336,7 +336,7 @@ class KalenderViewMonat {
 							".($ansicht != "tag" ? date("d",$D->time()) : "&nbsp;")."
 						</span>
 					</div>
-					<div style=\"".($ansicht == "monat" ? "margin-top:0px;width:100%;" : "")."\" class=\"".($ansicht == "monat" ? "innerCellHeight" : "")."\">$entry</div>
+					<div style=\"".($ansicht == "monat" ? "margin-top:0px;width:100%;overflow:auto;" : "")."\" class=\"".($ansicht == "monat" ? "innerCellHeight" : "")."\">$entry</div>
 				</td>";
 				$D->addDay();
 			}

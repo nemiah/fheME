@@ -19,6 +19,7 @@
 #navigation {
 	float:left;
 	width:190px;
+	min-height:calc(100vh - 70px);/* - footer - footerpadding */
 }
 
 #navTabsWrapper {
@@ -47,6 +48,8 @@
 	margin-left:10px;
 	margin-top:15px;
 	float:none;
+	white-space: nowrap;
+	text-overflow: ellipsis;
 }
 
 .tabImg {

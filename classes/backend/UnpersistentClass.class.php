@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 class UnpersistentClass {
 	private $collectionOf;
@@ -27,7 +27,7 @@ class UnpersistentClass {
 	/**
 	 * If active, customizes this class.
 	 *
-	 * If updated, please also update Collection::customizer and Environment::customizer
+	 * If updated, please also update Collection::customizer and Environment::customizer and exportDefault::customizer
 	 */
 	public function customize(){
 		try {

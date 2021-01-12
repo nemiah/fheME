@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 class XMLPlugin extends PluginV2 {
 	private $file;
@@ -65,6 +65,12 @@ class XMLPlugin extends PluginV2 {
 		xml_parser_set_option($p, XML_OPTION_CASE_FOLDING, 0);
 		xml_parse_into_struct($p, $content, $vals, $index);
 		
+		$xml = null;
+		try {
+			$xml = new SimpleXMLElement($content);
+		} catch (Exception $e){
+			
+		}
 		#if(xml_get_error_code($p)) 
 		#	echo xml_error_string(xml_get_error_code($p))." at line ".xml_get_current_line_number($p);
 		
@@ -84,8 +90,12 @@ class XMLPlugin extends PluginV2 {
 
 		if(isset($vals[$index["icon"][0]]) AND isset($vals[$index["icon"][0]]["value"])) $this->icon = $vals[$index["icon"][0]]["value"];
 		
-		if(isset($index["menuName"]) AND isset($vals[$index["menuName"][0]]) AND isset($vals[$index["menuName"][0]]["value"]))
+		if(isset($index["menuName"]) AND isset($vals[$index["menuName"][0]]) AND isset($vals[$index["menuName"][0]]["value"])){
 			$this->menuName = $vals[$index["menuName"][0]]["value"];
+			
+			if($xml AND isset($xml->plugin->menuName["ifNotLoaded"]) AND isset($xml->plugin->menuName["ifNotLoaded"][0]) AND Applications::isAppLoaded($xml->plugin->menuName["ifNotLoaded"][0].""))
+					$this->menuName = "";
+		}
 		
 		if(isset($index["javascript"]) AND isset($vals[$index["javascript"][0]])) {
 			$JS = array();
@@ -102,10 +112,15 @@ class XMLPlugin extends PluginV2 {
 			$this->adminOnly = $vals[$index["adminOnly"][0]]["value"];
 		else
 			$this->adminOnly = "false";
-		if(isset($index["collection"]) AND isset($vals[$index["collection"][0]])) $this->collection = $vals[$index["collection"][0]]["value"];
 		
-		if(isset($index["doSomethingElse"]) AND isset($vals[$index["doSomethingElse"][0]])) $this->doSomethingElse = $vals[$index["doSomethingElse"][0]]["value"];
-		if(isset($index["menuEntryTarget"]) AND isset($vals[$index["menuEntryTarget"][0]])) $this->menuEntryTarget = $vals[$index["menuEntryTarget"][0]]["value"];
+		if(isset($index["collection"]) AND isset($vals[$index["collection"][0]])) 
+			$this->collection = $vals[$index["collection"][0]]["value"];
+		
+		if(isset($index["doSomethingElse"]) AND isset($vals[$index["doSomethingElse"][0]])) 
+			$this->doSomethingElse = $vals[$index["doSomethingElse"][0]]["value"];
+		
+		if(isset($index["menuEntryTarget"]) AND isset($vals[$index["menuEntryTarget"][0]])) 
+			$this->menuEntryTarget = $vals[$index["menuEntryTarget"][0]]["value"];
 
 		if(isset($index["version"]) AND isset($vals[$index["version"][0]]) AND isset($vals[$index["version"][0]]["value"]))
 			$this->version = $vals[$index["version"][0]]["value"];
@@ -115,8 +130,6 @@ class XMLPlugin extends PluginV2 {
 			return;
 		
 		if(isset($index["application"]) AND isset($vals[$index["application"][0]])){
-			$xml = new SimpleXMLElement($content);
-			
 			foreach($xml->plugin->application AS $sub){
 				$menu = $this->menuName;
 				if(isset($sub["menuName"]))
@@ -127,15 +140,8 @@ class XMLPlugin extends PluginV2 {
 		}
 		
 		if(isset($index["registry"]) AND isset($vals[$index["registry"][0]]))
-			foreach($index["registry"] AS $k => $v){
+			foreach($index["registry"] AS $k => $v)
 				$this->registry[] = explode(";", $vals[$index["registry"][$k]]["value"]);
-				
-				#if(count($call) == 3)
-				#	Registry::setCallback($call[0], $call[1], $call[2]);
-
-				#if(count($call) == 2)
-				#	Registry::setCallback($call[0], $call[1]);
-			}
 
 		
 		if(isset($index["collectionGUI"]))

@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 class GUIFactory {
 
@@ -397,11 +397,11 @@ class GUIFactory {
 			return "
 			<div id=\"subFrameContainer$this->collectionName\" style=\"min-height:500px;\">
 				$prepended
-				<div style=\"width:$widths[0]px;\" class=\"backgroundColor1 Tab\">
+				<div style=\"width:".(strpos($widths[0], "calc(") === false ? $widths[0]."px" : $widths[0]).";\" class=\"backgroundColor1 Tab\">
 					<p><span style=\"float:right;font-weight:normal;\">$pageBrowser $newButton</span>$caption</p><div style=\"clear:both;\"></div>
 				</div>
-				<div id=\"subFrameEdit$this->collectionName\" style=\"display:none;width:$widths[0]px;padding-bottom:15px;\"></div>
-				<div id=\"subFrame$this->collectionName\" style=\"width:$widths[0]px;margin-left:10px;\">
+				<div id=\"subFrameEdit$this->collectionName\" style=\"display:none;width:".(strpos($widths[0], "calc(") === false ? $widths[0]."px" : $widths[0]).";padding-bottom:15px;\"></div>
+				<div id=\"subFrame$this->collectionName\" style=\"width:".(strpos($widths[0], "calc(") === false ? $widths[0]."px" : $widths[0]).";margin-left:10px;\">
 				".Aspect::joinPoint("aboveList", $this, __METHOD__)."
 					<div style=\"\">
 					$Table
@@ -462,7 +462,12 @@ class GUIFactory {
 					break;
 				}
 
-				if($this->showTrash AND $this->classID != -1) $List[] = $this->getDeleteButton();
+				if($this->showTrash AND $this->classID != -1) {
+					if(!isset($this->blacklists[1][$this->classID]))
+						$List[] = $this->getDeleteButton();
+					else
+						$List[] = "";
+				}
 			break;
 		}
 	}
@@ -494,7 +499,12 @@ class GUIFactory {
 					break;
 				}
 
-				if($this->showEdit AND $this->classID != -1) $List[] = $this->getEditButton();
+				if($this->showEdit AND $this->classID != -1) {
+					if(!isset($this->blacklists[0][$this->classID]))
+						$List[] = $this->getEditButton();
+					else
+						$List[] = "";
+				}
 				if($this->showNew AND $this->classID == -1) $List[] = $this->getNewButton();
 			break;
 		}
@@ -745,8 +755,8 @@ class GUIFactory {
 		$this->blacklists = array(array_flip($IDs[0]), array_flip($IDs[1]));
 	}
 
-	public function editInPopup($par1 = null){
-		$new = "contentManager.editInPopup('%CLASSNAME', %CLASSID, 'Eintrag bearbeiten', ''".($par1 != null ? ", $par1" : "").");";
+	public function editInPopup($par1 = null, $options = "{}"){
+		$new = "contentManager.editInPopup('%CLASSNAME', %CLASSID, 'Eintrag bearbeiten', ''".($par1 != null ? ", $par1" : "").", $options);";
 		$this->replaceEvent("onNew", $new);
 		$this->replaceEvent("onEdit", $new);
 	}

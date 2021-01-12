@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 class DBStorageU {
 	protected $instance;
@@ -341,7 +341,7 @@ class DBStorageU {
 		foreach($tables as $table => $conditions){
 			$ons = "";
 			for($i=0;$i<count($conditions);$i++){
-				if($i == 0) $ons .= ((!strpos($conditions[$i][0],".") AND $conditions[$i][0]{0} != " ") ? "t1." : "")."".$conditions[$i][0]." ".$conditions[$i][1]." t$t.".$conditions[$i][2];
+				if($i == 0) $ons .= ((!strpos($conditions[$i][0],".") AND $conditions[$i][0][0] != " ") ? "t1." : "")."".$conditions[$i][0]." ".$conditions[$i][1]." t$t.".$conditions[$i][2];
 				else {
 					if($conditions[$i][2] != "NOT NULL" AND $conditions[$i][2] != "NULL") $conditions[$i][2] = "'".$conditions[$i][2]."'";
 					$ons .= " AND t$t.".$conditions[$i][0]." ".$conditions[$i][1]." ".$conditions[$i][2]."";
@@ -485,7 +485,7 @@ class DBStorageU {
 			$ons = "";
 			for($i=0;$i<count($conditions);$i++){
 				#$ons .= ($i != 0 ? " AND " : "")."t1.".$conditions[$i][0]." ".$conditions[$i][1];#.((in_array("t1.".$conditions[$i][2],$statement->fields) OR in_array($conditions[$i][2],$statement->fields)) ? " t1.".$conditions[$i][2] : " '".$conditions[$i][2]."'");
-				if($i == 0) $ons .= ((!strpos($conditions[$i][0],".") AND $conditions[$i][0]{0} != " ") ? "t1." : "")."".$conditions[$i][0]." ".$conditions[$i][1]." t$t.".$conditions[$i][2];
+				if($i == 0) $ons .= ((!strpos($conditions[$i][0],".") AND $conditions[$i][0][0] != " ") ? "t1." : "")."".$conditions[$i][0]." ".$conditions[$i][1]." t$t.".$conditions[$i][2];
 				else {
 					if($conditions[$i][2] != "NOT NULL" AND $conditions[$i][2] != "NULL") $conditions[$i][2] = "'".$conditions[$i][2]."'";
 					$ons .= " AND t$t.".$conditions[$i][0]." ".$conditions[$i][1]." ".$conditions[$i][2]."";

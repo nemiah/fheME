@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 class pfDBStorage {
 	static $instance;
@@ -226,19 +226,22 @@ class pfDBStorage {
 	    return $mf->pfdbInsertId();
 	}*/
 	function makeNewLine2($table, $A) {
+
 		$mf = new PhpFileDB();
 		$mf->setFolder($this->folder);
-		#print_r($fields);
+
 	    $values = "";
 	    $fields = PMReflector::getAttributesArray($A);
 		for($i = 0;$i < count($fields);$i++){
-		    $values .= ($values != "" ? ", " : "")."'".$A->$fields[$i]."'\n";
+			$f = $fields[$i];
+		    $values .= ($values != "" ? ", " : "")."'".$A->$f."'\n";
 			$fields[$i] = "".$fields[$i]."";
 		}
 		if($this->file != "") $table = $this->file;
 	    $sql = "INSERT INTO\n $table\n (".implode(",\n",$fields).") VALUES ($values)";
 		$_SESSION["messages"]->addMessage("executing phpFileDB: $sql");
 	    $mf->pfdbQuery($sql);
+
 	    return $mf->pfdbInsertId();
 	}
 	

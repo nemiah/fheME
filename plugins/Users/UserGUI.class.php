@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 class UserGUI extends User implements iGUIHTML2 {
 	function getHTML($id){
@@ -91,7 +91,7 @@ class UserGUI extends User implements iGUIHTML2 {
 		$gui->label("UserSkype","Skype");
 		$gui->label("UserTel","Telefon");
 		
-		$gui->type("language","select", array("de_DE" => "Deutsch (Deutschland) €", "de_DE_EUR" => "Deutsch (Deutschland) EUR", "de_CH" => "Deutsch (Schweiz) sFr", "de_CH_CHF" => "Deutsch (Schweiz) CHF", "en_GB" => "English (United Kingdom)"));
+		$gui->type("language","select", array("de_DE" => "Deutsch (Deutschland) €", "de_DE_EUR" => "Deutsch (Deutschland) EUR", "de_CH" => "Deutsch (Schweiz) sFr", "de_CH_CHF" => "Deutsch (Schweiz) CHF", "en_GB" => "English (United Kingdom)", "es_ES" => "Español (España)"));
 		#$gui->setOptions("language",);
 		$gui->descriptionField("SHApassword","Zum Ändern eingeben.");
 		$gui->type("password","hidden");

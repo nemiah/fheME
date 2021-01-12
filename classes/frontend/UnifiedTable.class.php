@@ -15,10 +15,11 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 class UnifiedTable implements iUnifiedTable {
 	protected $content = array();
+	protected $contentTop = array();
 	protected $caption = null;
 	protected $numCols = 0;
 	protected $header = null;
@@ -34,6 +35,7 @@ class UnifiedTable implements iUnifiedTable {
 	
 	protected $rowStyles = array();
 	protected $rowClasses = array();
+	protected $rowTopClasses = array();
 	protected $rowColspan = array();
 
 	protected $tableStyle;
@@ -93,6 +95,12 @@ class UnifiedTable implements iUnifiedTable {
 	function addRowClass($class){
 		if(!isset($this->rowClasses[count($this->content) - 1])) $this->rowClasses[count($this->content) - 1] = "";
 		$this->rowClasses[count($this->content) - 1] .= " ".$class;
+	}
+
+	function addRowTopClass($class){
+		if(!isset($this->rowTopClasses[0])) 
+			$this->rowTopClasses[0] = "";
+		$this->rowTopClasses[0] .= " ".$class;
 	}
 
 	function addRowColspan($colNumber, $span){
@@ -157,7 +165,7 @@ class UnifiedTable implements iUnifiedTable {
 	function addRowTop($content){
 		if(!is_array($content)) $content = array($content);
 
-		$this->content = array_merge(array($content), $this->content);
+		$this->contentTop = array_merge(array($content), $this->contentTop);
 	}
 
 	function addHeaderRow($content){

@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 
 class OnEvent {
@@ -31,7 +31,7 @@ class OnEvent {
 	 */
 	public static function window($targetObject, $targetMethod, $targetMethodParameters = "", $bps = null, $target = null){
 		$useID = "-1";
-		if(!($targetObject instanceof Collection))
+		if(!($targetObject instanceof Collection) AND !($targetObject instanceof UnpersistentClass))
 			$useID = ($targetObject->getID() == "" ? "-1" : $targetObject->getID());
 		
 		if(!is_numeric($useID))
@@ -81,7 +81,7 @@ class OnEvent {
 		return "phynxContextMenu.start(this, '$plugin','$identifier','$title', '$leftOrRight', '$upOrDown', $options);";
 	}
 	
-	public static function iframe($targetObject, $targetMethod, $targetMethodParameters = "", $targetFrame, $bps = null){
+	public static function iframe($targetObject, $targetMethod, $targetMethodParameters = "", $targetFrame = "", $bps = null){
 		
 		return "contentManager.iframeRme('".str_replace("GUI", "", get_class($targetObject))."', '".$targetObject->getID()."', '$targetMethod', ".(is_array($targetMethodParameters) ? "['".implode("','", $targetMethodParameters)."']" : "'$targetMethodParameters'").", '$targetFrame'".($bps != null ? ", '$bps'" : "")."); ";
 	}

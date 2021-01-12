@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
  
  
@@ -78,10 +78,10 @@ var userControl = {
 			if(transport.responseText != 1 && transport.responseText != -2)
 				alert(transport.responseText.replace(/<br \/>/ig,"\n").replace(/<b>/ig,"").replace(/<\/b>/ig,"").replace(/&gt;/ig,">"));
 
-			contentManager.emptyFrame("contentScreen");
+			
 
-			var a = new Date();
-			a = new Date(a.getTime() +1000*60*60*24*365);
+			//var a = new Date();
+			//a = new Date(a.getTime() +1000*60*60*24*365);
 			/*if($('saveLoginData').checked)
 				document.cookie = 'userLoginData='+$('loginUsername').value+':'+$('loginSHAPassword').value+'; expires='+a.toGMTString()+';';
 			else 
@@ -97,9 +97,16 @@ var userControl = {
 			else
 				$j.jStorage.deleteKey('phynxUserData');
 
-			Menu.loadMenu();
-			contentManager.clearHistory();
+			if(Interface.BroadcastChannel !== null)
+				Interface.BroadcastChannel.postMessage("login");
+			userControl.loadApplication();
 		});
+	},
+	
+	loadApplication: function(){
+		contentManager.emptyFrame("contentScreen");
+		Menu.loadMenu();
+		contentManager.clearHistory();
 	},
 	
 	saveCertificate: function(){
@@ -198,7 +205,7 @@ var userControl = {
 		userControl.certAutoLoginCounter = 3;
 		return; //disabled 11.1.2012 because it will re-login the current user
 		
-		userControl.certAutoLoginInterval = window.setInterval(function(){
+		/*userControl.certAutoLoginInterval = window.setInterval(function(){
 			if(userControl.certAutoLoginCounter == 0){
 				window.clearInterval(userControl.certAutoLoginInterval);
 				userControl.certAutoLoginInterval = null;
@@ -211,12 +218,12 @@ var userControl = {
 			
 			$('countdownCertificateLogin').update(userControl.certAutoLoginCounter);
 			userControl.certAutoLoginCounter--;
-		}, 1000);
+		}, 1000);*/
 	},
 	
 	doTestLogin: function(){
 		$j("#messageSetup").hide();
-		contentManager.rmePCR("Users", "", "doLogin", "%3B-%3B%3Bund%3B%3B-%3BloginUsername%3B-%3B%3Bistgleich%3B%3B-%3B0%3B-%3B%3Bund%3B%3B-%3BloginSHAPassword%3B-%3B%3Bistgleich%3B%3B-%3B0%3B-%3B%3Bund%3B%3B-%3Banwendung%3B-%3B%3Bistgleich%3B%3B-%3B0%3B-%3B%3Bund%3B%3B-%3BsaveLoginData%3B-%3B%3Bistgleich%3B%3B-%3B0", function(transport) {
+		contentManager.rmePCR("Users", "", "doLogin", "%3B-%3B%3Bund%3B%3B-%3BloginUsername%3B-%3B%3Bistgleich%3B%3B-%3B000000000000001%3B-%3B%3Bund%3B%3B-%3BloginSHAPassword%3B-%3B%3Bistgleich%3B%3B-%3B0%3B-%3B%3Bund%3B%3B-%3Banwendung%3B-%3B%3Bistgleich%3B%3B-%3B0%3B-%3B%3Bund%3B%3B-%3BsaveLoginData%3B-%3B%3Bistgleich%3B%3B-%3B0", function(transport) {
 			if(transport.responseText == "") {
 				alert("Fehler: Server antwortet nicht!");
 				return;
@@ -232,7 +239,10 @@ var userControl = {
 		});
 	},
 	
-	doLogout: function(redirect){
+	doLogout: function(redirect, propagate){
+		if(typeof propagate == "undefined")
+			propagate = true;
+			
 		contentManager.rmePCR("Users", "", "doLogout", "", function() {
 			Popup.closeNonPersistent();
 			Popup.closePersistent();
@@ -240,6 +250,9 @@ var userControl = {
 			Menu.loadMenu();
 			contentManager.contentBelow("");
 			if(typeof redirect != "undefined" && redirect != "") document.location.href= redirect;
+			
+			if(propagate && Interface.BroadcastChannel !== null)
+				Interface.BroadcastChannel.postMessage("logout");
 		});
 	}
 }

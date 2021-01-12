@@ -15,13 +15,13 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 
-if(!function_exists("hash_equals")){
+if(!function_exists("random_int")){
 	require_once "./system/basics.php";
 	
-	emoFatalError("I'm sorry, but your PHP version is too old.", "You need at least PHP version 5.6.0 to run this program.<br />You are using ".phpversion().". Please talk to your provider about this.", "phynx");
+	emoFatalError("I'm sorry, but your PHP version is too old.", "You need at least PHP version 7.0 to run this program.<br>You are using ".phpversion().". Please talk to your provider about this.", "open3A");
 }
 
 $scripts = array(
@@ -31,7 +31,7 @@ $scripts = array(
 	"./libraries/jquery/jquery.timers.js",
 	"./libraries/jquery/jquery.qtip.min.js",
 	"./libraries/jquery/jquery.scrollTo-1.4.2-min.js",
-	"./libraries/jquery/jquery.hammer.js",
+	#"./libraries/jquery/jquery.hammer.js",
 	"./libraries/jstorage.js",
 	"./libraries/webtoolkit.base64.js",
 	"./libraries/webtoolkit.sha1.js",
@@ -261,14 +261,18 @@ try {
 		require_once Util::getRootPath()."ubiquitous/Hintergrundbilder/Hintergrundbild.class.php";
 
 		$HG = Hintergrundbild::find();
-		if($HG){
+		if($HG)
 			$backgroundStyle = "background-image: url(".$HG->A("HintergrundbildImageURL").");background-size: cover;background-position: bottom center;background-repeat: no-repeat;";
-			$background = "";
-		}
+		
 	}
 } catch (Exception $ex) {
 
 }
+
+$backgroundStyle = Environment::getS("alterBackground", $backgroundStyle);
+if($backgroundStyle != "")
+	$background = "";
+
 /*$CH = Util::getCloudHost();
 $mandanten = array();
 if(file_exists(Util::getRootPath()."plugins/multiInstall/plugin.xml") AND ($CH == null OR get_class($CH) == "CloudHostAny")){
@@ -287,10 +291,12 @@ if(file_exists(Util::getRootPath()."plugins/multiInstall/plugin.xml") AND ($CH =
 	}
 }*/
 $selected = false;
+require_once Util::getRootPath()."plugins/Installation/Installation.class.php"; //required for cloud! Installation-Plugin usually not enabled
+require_once Util::getRootPath()."plugins/Installation/mInstallation.class.php"; //required for cloud! Installation-Plugin usually not enabled
 $mandanten = Installation::getMandanten();
 foreach($mandanten AS $ID => $host)
 	if($host == $_SERVER["HTTP_HOST"])
-			$selected = $I->getID();
+		$selected = $ID;
 
 
 ?><!DOCTYPE html>
@@ -412,15 +418,18 @@ foreach($mandanten AS $ID => $host)
 		<!--<div style="position:fixed;top:0px;left:0px;width:20px;" id="growlContainer"></div>-->
 		<div id="boxInOverlay" style="display: none;" class="backgroundColor0 borderColor1">
 
+			
+			<?php
+			echo Environment::getS("contentLoginTop", "<img class=\"loginLogo\" src=\"./images/open3ALogin.svg\" />");
+			?>
+			
 		
-			<div style="display:none;padding:10px;" id="messageSetup" class="highlight">
+			<div style="display:block;padding:10px;margin-bottom:10px;" id="messageSetup" class="highlight">
 				<p class="prettySubtitle" style="margin:0;padding:0;margin-bottom:10px;">Ersteinrichtung</p>
 				<?php echo T::_("Bitte verwenden Sie '<b>Admin</b>' als Benutzername und als Passwort, um mit der Ersteinrichtung dieser Anwendung fortzufahren."); ?>
 			</div>
 			
 			<?php
-			echo Environment::getS("contentLoginTop", "");
-			
 			if(Environment::getS("showBacklink", "1") == "1") { ?>
 			<p style="color:grey;left:10px;position:fixed;bottom:10px;"><a style="color:grey;" target="_blank" href="https://www.open3A.de"><?php echo T::_("Unternehmenssoftware"); ?></a> <?php echo T::_("von der open3A GmbH"); ?></p>
 			<?php } ?>
@@ -554,7 +563,10 @@ foreach($mandanten AS $ID => $host)
 							</td>
 					</tr>
 					<tr>
-						<td colspan="2" style="background-color:#EEE;">
+						<td>&nbsp;</td>
+					</tr>
+					<tr>
+						<td colspan="2" class="loginAction">
 							<input
 								class="bigButton"
 								type="button"
@@ -594,10 +606,10 @@ foreach($mandanten AS $ID => $host)
 							<input type="hidden" value="1" name="loginPWEncrypted" id="loginPWEncrypted" />
 						</td>
 					</tr>
-					<?php if(strstr($_SERVER["SCRIPT_FILENAME"],"demo") OR $validUntil != null) { ?>
+					<?php if($validUntil != null) { ?>
 						<tr>
 							<td colspan="2">
-								<?php echo ($validUntil != null ? "Bitte beachten Sie: Diese Version läuft noch bis ".date("d.m.Y", $validUntil) : "Für den Demo-Zugang verwenden Sie bitte Max//Max oder Admin//Admin"); ?>
+								<?php echo "Bitte beachten Sie: Diese Version läuft noch bis ".date("d.m.Y", $validUntil); ?>
 							</td>
 						</tr>
 					<?php } ?>
@@ -646,7 +658,7 @@ foreach($mandanten AS $ID => $host)
 				<img
 					class="mouseoverFade"
 					src="./plugins/Users/certificateLogin.png"
-					style="margin-top:15px;margin-right:10px;cursor:pointer;"
+					style="margin-top:35px;margin-right:10px;cursor:pointer;"
 					onclick="userControl.doCertificateLogin();"
 					id="buttonCertificateLogin"
 					title="<?php echo T::_("Mit Zertifikat anmelden");?>"
@@ -657,7 +669,7 @@ foreach($mandanten AS $ID => $host)
 				<img
 					class="mouseoverFade"
 					src="./plugins/WebAuth/webauthLogin.png"
-					style="margin-top:15px;margin-right:10px;cursor:pointer;"
+					style="margin-top:35px;margin-right:10px;cursor:pointer;"
 					onclick="userControl.doWebAuthLogin();"
 					id="buttonWebAuthLogin"
 					title="<?php echo T::_("Per WebAuth anmelden");?>"
@@ -668,8 +680,8 @@ foreach($mandanten AS $ID => $host)
 		
 		<div id="lightOverlay" style="display: none;<?php echo $backgroundStyle; ?>" class="backgroundColor0">
 			<?php 
-				if($background != "")
-					echo '<img src="./images/html5.png" style="position:fixed;bottom:20px;right:20px;" alt="HTML5" title="HTML5" />';
+				#if($background != "")
+				#	echo '<img src="./images/html5.png" style="position:fixed;bottom:20px;right:20px;" alt="HTML5" title="HTML5" />';
 				
 				echo $background;
 			?>
@@ -729,12 +741,12 @@ foreach($mandanten AS $ID => $host)
 					<?php
 					
 					if(Environment::getS("showLayoutButton", "1") == "1"){ ?>
-						<span
+						<!--<span
 							style="cursor:pointer;float:right;margin-left:15px;margin-right:5px;"
 							class="iconic iconicL wrench"
-							title="Layout"
-							onclick="phynxContextMenu.start(this, 'Colors','1','Einstellungen:','left', 'up');"></span>
-					
+							title="Willkommen"
+							onclick="contentManager.loadPlugin('contentScreen', 'Colors');/*phynxContextMenu.start(this, 'Colors','1','Einstellungen:','left', 'up');*/"></span>
+							-->
 						<!--<img
 							onclick="phynxContextMenu.start(this, 'Colors','1','Einstellungen:','left', 'up');"
 							style="float:right;margin-left:8px;margin-right:5px;"
@@ -744,12 +756,12 @@ foreach($mandanten AS $ID => $host)
 							src="./images/navi/office.png" />-->
 					<?php }
 				
-					if(Environment::getS("showHelpButton", "1") == "1"){ ?>
+					/*if(Environment::getS("showHelpButton", "1") == "1"){ ?>
 						<span
 							style="cursor:pointer;float:right;margin-left:15px;margin-right:5px;"
 							class="iconic iconicL comment_alt2_stroke"
-							title="Hilfe"
-							onclick="window.open('http://www.phynx.de/support');"></span>
+							title="Willkommen"
+							onclick="contentManager.loadPlugin('contentScreen', 'Colors');"></span>
 						<!--<img
 							onclick="window.open('http://www.phynx.de/support');"
 							style="float:right;margin-left:8px;margin-right:5px;"
@@ -757,7 +769,7 @@ foreach($mandanten AS $ID => $host)
 							title="Hilfe"
 							alt="Hilfe"
 							src="./images/navi/hilfe.png" />-->
-					<?php }
+					<?php }*/
 						
 					if(Environment::getS("showDashboardButton", "1") == "1"){ ?>
 						<span
@@ -798,7 +810,7 @@ foreach($mandanten AS $ID => $host)
 							alt="Desktop"><xsl:attribute name="src"><xsl:value-of select="iconDesktop" /></xsl:attribute></img>
 					</xsl:if>-->
 					<?php if(Environment::getS("showCopyright", "1") == "1")
-						echo Environment::getS("contentCopyright", 'Copyright (C) 2007 - 2019 by <a href="https://www.open3A.de">open3A GmbH</a>. This program comes with ABSOLUTELY NO WARRANTY;<br>this is free software, and you are welcome to redistribute it under certain conditions; see <a href="gpl.txt">gpl.txt</a> for details.<!--<br />Thanks to the authors of the libraries and icons used by this program. <a href="javascript:contentManager.loadFrame(\'contentRight\',\'Credits\');">View credits.</a>-->');
+						echo Environment::getS("contentCopyright", 'Copyright (C) 2007 - 2020 by <a href="https://www.open3A.de">open3A GmbH</a>. This program comes with ABSOLUTELY NO WARRANTY;<br>this is free software, and you are welcome to redistribute it under certain conditions; see <a href="agpl.txt">agpl.txt</a> for details.<!--<br />Thanks to the authors of the libraries and icons used by this program. <a href="javascript:contentManager.loadFrame(\'contentRight\',\'Credits\');">View credits.</a>-->');
 					?>
 				</p>
 			</div>
@@ -806,6 +818,21 @@ foreach($mandanten AS $ID => $host)
 		<script type="text/javascript">
 			$j(document).ready(function() {
 				Ajax.physion = '<?php echo $physion; ?>';
+				if ('BroadcastChannel' in self) {
+					Interface.BroadcastChannel = new BroadcastChannel('open3A_'+Ajax.physion);
+
+					Interface.BroadcastChannel.onmessage = function(event) {
+						if(event.data == "logout")
+							userControl.doLogout("", false);
+
+						if(event.data == "login")
+							userControl.loadApplication();
+
+						if(Ajax.physion == "default" && event.data == "appSwitch")
+							contentManager.switchApplication(null, false);
+					};
+				}
+				
 				<?php $build = Phynx::build(); if($build) echo "Ajax.build = '$build';\n"; ?>
 				$j(document).keydown(function(evt){
 					if(evt.keyCode == 27){

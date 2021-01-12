@@ -19,8 +19,8 @@
  * 
  * � Copyright 2005 Richard Heyes
  */
-define('SMTP_STATUS_NOT_CONNECTED', 1, true);
-define('SMTP_STATUS_CONNECTED', 2, true);
+define('SMTP_STATUS_NOT_CONNECTED', 1);
+define('SMTP_STATUS_CONNECTED', 2);
 
 class hmmsmtp {
 
@@ -42,6 +42,8 @@ class hmmsmtp {
 	private $dsn;
 	private $useStarttls = false;
 	private $useDSN = false;
+	private $log = "";
+	private $logSkipNext = false;
 	
 	/**
 	 * Constructor function. Arguments:
@@ -61,7 +63,7 @@ class hmmsmtp {
 	public function __construct($params = array()) {
 
 		if (!defined('CRLF'))
-			define('CRLF', "\r\n", TRUE);
+			define('CRLF', "\r\n");
 
 		$this->authenticated = FALSE;
 		$this->timeout = 5;
@@ -186,7 +188,7 @@ class hmmsmtp {
 			
 			$this->send_data($headers);
 			$this->send_data('');
-			$this->send_data($body);
+			$this->send_data($body, false);
 			$this->send_data('.');
 
 			$result = (substr(trim($this->get_data()), 0, 3) === '250');
@@ -276,9 +278,9 @@ class hmmsmtp {
 		if (is_resource($this->connection)
 				AND $this->send_data('AUTH LOGIN')
 				AND substr(trim($error = $this->get_data()), 0, 3) === '334'
-				AND $this->send_data(base64_encode($this->user))   // Send username
+				AND $this->send_data(base64_encode($this->user), false)   // Send username
 				AND substr(trim($error = $this->get_data()), 0, 3) === '334'
-				AND $this->send_data(base64_encode($this->pass))   // Send password
+				AND $this->send_data(base64_encode($this->pass), false)   // Send password
 				AND substr(trim($error = $this->get_data()), 0, 3) === '235') {
 
 			$this->authenticated = true;
@@ -383,8 +385,13 @@ class hmmsmtp {
 	/**
 	 * Function to send a bit of data
 	 */
-	private function send_data($data) {
+	private function send_data($data, $log = true) {
 		if (is_resource($this->connection)) {
+			if($log)
+				$this->log .= trim($data)."\n";
+			else
+				$this->log .= "...\n";
+			
 			return fwrite($this->connection, $data . CRLF, strlen($data) + 2);
 		} else {
 			return false;
@@ -405,6 +412,7 @@ class hmmsmtp {
 				$return .= $line;
 				$loops++;
 			}
+			$this->log .= trim($return)."\n";
 			return $return;
 		}else
 			return false;
@@ -423,6 +431,10 @@ class hmmsmtp {
 	 */
 	public function getErrors() {
 		return $this->errors;
+	}
+	
+	public function getLog(){
+		return $this->log;
 	}
 
 }

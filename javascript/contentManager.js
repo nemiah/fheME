@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 
 var lastLoadedLeft        = -1;
@@ -37,9 +37,10 @@ var contentManager = {
 	isAltUser: false,
 	updateTitle: true,
 	currentPlugin: null,
-	historyLeft: [],
-	historyRight: [],
+	historyLeft: {},
+	historyRight: {},
 	layout: "",
+	lastPlugin: {},
 	
 	maxHeight: function(){
 		var footerHeight = $j('#footer').outerHeight();
@@ -55,7 +56,7 @@ var contentManager = {
 		if(contentManager.layout == "fixed")
 			return ($j(window).height() - ($j('#navTabsWrapper').outerHeight() > 60 ? $j('#navTabsWrapper').outerHeight() : 60) - footerHeight - 20);
 		
-		return ($j(window).height() - $j('#navTabsWrapper').outerHeight() - footerHeight - 20);
+		return ($j(window).height() - $j('#navTabsWrapper').outerHeight() - footerHeight - 10);
 	},
 			
 	maxWidth: function(getWindow){
@@ -206,21 +207,27 @@ var contentManager = {
 
 	autoLogoutInhibitor: null,
 
-	switchApplication: function(){
+	switchApplication: function(toApplication, propagate){
+		if(typeof propagate == "undefined")
+			propagate = true;
+		
 		Popup.closeNonPersistent();
 		Popup.closePersistent();
 		Menu.refresh();
 		contentManager.emptyFrame("contentScreen");
 		Interface.setup(function(){ });
-		contentManager.loadDesktop();
+		contentManager.loadDesktop(toApplication);
 		contentManager.loadJS();
 		//contentManager.loadTitle();
 		contentManager.clearHistory();
+		
+		if(propagate && Interface.BroadcastChannel !== null)
+			Interface.BroadcastChannel.postMessage("appSwitch");
 	},
 
 	clearHistory: function(){
-		contentManager.historyLeft = [];
-		contentManager.historyRight = []
+		//contentManager.historyLeft = {};
+		//contentManager.historyRight = {};
 	},
 
 	selectRow: function(currentElement, group){
@@ -234,16 +241,38 @@ var contentManager = {
 			$j(currentElement).addClass("lastSelected"+(typeof group != "undefined" ? " LSGroup"+group : ""));
 	},
 
-	loadDesktop: function(){
+	loadDesktop: function(ofApp){
 		contentManager.emptyFrame('contentLeft');
 		contentManager.emptyFrame('contentRight');
+		contentManager.emptyFrame('contentScreen');
+		//console.log(ofApp);
+		/*if(typeof ofApp != "undefined" && ofApp !== null && typeof contentManager.lastPlugin[ofApp] != "undefined"){
+			contentManager.loadPlugin(contentManager.lastPlugin[ofApp][0], contentManager.lastPlugin[ofApp][1]);
+			return;
+		}*/
+		
 		contentManager.loadFrame("contentScreen", "Desktop", 1, 0, "");
+		$j('.theOne').removeClass('theOne');
 	},
 	
 	loadPlugin: function(targetFrame, targetPlugin, bps, withId, options){
 		var page = 0;
-		if(contentManager.historyRight[targetPlugin])
-			page = contentManager.historyRight[targetPlugin][0];
+		
+		if(typeof contentManager.historyRight[Interface.application] == "undefined")
+			contentManager.historyRight[Interface.application] = [];
+		
+		if(typeof contentManager.historyLeft[Interface.application] == "undefined")
+			contentManager.historyLeft[Interface.application] = [];
+		
+		if(typeof contentManager.lastPlugin[Interface.application] == "undefined")
+			contentManager.lastPlugin[Interface.application] = [];
+		
+		
+		contentManager.lastPlugin[Interface.application] = [targetFrame, targetPlugin];
+		console.log(Interface.application);
+		
+		if(contentManager.historyRight[Interface.application][targetPlugin])
+			page = contentManager.historyRight[Interface.application][targetPlugin][0];
 		
 		contentManager.loadFrame(targetFrame, targetPlugin, -1, page, bps, function(){
 			if(typeof withId != "undefined" && withId != null){
@@ -270,19 +299,19 @@ var contentManager = {
 				if(historyPlugin == "ObjekteL")
 					historyPlugin = "mObjektL";
 
-				if(contentManager.historyLeft[historyPlugin] && contentManager.historyLeft[historyPlugin][1] != -1){
+				if(contentManager.historyLeft[Interface.application][historyPlugin] && contentManager.historyLeft[Interface.application][historyPlugin][1] != -1){
 					//console.log("HERE!");
-					var found = false;
-					if($j('#Browser'+oldName+contentManager.historyLeft[historyPlugin][1]).length)
-						found = true;
+					//var found = false;
+					//if($j('#Browser'+oldName+contentManager.historyLeft[historyPlugin][1]).length)
+					//	found = true;
 
-					if($j('#BrowserMain'+contentManager.historyLeft[historyPlugin][1]).length)
-						found = true;
+					//if($j('#BrowserMain'+contentManager.historyLeft[historyPlugin][1]).length)
+					//	found = true;
 					//console.log(found);
-					if(found && !Interface.mobile())
-						contentManager.loadFrame("contentLeft", contentManager.historyLeft[historyPlugin][0], contentManager.historyLeft[historyPlugin][1], 0, "", function(){
-							$j('#Browser'+oldName+contentManager.historyLeft[historyPlugin][1]).addClass("lastSelected");
-							$j('#BrowserMain'+contentManager.historyLeft[historyPlugin][1]).addClass("lastSelected");
+					if(!Interface.mobile())
+						contentManager.loadFrame("contentLeft", contentManager.historyLeft[Interface.application][historyPlugin][0], contentManager.historyLeft[Interface.application][historyPlugin][1], 0, "", function(){
+							$j('#Browser'+oldName+contentManager.historyLeft[Interface.application][historyPlugin][1]).addClass("lastSelected");
+							$j('#BrowserMain'+contentManager.historyLeft[Interface.application][historyPlugin][1]).addClass("lastSelected");
 						});
 
 				}
@@ -623,7 +652,7 @@ var contentManager = {
 			lastLoadedRightPage = page;
 			lastLoadedRight = withId;
 			contentManager.currentPlugin = plugin;
-			contentManager.historyRight[plugin] = [page];
+			contentManager.historyRight[Interface.application][plugin] = [page];
 		}
 
 		if(target == "contentLeft"){
@@ -631,7 +660,7 @@ var contentManager = {
 			lastLoadedLeftPage = page;
 			lastLoadedLeft = withId;
 			contentManager.currentPlugin = plugin;
-			contentManager.historyLeft["m"+plugin] = [plugin, withId];
+			contentManager.historyLeft[Interface.application]["m"+plugin] = [plugin, withId];
 		}
 
 		if(target == "contentScreen"){
@@ -735,7 +764,7 @@ var contentManager = {
 		}
 		else targetMethodParameters = "'"+targetMethodParameters+"'";
 
-			$j('#'+targetFrame).attr("src", contentManager.getRoot()+'interface/rme.php?class='+targetClass+'&constructor='+targetClassId+'&method='+targetMethod+'&parameters='+targetMethodParameters+((bps != "" && typeof bps != "undefined") ? "&bps="+bps : "")+"&r="+Math.random()+(Ajax.physion != "default" ? "&physion="+Ajax.physion : ""));
+			$j('#'+targetFrame).attr("src", contentManager.getRoot()+'interface/rme.php?class='+targetClass+'&constructor='+encodeURIComponent(targetClassId)+'&method='+targetMethod+'&parameters='+targetMethodParameters+((bps != "" && typeof bps != "undefined") ? "&bps="+bps : "")+"&r="+Math.random()+(Ajax.physion != "default" ? "&physion="+Ajax.physion : ""));
 
 	},
 
@@ -868,7 +897,6 @@ var contentManager = {
 		
 		if(event.keyCode == 9)
 			return;
-		
 		
 		
 		if($j('#'+timeInputID).val().length == 2 && $j('#'+timeInputID).val().lastIndexOf(':') == -1){

@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2019, open3A GmbH - Support@open3A.de
+ *  2007 - 2020, open3A GmbH - Support@open3A.de
  */
 class HTMLFormCheckList extends HTMLForm {
 	function __construct($formID, $fields, $title = null) {
@@ -31,7 +31,8 @@ class HTMLFormCheckList extends HTMLForm {
 		$this->getTable()->setColClass(2, "backgroundColor0");
 		$this->getTable()->setColOrder(array(2,1));
 		$this->getTable()->setColWidth(1, 20);
-		
+		$this->getTable()->setColStyle(1, "padding:0;");
+		$this->getTable()->setColStyle(2, "padding:0;");
 		$this->printColon(false);
 		
 		return parent::__toString();
@@ -55,11 +56,13 @@ class HTMLFormCheckList extends HTMLForm {
 				$this->setValue ($field, "1");
 		}
 		
-		$B = new Button("Speichern", "./images/i2/save.gif", "icon");
-		$B->onclick("var submitValues = ''; \$j.each(\$j('#$this->id').serializeArray(), function(k, v) { submitValues += (submitValues != '' ? ',' : '')+v.name; }); contentManager.rmePCR('mUserdata', '-1', 'setUserdata', ['$identifier$targetClass', submitValues]".($onSuccessFunction != null ? ", $onSuccessFunction" : "").");");
-		$B->style("float:right;margin-top:-25px;margin-right:3px;");
+		#$B = new Button("Speichern", "./images/i2/save.gif", "icon");
+		#$B = new HTMLInput("Speichern", "button", "Speichern");
+		#$B->onclick("var submitValues = ''; \$j.each(\$j('#$this->id').serializeArray(), function(k, v) { submitValues += (submitValues != '' ? ',' : '')+v.name; }); contentManager.rmePCR('mUserdata', '-1', 'setUserdata', ['$identifier$targetClass', submitValues]".($onSuccessFunction != null ? ", $onSuccessFunction" : "").");");
+		#$B->style("float:right;margin-top:-25px;margin-right:3px;");
 		
-		$this->saveButtonCustom = $B;
+		#$this->saveButtonCustom = $B;
+		$this->setSaveCustom("Speichern", "./images/i2/save.gif", "var submitValues = ''; \$j.each(\$j('#$this->id').serializeArray(), function(k, v) { submitValues += (submitValues != '' ? ',' : '')+v.name; }); contentManager.rmePCR('mUserdata', '-1', 'setUserdata', ['$identifier$targetClass', submitValues]".($onSuccessFunction != null ? ", $onSuccessFunction" : "").");");
 		
 		$this->onSubmit = "return false;";
 	}

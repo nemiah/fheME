@@ -1,0 +1,776 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: phynx\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: Nena Furtmeier <Support@Furtmeier.IT>\n"
+"Language-Team: ENGLISH <Support@Furtmeier.IT>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"Language: en_GB\n"
+"X-Generator: Poedit 2.3\n"
+
+msgid "Neue Nachricht"
+msgstr "Mensaje nuevo"
+
+msgid "Benutzername"
+msgstr "Nombre de usuario"
+
+msgid "Passwort"
+msgstr "Contraseña"
+
+msgid "Optionen anzeigen"
+msgstr "Mostrar opciones"
+
+msgid "Passwort vergessen?"
+msgstr "¿Ha olvidado su contraseña?"
+
+msgid "Anwendung"
+msgstr "Aplicación"
+
+msgid "Anmelden"
+msgstr "Iniciar sesión"
+
+msgid "Sprache"
+msgstr "Idioma"
+
+msgid "Zugangsdaten speichern"
+msgstr "Guardar datos de acceso"
+
+msgid "Automatisch anmelden"
+msgstr "Iniciar sesión automáticamente"
+
+msgid "Mit Zertifikat anmelden"
+msgstr "Iniciar sesión con certificado"
+
+msgid "Mit Mozilla Persona anmelden"
+msgstr "Iniciar sesión con Mozilla Persona"
+
+msgid "Sie haben JavaScript nicht aktiviert."
+msgstr "No ha activado JavaScript."
+
+msgid "Bitte aktivieren Sie JavaScript, damit diese Anwendung funktioniert."
+msgstr "Debe activar JavaScript para que esta aplicación funcione."
+
+msgid "Bitte verwenden Sie '<b>Admin</b>' als Benutzername und Passwort, um mit der Ersteinrichtung dieser Anwendung fortzufahren."
+msgstr "Para continuar con la configuración inicial de esta aplicación, use «<b>Admin</b>» como nombre de usuario y contraseña."
+
+msgid "Unternehmenssoftware"
+msgstr "Software de empresa"
+
+msgid "von Furtmeier Hard- und Software"
+msgstr "de Furtmeier Hardware und Software"
+
+msgid "Einstellungen anzeigen"
+msgstr "Mostrar ajustes"
+
+msgid "Eintrag erstellen"
+msgstr "Crear entrada"
+
+msgid "Eintrag bearbeiten"
+msgstr "Editar entrada"
+
+msgid "Eintrag löschen"
+msgstr "Eliminar entrada"
+
+msgid "Suche"
+msgstr "Búsqueda"
+
+msgid "Suche als Filter anwenden"
+msgstr "Aplicar búsqueda como filtro"
+
+msgid "Suche-Details anzeigen"
+msgstr "Mostrar información de búsqueda"
+
+msgid "Einträge"
+msgstr "Entradas"
+
+msgid "Eintrag"
+msgstr "Entrada"
+
+msgid "%1 neu anlegen"
+msgstr "Crear nuevo %1"
+
+msgid "Seite"
+msgstr "Página"
+
+msgid "Seiten"
+msgstr "Páginas"
+
+msgid "%1 speichern"
+msgstr "Guardar %1"
+
+msgid "Anzahl Einträge pro Seite"
+msgstr "Entradas por página"
+
+msgid "Einstellungen"
+msgstr "Ajustes"
+
+msgid "nach Kategorien filtern"
+msgstr "filtrar por categoría"
+
+msgid "speichern"
+msgstr "guardar"
+
+msgid "Keine Einträge"
+msgstr "No hay entradas"
+
+msgid "Operationen"
+msgstr "Operaciones"
+
+msgid "Editor"
+msgstr "Editor"
+
+msgid ""
+"in Editor\n"
+"bearbeiten"
+msgstr ""
+"Editar en\n"
+"editor"
+
+msgid "%1 editieren"
+msgstr "Editar %1"
+
+msgid "Bitte verwenden Sie '<b>Admin</b>' als Benutzername und als Passwort, um mit der Ersteinrichtung dieser Anwendung fortzufahren."
+msgstr "Para continuar con la configuración inicial de esta aplicación, use «<b>Admin</b>» como nombre de usuario y contraseña."
+
+msgid "Mandant"
+msgstr "Cliente"
+
+msgid "Neues Passwort"
+msgstr "Contraseña nueva"
+
+msgid "Passwort ändern"
+msgstr "Cambiar contraseña"
+
+msgid "Passwort ändern?"
+msgstr "¿Cambiar contraseña?"
+
+msgid "Ihr Gerät unterstützt Touch-Eingaben. Möchten Sie die Touch-Optimierungen aktivieren? Maus-Eingaben werden dann nicht mehr funktionieren.<br /><br />Wenn Sie 'Ja' auswählen, wird die Anwendung neu geladen. Sie können diese Auswahl mit dem %1-Knopf rechts unten rückgängig machen."
+msgstr "Su dispositivo admite entradas táctiles. ¿Desea habilitar las optimizaciones táctiles? Las entradas del ratón se desactivarán.<br><br>La aplicación se cargará nuevamente si selecciona «Sí». Puede anular esta elección mediante el botón %1 de la esquina inferior derecha."
+
+msgid "bitte auswählen"
+msgstr "seleccione, por favor"
+
+msgid "Bitte auswählen..."
+msgstr "Seleccione, por favor,..."
+
+msgid "Kontakt"
+msgstr "Contacto"
+
+msgid "Telefon"
+msgstr "Teléfono"
+
+msgid "Fax"
+msgstr "Fax"
+
+msgid "Firma"
+msgstr "Empresa"
+
+msgid "Strasse"
+msgstr "Vía"
+
+msgid "Hausnummer"
+msgstr "Número de vía"
+
+msgid "PLZ"
+msgstr "Código postal"
+
+msgid "Ort"
+msgstr "Localidad"
+
+msgid "Land"
+msgstr "País"
+
+msgid "MwSt-Satz"
+msgstr "Tipo de IVA"
+
+msgid "Bemerkung"
+msgstr "Comentario"
+
+msgid "Homepage"
+msgstr "Página web"
+
+msgid "IBAN"
+msgstr "IBAN"
+
+msgid "BIC"
+msgstr "BIC"
+
+msgid "E-Mail"
+msgstr "Correo electrónico"
+
+msgid "Datei-Manager"
+msgstr "Gestor de archivos"
+
+msgid "Dateien"
+msgstr "Archivos"
+
+msgid "Datei"
+msgstr "Archivo"
+
+msgid "Ansprechpartner"
+msgstr ""
+"Persona de\n"
+"contacto"
+
+msgid "Zahlung"
+msgstr "Pago"
+
+msgid "Zahlung via"
+msgstr "Método de pago"
+
+msgid "Kundennummer"
+msgstr "Número de cliente"
+
+msgid "Erweitert"
+msgstr "Ampliado"
+
+msgid "Dokumente"
+msgstr "Documentos"
+
+msgid "Forecast"
+msgstr "Previsión"
+
+msgid "Artikel"
+msgstr "Artículo"
+
+msgid "Alternative Sprachen"
+msgstr "Otros idiomas"
+
+msgid "Rabattgruppen"
+msgstr "Grupos de descuento"
+
+msgid "Kalkulation"
+msgstr "Cálculo"
+
+msgid "Preisgruppen"
+msgstr "Grupos de precio"
+
+msgid "Lagerbestand"
+msgstr "Existencias"
+
+msgid "Stückliste"
+msgstr "Lista de piezas"
+
+msgid "Staffelpreise"
+msgstr "Precios escalonados"
+
+msgid "Varianten"
+msgstr "Variantes"
+
+msgid "Lieferanten"
+msgstr "Proveedores"
+
+msgid "Lieferant"
+msgstr "Proveedor"
+
+msgid "Verträge"
+msgstr "Contratos"
+
+msgid ""
+"Rabatt-\n"
+"gruppen"
+msgstr ""
+"Grupos de\n"
+"descuento"
+
+msgid ""
+"Auswahl\n"
+"beenden"
+msgstr ""
+"Finalizar\n"
+"selección"
+
+msgid "Name"
+msgstr "Nombre"
+
+msgid "Einheit"
+msgstr "Unidad"
+
+msgid "Artikelnummer"
+msgstr "Número de artículo"
+
+msgid "Kategorie"
+msgstr "Categoría"
+
+msgid "Beschreibung"
+msgstr "Descripción"
+
+msgid "Preis"
+msgstr "Precio"
+
+msgid "MwSt"
+msgstr "IVA"
+
+msgid "Anrede"
+msgstr "Tratamiento"
+
+msgid "Verkauf"
+msgstr "Venta"
+
+msgid "Lohn"
+msgstr "Salario"
+
+msgid "Sonstiges"
+msgstr "Otros"
+
+msgid "Einkauf"
+msgstr "Compra"
+
+msgid "Netto"
+msgstr "Neto"
+
+msgid "Gewinn"
+msgstr "Beneficio"
+
+msgid "Alle"
+msgstr "Todos"
+
+msgid "Aktiv"
+msgstr "Activo"
+
+msgid "Beendet"
+msgstr "Finalizado"
+
+msgid "als Standard-Wert speichern"
+msgstr "Guardar como valor por defecto"
+
+msgid "Kundenpreise"
+msgstr "Precios de cliente"
+
+msgid "Vorname"
+msgstr "Nombre"
+
+msgid "Nachname"
+msgstr "Apellido"
+
+msgid "Mobil"
+msgstr "Móvil"
+
+msgid "Notizen"
+msgstr "Notas"
+
+msgid "Person"
+msgstr "Persona"
+
+msgid "Herr"
+msgstr "Señor"
+
+msgid "Frau"
+msgstr "Señora"
+
+msgid "keine/Firma"
+msgstr "ninguno/empresa"
+
+msgid "Familie"
+msgstr "Familia"
+
+msgid "Diese Nummer wählen"
+msgstr "Elegir este número"
+
+msgid "offen"
+msgstr "pendiente"
+
+msgid "bestätigt"
+msgstr "confirmado"
+
+msgid "geliefert"
+msgstr "entregado"
+
+msgid "berechnet"
+msgstr "facturado"
+
+msgid "abgelehnt"
+msgstr "denegado"
+
+msgid "gutgeschrieben"
+msgstr "abonado"
+
+msgid "teilweise berechnet"
+msgstr "parcialmente facturado"
+
+msgid "Als Filter hinzufügen"
+msgstr "Añadir como filtro"
+
+msgid "Reihenfolge ändern"
+msgstr "Cambiar orden"
+
+msgid "Original"
+msgstr "Original"
+
+msgid ""
+"Etiketten\n"
+"drucken"
+msgstr ""
+"Imprimir\n"
+"etiquetas"
+
+msgid "Aufgabe"
+msgstr "Tarea"
+
+msgid "Vorlagen"
+msgstr "Plantillas"
+
+msgid "Versandkosten"
+msgstr "Gastos de envío"
+
+msgid "Nummer"
+msgstr "Número"
+
+msgid "Datum"
+msgstr "Fecha"
+
+msgid "Bild"
+msgstr "Imagen"
+
+msgid "Menge"
+msgstr "Cantidad"
+
+msgid "bitte auswählen..."
+msgstr "por favor, seleccione..."
+
+msgid "bitte auswählen…"
+msgstr "por favor, seleccione..."
+
+msgid "Tage"
+msgstr "Días"
+
+msgid "Prozent"
+msgstr "Porcentaje"
+
+msgid "Buchhaltung"
+msgstr "Contabilidad"
+
+msgid ""
+"%1 offener\n"
+"Posten"
+msgstr ""
+"%1 partida\n"
+"pendiente"
+
+msgid ""
+"%1 offene\n"
+"Posten"
+msgstr ""
+"%1 partidas\n"
+"pendientes"
+
+msgid ""
+"multiDruck\n"
+"Liste anzeigen"
+msgstr ""
+"Mostrar lista\n"
+"multiImpresión"
+
+msgid "zu multiDruck-Liste hinzufügen"
+msgstr "añadir a lista multiImpresión"
+
+msgid "von multiDruck-Liste entfernen"
+msgstr "quitar de lista multiImpresión"
+
+msgid ""
+"Original\n"
+"drucken"
+msgstr ""
+"Imprimir\n"
+"original"
+
+msgid ""
+"Kopie\n"
+"drucken"
+msgstr ""
+"Imprimir\n"
+"copia"
+
+msgid ""
+"direkt\n"
+"drucken"
+msgstr ""
+"imprimir\n"
+"directamente"
+
+msgid ""
+"zur multiDruck-\n"
+"Liste hinzufügen"
+msgstr ""
+"añadir a lista\n"
+"multiImpresión"
+
+msgid ""
+"von multiDruck-\n"
+"Liste entfernen"
+msgstr ""
+"quitar de lista\n"
+"multiImpresión"
+
+msgid "Angebot"
+msgstr "Oferta"
+
+msgid "Lieferschein"
+msgstr "Albarán"
+
+msgid "Rechnungen"
+msgstr "Facturas"
+
+msgid "Gutschrift"
+msgstr "Nota de crédito"
+
+msgid "Dauerrechnung"
+msgstr "Factura periódica"
+
+msgid "Rechnung"
+msgstr "Factura"
+
+msgid "Bestellung"
+msgstr "Pedido"
+
+msgid "Preisanfrage"
+msgstr "Solicitud de precio"
+
+msgid "Bestätigung"
+msgstr "Confirmación"
+
+msgid "Mahnung"
+msgstr "Recordatorio"
+
+msgid "Stornorechnung"
+msgstr "Factura rectificativa"
+
+msgid "Kopie"
+msgstr "Copia"
+
+msgid ""
+"versenden mit\n"
+"signaturportal"
+msgstr ""
+"Enviar por\n"
+"signaturportal"
+
+msgid ""
+"mit PixelLetter\n"
+"versenden"
+msgstr ""
+"Enviar por\n"
+"PixelLetter"
+
+msgid ""
+"mit onlinebrief24\n"
+"versenden"
+msgstr ""
+"Enviar por\n"
+"onlinebrief24"
+
+msgid ""
+"per E-Mail\n"
+"verschicken"
+msgstr ""
+"Enviar por\n"
+"correo electrónico"
+
+msgid "Zahlungsmoral"
+msgstr "Hábitos de pago"
+
+msgid "Gesamt"
+msgstr "Total"
+
+msgid "Zahlungsart"
+msgstr "Forma de pago"
+
+msgid "Mandatsdatum"
+msgstr "Fecha de orden"
+
+msgid "Kunde"
+msgstr "Cliente"
+
+msgid "Mandat"
+msgstr "Orden"
+
+msgid "Typ"
+msgstr "Tipo"
+
+msgid "Speichern"
+msgstr "Guardar"
+
+msgid "bezahlt"
+msgstr "pagado"
+
+msgid "unbezahlt"
+msgstr "no pagado"
+
+msgid "storniert"
+msgstr "cancelado"
+
+msgid "Seite %1"
+msgstr "Página %1"
+
+msgid "Bestellungen"
+msgstr "Pedidos"
+
+msgid "Berichte"
+msgstr "Informes"
+
+msgid "Bestand"
+msgstr "Existencias"
+
+msgid "Handgerät"
+msgstr "Dispositivo manual"
+
+msgid "Lager"
+msgstr "Almacén"
+
+msgid "Bewegungen"
+msgstr "Movimientos"
+
+msgid "Adressen"
+msgstr "Direcciones"
+
+msgid "Aufträge"
+msgstr "Encargos"
+
+msgid "Export"
+msgstr "Exportar"
+
+msgid "Kategorien"
+msgstr "Categorías"
+
+msgid "Etiketten"
+msgstr "Etiquetas"
+
+msgid "Import"
+msgstr "Importar"
+
+msgid "Lohngruppen"
+msgstr "Grupos salariales"
+
+msgid "Repeatables"
+msgstr "Fact. recurrentes"
+
+msgid "Statistik"
+msgstr "Estadísticas"
+
+msgid "Sync"
+msgstr "Sinc."
+
+msgid "Vorlageneditor"
+msgstr "Editor de plantillas"
+
+msgid "Provisionen"
+msgstr "Comisiones"
+
+msgid "Textbausteine"
+msgstr "Módulos de texto"
+
+msgid "Übersicht"
+msgstr "Resumen"
+
+msgid "Aufträge<br>anzeigen"
+msgstr "Mostrar<br>encargos"
+
+msgid "Artikel<br>anzeigen"
+msgstr "Mostrar<br>artículo"
+
+msgid "Adressen<br>anzeigen"
+msgstr "Mostrar<br>direcciones"
+
+msgid "Klicken Sie hier, um das tägliche Backup der Datenbank anzulegen."
+msgstr "Haga clic aquí para crear la copia de seguridad diaria de la base de datos."
+
+msgid "Besuchen Sie open3A.de für<br>neue Versionen,<br>mehr Plugins und<br>mehr Funktionen."
+msgstr "Visite open3A.de para obtener<br>nuevas versiones,<br>más complementos y<br>funciones"
+
+msgid "Registrieren Sie sich noch heute kostenlos auf open3A.de und Sie erhalten die aktuellsten News zu open3A in Ihr Postfach."
+msgstr "Regístrese hoy gratuitamente en open3A.de y recibirá en su buzón las novedades sobre open3A."
+
+msgid "Im open3A.de Support-Forum erhalten Sie kompetente Unterstützung bei Fragen und Problemen."
+msgstr "El foro de soporte técnico open3A.de le proporcionará ayuda cualificada ante cualquier duda o problema."
+
+msgid "Lieferanten<br>anzeigen"
+msgstr "Mostrar<br>proveedores"
+
+msgid "Auswahl hinzufügen"
+msgstr "Añadir selección"
+
+msgid "Änderung gespeichert"
+msgstr "Cambio guardado"
+
+msgid "Daten gespeichert"
+msgstr "Datos guardados"
+
+msgid "Brutto"
+msgstr "Bruto"
+
+msgid "Möchten Sie die Eingabemethode zurücksetzen? Sie werden dann erneut gefragt, ob Sie die Touch-Optimierungen nutzen möchten.<br /><br />Wenn Sie 'Ja' auswählen, wird die Anwendung neu geladen."
+msgstr "¿Desea restablecer el método de entrada? Se le volverá a preguntar si desea utilizar las optimizaciones táctiles.<br><br>Si selecciona «Sí», la aplicación volverá a cargarse."
+
+msgid "Interne ID des Eintrags"
+msgstr "ID interna de la entrada"
+
+msgid "Repeatable erstellen"
+msgstr "Crear fact. recurrente"
+
+msgid "Kopieren"
+msgstr "Copiar"
+
+msgid "Löschen"
+msgstr "Eliminar"
+
+msgid "Neu mit Werten"
+msgstr "Nuevo con valores"
+
+msgid "E-Mail-Adresse"
+msgstr "Dirección de correo electrónico"
+
+msgid "Empfänger hinzufügen"
+msgstr "Añadir destinatario"
+
+msgid ""
+"E-Mail\n"
+"senden"
+msgstr ""
+"Enviar\n"
+"correo electrónico"
+
+msgid "Abbrechen"
+msgstr "Cancelar"
+
+msgid "PDF"
+msgstr "PDF"
+
+msgid "Absender"
+msgstr "Remitente"
+
+msgid "Empfänger"
+msgstr "Destinatario"
+
+msgid "Betreff"
+msgstr "Asunto"
+
+msgid "Anderer Empfänger"
+msgstr "Otro destinatario"
+
+msgid "Anhänge"
+msgstr "Documentos adjuntos"
+
+msgid "Lastschrift"
+msgstr "Adeudo"
+
+msgid "Überweisung"
+msgstr "Transferencia"
+
+msgid "PayPal"
+msgstr "PayPal"
+
+msgid "Inkasso"
+msgstr "Cobro"
+
+msgid "Kreditkarte"
+msgstr "Tarjeta de crédito"
+
+msgid "Angebote"
+msgstr "Ofertas"
+
+msgid "Lieferscheine"
+msgstr "Albaranes"
