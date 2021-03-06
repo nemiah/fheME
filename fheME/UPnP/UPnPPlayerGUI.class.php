@@ -212,7 +212,7 @@ class UPnPPlayerGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 		echo $L;
 	}
 	
-	public function tvControlVolUp($action){
+	public function tvControl($action){
 		$target = mUserdata::getGlobalSettingValue("UPnPPlayerTarget", "");
 		$UPnPTarget = anyC::getFirst("UPnP", "UPnPName", $target);
 		
