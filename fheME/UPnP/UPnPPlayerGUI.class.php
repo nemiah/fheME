@@ -194,11 +194,11 @@ class UPnPPlayerGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 		
 		$L->addRow("Ausschalten");
 		$L->addCellStyle(1, "padding:15px;");
-		$L->addCellEvent(1, "click", OnEvent::rme($this, "tvControl", ["'stop_and_standby'"]));
+		$L->addCellEvent(1, "click", OnEvent::rme($this, "tvControl", ["'standby'"]));
 		
-		$L->addRow("Umschalten");
-		$L->addCellStyle(1, "padding:15px;");
-		$L->addCellEvent(1, "click", OnEvent::rme($this, "tvControl", ["'toggle'"]));
+		#$L->addRow("Umschalten");
+		#$L->addCellStyle(1, "padding:15px;");
+		#$L->addCellEvent(1, "click", OnEvent::rme($this, "tvControl", ["'toggle'"]));
 		
 		$L->addRow("Lauter");
 		$L->addCellStyle(1, "padding:15px;");
@@ -223,7 +223,7 @@ class UPnPPlayerGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 			case "activate":
 			case "standby":
 			case "toggle":
-				file_get_contents('http://'.$url["host"].':8080/jsonrpc?request={"jsonrpc":"2.0","method":"Addons.ExecuteAddon","params":{"addonid":"script.json-cec","params":{"command":"'.$action.'"}},"id":1}');
+				print_r(file_get_contents('http://'.$url["host"].':8080/jsonrpc?request={"jsonrpc":"2.0","method":"Addons.ExecuteAddon","params":{"addonid":"script.json-cec","params":{"command":"'.$action.'"}},"id":1}'));
 			break;
 		
 			case "VolUp":
