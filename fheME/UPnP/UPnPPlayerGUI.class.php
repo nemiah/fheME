@@ -223,8 +223,6 @@ class UPnPPlayerGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 			case "activate":
 			case "standby":
 			case "toggle":
-				#$UPnPTarget->
-				#http://localhost:8080/jsonrpc?request={"jsonrpc":"2.0","method":"Addons.ExecuteAddon","params":{"addonid":"script.json-cec","params":{"command":"activate"}},"id":1}
 				file_get_contents('http://'.$url["host"].':8080/jsonrpc?request={"jsonrpc":"2.0","method":"Addons.ExecuteAddon","params":{"addonid":"script.json-cec","params":{"command":"'.$action.'"}},"id":1}');
 			break;
 		
