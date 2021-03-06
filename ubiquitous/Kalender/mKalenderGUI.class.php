@@ -574,7 +574,7 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 
 					$list->addItem("$B<b style=\"font-size:15px;\">".$KE->title()."</b><br /><small>".Datum::getGerWeekArray(date("w", $K->parseDay($KE->getDay()))).", ".Util::CLDateParser($K->parseDay($KE->getDay()))." ".Util::CLTimeParser($K->parseTime($KE->getTime()))."</small>");
 				}
-		if(count($events) == 0)
+		if($events != null AND count($events) == 0)
 			$list->addItem("<span style=\"color:grey;\">Kein Eintrag</span>");
 				
 		$html .= $list;
@@ -595,7 +595,7 @@ class mKalenderGUI extends mKalender implements iGUIHTML2 {
 
 					$list->addItem("$B<b style=\"font-size:15px;\">".$KE->title()."</b><br /><small>".Datum::getGerWeekArray(date("w", $K->parseDay($KE->getDay()))).", ".Util::CLDateParser($K->parseDay($KE->getDay()))." ".Util::CLTimeParser($K->parseTime($KE->getTime()))."</small>");
 				}
-		if(count($events) == 0)
+		if($events != null AND count($events) == 0)
 			$list->addItem("<span style=\"color:grey;\">Kein Eintrag</span>");
 		
 		$html .= $list;
