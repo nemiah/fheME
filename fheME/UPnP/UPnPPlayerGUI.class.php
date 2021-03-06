@@ -55,12 +55,16 @@ class UPnPPlayerGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 			$target = "";
 		
 		$BD = new Button($target == "" ? "Ziel" : $target, "target", "touch");
-		$BD->style("width:200px;margin:10px;display:inline-block;border:1px solid #ccc;text-overflow:hidden;overflow: hidden;white-space: nowrap;");
+		$BD->style("width:120px;margin:10px;display:inline-block;border:1px solid #ccc;text-overflow:hidden;overflow: hidden;white-space: nowrap;");
 		$BD->popup("", "Abspielen auf", "UPnPPlayer", -1, "targetsPopup");
 		
 		$BQ = new Button($source == "" ? "Quelle" : $source, "book_alt2", "touch");
-		$BQ->style("width:200px;margin:10px;display:inline-block;border:1px solid #ccc;text-overflow:hidden;overflow: hidden;white-space: nowrap;");
+		$BQ->style("width:120px;margin:10px;display:inline-block;border:1px solid #ccc;text-overflow:hidden;overflow: hidden;white-space: nowrap;");
 		$BQ->popup("", "Abspielen von", "UPnPPlayer", -1, "sourcesPopup");
+		
+		$BTV = new Button("TV", "aperture", "touch");
+		$BTV->style("width:120px;margin:10px;display:inline-block;border:1px solid #ccc;text-overflow:hidden;overflow: hidden;white-space: nowrap;");
+		$BTV->popup("", "TV", "UPnPPlayer", -1, "tvcontrolPopup");
 		
 		if($source == "" OR $target == ""){
 			echo "<div style=\"height:60px;\" class=\"backgroundColor4\">".$BQ.$BD."</div>";
@@ -105,23 +109,24 @@ class UPnPPlayerGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 		
 		
 		$BB = new Button("Zurück", "arrow_left", "touch");
-		$BB->style("width:200px;margin:10px;display:inline-block;border:1px solid #ccc;width:120px;vertical-align:top;");
+		$BB->style("margin:10px;display:inline-block;border:1px solid #ccc;width:120px;vertical-align:top;");
 		$BB->onclick(OnEvent::reload("Screen", "UPnPPlayerGUI;folder:".implode("$", $ex)));
 		
-		$BX = new Button("Schließen", "x", "touch");
-		$BX->style("width:200px;margin:10px;display:inline-block;border:1px solid #ccc;width:120px;vertical-align:top;");
+		$BX = new Button("", "x", "touch");
+		$BX->style("width:32px;text-overflow:hidden;overflow: hidden;white-space: nowrap;margin:10px;display:inline-block;border:1px solid #ccc;vertical-align:top;");
 		$BX->loadPlugin("contentScreen", "mfheOverview");
 		
 		
 		echo "<div style=\"height:60px;\" class=\"backgroundColor4\">
 			<div style=\"float:right;\">".$BG.$BP.$BS."</div>";
 		
+		echo $BX;
+		
 		if(count($ex) > 0)
 			echo $BB;
-		else
-			echo $BX;#.$BL;
+		#.$BL;
 		
-		echo $BQ.$BD."</div>";
+		echo $BQ.$BD.$BTV."</div>";
 		
 		
 		
@@ -177,6 +182,52 @@ class UPnPPlayerGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 		}
 		
 		echo "</div></div>";
+	}
+	
+	public function tvcontrolPopup(){
+		$L = new HTMLTable(1);
+		$L->useForSelection(false);
+		
+		$L->addRow("Aktivieren");
+		$L->addCellStyle(1, "padding:15px;");
+		$L->addCellEvent(1, "click", OnEvent::rme($this, "tvControl", ["'activate'"]));
+		
+		$L->addRow("Ausschalten");
+		$L->addCellStyle(1, "padding:15px;");
+		$L->addCellEvent(1, "click", OnEvent::rme($this, "tvControl", ["'stop_and_standby'"]));
+		
+		$L->addRow("Umschalten");
+		$L->addCellStyle(1, "padding:15px;");
+		$L->addCellEvent(1, "click", OnEvent::rme($this, "tvControl", ["'toggle'"]));
+		
+		/*$L->addRow("Lauter");
+		$L->addCellStyle(1, "padding:15px;");
+		$L->addCellEvent(1, "click", OnEvent::rme($this, "tvControl", ["'VolUp'"]));
+		
+		
+		$L->addRow("Leiser");
+		$L->addCellStyle(1, "padding:15px;");
+		$L->addCellEvent(1, "click", OnEvent::rme($this, "tvControl", ["'VolDown'"]));*/
+		
+		echo $L;
+	}
+	
+	public function tvControlVolUp($action){
+		$target = mUserdata::getGlobalSettingValue("UPnPPlayerTarget", "");
+		$UPnPTarget = anyC::getFirst("UPnP", "UPnPName", $target);
+		
+		$url = parse_url($UPnPTarget->A("UPnPLocation"));
+		#$controlURL = $url["scheme"]."://".$url["host"].":".$url["port"].$this->Device->A("UPnP{$type}controlURL");
+		
+		switch ($action){
+			case "activate":
+			case "standby":
+			case "toggle":
+				#$UPnPTarget->
+				#http://localhost:8080/jsonrpc?request={"jsonrpc":"2.0","method":"Addons.ExecuteAddon","params":{"addonid":"script.json-cec","params":{"command":"activate"}},"id":1}
+				file_get_contents('http://'.$url["host"].':8080/jsonrpc?request={"jsonrpc":"2.0","method":"Addons.ExecuteAddon","params":{"addonid":"script.json-cec","params":{"command":"'.$action.'"}},"id":1}');
+			break;
+		}
 	}
 	
 	public function played($id){
