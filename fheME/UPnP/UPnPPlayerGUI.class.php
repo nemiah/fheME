@@ -200,14 +200,14 @@ class UPnPPlayerGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 		$L->addCellStyle(1, "padding:15px;");
 		$L->addCellEvent(1, "click", OnEvent::rme($this, "tvControl", ["'toggle'"]));
 		
-		/*$L->addRow("Lauter");
+		$L->addRow("Lauter");
 		$L->addCellStyle(1, "padding:15px;");
 		$L->addCellEvent(1, "click", OnEvent::rme($this, "tvControl", ["'VolUp'"]));
 		
 		
 		$L->addRow("Leiser");
 		$L->addCellStyle(1, "padding:15px;");
-		$L->addCellEvent(1, "click", OnEvent::rme($this, "tvControl", ["'VolDown'"]));*/
+		$L->addCellEvent(1, "click", OnEvent::rme($this, "tvControl", ["'VolDown'"]));
 		
 		echo $L;
 	}
@@ -226,6 +226,14 @@ class UPnPPlayerGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 				#$UPnPTarget->
 				#http://localhost:8080/jsonrpc?request={"jsonrpc":"2.0","method":"Addons.ExecuteAddon","params":{"addonid":"script.json-cec","params":{"command":"activate"}},"id":1}
 				file_get_contents('http://'.$url["host"].':8080/jsonrpc?request={"jsonrpc":"2.0","method":"Addons.ExecuteAddon","params":{"addonid":"script.json-cec","params":{"command":"'.$action.'"}},"id":1}');
+			break;
+		
+			case "VolUp":
+				file_get_contents('http://'.$url["host"].':8080/jsonrpc?request={ "jsonrpc": "2.0", "method": "Application.SetVolume", "params": { "volume": "increment" }, "id": 1 }');
+			break;
+		
+			case "VolDown":
+				file_get_contents('http://'.$url["host"].':8080/jsonrpc?request={ "jsonrpc": "2.0", "method": "Application.SetVolume", "params": { "volume": "decrement" }, "id": 1 }');
 			break;
 		}
 	}
