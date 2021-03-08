@@ -62,8 +62,8 @@ class UPnPPlayerGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 		$BQ->style("width:120px;margin:10px;display:inline-block;border:1px solid #ccc;text-overflow:hidden;overflow: hidden;white-space: nowrap;");
 		$BQ->popup("", "Abspielen von", "UPnPPlayer", -1, "sourcesPopup");
 		
-		$BTV = new Button("TV", "aperture", "touch");
-		$BTV->style("width:120px;margin:10px;display:inline-block;border:1px solid #ccc;text-overflow:hidden;overflow: hidden;white-space: nowrap;");
+		$BTV = new Button("", "aperture", "touch");
+		$BTV->style("width:32px;margin:10px;display:inline-block;border:1px solid #ccc;text-overflow:hidden;overflow: hidden;white-space: nowrap;");
 		$BTV->popup("", "TV", "UPnPPlayer", -1, "tvcontrolPopup");
 		
 		if($source == "" OR $target == ""){
@@ -94,17 +94,25 @@ class UPnPPlayerGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 			array_pop($ex);
 		
 		
+		
+		$BLauter = new Button("Lauter", "volume", "touch");
+		$BLauter->style("margin:10px;display:inline-block;border:1px solid #ccc;width:100px;vertical-align:top;");
+		$BLauter->rmePCR("UPnPPlayer", "-1", "tvControl", ["'VolUp'"]);
+		
+		$BLeiser = new Button("Leiser", "volume_mute", "touch");
+		$BLeiser->style("margin:10px;display:inline-block;border:1px solid #ccc;width:100px;vertical-align:top;");
+		$BLeiser->rmePCR("UPnPPlayer", "-1", "tvControl", ["'VolDown'"]);
+		
 		$BG = new Button("Play", "play", "touch");
-		$BG->style("margin:10px;display:inline-block;border:1px solid #ccc;width:150px;");
+		$BG->style("margin:10px;display:inline-block;border:1px solid #ccc;width:100px;vertical-align:top;");
 		$BG->rmePCR("UPnP", $UPnPTarget->getID(), "Play", array("'0'"));
-		#$BG->onclick(OnEvent::rme($this, "restart"));
 		
 		$BP = new Button("Pause", "pause", "touch");
-		$BP->style("margin:10px;display:inline-block;border:1px solid #ccc;width:150px;");
+		$BP->style("margin:10px;display:inline-block;border:1px solid #ccc;width:100px;vertical-align:top;");
 		$BP->rmePCR("UPnP", $UPnPTarget->getID(), "Pause", array("'0'"));
 		
-		$BS = new Button("Stop", "stop", "touch");
-		$BS->style("margin:10px;display:inline-block;border:1px solid #ccc;width:150px;");
+		$BS = new Button("", "stop", "touch");
+		$BS->style("margin:10px;display:inline-block;border:1px solid #ccc;width:32px;text-overflow:hidden;overflow: hidden;white-space: nowrap;vertical-align:top;");
 		$BS->rmePCR("UPnP", $UPnPTarget->getID(), "Stop", array("'0'"));
 		
 		
@@ -118,7 +126,7 @@ class UPnPPlayerGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 		
 		
 		echo "<div style=\"height:60px;\" class=\"backgroundColor4\">
-			<div style=\"float:right;\">".$BG.$BP.$BS."</div>";
+			<div style=\"float:right;\">".$BLauter.$BLeiser.$BG.$BP.$BS."</div>";
 		
 		echo $BX;
 		
@@ -188,22 +196,22 @@ class UPnPPlayerGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 		$L = new HTMLTable(1);
 		$L->useForSelection(false);
 		
-		$L->addRow("Aktivieren");
+		$L->addRow("Einschalten");
 		$L->addCellStyle(1, "padding:15px;");
-		$L->addCellEvent(1, "click", OnEvent::rme($this, "tvControl", ["'activate'"]));
+		$L->addCellEvent(1, "click", OnEvent::rme($this, "tvControl", ["'activate'"], OnEvent::closePopup("UPnPPlayer")));
 		
 		$L->addRow("Ausschalten");
 		$L->addCellStyle(1, "padding:15px;");
-		$L->addCellEvent(1, "click", OnEvent::rme($this, "tvControl", ["'standby'"]));
+		$L->addCellEvent(1, "click", OnEvent::rme($this, "tvControl", ["'standby'"], OnEvent::closePopup("UPnPPlayer")));
 		
-		#$L->addRow("Umschalten");
-		#$L->addCellStyle(1, "padding:15px;");
-		#$L->addCellEvent(1, "click", OnEvent::rme($this, "tvControl", ["'toggle'"]));
+		$L->addRow("Umschalten");
+		$L->addCellStyle(1, "padding:15px;");
+		$L->addCellEvent(1, "click", OnEvent::rme($this, "tvControl", ["'toggle'"], OnEvent::closePopup("UPnPPlayer")));
+		
 		
 		$L->addRow("Lauter");
 		$L->addCellStyle(1, "padding:15px;");
 		$L->addCellEvent(1, "click", OnEvent::rme($this, "tvControl", ["'VolUp'"]));
-		
 		
 		$L->addRow("Leiser");
 		$L->addCellStyle(1, "padding:15px;");
