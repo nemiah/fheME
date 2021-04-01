@@ -78,7 +78,14 @@ class UPnPPlayerGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 		$UPnPSource  = new UPnPGUI($UPnPSource->getID());
 		
 		$result = $UPnPSource->Browse($ObjectID, "BrowseDirectChildren", "");
-		#var_dump(htmlentities($result["Result"]));
+		/*echo "<pre>";
+		$dom = new \DOMDocument('1.0');
+		$dom->preserveWhiteSpace = true;
+		$dom->formatOutput = true;
+		$dom->loadXML($result["Result"]);
+		$xml_pretty = $dom->saveXML();
+		echo htmlentities($xml_pretty);
+		echo "</pre>";*/
 		$xml = new SimpleXMLElement($result["Result"]);
 		$entries = $UPnPSource->findEntries($xml);
 		$series = $UPnPSource->findSeries($entries);
@@ -178,9 +185,13 @@ class UPnPPlayerGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 		
 		$k = 0;
 		foreach($entries AS $newName => $item){
+			
 			$played = anyC::getFirst("Userdata", "wert", $item->attributes()->id);
 			
-			$BF = new Button($newName, $played ? "check" : "document_alt_stroke", "touch");
+			$ex = explode(".", $item->res->attributes()->duration);
+			$ex = explode(":", $ex[0]);
+			$duration = $ex[0] * 60 + $ex[1];
+			$BF = new Button($newName."<br><small style=\"color:grey;\">".$duration." Min</small>", $played ? "check" : "document_alt_stroke", "touch");
 			$BF->onclick(OnEvent::rme($UPnPSource, "readSetStart", array("'".$item->attributes()->id."'", "'".$UPnPTarget->getID()."'"), "function(){ ".OnEvent::rme($this, "played", array("'".$item->attributes()->id."'"))." \$j('#button$k span').removeClass('document_alt_stroke').addClass('check'); }"));
 			$BF->style("width:calc(25% - 10px);margin-left:10px;display:inline-block;vertical-align:top;box-sizing:border-box;text-overflow:hidden;overflow: hidden;white-space: nowrap;");
 			$BF->id("button$k");
