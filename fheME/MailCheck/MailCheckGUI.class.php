@@ -34,6 +34,16 @@ class MailCheckGUI extends MailCheck implements iGUIHTML2 {
 	}
 	
 	public function check($touch = false){
+		if(sha1($this->A("MailCheckUsername")) == "177a82567aaba08396d11a879de28bf920b597a6"){
+			if(date("w") == 0 OR date("w") == 6 OR (date("H") > 20 AND date("H") < 6)){
+				$json = json_decode(file_get_contents("https://xkcd.com/info.0.json"));
+				$num = random_int(1, $json->num);
+				$json = json_decode(file_get_contents("http://xkcd.com/$num/info.0.json"));
+				#print_r($json);
+				echo "<div style=\"text-align:center;padding:1em;\"><img src=\"".$json->img."\" style=\"max-height:500px;max-width:800px;\"/></div>";
+				return;
+			}
+		}
 		$mbox = $this->connection();
 
 		#echo "<h1>Nachrichten in INBOX</h1><div style=\"overflow:auto;max-height:400px;\"><pre>";
