@@ -225,7 +225,7 @@ class mUPnPGUI extends mUPnP implements iGUIHTMLMP2 {
 				<div class=\"label\">Radio</div>
 				<div style=\"clear:both;\"></div>
 			</div>";*/
-			if(Session::isPluginLoaded("mPremiumize")){
+			/*if(Session::isPluginLoaded("mPremiumize")){
 				$B = new Button("Cloud Player", "cloud", "iconicL");
 				$html .= "
 				<div class=\"touchButton\" onclick=\"contentManager.loadPlugin('contentScreen', 'mPremiumize', '', null, {});\">
@@ -233,7 +233,7 @@ class mUPnPGUI extends mUPnP implements iGUIHTMLMP2 {
 					<div class=\"label\">Cloud Player</div>
 					<div style=\"clear:both;\"></div>
 				</div>";
-			}
+			}*/
 			
 		$html .= "</div>";
 		echo $html;
