@@ -238,19 +238,38 @@ class UPnPPlayerGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 		$url = parse_url($UPnPTarget->A("UPnPLocation"));
 		#$controlURL = $url["scheme"]."://".$url["host"].":".$url["port"].$this->Device->A("UPnP{$type}controlURL");
 		
+		$crl = curl_init('http://'.$url["host"].':8080/jsonrpc');
+		curl_setopt($crl, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($crl, CURLOPT_POST, true);
+		curl_setopt($crl, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+				
 		switch ($action){
 			case "activate":
 			case "standby":
 			case "toggle":
-				print_r(file_get_contents('http://'.$url["host"].':8080/jsonrpc?request={"jsonrpc":"2.0","method":"Addons.ExecuteAddon","params":{"addonid":"script.json-cec","params":{"command":"'.$action.'"}},"id":1}'));
+				#print_r(file_get_contents('http://'.$url["host"].':8080/jsonrpc?request={"jsonrpc":"2.0","method":"Addons.ExecuteAddon","params":{"addonid":"script.json-cec","params":{"command":"'.$action.'"}},"id":1}'));
+				
+				curl_setopt($crl, CURLOPT_POSTFIELDS, '{"jsonrpc":"2.0","method":"Addons.ExecuteAddon","params":{"addonid":"script.json-cec","params":{"command":"'.$action.'"}},"id":1}');
+				$result = curl_exec($crl);
+				$r = json_decode($result);
+				print_r($r);
+				
 			break;
 		
 			case "VolUp":
-				file_get_contents('http://'.$url["host"].':8080/jsonrpc?request={ "jsonrpc": "2.0", "method": "Application.SetVolume", "params": { "volume": "increment" }, "id": 1 }');
+				curl_setopt($crl, CURLOPT_POSTFIELDS, '{ "jsonrpc": "2.0", "method": "Application.SetVolume", "params": { "volume": "increment" }, "id": 1 }');
+				$result = curl_exec($crl);
+				$r = json_decode($result);
+				print_r($r);
+				#print_r(file_get_contents('http://'.$url["host"].':8080/jsonrpc?request={ "jsonrpc": "2.0", "method": "Application.SetVolume", "params": { "volume": "increment" }, "id": 1 }'));
 			break;
 		
 			case "VolDown":
-				file_get_contents('http://'.$url["host"].':8080/jsonrpc?request={ "jsonrpc": "2.0", "method": "Application.SetVolume", "params": { "volume": "decrement" }, "id": 1 }');
+				curl_setopt($crl, CURLOPT_POSTFIELDS, '{ "jsonrpc": "2.0", "method": "Application.SetVolume", "params": { "volume": "decrement" }, "id": 1 }');
+				$result = curl_exec($crl);
+				$r = json_decode($result);
+				print_r($r);
+				#print_r(file_get_contents('http://'.$url["host"].':8080/jsonrpc?request={ "jsonrpc": "2.0", "method": "Application.SetVolume", "params": { "volume": "decrement" }, "id": 1 }'));
 			break;
 		}
 	}
