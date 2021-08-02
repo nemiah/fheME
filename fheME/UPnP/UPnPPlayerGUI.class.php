@@ -66,6 +66,10 @@ class UPnPPlayerGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 		$BTV->style("width:32px;margin:10px;display:inline-block;border:1px solid #ccc;text-overflow:hidden;overflow: hidden;white-space: nowrap;");
 		$BTV->popup("", "TV", "UPnPPlayer", -1, "tvcontrolPopup");
 		
+		$BPL = new Button("", "clock", "touch");
+		$BPL->style("width:32px;margin:10px;display:inline-block;border:1px solid #ccc;text-overflow:hidden;overflow: hidden;white-space: nowrap;");
+		$BPL->popup("", "TV", "UPnPPlayer", -1, "playlistPopup");
+		
 		if($source == "" OR $target == ""){
 			echo "<div style=\"height:60px;\" class=\"backgroundColor4\">".$BQ.$BD."</div>";
 			
@@ -141,7 +145,7 @@ class UPnPPlayerGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 			echo $BB;
 		#.$BL;
 		
-		echo $BQ.$BD.$BTV."</div>";
+		echo $BQ.$BD.$BTV.$BPL."</div>";
 		
 		
 		
@@ -186,12 +190,15 @@ class UPnPPlayerGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 		$k = 0;
 		foreach($entries AS $newName => $item){
 			
-			$played = anyC::getFirst("Userdata", "wert", $item->attributes()->id);
+			$AC = anyC::get("Userdata", "wert", $item->attributes()->id);
+			$played = $AC->n();
+			
+			$count = $AC->numLoaded();
 			
 			$ex = explode(".", $item->res->attributes()->duration);
 			$ex = explode(":", $ex[0]);
 			$duration = $ex[0] * 60 + $ex[1];
-			$BF = new Button($newName."<br><small style=\"color:grey;\">".$duration." Min</small>", $played ? "check" : "document_alt_stroke", "touch");
+			$BF = new Button($newName."<br><small style=\"color:grey;\">".$duration." Min, {$count}x</small>", $played ? "check" : "document_alt_stroke", "touch");
 			$BF->onclick(OnEvent::rme($UPnPSource, "readSetStart", array("'".$item->attributes()->id."'", "'".$UPnPTarget->getID()."'"), "function(){ ".OnEvent::rme($this, "played", array("'".$item->attributes()->id."'"))." \$j('#button$k span').removeClass('document_alt_stroke').addClass('check'); }"));
 			$BF->style("width:calc(25% - 10px);margin-left:10px;display:inline-block;vertical-align:top;box-sizing:border-box;text-overflow:hidden;overflow: hidden;white-space: nowrap;");
 			$BF->id("button$k");
@@ -201,6 +208,45 @@ class UPnPPlayerGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 		}
 		
 		echo "</div></div>";
+	}
+	
+	public function playlistPopup(){
+		$UPnPTarget = anyC::getFirst("UPnP", "UPnPName", mUserdata::getGlobalSettingValue("UPnPPlayerTarget", ""));
+		
+		echo "<pre>";
+		$url = parse_url($UPnPTarget->A("UPnPLocation"));
+		
+		$crl = curl_init('http://'.$url["host"].':8080/jsonrpc');
+		curl_setopt($crl, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($crl, CURLOPT_POST, true);
+		curl_setopt($crl, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+		
+		/*curl_setopt($crl, CURLOPT_POSTFIELDS, '{"jsonrpc": "2.0", "method": "Player.GetActivePlayers", "id": 1}');
+		$result = curl_exec($crl);
+		$r = json_decode($result);
+		print_r($r);
+		
+		
+		curl_setopt($crl, CURLOPT_POSTFIELDS, '{"jsonrpc": "2.0", "method": "Player.GetItem", "params": { "properties": ["title", "album", "artist", "season", "episode", "duration", "showtitle", "tvshowid", "thumbnail", "file", "fanart", "streamdetails"], "playerid": 1 }, "id": "VideoGetItem"}');
+		$result = curl_exec($crl);
+		$r = json_decode($result);
+		print_r($r);*/
+		
+		curl_setopt($crl, CURLOPT_POSTFIELDS, '{"jsonrpc": "2.0", "method": "Playlist.Clear", "params": { "playlistid": 1}, "id": 1}');
+		$result = curl_exec($crl);
+		$r = json_decode($result);
+		print_r($r);
+		
+		curl_setopt($crl, CURLOPT_POSTFIELDS, '{"jsonrpc": "2.0", "method": "Playlist.Add", "params": { "item": {"http":"//192.168.7.11:8200/MediaItems/36678.mp4"}, "playlistid": 1}, "id": 1}');
+		$result = curl_exec($crl);
+		$r = json_decode($result);
+		print_r($r);
+		
+		curl_setopt($crl, CURLOPT_POSTFIELDS, '{"jsonrpc": "2.0", "method": "Playlist.GetItems", "params": { "properties": [ "runtime", "showtitle", "season", "title", "artist" ], "playlistid": 1}, "id": 1}');
+		$result = curl_exec($crl);
+		$r = json_decode($result);
+		print_r($r);
+		echo "</pre>";
 	}
 	
 	public function tvcontrolPopup(){
