@@ -80,8 +80,11 @@ class UPnPPlayerGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 		
 		
 		$UPnPSource  = new UPnPGUI($UPnPSource->getID());
-		
-		$result = $UPnPSource->Browse($ObjectID, "BrowseDirectChildren", "");
+		try {
+			$result = $UPnPSource->Browse($ObjectID, "BrowseDirectChildren", "");
+		} catch (SoapFault $e){
+			$result = $UPnPSource->Browse(0, "BrowseDirectChildren", "");
+		}
 		/*echo "<pre>";
 		$dom = new \DOMDocument('1.0');
 		$dom->preserveWhiteSpace = true;
