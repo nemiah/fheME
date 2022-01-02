@@ -101,7 +101,6 @@ class mAWVGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 	}
 	
 	public function downloadTrashData(){
-		$andreas = false;
 		#https://awido.cubefour.de/Customer/awv-nordschwaben/KalenderICS.aspx?oid=00000000-0000-0000-0000-000000001190&jahr=2019&fraktionen=&reminder=0.8:00
 		#https://awido.cubefour.de/Customer/awv-nordschwaben/KalenderICS.aspx?oid=00000000-0000-0000-0000-000000001190&jahr=2020&fraktionen=&reminder=0.17:00
 		$ical = file_get_contents("https://awido.cubefour.de/Customer/awv-nordschwaben/KalenderICS.aspx?oid=00000000-0000-0000-0000-000000001190&jahr=".(date("Y")+1)."&fraktionen=&reminder=0.8:00");
