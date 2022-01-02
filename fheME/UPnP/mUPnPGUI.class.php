@@ -35,11 +35,11 @@ class mUPnPGUI extends mUPnP implements iGUIHTMLMP2 {
 		$B = $gui->addSideButton("Geräte\nerkennen", "lieferschein");
 		$B->popup("", "UPnP-Geräte", "mUPnP", "-1", "discoverNow", array("''", "1"));
 		
-		$B = $gui->addSideButton("Remote\nanzeigen", "./fheME/UPnP/remote.png");
-		$B->onclick("UPnP.show();");
+		#$B = $gui->addSideButton("Remote\nanzeigen", "./fheME/UPnP/remote.png");
+		#$B->onclick("UPnP.show();");
 		
-		$B = $gui->addSideButton("Radio-\nStationen", "./fheME/UPnP/radio.png");
-		$B->loadFrame("contentRight", "mUPnPRadioStation");
+		#$B = $gui->addSideButton("Radio-\nStationen", "./fheME/UPnP/radio.png");
+		#$B->loadFrame("contentRight", "mUPnPRadioStation");
 		
 		return $gui->getBrowserHTML($id);
 	}
