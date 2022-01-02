@@ -47,9 +47,9 @@ class mtrinityDBGUI extends anyC implements iGUIHTMLMP2 {
 
 			$AC = anyC::get("trinityDB");
 			while($T = $AC->getNextEntry()){
-				$B = new Button("Neue Folgen", "star", "touch");
-				$B->onclick("trinityDB.show(".$T->getID().", 'newEpisodes');");
-				$html .= "$B";
+				#$B = new Button("Neue Folgen", "star", "touch");
+				#$B->onclick("trinityDB.show(".$T->getID().", 'newEpisodes');");
+				#$html .= "$B";
 
 				$B = new Button("Serienbrowser", "aperture", "touch");
 				$B->onclick("trinityDB.show(".$T->getID().", 'browser');");
