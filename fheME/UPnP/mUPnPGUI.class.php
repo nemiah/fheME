@@ -217,14 +217,15 @@ class mUPnPGUI extends mUPnP implements iGUIHTMLMP2 {
 				<div style=\"clear:both;\"></div>
 			</div>";
 			
-			/*$B = new Button("Radio", "share", "iconicL");
+			$B = new Button("Radio", "volume", "iconicL");
 			#Overlay.showDark();
 			$html .= "
-			<div class=\"touchButton\" onclick=\"UPnP.showRadio();\">
+			<div class=\"touchButton\" onclick=\"".OnEvent::popup("Jukeboxen", "mUPnP", -1, "jukeboxes")."\">
 				".$B."
-				<div class=\"label\">Radio</div>
+				<div class=\"label\">Jukeboxen</div>
 				<div style=\"clear:both;\"></div>
-			</div>";*/
+			</div>";
+			
 			/*if(Session::isPluginLoaded("mPremiumize")){
 				$B = new Button("Cloud Player", "cloud", "iconicL");
 				$html .= "
@@ -238,6 +239,86 @@ class mUPnPGUI extends mUPnP implements iGUIHTMLMP2 {
 		$html .= "</div>";
 		echo $html;
 	}
+	
+	public function jukeboxes(){
+		$list = ["192.168.7.241" => "Mathilda", "192.168.7.240" => "Jakob"];
+		
+		foreach($list AS $ip => $label){
+			echo "<p class=\"prettySubtitle\">$label</p>";
+			
+			$ch = curl_init("http://$ip:6680/mopidy/rpc");
+			
+			curl_setopt($ch, CURLOPT_POSTFIELDS, '{"jsonrpc": "2.0", "id": 1, "method": "core.playback.get_state"}');
+			curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
+			curl_setopt($ch, CURLOPT_TIMEOUT_MS, 200); 
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true );
+
+			$result = json_decode(curl_exec($ch));
+			curl_close($ch);
+			
+			if(curl_errno($ch) == 7 OR curl_errno($ch) == 28 OR $result === null){
+				$BO = new Button("Ausgeschaltet", "bolt", "touch");
+				$BO->style("margin:10px;display:inline-block;width:150px;vertical-align:top;opacity:.5;");
+				echo $BO;
+				
+				continue;
+			}
+			
+			$BG = new Button("Play", "play", "touch");
+			$BG->style("margin:10px;display:inline-block;width:150px;vertical-align:top;");
+			$BG->rmePCR("mUPnP", -1, "jukeboxPlay", array("'$ip'"), OnEvent::reloadPopup("mUPnP"));
+
+			$BP = new Button("Pause", "pause", "touch");
+			$BP->style("margin:10px;display:inline-block;width:150px;vertical-align:top;");
+			$BP->rmePCR("mUPnP", -1, "jukeboxPause", array("'$ip'"), OnEvent::reloadPopup("mUPnP"));
+			
+			$BA = new Button("Ausschalten", "moon_stroke", "touch");
+			$BA->style("margin:10px;display:inline-block;width:150px;vertical-align:top;");
+			$BA->doBefore("if(!confirm('Soll die Jukebox ausgeschaltet werden?')) return; %AFTER");
+			$BA->rmePCR("mUPnP", -1, "jukeboxShutdown", array("'$ip'"), OnEvent::reloadPopup("mUPnP"));
+			
+			if($result->result == "paused" OR $result->result == "stopped")
+				$BP = "";
+			else
+				$BG = "";
+			
+			echo $BG.$BP.$BA;
+			
+		}
+	}
+	
+	public function jukeboxShutdown($ip){
+		$T = new Telnet($ip, 4094);
+		$T->fireAndForget("raspberry");
+		sleep(1);
+		$T->fireAndForget("suo");
+		$T->disconnect();
+		sleep(2);
+	}
+	
+	public function jukeboxPlay($ip){
+		$ch = curl_init("http://$ip:6680/mopidy/rpc");
+
+		curl_setopt($ch, CURLOPT_POSTFIELDS, '{"jsonrpc": "2.0", "id": 1, "method": "core.playback.play"}');
+		curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
+		curl_setopt($ch, CURLOPT_TIMEOUT_MS, 200); 
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true );
+
+		curl_exec($ch);
+		curl_close($ch);
+	}	
+	
+	public function jukeboxPause($ip){
+		$ch = curl_init("http://$ip:6680/mopidy/rpc");
+
+		curl_setopt($ch, CURLOPT_POSTFIELDS, '{"jsonrpc": "2.0", "id": 1, "method": "core.playback.pause"}');
+		curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
+		curl_setopt($ch, CURLOPT_TIMEOUT_MS, 200); 
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true );
+
+		curl_exec($ch);
+		curl_close($ch);
+	}	
 	
 	public function remoteRadio(){
 		$this->addAssocV3("UPnPAVTransport", "=", "1");
