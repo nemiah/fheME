@@ -25,7 +25,7 @@
  * This way it is possible to use FPDI for both FPDF and TCPDF with one FPDI version.
  */
 
-if(PHYNX_USE_TCPDF AND Session::isPluginLoaded("mTCPDF")){
+if(defined("PHYNX_USE_TCPDF") AND PHYNX_USE_TCPDF AND Session::isPluginLoaded("mTCPDF")){
 
     /**
      * Class fpdi_bridge

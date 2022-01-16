@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 
 class Environment {
@@ -83,6 +83,11 @@ class Environment {
 		$return = Environment::$currentEnvironment->get($value, $default);
 
 		switch($value){
+			case "allowedUsers":
+				if($return === null)
+					$return = phynx::users();
+			break;
+		
 			case "usePWEncryption":
 				try {
 					$LD = LoginData::get("ADServerUserPass");

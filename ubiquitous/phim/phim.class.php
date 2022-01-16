@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 class phim extends PersistentObject {
 	private static $Users = null;
@@ -26,15 +26,57 @@ class phim extends PersistentObject {
 		$BR = new Button("Gelesen", "check", "iconicG");
 		$BR->id("phim_".$M->getID());
 		$BR->addClass("isread_".$M->A("phimToUserID"));
-		$BR->style("font-size:10px;".(strpos($M->A("phimReadBy"), ";".$M->A("phimToUserID").";") === false ? "display:none;" : ""));
+		$BR->style("font-size:10px;".(strpos($M->A("phimReadBy"), ";".$M->A("phimToUserID").":") === false ? "display:none;" : ""));
 
 		if($M->A("phimFromUserID") != Session::currentUser()->getID())
 			$BR = "";
 
-		return "<div class=\"chatMessage ".(($M->A("phimFromUserID") != Session::currentUser()->getID() AND strpos($M->A("phimReadBy"), ";".Session::currentUser()->getID().";") === false) ? "highlight" : "")."\"><span class=\"time\">".Util::CLDateTimeParser($M->A("phimTime"))."$BR</span><span class=\"username\">".self::$Users[$M->A("phimFromUserID")].": </span><span class=\"content\">".$M->A("phimMessage")."</span></div>";
+		return "<div class=\"chatMessage ".(($M->A("phimFromUserID") != Session::currentUser()->getID() AND strpos($M->A("phimReadBy"), ";".Session::currentUser()->getID().":") === false) ? "highlight" : "")."\"><span class=\"time\">".Util::CLDateTimeParser($M->A("phimTime"))."$BR</span><span class=\"username\">".self::$Users[$M->A("phimFromUserID")].": </span><span class=\"content\">".$M->A("phimMessage")."</span></div>";
 	}
 	
-	function sendMessage($to, $text){
+	public static function setReadS($from){
+		$p = new phim(-1);
+		$p->setRead($from);
+	}
+	
+	public function setRead($from){
+		if($from[0] == "g"){
+			$AC = anyC::get("phim");
+			$AC->addAssocV3("phimphimGruppeID", "=", substr($from, 1));
+			$AC->addAssocV3("INSTR(phimReadBy, ';".Session::currentUser()->getID().":')", "=", "0");
+			
+			while($P = $AC->n()){
+				$P->changeA("phimReadBy", $P->A("phimReadBy").";".Session::currentUser()->getID().":".time().";");
+				$P->saveMe();
+			}
+			
+			return;
+		}
+		
+		$AC = anyC::get("phim");
+		$AC->addAssocV3("phimFromUserID", "=", $from);
+		$AC->addAssocV3("phimToUserID", "=", Session::currentUser()->getID());
+		#$AC->addAssocV3("phimReadBy", "=", "0");
+		$AC->addAssocV3("INSTR(phimReadBy, ';".Session::currentUser()->getID().":')", "=", "0");
+		while($P = $AC->n()){
+			$P->changeA("phimReadBy", $P->A("phimReadBy").";".Session::currentUser()->getID().":".time().";");
+			$P->saveMe();
+		}
+		
+		$message = new stdClass();
+		$message->method = "read";
+		#$message->content = $text;
+		$message->from = Session::currentUser()->getID();
+		#$message->fromUser = Session::currentUser()->A("name");
+		$message->to = $from;
+		$message->time = time();
+		
+		#$F->store();
+		
+		$this->go($message, $from);
+	}
+	
+	function sendMessage($to, $text, $sessionID = ""){
 		$F = new Factory("phim");
 		
 		$target = $to;
@@ -64,6 +106,7 @@ class phim extends PersistentObject {
 		$message->to = $to;
 		$message->time = time();
 		$message->group = $group;
+		$message->session = $sessionID;
 		
 		$MID = $F->store();
 		
@@ -104,6 +147,7 @@ class phim extends PersistentObject {
 					$newMessage->method = "newMessage";
 					$newMessage->to = $to;
 					$newMessage->from = $message->from;
+					$newMessage->session = $message->session;
 					#$newMessage->group = $message->group;
 
 					$session->publish('it.furtmeier.'.$instance.'.phim_Watchdog', [json_encode($newMessage, JSON_UNESCAPED_UNICODE)], [], ["acknowledge" => true]);

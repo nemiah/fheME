@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 
 function addClassPath($path){
@@ -162,6 +162,14 @@ function findClass($class_name){
 			}
 			
 			$path = $root."customer/$value/$class_name.class.php";
+
+			if(is_file($path)){
+				require_once $path;
+				registerClassPath($class_name, $path);
+				return 1;
+			}
+			
+			$path = $root."specifics/$value/$class_name.class.php";
 
 			if(is_file($path)){
 				require_once $path;

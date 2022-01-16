@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 
 var phimChat = {
@@ -33,40 +33,8 @@ var phimChat = {
 	
 	writingTimeout: [],
 	
-	/*charCodeUTF32: function(s){   
-		return ((((s.charCodeAt(0)-0xD800)*0x400) + (s.charCodeAt(1)-0xDC00) + 0x10000));
-	},*/
-	
     onlyEmoji: function(string) {
-		return string.match(/^\p{Extended_Pictographic}$/u) !== null;
-		
-		/*var dec = phimChat.charCodeUTF32(string);//.toString(16)
-		
-		if(dec >= parseInt("1F600", 16) && dec <= parseInt("1F64F", 16)) //Emoticons
-			return true;
-		
-		if(dec >= parseInt("1F300", 16) && dec <= parseInt("1F5FF", 16)) //Misc Symbols and Pictographs
-			return true;
-		
-		if(dec >= parseInt("1F680", 16) && dec <= parseInt("x1F6FF", 16)) //Transport and Map
-			return true;
-		
-		if(dec >= parseInt("2600", 16) && dec <= parseInt("26FF", 16)) //Misc symbols
-			return true;
-		
-		if(dec >= parseInt("2700", 16) && dec <= parseInt("27BF", 16)) //Dingbats
-			return true;
-		
-		if(dec >= parseInt("FE00", 16) && dec <= parseInt("FE0F", 16)) //Variation Selectors
-			return true;
-		
-		if(dec >= parseInt("1F900", 16) && dec <= parseInt("1F9FF", 16)) //Supplemental Symbols and Pictographs
-			return true;
-		
-		if(dec >= parseInt("1F1E6", 16) && dec <= parseInt("1F1FF", 16)) //Flags
-			return true;
-		
-		return false;*/
+		return (string.match(/^\p{RI}\p{RI}|\p{Emoji}(\p{EMod}+|\u{FE0F}\u{20E3}?|[\u{E0020}-\u{E007E}]+\u{E007F})?(\u{200D}\p{Emoji}(\p{EMod}+|\u{FE0F}\u{20E3}?|[\u{E0020}-\u{E007E}]+\u{E007F})?)+|\p{EPres}(\p{EMod}+|\u{FE0F}\u{20E3}?|[\u{E0020}-\u{E007E}]+\u{E007F})?|\p{Emoji}(\p{EMod}+|\u{FE0F}\u{20E3}?|[\u{E0020}-\u{E007E}]+\u{E007F})$/gu) !== null && string.length == 2);
     },
 	
 	init: function(server, realm, instance, UserID, UserName, authKey, groups, showNotification){
@@ -84,10 +52,6 @@ var phimChat = {
 		phimChat.overlayShow();
 		
 		phimChat.connection();
-		
-		/*$j(window).on("beforeunload", function() {
-			phimChat.c.close();
-		});*/
 	},
 	
 	time: function(){
@@ -109,10 +73,27 @@ var phimChat = {
 		phimChat.session.publish("it.furtmeier."+phimChat.instance+".phim_"+to, ['{"method":"writing", "user": '+phimChat.UserID+', "fromUser": "'+phimChat.UserName+'"}']);
 	},
 	
-	send: function(to, field){
+	markRead: function(to) {
 		$j('#chatText'+to+' .highlight').removeClass('highlight');
+	},
+	
+	hideWindow: function(target, sync = true){
+		if(!sync){
+			$j('#chatWindow'+target).hide();
+			return;
+		}
+		
+		contentManager.rmePCR('mphim', -1, 'windowStatus', [target, 'hidden'], function(){ $j('#chatWindow'+target).hide(); });
+		
+		phimChat.session.publish("it.furtmeier."+phimChat.instance+".phim_Watchdog", ['{"method":"syncWindowHide", "user": '+phimChat.UserID+', "to": "'+target+'", "session": '+phimChat.session._id+'}']);
+	},
+	
+	send: function(to, field){
+		phimChat.markRead(to);
 		contentManager.rmePCR('phim', -1, 'setRead', [to], function(){}, '', 1, function(){});
 		phimChat.updateUnread();
+		
+		phimChat.session.publish("it.furtmeier."+phimChat.instance+".phim_Watchdog", ['{"method":"syncRead", "user": '+phimChat.UserID+', "to": "'+to+'", "session": '+phimChat.session._id+'}']);
 		
 		if(field.val().trim() === ""){
 			field.val('');
@@ -122,7 +103,7 @@ var phimChat = {
 		//if(to > 0)
 		//	$j('#chatText'+to).append("<div class=\"chatMessage\"><span class=\"time\">"+phimChat.time()+"</span><span class=\"username\">"+phimChat.UserName+": </span>"+field.val()+"</div>");
 		
-		contentManager.rmePCR('phim', -1, 'sendMessage', [to, field.val()], function(t){ field.val(''); if(to > 0) $j('#chatText'+to).append(t.responseText); phimChat.scroll('chatText'+to); }, '', 1);
+		contentManager.rmePCR('phim', -1, 'sendMessage', [to, field.val(), phimChat.session._id], function(t){ field.val(''); if(to > 0) $j('#chatText'+to).append(t.responseText); phimChat.scroll('chatText'+to); }, '', 1);
 	},
 	
 	draggable: function(){
@@ -187,7 +168,7 @@ var phimChat = {
 					phimChat.writingTimeout[data.user] = window.setTimeout(function(){
 						window.clearTimeout(phimChat.writingTimeout[data.user]);
 						$j('#writing'+data.user).remove();
-					}, 3500);
+					}, 4000);
 					
 					phimChat.scroll('chatText'+data.user);
 				}
@@ -197,14 +178,28 @@ var phimChat = {
 			function oneventWatchdog(args) {
 				var data = jQuery.parseJSON(args[0]);
 				
+				if(data.method == "syncRead" && data.user == phimChat.UserID)
+					phimChat.markRead(data.to);
+				
+				if(data.method == "syncWindowHide" && data.user == phimChat.UserID)
+					phimChat.hideWindow(data.to, false);
+				
+				if(data.method == "syncWindowShow" && data.user == phimChat.UserID)
+					phimChat.openWindow(data.to, false);
+				
+				
 				if(data.method == "newMessage"){
-					if(data.to.substring(0, 1) != "g") //user windows already preloaded!
+					if(data.to.substring(0, 1) != "g") {//user windows already preloaded!
+						if(data.from == phimChat.UserID && data.session != phimChat.session._id)
+							phimChat.reloadWindow(data.to);
+						
 						return;
+					}
 					
 					if($j('#chatWindow'+data.to).length > 0)
 						return;
 					
-					phimChat.openWindow("g"+data.group);
+					phimChat.openWindow(data.to, false);
 					//phimChat.playSound();
 					return;
 				}
@@ -263,19 +258,43 @@ var phimChat = {
 		connection.open();
 	},
 	
-	openWindow: function(target){
+	reloadWindow: function(target){
+		contentManager.rmePCR("mphim", -1, "chatPopup", [target, "1", "1"], function(t){
+			
+			$j('#chatWindow'+target).replaceWith(t.responseText);
+			
+			phimChat.draggable();
+			phimChat.scroll('chatText'+target);
+			emojiPicker.init('newMessageTA'+target);
+		});
+		
+	},
+	
+	openWindow: function(target, sync = true){
 		if($j('#chatWindow'+target).length > 0){
-			$j('#chatWindow'+target).show();
+			contentManager.rmePCR("mphim", -1, "windowStatus", [target, "visible"], function(t){
+				$j('#chatWindow'+target).show();
+			});
+			
+			if(sync)
+				phimChat.session.publish("it.furtmeier."+phimChat.instance+".phim_Watchdog", ['{"method":"syncWindowShow", "user": '+phimChat.UserID+', "to": "'+target+'", "session": '+phimChat.session._id+'}']);
+			
 			return;
 		}
 		
 		contentManager.rmePCR("mphim", -1, "chatPopup", [target, "1", "1"], function(t){
 			if($j('#chatWindow'+target).length > 0)
 				return;
-
+			
 			$j(t.responseText).appendTo("#contentScreen");
 			phimChat.session.subscribe('it.furtmeier.'+phimChat.instance+'.phim_'+target, phimChat.oneventG);
 			phimChat.draggable();
+			emojiPicker.init('newMessageTA'+target);
+			
+			phimChat.playSound();
+		
+			if(sync)
+				phimChat.session.publish("it.furtmeier."+phimChat.instance+".phim_Watchdog", ['{"method":"syncWindowShow", "user": '+phimChat.UserID+', "to": "'+target+'", "session": '+phimChat.session._id+'}']);
 		});
 	},
 	
@@ -312,7 +331,7 @@ var phimChat = {
 			target = "g"+data.group;
 		
 		if($j('#chatWindow'+target).length == 0)
-			phimChat.openWindow(target);
+			phimChat.openWindow(target, false);
 		
 		var classes = "highlight";
 		if(data.from == phimChat.UserID)
@@ -334,7 +353,7 @@ var phimChat = {
 		
 		phimChat.updateUnread();
 		phimChat.scroll('chatText'+target);
-		if(phimChat.showNotification)
+		if(data.from != phimChat.UserID && phimChat.showNotification)
 			Interface.notify('phim', data.fromUser+': '+data.content, 10000);
 	},
 	
@@ -371,7 +390,7 @@ var phimChat = {
 	
 	updateUnread: function(addCount){
 		phimChat.unread += addCount;
-			
+		
 		var link = document.querySelector("link[rel*='shortcut icon']");// || document.createElement(\'link\');
 		if(phimChat.favicoOrig === null)
 			phimChat.favicoOrig = link.href;

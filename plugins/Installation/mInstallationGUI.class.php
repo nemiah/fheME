@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 class mInstallationGUI extends mInstallation implements iGUIHTML2 {
 
@@ -552,6 +552,7 @@ class mInstallationGUI extends mInstallation implements iGUIHTML2 {
 		#$mimeMail2->Hostname = "cloud01.furtmeier.it";
 		$mimeMail2->SMTPDebug = 2;
 		#$mimeMail2->SMTPSecure = 'tls';
+		$mimeMail2->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
 		$mimeMail2->CharSet = "UTF-8";
 		$mimeMail2->Subject = "phynx Mailtest V2";
 		

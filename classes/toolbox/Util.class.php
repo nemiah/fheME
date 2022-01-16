@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 class Util {
 	public static function ext($filename){
@@ -47,6 +47,115 @@ class Util {
 		}
 		return true;
 	  }
+
+	/**
+	 * From https://stackoverflow.com/questions/16600708/how-do-you-encrypt-and-decrypt-a-php-string#30159120
+	 * Encrypt a message
+	 * 
+	 * @param string $message - message to encrypt
+	 * @param string $key - encryption key
+	 * @return string
+	 * @throws RangeException
+	 */
+	static function sodEncrypt(string $message) {
+		if(!isset($_SESSION["SodCryptKey"])) 
+			throw new Exception("Kein Schlüssel angegeben!");
+		
+		if($message == "") 
+			return "";
+		
+		$key = $_SESSION["SodCryptKey"];
+		
+		if (mb_strlen($key, '8bit') !== SODIUM_CRYPTO_SECRETBOX_KEYBYTES)
+			throw new RangeException('Key is not the correct size (must be 32 bytes).');
+		
+		$nonce = random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
+
+		$cipher = base64_encode(
+			$nonce.
+			sodium_crypto_secretbox(
+				$message,
+				$nonce,
+				$key
+			)
+		);
+		sodium_memzero($message);
+		sodium_memzero($key);
+		return $cipher;
+	}
+
+	/**
+	 * From https://stackoverflow.com/questions/16600708/how-do-you-encrypt-and-decrypt-a-php-string#30159120
+	 * Decrypt a message
+	 * 
+	 * @param string $encrypted - message encrypted with safeEncrypt()
+	 * @param string $key - encryption key
+	 * @return string
+	 * @throws Exception
+	 */
+	static function sodDecrypt(string $encrypted) {
+		if(!isset($_SESSION["SodCryptKey"])) 
+			return "!!NOKEY!!";
+		
+		if($encrypted == "") 
+			return "";
+		
+		$key = $_SESSION["SodCryptKey"];
+		$decoded = base64_decode($encrypted);
+		$nonce = mb_substr($decoded, 0, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES, '8bit');
+		$ciphertext = mb_substr($decoded, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES, null, '8bit');
+
+		$plain = sodium_crypto_secretbox_open(
+			$ciphertext,
+			$nonce,
+			$key
+		);
+		
+		if (!is_string($plain)) 
+			return "!!WRONGKEY!!";
+		
+		sodium_memzero($ciphertext);
+		sodium_memzero($key);
+		return $plain;
+	}
+	
+	public static function sodCryptParserF($w, $l){
+		if(!extension_loaded("sodium"))
+			return $w;
+		
+		if(strpos($w, "sodEnc:") !== false AND !isset($_SESSION["SodCryptKey"])) 
+			throw new Exception("Kein Schlüssel angegeben!");
+		
+		return self::sodCryptParser($w, $l);
+	}
+	
+	public static function sodCryptParser($w, $l){
+		if(!extension_loaded("sodium"))
+			return $w;
+		
+		if($l == "load"){
+			if(strpos($w, "sodEnc:") === false)
+				return $w;
+			
+			return Util::sodDecrypt(base64_decode(str_replace("sodEnc:", "", $w), true));
+		}
+		
+		return "sodEnc:".base64_encode(Util::sodEncrypt($w));
+	}
+	
+
+    static function sodKeyFromPassword(string $password, string $salt) {
+        $key = sodium_crypto_pwhash(
+            SODIUM_CRYPTO_SECRETBOX_KEYBYTES,
+            $password,
+            $salt,
+            SODIUM_CRYPTO_PWHASH_OPSLIMIT_INTERACTIVE,
+            SODIUM_CRYPTO_PWHASH_MEMLIMIT_INTERACTIVE
+        );
+        sodium_memzero($password);
+
+        return $key;
+    }
 	
 	/**
 	 * From http://bavotasan.com/2011/convert-hex-color-to-rgb-using-php/
@@ -596,7 +705,7 @@ class Util {
 		return Util::formatNumber($_SESSION["S"]->getUserLanguage(), $number * 1, $digits, $showZero, $endingZeroes, $thousandSeparator);
 	}
 	
-	public static function formatByCurrency($currency, $number, $useSymbol = false, $dezimalstellen = null, $maxZeroes = null){
+	public static function formatByCurrency($currency, $number, $useSymbol = false, $dezimalstellen = null, $maxZeroes = null, $showCurrency = true){
 		$format = Util::getCurrencyFormat($currency, $useSymbol);
 		
 		if($maxZeroes === null)
@@ -612,11 +721,9 @@ class Util {
 			$format[4] = $dezimalstellen;
 
 		if($maxZeroes < $dezimalstellen){
-			$dec = $float - floor($float);
-			$hinterkomma = ($dec * pow(10, $dezimalstellen))."";
-			if($dec == 0)
-				$hinterkomma = str_pad ("", $dezimalstellen, "0");
-			
+			$numString = number_format($number, $dezimalstellen, '.', '');
+			$hinterkomma = substr($numString, strpos($numString, ".") + 1);
+
 			for($i = strlen($hinterkomma) - 1; $i >= 0; $i--){
 				if($hinterkomma[$i] == "0")
 					$format[4]--;
@@ -630,6 +737,10 @@ class Util {
 		
 		$stringCurrency = number_format(Util::kRound($float, $format[4]), $format[4], $format[3], $format[5]);		
 		$stringCurrency = str_replace("n", $stringCurrency, $negative ? $format[2] : $format[1]);
+		
+		if(!$showCurrency)
+			$stringCurrency = trim(str_replace($format[0], "", $stringCurrency));
+		
 		
 		return $stringCurrency;
 	}
@@ -734,6 +845,12 @@ class Util {
 			case "4":
 				return $format["familyShort"];
 			break;
+			case "5": //neutral
+				return "";
+			break;
+			case "6": //old (Sehr geehrte Damen und Herren)
+				return "";
+			break;
 		
 			default:
 				return "";
@@ -793,6 +910,46 @@ class Util {
 				if($perDu == true)
 					$A = "Hallo";
 			break;
+			
+			case "5": //neutral personal
+				if($shortmode) 
+					$A = $format["neutralShort"].($Adresse->A("titelPrefix") != "" ? " ".$Adresse->A("titelPrefix") : "");
+				else {
+					$A = $format["neutral"].($Adresse->A("titelPrefix") != "" ? " ".$Adresse->A("titelPrefix") : "")." ".trim($Adresse->A("vorname"))." ".trim($Adresse->A("nachname"));
+					if(trim($Adresse->A("vorname")) == "" OR trim($Adresse->A("nachname")) == "")
+						$A = $format["unknown"];
+				}
+				
+				if($perDu == true)
+					$A = trim("Hallo ".trim($Adresse->A("vorname")));
+			break;
+			
+			case "7": //neutral formal
+				if($shortmode) 
+					$A = $format["neutralFormal"].($Adresse->A("titelPrefix") != "" ? " ".$Adresse->A("titelPrefix") : "");
+				else {
+					$A = $format["neutralFormal"].($Adresse->A("titelPrefix") != "" ? " ".$Adresse->A("titelPrefix") : "")." ".trim($Adresse->A("vorname"))." ".trim($Adresse->A("nachname"));
+					if(trim($Adresse->A("nachname")) == "")
+						$A = $format["unknown"];
+				}
+				
+				if($perDu == true)
+					$A = "Hallo ".trim($Adresse->A("vorname"));
+				
+				#if($perDu == true AND $liebe == true)
+				#	$A = "Liebe ".trim($Adresse->A("vorname"));
+			break;
+		
+			case "6": //old
+				if($shortmode) 
+					$A = "";
+				else 
+					$A = $format["old"];
+				
+				if($perDu == true)
+					$A = "Hallo";
+			break;
+			
 			default:
 				if($shortmode) 
 					$A = "";
@@ -813,7 +970,11 @@ class Util {
 	}
 	
 	public static function CLCheckDate($CLDate){
-		$format = Util::getLangDateFormat(Session::getLanguage());
+		$lang = Session::getLanguage();
+		if(preg_match("/[0-9]{4}-[0-9]{2}-[0-9]{2}/", trim($CLDate))) //HTML5 DATE
+			$lang = "int_int";
+			
+		$format = Util::getLangDateFormat($lang);
 		
 		$split = explode($format[1],$CLDate);
 		$refer = explode($format[1],$format[0]);
@@ -833,6 +994,8 @@ class Util {
 	public static function formatDate($language, $timeStamp = -1, $long = false){
 		if($timeStamp == -1) $timeStamp = time();
 		$format = Util::getLangDateFormat($language);
+		
+		$timeStamp = (int) $timeStamp;
 		
 		if(!$long) $format = $format[0];
 		else $format = $format[2];
@@ -859,7 +1022,13 @@ class Util {
 
 	public static function CLDateParser($date, $l = "load"){
 		if($l == "load") return Util::formatDate($_SESSION["S"]->getUserLanguage(), $date);
-		if($l == "store") return Util::parseDate($_SESSION["S"]->getUserLanguage(), $date);
+		if($l == "store") {
+			$lang = $_SESSION["S"]->getUserLanguage();
+			if(preg_match("/[0-9]{4}-[0-9]{2}-[0-9]{2}/", trim($date))) //HTML5 DATE
+				$lang = "int_int";
+			
+			return Util::parseDate($lang, $date);
+		}
 	}
 
 	public static function CLDateTimeParser($dateTime, $l = "load"){
@@ -878,7 +1047,14 @@ class Util {
 		if($date == "0" AND $l == "load") return "";
 		if($date == "" AND $l == "store") return "0";
 		if($l == "load") return Util::formatDate($_SESSION["S"]->getUserLanguage(), $date);
-		if($l == "store") return Util::parseDate($_SESSION["S"]->getUserLanguage(), $date);
+		if($l == "store") {
+			$lang = $_SESSION["S"]->getUserLanguage();
+			
+			if(preg_match("/[0-9]{4}-[0-9]{2}-[0-9]{2}/", trim($date))) //HTML5 DATE
+				$lang = "int_int";
+			
+			return Util::parseDate($lang, $date);
+		}
 	}
 	
 	public static function CLDateParserL($date, $l = "load"){
@@ -908,10 +1084,10 @@ class Util {
 		$r = explode($format[2], $format[0]);
 		
 		return (mktime(
-			$s[array_search("H", $r)] * 1, 
-			$s[array_search("i", $r)] * 1, 
+			(float) $s[array_search("H", $r)], 
+			(float) $s[array_search("i", $r)], 
 			(isset($s[array_search("s", $r)]) ? 
-				$s[array_search("s", $r)] * 1 : 
+				(float) $s[array_search("s", $r)] : 
 				0), 
 			1, 1, 1970)
 			+ 3600) * $fak;
@@ -1015,7 +1191,7 @@ class Util {
 	public static function kRound($nummer, $stellen = 2){
 		$negative = false;
 		if($nummer < 0) $negative = true;
-		return round(abs($nummer) + 0.0000000001, $stellen) * ($negative ? -1 : 1);
+		return round(abs((float) $nummer) + 0.0000000001, $stellen) * ($negative ? -1 : 1);
 	}
 	
 	public static function getLangAnrede($languageTag = null, $lessFormal = false){
@@ -1042,9 +1218,13 @@ class Util {
 					"maleShort" => "Herr",
 					"female" => ($lessFormal ? "Hallo" : "Sehr geehrte")." Frau",
 					"femaleShort" => "Frau",
-					"unknown" => "Sehr geehrte Damen und Herren",
+					"unknown" => "Guten Tag",
 					"family" => ($lessFormal ? "Hallo" : "Sehr geehrte")." Familie",
-					"familyShort" => "Familie"
+					"familyShort" => "Familie",
+					"neutral" => "Hallo",
+					"neutralShort" => "Hallo",
+					"neutralFormal" => "Guten Tag",
+					"old" => "Sehr geehrte Damen und Herren"
 				);
 		}
 		
@@ -1276,6 +1456,9 @@ class Util {
 			case "it_IT":
 			case "es_ES":
 				return array("d/m/Y","/", "l, d. F Y");
+			break;
+			case "int_int":
+				return array("Y-m-d","-", "l, d. F Y");
 			break;
 			default:
 				return array("d.m.Y",".", "l, d. F Y");
@@ -1543,7 +1726,7 @@ class Util {
 	    return $pass;
 	}
 
-	public static function encrypt($input){
+	/*public static function encrypt($input){
 		if(!isset($_SESSION["MCryptKey"])) return null;
 		if($input == "") return "";
 		
@@ -1579,7 +1762,7 @@ class Util {
 			return Util::decrypt(base64_decode($w, true));
 		
 		return base64_encode(Util::encrypt($w));
-	}
+	}*/
 	
 	public static function PDFCurrencyParser($w, $l = "load"){
 		return Util::conv_euro(Util::CLFormatCurrency($w * 1, true));
@@ -1763,7 +1946,7 @@ class Util {
 			}
 		}
 		#else
-		$head .= 'User-Agent: phynx Version checker'."\r\n";
+		$head .= 'User-Agent: open3A Version checker'."\r\n";
 
 		
 		$head .= "X-Application: ".$_SESSION["applications"]->getActiveApplication()."\r\n";
@@ -1771,6 +1954,7 @@ class Util {
 		$head .= "X-PHPVersion: ".phpversion()."\r\n";
 		$head .= "X-UserID: ".(Session::currentUser() ? Session::currentUser()->getID() : "0")."\r\n";
 		$head .= "X-CustomerID: ".Phynx::customer()."\r\n";
+		$head .= "X-OS: ".Util::getOS()."\r\n";
 		
 		$head .= 'Connection: close'."\r\n"."\r\n";
 		
@@ -2080,7 +2264,14 @@ class Util {
 	}
 
 	public static function eK(){
-		return mUserdata::getGlobalSettingValue(implode("", array_map("chr", array(0 => 101, 1 => 110, 2 => 99, 3 => 114, 4 => 121, 5 => 112, 6 => 116, 7 => 105, 8 => 111, 9 => 110, 10 => 75, 11 => 101, 12 => 121))));
+		$d = mUserdata::getGlobalSettingValue(implode("", array_map("chr", array(0 => 101, 1 => 110, 2 => 99, 3 => 114, 4 => 121, 5 => 112, 6 => 116, 7 => 105, 8 => 111, 9 => 110, 10 => 75, 11 => 101, 12 => 121))), null);
+		
+		if($d === null){
+			$d = Util::getEncryptionKey();
+			mUserdata::setUserdataS("encryptionKey", $d, "eK", -1);
+	}
+	
+		return $d;
 	}
 	
 	public static function newObject($className){

@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 
 class mphimGUI extends anyC implements iGUIHTMLMP2 {
@@ -161,17 +161,20 @@ class mphimGUI extends anyC implements iGUIHTMLMP2 {
 			$chatUsers .= $this->chatPopup($ID);
 		}
 		
-		$BU = new Button("Benutzer", "users", "icon");
+		$BU = new Button("Benutzer", "users");
 		$BU->style("margin:10px;");
 		$BU->popup("", "Benutzer", "mphim", "-1", "usersPopup", ["'users'"]);
+		$BU->className("backgroundColor0");
 		
-		$BG = new Button("Gruppen", "./ubiquitous/phim/gruppen.svg", "icon");
-		$BG->style("margin:10px;margin-left:0;height:32px;");
+		$BG = new Button("Gruppen", "./ubiquitous/phim/gruppen.svg");
+		$BG->style("margin:10px;margin-left:0;");
 		$BG->popup("", "Gruppen", "mphim", "-1", "usersPopup", ["'groups'"]);
+		$BG->className("backgroundColor0");
 		
-		$BR = new Button("Rückfragen", "./ubiquitous/phim/callbacks.svg", "icon");
-		$BR->style("margin:10px;margin-left:0;height:32px;");
+		$BR = new Button("Rückfragen", "./ubiquitous/phim/callbacks.svg");
+		$BR->style("margin:10px;margin-left:0;");
 		$BR->popup("", "Rückfragen", "mphim", "-1", "usersPopup", ["'callbacks'"]);
+		$BR->className("backgroundColor0");
 		
 		$BNotificationsConfig = new Button("Benachrichtigungen konfigurieren", "rss", "iconicL");
 		$BNotificationsConfig->style("margin:10px;margin-left:0;height:32px;");
@@ -245,6 +248,7 @@ class mphimGUI extends anyC implements iGUIHTMLMP2 {
 			
 			.chatMessage {
 				padding:5px;
+				word-wrap: break-word;
 			}
 
 			.newMessage {
@@ -284,13 +288,14 @@ class mphimGUI extends anyC implements iGUIHTMLMP2 {
 				border-color: hotpink;
 			}
 		</style>
-		<div style=\"\">
+		<div id=\"phimNav\" class=\"backgroundColor4\" style=\"\">
 			$BU$BG$BR$BEmoji$BNotificationsConfig
 			$chatUsers$chatGroups
 		</div>
+		<div id=\"spacer\"></div>
 		<div id=\"offlineOverlay\" style=\"background-color:rgba(0,0,0,.7);color:white;z-index:10000;position:absolute;top:0;left:0;\"></div>";
 		
-		return $content;
+		return $content.OnEvent::script("\$j(function(){ \$j('#spacer').css('height', contentManager.maxHeight() - 60); });");
 	}
 	
 	public function emojisPopup(){
@@ -389,10 +394,17 @@ class mphimGUI extends anyC implements iGUIHTMLMP2 {
 			$name = $G->A("phimGruppeName");
 			
 			if($G->A("phimGruppeClassName") == "DBMail"){
+				$BRA = "";
+				if(Session::isPluginLoaded("mAufgabe")){
+					$BRA = new Button("Aufgabe erstellen", "./ubiquitous/Aufgaben/Aufgabe.png", "icon");
+					$BRA->style("float:right;margin-left:10px;");
+					$BRA->editInPopup("Aufgabe", "-1", "Aufgabe erstellen", "AufgabeGUI;DBMailID:".$G->A("phimGruppeClassID"));
+				}
+				
 				$BRC = new Button("Erledigt", "bestaetigung", "icon");
 				$BRC->style("float:right;margin-left:10px;");
 				$BRC->className("backgroundColor2");
-				$BRC->rmePCR("mphim", -1, "callbackClose", [$GID], "\$j('#chatWindow".$target."').hide();");
+				$BRC->rmePCR("mphim", -1, "callbackClose", [$GID], "\$j('#chatText".$target." .highlight').removeClass('highlight'); phimChat.updateUnread(); phimChat.hideWindow('$target');");
 
 				$Mail = new DBMail($G->A("phimGruppeClassID"));
 
@@ -406,7 +418,7 @@ class mphimGUI extends anyC implements iGUIHTMLMP2 {
 				if($Mail->A("DBMailAnswered"))
 					$BAnswer->className ("confirm");
 				
-				$about = "<div class=\"backgroundColor2\" style=\"padding:5px;height:32px;\">$BShow$BAnswer$BRC E-Mail von<br>".$Mail->A("DBMailFromName")."</div>";
+				$about = "<div class=\"backgroundColor2\" style=\"padding:5px;\">$BShow$BAnswer$BRC$BRA <div style=\"line-height: 1.4em;height:2.8em;overflow:hidden;\">".$Mail->A("DBMailFromName")."</div></div>";
 			}	
 			
 			$ACS = anyC::get("phim");
@@ -415,7 +427,7 @@ class mphimGUI extends anyC implements iGUIHTMLMP2 {
 			$ACS->addOrderV3("phimID", "DESC");
 			$ACS->setLimitV3(50);
 			while($M = $ACS->n())
-				$content = "<div class=\"chatMessage ".(($M->A("phimFromUserID") != Session::currentUser()->getID() AND strpos($M->A("phimReadBy"), ";".Session::currentUser()->getID().";") === false) ? "highlight" : "")."\"><span class=\"time\">".Util::CLDateTimeParser($M->A("phimTime"))."</span><span class=\"username\">".$Users[$M->A("phimFromUserID")].": </span>".$M->A("phimMessage")."</div>".$content;
+				$content = "<div class=\"chatMessage ".(($M->A("phimFromUserID") != Session::currentUser()->getID() AND strpos($M->A("phimReadBy"), ";".Session::currentUser()->getID().":") === false) ? "highlight" : "")."\"><span class=\"time\">".Util::CLDateTimeParser($M->A("phimTime"))."</span><span class=\"username\">".$Users[$M->A("phimFromUserID")].": </span>".$M->A("phimMessage")."</div>".$content;
 
 			if($unhide){
 				$G->changeA("phimGruppeClosed", str_replace(";".Session::currentUser()->getID().";", "", $G->A("phimGruppeClosed")));
@@ -457,20 +469,24 @@ class mphimGUI extends anyC implements iGUIHTMLMP2 {
 
 		$BC = new Button("Fenster schließen", "x", "iconic");
 		$BC->style("float:right;");
-		$BC->rmePCR("mphim", "-1", "windowStatus", ["'$target'", "'hidden'"], "function(){ \$j('#chatWindow".$target."').hide(); }");
+		$BC->onclick("phimChat.hideWindow('$target');");
 			
 			
-		$content = "<div style=\"width:400px;".mUserdata::getUDValueS("chatWindowPosition".$target, "").(mUserdata::getUDValueS("chatWindow".$target) == "hidden" ? "display:none;" : "")."\" id=\"chatWindow".$target."\" class=\"chatWindow popup\" style=\"\">
+		$content = "<div style=\"width:400px;".mUserdata::getUDValueS("chatWindowPosition".$target, "right:20px;top:70px;").(mUserdata::getUDValueS("chatWindow".$target) == "hidden" ? "display:none;" : "")."\" id=\"chatWindow".$target."\" class=\"chatWindow popup\" style=\"\">
 				<div class=\"chatHeader backgroundColor1\">$BOn$BOff$BC".$name."<div style=\"clear:both;\"></div></div>
 				$about
 				<div class=\"chatContent\" style=\"".(!$about ? "height:calc(320px + 32px + 10px);" : "")."\" id=\"chatText".$target."\">$content</div>
 				$I
 			</div>";
 		
-		if($echo)
-			echo $content;
+		$js = "\$j(function(){ phimChat.updateUnread(); phimChat.scroll('chatText".$target."');});";
 		
-		return $content.OnEvent::script("\$j(function(){ phimChat.scroll('chatText".$target."');}); emojiPicker.init('newMessageTA$target');");
+		if($echo)
+			echo $content.OnEvent::script($js);
+		
+		$js .= "emojiPicker.init('newMessageTA$target');";
+		
+		return $content.OnEvent::script($js);
 	}
 	
 	public function callbackClose($GID){
@@ -478,15 +494,13 @@ class mphimGUI extends anyC implements iGUIHTMLMP2 {
 		$G->changeA("phimGruppeClosed", $G->A("phimGruppeClosed").";".Session::currentUser()->getID().";");
 		$G->saveMe();
 		
-		$this->windowStatus("g$GID", "hidden");
+		#$this->windowStatus("g$GID", "hidden");
+
+		phim::setReadS("g$GID");
 	}
 	
 	public function usersPopup($target){
 		$Users = Users::getUsersArray();
-		
-		$B = new Button("Neue Nachricht", "star", "iconic");
-		$B->style("color:orange;float:right;margin-top:-3px;");
-		$B->className("newMessage");
 		
 		$hidden = $this->hiddenUsers();
 		
@@ -495,6 +509,7 @@ class mphimGUI extends anyC implements iGUIHTMLMP2 {
 		$L->addListStyle("overflow:auto;box-sizing:border-box;padding:3px;");
 		#$L->addListClass("backgroundColor2");
 		$L->noDots();
+		$L->maxHeight(400);
 		
 		if($target == "groups" OR $target == "callbacks"){
 			$AC = anyC::get("phimGruppe");
@@ -504,7 +519,23 @@ class mphimGUI extends anyC implements iGUIHTMLMP2 {
 				$AC->addAssocV3("phimGruppeClassName", "!=", "");
 			else
 				$AC->addAssocV3("phimGruppeClassName", "=", "");
+			
+			if($target == "callbacks"){
+				$AC->addOrderV3("phimGruppeID", "DESC");
+				$AC->setLimitV3(30);
+			}
+			
 			while($G = $AC->n()){
+				$B = new Button("Neue Nachricht", "star", "iconic");
+				$B->style("color:orange;float:right;margin-top:-3px;");
+		
+				$ACS = anyC::get("phim", "phimphimGruppeID", $G->getID());
+				$ACS->addAssocV3("phimFromUserID", "!=", Session::currentUser()->getID());
+				$ACS->addAssocV3("INSTR(phimReadBy, ';".Session::currentUser()->getID().":')", "=", "0");
+				$num = $ACS->getTotalNum();
+				if($num == 0)
+					$B = "";
+				
 				$L->addItem($B.$G->A("phimGruppeName"));
 				$L->addItemEvent("onclick", "phimChat.openWindow('g".$G->getID()."');");#.OnEvent::rme($this, "windowStatus", ["'g".$G->getID()."'", "'visible'"]));
 				$L->addItemStyle("cursor:pointer;margin-left:0;padding:5px;");
@@ -522,7 +553,8 @@ class mphimGUI extends anyC implements iGUIHTMLMP2 {
 					continue;
 
 				$L->addItem($B.$U);
-				$L->addItemEvent("onclick", OnEvent::rme("phim", "setRead", $ID)."\$j(this).removeClass('highlight'); \$j('#chatWindow$ID').show(); phimChat.scroll('chatText$ID'); \$j('#userList .backgroundColor0').removeClass('backgroundColor0'); \$j(this).addClass('backgroundColor0');".OnEvent::rme($this, "windowStatus", ["'$ID'", "'visible'"]));
+				$L->addItemEvent("onclick", "phimChat.openWindow($ID);");
+				#$L->addItemEvent("onclick", OnEvent::rme("phim", "setRead", $ID)."\$j(this).removeClass('highlight'); \$j('#chatWindow$ID').show(); phimChat.scroll('chatText$ID'); \$j('#userList .backgroundColor0').removeClass('backgroundColor0'); \$j(this).addClass('backgroundColor0');".OnEvent::rme($this, "windowStatus", ["'$ID'", "'visible'"]));
 				$L->addItemStyle("cursor:pointer;margin-left:0;padding:5px;");
 				$L->setItemID("user$ID");
 			}

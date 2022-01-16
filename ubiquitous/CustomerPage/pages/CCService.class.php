@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 
 ini_set('session.gc_maxlifetime', 24 * 60 * 60);
@@ -24,8 +24,13 @@ require_once __DIR__.'/CCAuftrag.class.php';
 class CCService extends CCAuftrag implements iCustomContent {
 	function __construct() {
 		parent::__construct();
-		$this->loadPlugin("open3A", "Niederlassungen", true);
-		#$this->loadPlugin("ubiquitous", "Ansprechpartner", true);
+		try {
+			$this->loadPlugin("open3A", "Niederlassungen", true);
+			$this->loadPlugin("open3A", "Service");
+			$this->loadPlugin("lightCRM", "Projekt", true);
+		} catch (Exception $e){
+			
+		}
 		#$this->showPosten = false;
 		$this->showPrices = false;
 		$this->showSignature = true;
@@ -35,6 +40,9 @@ class CCService extends CCAuftrag implements iCustomContent {
 	}
 	
 	function getLabel(){
+		if(!Session::isPluginLoaded("mGRLBMService"))
+			return null;
+		
 		return "Service";
 	}
 	
@@ -65,6 +73,11 @@ class CCService extends CCAuftrag implements iCustomContent {
 		$IOK->onclick("$('#frameSelect').show(); $('#frameEdit').hide(); ");
 		$IOK->style("margin-top:0px;float:right;margin-right:20px;");
 
+		try {
+			$services = $this->getService(array());
+		} catch (FieldDoesNotExistException $e) {
+			echo $e->getField();
+		}
 		
 		return "
 		<div style=\"max-width:1200px;\">
@@ -80,7 +93,7 @@ class CCService extends CCAuftrag implements iCustomContent {
 				<div style=\"display:inline-block;width:100%;vertical-align:top;\" id=\"contentScreen\">
 					<h1>{$BRL}{$BRA}{$BRC}Service-Berichte</h1>
 					<div class=\"content\" style=\"overflow:auto;\">
-						".$this->getService(array())."
+						".$services."
 					</div>
 				</div>
 			</div>
@@ -162,7 +175,7 @@ class CCService extends CCAuftrag implements iCustomContent {
 			return "TIMEOUT";
 
 		$html = "";
-		
+		$showAnyway = explode(",", BPS::getProperty("CCService", "showAnyway", "-1"));
 		
 		$T = new HTMLTable(5);
 		$T->setTableStyle("width:100%;margin-top:10px;");
@@ -179,18 +192,27 @@ class CCService extends CCAuftrag implements iCustomContent {
 		$AC->addAssocV3("isEMailed", "=", "0");
 		$AC->addAssocV3("isPixelLetteredTime", "=", "0");
 		
-		
-		#$AC->addAssocV3("status", "=", "delivered");
-		$AC->addAssocV3("GRLBMServiceMitarbeiter", "=", Session::currentUser()->getID(), "AND", "2");
-		$AC->addAssocV3("GRLBMServiceMitarbeiter2", "=", Session::currentUser()->getID(), "OR", "2");
-		$AC->addAssocV3("GRLBMServiceMitarbeiter3", "=", Session::currentUser()->getID(), "OR", "2");
-		$AC->addAssocV3("GRLBMServiceMitarbeiter4", "=", Session::currentUser()->getID(), "OR", "2");
-		$AC->addOrderV3("datum", "DESC");
+		$AC->addAssocV3("status", "=", "worked", "AND", "2");
+		if(count($showAnyway))
+			$AC->addAssocV3("GRLBMID", "IN", "(".implode(",", $showAnyway).")", "OR", "2");
+		if(Session::isPluginLoaded("mProjekt"))
+			$AC->addJoinV3("Projekt", "t2.ProjektID", "=", "ProjektID");
+		##$AC->addAssocV3("GRLBMServiceMitarbeiter", "=", Session::currentUser()->getID(), "AND", "2");
+		##$AC->addAssocV3("GRLBMServiceMitarbeiter2", "=", Session::currentUser()->getID(), "OR", "2");
+		##$AC->addAssocV3("GRLBMServiceMitarbeiter3", "=", Session::currentUser()->getID(), "OR", "2");
+		##$AC->addAssocV3("GRLBMServiceMitarbeiter4", "=", Session::currentUser()->getID(), "OR", "2");
+		##$AC->addOrderV3("datum", "DESC");
 		#$AC->addOrderV3("nummer", "DESC");
 		#$AC->setLimitV3(100);
 		#$AC->addJoinV3("Adresse", "t2.AdresseID", "=", "AdresseID");
 		$i = 0;
 		while($B = $AC->n()){
+			if($B->A("GRLBMServiceMitarbeiter") != Session::currentUser()->getID() AND
+				$B->A("GRLBMServiceMitarbeiter2") != Session::currentUser()->getID() AND
+				$B->A("GRLBMServiceMitarbeiter3") != Session::currentUser()->getID() AND
+				$B->A("GRLBMServiceMitarbeiter4") != Session::currentUser()->getID())
+				continue;
+			
 			$BPDF = new Button("Service");
 			$BPDF->className("submitFormButton");
 			$BPDF->style("background-color:#DDD;color:grey;width:150px;");
@@ -232,7 +254,7 @@ class CCService extends CCAuftrag implements iCustomContent {
 			}
 			
 			$T->addRow(array(
-				"<span style=\"font-size:20px;font-weight:bold;\">".$B->A("prefix").$B->A("nummer")."</span><br><span style=\"color:grey;\">".Util::CLDateParser($B->A("datum"))."</span>", 
+				"<span style=\"font-size:20px;font-weight:bold;\">".$B->A("prefix").$B->A("nummer")."</span><br><span style=\"color:grey;\">".Util::CLDateParser($B->A("datum"))."".($B->A("ProjektID") != "0" ? "<br>".$B->A("ProjektName") : "")."</span>", 
 				$Adresse->getHTMLFormattedAddress(),
 				"",
 				$BPDF.$BI,
@@ -287,10 +309,15 @@ class CCService extends CCAuftrag implements iCustomContent {
 		$RID = $Auftrag->createGRLBM("R", true);
 		$R = new GRLBM($RID);
 		$R->copyPostenFrom($data["GRLBMID"]);
+		
+		$showAnyway = explode(",", BPS::getProperty("CCService", "showAnyway", "0"));
+		$showAnyway[] = $data["GRLBMID"];
+		
+		BPS::setProperty("CCService", "showAnyway", implode(",", $showAnyway));
 	}
 	
 	public function calcHours($data){
-		$C = new CustomizerBelegServiceGUI();
+		$C = new GRLBMServiceGUI(-1);
 		$C->calcHours($data["P0"], $data["P1"], $data["P2"]);
 	}
 	
@@ -305,7 +332,7 @@ class CCService extends CCAuftrag implements iCustomContent {
 			if($i  == 1)
 				$p = "";
 			
-			if($Beleg->A("GRLBMServiceMitarbeiter$p") == 0)
+			if($Beleg->A("GRLBMServiceMitarbeiter$p") == 0 OR trim($Beleg->A("GRLBMServiceMitarbeiter$p")) == "")
 				continue;
 			
 			$U = new User($Beleg->A("GRLBMServiceMitarbeiter$p"));
@@ -373,7 +400,7 @@ class CCService extends CCAuftrag implements iCustomContent {
 			if($i  == 1)
 				$p = "";
 			
-			if($Beleg->A("GRLBMServiceMitarbeiter$p") != 0)
+			if($Beleg->A("GRLBMServiceMitarbeiter$p") != 0 AND trim($Beleg->A("GRLBMServiceMitarbeiter$p")) != "")
 				continue;
 			
 			$Beleg->changeA("GRLBMServiceMitarbeiter$p", $data["P1"]);

@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 class mInstallation extends anyC {
 	private $folder = "./system/DBData/";
@@ -33,25 +33,23 @@ class mInstallation extends anyC {
 
 	public function setupAllTables($echo = 0){
 		$return = array();
-		if(file_exists(Util::getRootPath()."system/CI.pfdb.php")){
+		if(file_exists(Util::getRootPath()."system/mysql.sql")){
 			$return["all"] = "Using fast setup mode...";
 			
 			$DBG = new DBStorage();
 			$C = $DBG->getConnection();
 			
-			$DB = new PhpFileDB();
-			$DB->setFolder(Util::getRootPath()."system/");
-			$Q = $DB->pfdbQuery("SELECT * FROM CI");
-			while($R = $DB->pfdbFetchAssoc($Q)){
-				if(!trim($R["MySQL"]))
+			$tables = file_get_contents(Util::getRootPath()."system/mysql.sql");
+			foreach(explode("-- END", $tables) AS $sql){
+				if(!trim($sql))
 					continue;
 				
 				$CIA = new stdClass();
-				$CIA->MySQL = $R["MySQL"];
+				$CIA->MySQL = trim($sql);
 				
 				$DBG->createTable($CIA);
 				
-				$return[] = $R["MySQL"];
+				$return[] = trim($sql);
 			}
 			
 			mUserdata::setUserdataS("DBVersion", Phynx::build(), "", -1);
@@ -122,6 +120,8 @@ class mInstallation extends anyC {
 		foreach($apps AS $app){
 			$AP = $_SESSION["CurrentAppPlugins"] = new AppPlugins($app);
 			$AP->scanPlugins("plugins");
+			if(file_exists(Util::getRootPath()."customer"))
+				$AP->scanPlugins("customer");
 			$p = array_flip($AP->getAllPlugins());
 			#Applications::i()->setActiveApplication($app); //or the autoloader won't work; yes, it does because of addClassPath later on
 

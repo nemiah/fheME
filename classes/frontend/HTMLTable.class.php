@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 class HTMLTable extends UnifiedTable implements iUnifiedTable  {
 	private $colStyles = array();
@@ -48,9 +48,16 @@ class HTMLTable extends UnifiedTable implements iUnifiedTable  {
 		$this->caption = $caption;
 	}
 	
-	function sortable($saveTo, $handleClass){
+	function getTableID(){
+		return $this->tableID;
+	}
+	
+	function sortable($saveTo, $handleClass, $additionalParameters = array(), $onUpdateComplete = "", $serialize = null){
 		if($this->tableID == null)
 			$this->tableID = "RNDTable".rand (1, 99999999);
+		
+		$onUpdate = "var newOrder = \$j(%TARGET%).sortable('serialize', {expression: ".($serialize == null ? "/([a-zA-Z]+)_([0-9]+)/" : $serialize)."}).replace(/\[\]=/g, '').replace(/&/g, ';')".($serialize == null ? ".replace(/[a-zA-Z]*/g, '')" : "").";
+					".OnEvent::rme($saveTo, "saveOrder", array_merge(array("newOrder"), $additionalParameters), $onUpdateComplete);
 		
 		$this->appendJS = "\$j('#$this->tableID tbody').sortable({
 				helper: function(e, ui) {
@@ -61,12 +68,13 @@ class HTMLTable extends UnifiedTable implements iUnifiedTable  {
 					return ui;
 				},
 				update: function(){
-					var newOrder = \$j(this).sortable('serialize', {expression: /([a-zA-Z]+)_([0-9]+)/}).replace(/\[\]=/g, '').replace(/&/g, ';').replace(/[a-zA-Z]*/g, '');
-					contentManager.rmePCR('$saveTo', '-1', 'saveOrder', newOrder);
+					".str_replace("%TARGET%", "this", $onUpdate)."
 				},
 				axis: 'y'".($handleClass != null ? ",
 				handle: \$j('.$handleClass')" : "")."
 			});";
+		
+		return $onUpdate;
 	}
 	
 	/**
@@ -362,13 +370,14 @@ class HTMLTable extends UnifiedTable implements iUnifiedTable  {
 			<thead>
 			<tr ".(isset($this->rowClasses[-1]) ? "class=\"".$this->rowClasses[-1]."\"" : "").">";
 			
-			foreach($this->header as $K => $V){
+			foreach($this->header AS $K => $V){
 				if($this->colOrder != null AND isset($this->colOrder[$K]))
 					$j = $this->colOrder[$K] - 1;
-				else $j = $K;
+				else 
+					$j = $K;
 				
 				#$style = "";
-				$style = (isset($this->colStyles[$j+1]) ? $this->colStyles[$j+1] : "");
+				$style = (isset($this->colStyles[(int) $j+1]) ? $this->colStyles[(int) $j+1] : "");
 				#if(isset($this->cellStyles[$K][$j+1])) $style .= $this->cellStyles[$K][$j+1];
 				
 				if($style != "") $style = "style=\"$style\"";

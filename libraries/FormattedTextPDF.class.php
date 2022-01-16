@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 
 class FormattedTextPDF extends FPDI {
@@ -50,13 +50,20 @@ class FormattedTextPDF extends FPDI {
 	private function translateXML($xml){
 		$dom = dom_import_simplexml($xml);
 		
-		#if($this->alignStack[count($this->alignStack) - 1] == "center")
-		#	$this->SetXY($this->GetStringWidth($xml.""), $this->GetY());
 
 		foreach($dom->childNodes as $child){
 			if($child->nodeType == XML_TEXT_NODE){
 				$this->inHTML = $this->getFont();
-				$this->Write($this->heightStack[count($this->heightStack) - 1] / $this->heightFactor, utf8_decode($child->nodeValue));
+				if($this->alignStack[count($this->alignStack) - 1] == "center"){
+					#$this->SetXY($this->GetStringWidth($xml.""), $this->GetY());
+					#echo "<pre>".htmlentities($child->nodeValue)."</pre>";
+					#die();
+					$this->MultiCell8(0, $this->heightStack[count($this->heightStack) - 1] / $this->heightFactor, trim($child->nodeValue), 0, "C", false, 0);
+					$this->paragraph = 0;
+					array_pop($this->alignStack);
+				}
+				else
+					$this->Write($this->lineHeight(), utf8_decode($child->nodeValue));
 				$this->inHTML = false;
 				#$this->Write(5, utf8_decode($child->nodeValue));
 			} else {
@@ -66,15 +73,33 @@ class FormattedTextPDF extends FPDI {
 				$this->endTag($p);
 			}
 		}
+		#die();
 	}
 
+	protected function lineHeight(){
+		return $this->heightStack[count($this->heightStack) - 1] / $this->heightFactor;
+	}
+	
 	protected function getFont(){
 		return array($this->FontFamily, $this->FontStyle, $this->FontSizePt);
 	}
 	
+	function px2mm($px){
+		return $px*25.4/72;
+	}
 	private function startTag($xml){
 		if($xml == null)
 			return;
+		
+		if($xml->getName() == "ul"){
+			array_push($this->heightStack, $this->findMaxStyle("font-size", $xml));
+			$this->heightStack[0] = $this->heightStack[count($this->heightStack) - 1];
+		}
+		
+		if($xml->getName() == "li"){
+			$this->Ln($this->lineHeight());
+            $this->Write($this->lineHeight(),'  '. chr(149)." ");
+		}
 		
 		if($xml->getName() == "p"){
 			if($this->paragraph > 0)
@@ -90,6 +115,34 @@ class FormattedTextPDF extends FPDI {
 			$this->Ln($this->FontLnH[$m[0][0]]);
 			array_push($this->styleStack, $this->FontDecoH[$m[0][0]]);
 			array_push($this->sizeStack, $this->FontSizeH[$m[0][0]]);
+		}
+
+		if($xml->getName() == "img" AND isset($xml->attributes()["src"])) {
+			$src = $xml->attributes()["src"];
+			
+			$id = substr($src, strpos($src, "&id=") + 4);
+			
+			$im = imagecreatefromstring(DBImageGUI::getDataByID($id));
+			$width = imagesx($im);
+			if(isset($xml->attributes()["width"]))
+				$width = $xml->attributes()["width"];
+			
+			$height = imagesy($im);
+			if(isset($xml->attributes()["height"]))
+				$height = $xml->attributes()["height"];
+			
+			$pos = "left";
+			if(isset($xml->attributes()["style"]) AND strpos($xml->attributes()["style"], "margin-left: auto;") AND strpos($xml->attributes()["style"], "margin-right: auto;"))
+				$pos = "center";
+
+			if($this->GetY() + $this->px2mm($height) > $this->h - $this->bMargin)
+				$this->AddPage();
+			
+			$this->ImageGD($im, ($pos == "center" ? ($this->w / 2 - $this->px2mm($width) / 2) : $this->GetX()), $this->GetY(), $this->px2mm($width), $this->px2mm($height));
+			$this->Cell($this->px2mm($width), $this->px2mm($height), "", 0, 1);
+			$this->paragraph = 0;
+			
+			return;
 		}
 
 		if($xml->getName() == "strong")
@@ -157,6 +210,8 @@ class FormattedTextPDF extends FPDI {
 			return;
 		
 		if($xml->getName() == "br"){
+			if($this->alignStack[count($this->alignStack) - 1] == "center")
+				return;
 			#print_r($this->heightStack);
 			#die($this->heightStack[count($this->heightStack) - 1] * 0.5);
 			$this->ln($this->heightStack[count($this->heightStack) - 1] * 0.5);
@@ -164,6 +219,11 @@ class FormattedTextPDF extends FPDI {
 		}
 		
 		if($xml->getName() == "p"){
+			$this->ln($this->heightStack[count($this->heightStack) - 1] * 0.4);
+			array_pop($this->heightStack);
+		}
+		
+		if($xml->getName() == "ul"){
 			$this->ln($this->heightStack[count($this->heightStack) - 1] * 0.4);
 			array_pop($this->heightStack);
 		}

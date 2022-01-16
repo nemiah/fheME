@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 
 var Interface = {
@@ -27,6 +27,7 @@ var Interface = {
 	BroadcastChannel: null,
 	locale: 'de_DE',
 	application: null,
+	applicationLabel: null,
 	
 	mobile: function(){
 		return $j(window).width() <= Interface.mobileMaxWidth;
@@ -64,6 +65,7 @@ var Interface = {
 			contentManager.layout = transport.responseData.layout;
 			$j('#interfaceLayout').prop('href', "./styles/standard/"+transport.responseData.layout+".css");
 			$j('#interfaceColors').prop('href', "./styles/"+transport.responseData.colors+"/colors.css");
+			$j('#interfaceHighContrast').prop('href', transport.responseData.highContrast);
 			
 			Interface.resizeWrapper();
 			
@@ -226,6 +228,24 @@ var Interface = {
 		
 		if($(plugin+'MenuEntry'))
 			Menu.setHighLight($(plugin+'MenuEntry'));
+	},
+	
+	history: function(plugin, id = null){
+		return; //disabled automatic generation for now because dashboard is not shown
+		
+		if(plugin === null && id !== null){
+			var t = window.location.search.substring(2).split(",");
+			t[2] = id;
+			history.replaceState(null, null, './?:'+t.join(","));
+			return;
+		}
+		
+		if(id === null) {
+			history.replaceState(null, null, './?:'+Interface.applicationLabel+','+plugin);
+			return;
+		}
+		
+		history.replaceState(null, null, './?:'+Interface.applicationLabel+','+plugin+','+id);
 	}
 
 }

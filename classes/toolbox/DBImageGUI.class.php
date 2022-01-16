@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 
 class DBImageGUI implements iGUIHTML2  {
@@ -25,7 +25,7 @@ class DBImageGUI implements iGUIHTML2  {
 		$this->image = $image;
 	}
 	
-	public static function resizeMax($imageData, $max_width, $max_height, $format = "png"){
+	public static function resizeMax($imageData, $max_width, $max_height, $format = "png", $whiteBG = false){
 		$image = imagecreatefromstring($imageData);
 		
 		if(!$max_height)
@@ -47,18 +47,24 @@ class DBImageGUI implements iGUIHTML2  {
 		   $height = floor($width/$ratio_orig);
 		
 		$tempimg = imagecreatetruecolor($width, $height);
-		imagealphablending($tempimg, false);
-		imagesavealpha($tempimg, true);
-		$transparent = imagecolorallocatealpha($tempimg, 255, 255, 255, 127);
+		#imagecolortransparent($tempimg, imagecolorallocatealpha($tempimg, 255, 255, 255, 127));
+		if(!$whiteBG){
+			imagealphablending($tempimg, false);
+			imagesavealpha($tempimg, true);
+			$transparent = imagecolorallocatealpha($tempimg, 255, 255, 255, 127);
+		}
+		else
+			$transparent = imagecolorallocate($tempimg, 255, 255, 255);
 		imagefilledrectangle($tempimg, 0, 0, $width, $height, $transparent);
-		
+		#imagecopy($tempimg, $image, 0, 0, 0, 0, 400, 400);
 		imagecopyresampled($tempimg, $image, 0, 0, 0, 0, $width, $height, $width_orig, $height_orig);
+		#imagecopyresized($tempimg, $image, 0, 0, 0, 0, $width, $height, $width_orig, $height_orig);
 		
 		ob_start();
 		if($format == "png")
 			imagepng($tempimg);
 		if($format == "jpg")
-			imagejpeg ($tempimg);
+			imagejpeg ($tempimg, null, 90);
 		$image_contents = ob_get_contents();
         ob_end_clean();
 
@@ -69,13 +75,13 @@ class DBImageGUI implements iGUIHTML2  {
 		return $mimeType.":::".filesize($path).":::".base64_encode(addslashes(file_get_contents($path)));
 	}
 	
-	public static function stringifyS($mimeType, $path, $maxWidth = null, $maxHeight = null, $resizeFormat = "png"){
+	public static function stringifyS($mimeType, $path, $maxWidth = null, $maxHeight = null, $resizeFormat = "png", $whiteBG = false){
 		$imageData = file_get_contents($path);
 		$size = filesize($path);
 		
 		if($maxWidth != null){
 			$mimeType = "image/$resizeFormat";
-			$imageData = self::resizeMax($imageData, $maxWidth, $maxHeight, $resizeFormat);
+			$imageData = self::resizeMax($imageData, $maxWidth, $maxHeight, $resizeFormat, $whiteBG);
 			$size = strlen($imageData);
 		}
 		
@@ -146,6 +152,26 @@ class DBImageGUI implements iGUIHTML2  {
 		if(!isset($i[1])) return;
 		if(!isset($i[2])) return;
 		
+		return stripslashes(base64_decode($i[2]));
+	}
+	
+	static function getDataByID($id){
+		if($id == "" OR $id == -1)
+			$this->showError("No data available!");
+
+		$d = explode(":::",$id);
+
+		$C = $d[0];
+		$C = new $C($d[1]);
+		$C->loadMe();
+		$a = $d[2];
+		$i = $C->A($a);
+
+		$i = explode(":::",$i);
+		if(!isset($i[0])) return;
+		if(!isset($i[1])) return;
+		if(!isset($i[2])) return;
+
 		return stripslashes(base64_decode($i[2]));
 	}
 	

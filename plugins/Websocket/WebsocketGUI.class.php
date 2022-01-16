@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 class WebsocketGUI extends Websocket implements iGUIHTML2 {
 	
@@ -46,6 +46,25 @@ class WebsocketGUI extends Websocket implements iGUIHTML2 {
 		$gui->space("WebsocketRealm");
 		
 		return $gui->getEditHTML();
+	}
+	
+	public function getServerData(){
+		$data = new stdClass();
+		
+		$data->server = "none";
+		$data->realm = "";
+		$data->token = "";
+		$data->instance = Util::eK();
+		try {
+			$S = anyC::getFirst("Websocket", "WebsocketUseFor", "phim");
+			if($S){
+				$data->server = "ws".($S->A("WebsocketSecure") ? "s" : "")."://".$S->A("WebsocketServer").":".$S->A("WebsocketServerPort")."/";
+				$data->realm = $S->A("WebsocketRealm");
+				$data->token = $S->A("WebsocketToken");
+			}
+		} catch (Exception $e){ }
+		
+		echo json_encode($data, JSON_UNESCAPED_UNICODE);
 	}
 }
 ?>

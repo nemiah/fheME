@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 class GUIFactory {
 
@@ -36,7 +36,7 @@ class GUIFactory {
 
 	private $functionNew = "contentManager.backupFrame('contentLeft','lastPage'); contentManager.newClassButton('%CLASSNAME',  function(transport){ /*ADD*/ }, 'contentLeft', '%CLASSNAMEGUI;edit:ok');";
 	private $functionDelete = "deleteClass('%CLASSNAME','%CLASSID', function() { contentManager.reloadFrame('%TARGETFRAME'); /*ADD*/ },'Eintrag wirklich löschen?');";
-	private $functionEdit = "contentManager.loadFrame('contentLeft','%CLASSNAME', '%CLASSID', '0');";
+	private $functionEdit = "contentManager.loadFrame('%TARGETFRAME','%CLASSNAME', '%CLASSID', '0');";
 	private $functionSelect;
 	private $functionAbort;
 
@@ -180,9 +180,14 @@ class GUIFactory {
 	}
 
     public function getEditButton(){
+		$targetFrame = "contentLeft";
+		
+		#if($this->targetFrame != null)
+		#	$targetFrame = $this->targetFrame;
+		
 		$B = $this->getButton("Eintrag bearbeiten", "./images/i2/edit.png", "icon");
 		$B->className("editButton");
-		$B->onclick("if(typeof contentManager.selectRow == 'function') contentManager.selectRow(this); ".str_replace(array("%COLLECTIONNAME","%CLASSNAME", "%CLASSID"), array($this->collectionName,$this->className, $this->classID), $this->functionEdit));
+		$B->onclick("if(typeof contentManager.selectRow == 'function') contentManager.selectRow(this); ".str_replace(array("%COLLECTIONNAME","%CLASSNAME", "%CLASSID", "%TARGETFRAME"), array($this->collectionName,$this->className, $this->classID, $targetFrame), $this->functionEdit));
 
 		return $B;
 	}
@@ -282,7 +287,6 @@ class GUIFactory {
 			$do = OnEvent::reloadPopup($this->collectionName);
 		
 		$I = new HTMLInput("quickFilter", "text", mUserdata::getUDValueS("searchFilterInHTMLGUI".$this->collectionName));
-		#$I->hasFocusEvent(true);
 		$I->id("quickFilter$this->collectionName");
 		$I->onEnter(OnEvent::rme(new HTMLGUI(-1), "saveContextMenu", array("'searchFilter'","'$this->collectionName;:;'+$('quickFilter$this->collectionName').value"), $do));
 		#$I->onkeyup("AC.update(event.keyCode, this, '$this->collectionName','quickSearchLoadFrame');");
@@ -296,7 +300,6 @@ class GUIFactory {
 
 	public function getQuicksearchInput(){
 		$I = new HTMLInput("quickSearch", "text", "");
-		#$I->hasFocusEvent(true);
 		$I->id("quickSearch$this->collectionName");
 		$I->onkeyup("AC.update(event.keyCode, this, '$this->collectionName','quickSearchLoadFrame');");
 		$I->autocompleteBrowser(false);
@@ -569,7 +572,6 @@ class GUIFactory {
 		#$I = new HTMLInput("targetPage", "text", $this->multiPageDetails["page"] + 1);
 		#$I->onEnter("javascript:contentManager.loadPage('".$this->multiPageDetails["target"]."', this.value - 1);");
 		#$I->style("width: 30px; float: right; text-align: right;");
-		#$I->hasFocusEvent(true);
 
 		$wholeLine2 = $this->getPageBrowser();
 		if($where == "bottom"){

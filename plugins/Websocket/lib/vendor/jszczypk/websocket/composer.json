@@ -1,0 +1,43 @@
+{
+  "name": "jszczypk/websocket",
+  "description": "WebSocket client library",
+  "type": "library",
+  "keywords": [ "websocket" ],
+  "license": "LGPL-3.0-or-later",
+  "authors": [
+    {
+      "name": "Janusz Szczypka",
+      "email": "janusz@smartb2b.eu",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "php": ">=7.2.0"
+  },
+  "require-dev": {
+    "phan/phan": "^2.2",
+    "squizlabs/php_codesniffer": "^3.4"
+  },
+  "autoload": {
+    "psr-4": {
+      "JSzczypk\\WebSocket\\": "src/"
+    }
+  },
+  "archive": {
+    "exclude": [
+      ".phan/",
+      "vendor/",
+      ".gitignore"
+    ]
+  },
+  "scripts": {
+      "test": [
+	"composer validate",
+	"vendor/bin/phan",
+	"vendor/bin/phpcs --standard=PSR2 --warning-severity=0 src"
+      ],
+      "fix": [
+	"vendor/bin/phpcbf --standard=PSR2 src"
+      ]
+  }
+}

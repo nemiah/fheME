@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 
 mouseIsOver = new Array();
@@ -81,7 +81,13 @@ var Menu = {
 				Menu.setHighLight($('morePluginsMenuEntry'));
 			}
 
-			if(typeof Util.querySt('plugin') != 'undefined'){
+			//window.location.search
+			if(window.location.search.substring(0, 2) === "?:"){
+				var t = window.location.search.substring(2).split(",");
+				$j("#"+contentManager.toReal(t[1])+'MenuEntry div').trigger(Touch.trigger);
+				if(2 in t)
+					contentManager.loadFrame("contentLeft", contentManager.toSingular(t[1]), t[2]);
+			} else if(typeof Util.querySt('plugin') != 'undefined'){
 				$j("#"+Util.querySt('plugin')+'MenuEntry div').trigger(Touch.trigger);
 			} else
 				contentManager.loadDesktop();

@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 
 if(isset($argv[1]))
@@ -38,7 +38,11 @@ $AC = anyC::get("xCal", "xCalServerActive", "1");
 while ($S = $AC->getNextEntry()) {
 
 	// XML
-	$xml = file_get_contents($S->A("xCalUrl"));
+	$xml = file_get_contents($S->A("xCalUrl"), false, stream_context_create([
+	"ssl"  => [
+		"verify_peer"      => false,
+		"verify_peer_name" => false
+	]]));
 	if($xml === false)
 		continue;
 	

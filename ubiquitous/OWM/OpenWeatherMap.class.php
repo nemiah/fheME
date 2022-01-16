@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses></http:>.
  * 
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 class OpenWeatherMap extends PersistentObject {
 	public static $apiKey;
@@ -28,7 +28,7 @@ class OpenWeatherMap extends PersistentObject {
 		return $A;
 	}
 	
-	public function current(){
+	public static function current(){
 		$UID = Session::currentUser()->getID();
 		$AC = anyC::get("OpenWeatherMap");
 		$AC->addAssocV3("OpenWeatherMapUserIDs", "LIKE", $UID.";:;%");

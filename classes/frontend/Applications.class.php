@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 class Applications {
 	private $apps = array();
@@ -173,7 +173,12 @@ class Applications {
 		return $this->versions;
 	}
 	
-	public function getHTMLOptions($selected = null){
+	public function getHTMLOptions($selected = null, $selectedByLabel = null){
+		if($selectedByLabel != null){
+			$list = self::getList();
+			$selected = $list[$selectedByLabel];
+		}
+		
 		if($selected == null)
 			$selected = "open3A";
 		

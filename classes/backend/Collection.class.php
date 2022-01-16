@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 abstract class Collection {
 	protected $A = null;
@@ -118,8 +118,8 @@ abstract class Collection {
 	 */
 	function checkIfMyDBFileExists(){
 		#$p = $this->getClearClass();#
-		$p = str_replace("GUI","",get_class($this));
-		return file_exists(Util::getRootPath().$_SESSION["CurrentAppPlugins"]->getAppFolderOfPlugin($p)."/".$_SESSION["CurrentAppPlugins"]->getFolderOfPlugin($p)."/CI.pfdb.php");
+		#$p = str_replace("GUI","",get_class($this));
+		return file_exists($this->getMyDBFileName());
 	}
 	
 	/**
@@ -130,7 +130,7 @@ abstract class Collection {
 	function getMyDBFileName(){
 		#$p = $this->getClearClass();
 		$p = str_replace("GUI","",get_class($this));
-		return Util::getRootPath().$_SESSION["CurrentAppPlugins"]->getAppFolderOfPlugin($p)."/".$_SESSION["CurrentAppPlugins"]->getFolderOfPlugin($p)."/CI.pfdb.php";
+		return Util::getRootPath().$_SESSION["CurrentAppPlugins"]->getAppFolderOfPlugin($p)."/".$_SESSION["CurrentAppPlugins"]->getFolderOfPlugin($p)."/mysql.sql";
 	}
 	
 	/**
@@ -154,9 +154,23 @@ abstract class Collection {
 		$this->loadAdapter();
 		
 		if($this->checkIfMyDBFileExists()) {
-			$creates = new CIs();
-			$creates->setMyDBFolder($this->getMyDBFolder());
-			$creates->lCV3();
+			$data = file_get_contents($this->getMyDBFileName());
+			$creates = new ArrayCollection();
+			foreach(explode("-- END", $data) AS $sql){
+				if(trim($sql) == "")
+					continue;
+				
+				$A = new stdClass();
+				$A->MySQL = $sql;
+				
+				$P = new PersistentObject(-1);
+				$P->setA($A);
+				
+				$creates->add($P);
+			}
+			#$creates = new CIs();
+			#$creates->setMyDBFolder($this->getMyDBFolder());
+			#$creates->lCV3();
 			
 			return $creates;
 		} else $_SESSION["messages"]->addMessage("Database-information file for plugin ".str_replace("GUI","",get_class($this))." does not exist.");
@@ -167,7 +181,7 @@ abstract class Collection {
 	 * Creates a Database Table using the information of the associated database file.
 	 */
 	function createMyTable($quiet = false) {
-		$_SESSION["messages"]->addMessage("Creating table for ".get_class($this).". Using file ".$this->getMyDBFolder()."CI.pfdb.php...");
+		$_SESSION["messages"]->addMessage("Creating table for ".get_class($this).". Using file ".$this->getMyDBFolder()."mysql.sql...");
 		#if(!$this->checkIfMyTableExists()) {
 
 			$creates = $this->getMyTablesInfos();
@@ -182,8 +196,8 @@ abstract class Collection {
 					continue;
 				}
 				
-				$CIA->MySQL = str_replace("%%&ESCSLASH%%&","\'",$CIA->MySQL);
-				$CIA->MSSQL = str_replace("%%&ESCSLASH%%&","\'",$CIA->MSSQL);
+				#$CIA->MySQL = str_replace("%%&ESCSLASH%%&","\'",$CIA->MySQL);
+				#$CIA->MSSQL = str_replace("%%&ESCSLASH%%&","\'",$CIA->MSSQL);
 				$message .= SqlFormatter::format(htmlentities($CIA->MySQL), false);
 
 				$connection = $this->Adapter->createMyTable($CIA);
@@ -223,23 +237,25 @@ abstract class Collection {
 	 * and the data in the Database File.
 	 */
 	function checkMyTables($quiet = false){
-		$_SESSION["messages"]->addMessage("Checking tables of ".get_class($this).".");
+		#$_SESSION["messages"]->addMessage("Checking tables of ".get_class($this).".");
 		
 		$creates = $this->getMyTablesInfos();
-
+		
 		$changes = 0;
 
-		if(is_numeric($creates) AND $creates == -1) {
+		if($creates === -1) {
 			echo -2;
 			return;
 		}
+		
 		try {
-			while(($CI = $creates->getNextEntry())){
-				$_SESSION["messages"]->addMessage("checking entry ".$CI->getID());
+			while($CI = $creates->n()){
+				#$_SESSION["messages"]->addMessage("checking entry ".$CI->getID());
 				#$CIA = $CI->getA();
 				$c = $this->Adapter->checkMyTable($CI->getA());
 				
-				if($c >= 0) $changes+=$c;
+				if($c >= 0) 
+					$changes += $c;
 				#else return -1;
 			}
 		} catch(TableDoesNotExistException $e){
@@ -507,9 +523,9 @@ abstract class Collection {
 	 * @return String Classname
 	 */
 	function getClearClass(){
-		if(isset($this->collectionOf) AND (get_class($this) == "mGenericGUI" OR get_class($this) == "anyC" OR get_parent_class($this) == "anyC"))
+		if(isset($this->collectionOf) AND $this instanceof anyC)
 			return "m".$this->collectionOf;
-			
+		
 		$n = get_class($this);
 		if(strstr($n,"GUI")) 
 			$n = get_parent_class($this);
@@ -667,6 +683,9 @@ abstract class Collection {
 	 * @return Integer Number of entries in Collector
 	 */
 	public function numLoaded(){
+		if($this->collector === null)
+			return 0;
+		
 		return count($this->collector);
 	}
 	
@@ -699,8 +718,8 @@ abstract class Collection {
 			$F = $this->getCategoryFieldName();
 			if($K != null AND $K != "") {
 				$Ks = explode(";",$K);
-				foreach($Ks as $k => $v)
-					$this->addAssocV3("$F","=",$v,($k == "0" ? "AND" : "OR"),"fCs");
+				foreach($Ks AS $k => $v)
+					$this->addAssocV3($F, "=", $v, ($k == "0" ? "AND" : "OR"), "fCs");
 	
 				$fC = true;
 			}
@@ -797,7 +816,7 @@ abstract class Collection {
 		#$this->lCV3();
 		
 		$array = array();
-		while($A = $this->getNextEntry()){
+		while($A = $this->n()){
 			$subArray = array();
 			foreach($A->getA() as $key => $value)
 				$subArray[$key] = $value;

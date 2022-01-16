@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 class PMReflector {
 
@@ -37,6 +37,9 @@ class PMReflector {
 	}
 
 	public static function implementsInterface($className, $interfaceName){
+		if(is_object($className))
+			$className = get_class($className);
+		
 		if(trim($className) == "")
 			return false;
 		

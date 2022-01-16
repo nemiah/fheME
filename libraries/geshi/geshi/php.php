@@ -97,7 +97,7 @@ $language_data = array(
         2 => array(
             '&amp;new','&lt;/script&gt;','&lt;?php','&lt;script language',
             'abstract','class','const','declare','extends','function','global',
-            'interface','namespace','new','private','protected','public','self',
+            'interface','namespace','new','private','protected','public','self', "static",
             'use','var'
             ),
         3 => array(

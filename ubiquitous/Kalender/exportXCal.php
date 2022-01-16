@@ -16,7 +16,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses></http:>.
  * 
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 
 session_name("ExtConnpPJob");
@@ -30,6 +30,7 @@ $E->addClassPath($absolutePathToPhynx . "/ubiquitous/Sync/");
 $E->addClassPath($absolutePathToPhynx . "/ubiquitous/Todo/");
 $E->addClassPath($absolutePathToPhynx . "/ubiquitous/Kalender/");
 $E->loadPlugin("lightCRM", "Mail", true);
+$E->loadPlugin("open3A", "Adressen", true);
 #$E->addClassPath($absolutePathToPhynx . "/lightCRM/Mail/");
 
 $E->useDefaultMySQLData();

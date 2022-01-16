@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 
 /**
@@ -32,6 +32,8 @@
  * Entfernen Sie das #-Zeichen vor der nächsten Zeile, um mod_security zu umgehen (experimentell)
  */
 #define("PHYNX_QUERY_PARSER", true);
+if(php_sapi_name() == "cgi-fcgi" AND isset($_SERVER["POW_SESSION_ID"]))
+	session_id($_SERVER["POW_SESSION_ID"]);
 
 define("PHYNX_USE_TEMP_HTACCESS", true);
 define("PHYNX_USE_SVG", true);
@@ -84,6 +86,18 @@ if(
 
 	if(!is_writable(session_save_path()))
 		session_save_path(dirname(__FILE__)."/session");
+}
+
+if(isset($_SERVER["QUERY_STRING"]) AND substr($_SERVER["QUERY_STRING"], 0, 1) == ":"){
+	session_start([
+		'read_and_close'  => true
+	]);
+	
+	$t = explode(",", substr($_SERVER["QUERY_STRING"], 1));
+	if($t[0] != str_replace("open3A ", "", Applications::activeApplicationLabel()))
+		$physion = "rand_".random_int(10000, 99999);
+	
+	$_GET["applicationL"] = $t[0];
 }
 
 if((isset($_POST["class"]) AND isset($_POST["method"]) AND $_POST["class"] == "Users" AND $_POST["method"] == "doLogin")

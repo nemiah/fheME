@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 class mTodoGUI extends mTodo implements iGUIHTMLMP2, iKalender {
 	public function  __construct() {
@@ -120,6 +120,7 @@ class mTodoGUI extends mTodo implements iGUIHTMLMP2, iKalender {
 		}
 		
 		$T = new TodoGUI(-1);
+		$T->loadMeOrEmpty();
 		$T->changeA("TodoTeilnehmer", $teilnehmer);
 		$T->changeA("TodoLocation", $ort);
 		$T->changeA("TodoDescription", $desc);
@@ -142,10 +143,10 @@ class mTodoGUI extends mTodo implements iGUIHTMLMP2, iKalender {
 			$users[$u->getID()] = $u->A("name");			
 		}
 		$T->getHTML(-1);
-		$T->GUI->insertAttribute("after", "TodoRemind", "TodoTeilnehmer");
+		#$T->GUI->insertAttribute("after", "TodoRemind", "TodoTeilnehmer");
 		$T->GUI->type("TodoTeilnehmer", "select-multiple", $users);
-		
-		$T->GUI->type("TodoUserID", "hidden");
+		#$T->GUI->showLine("TodoTeilnehmer");
+		#$T->GUI->type("TodoUserID", "hidden");
 		$T->GUI->type("TodoType", "hidden");
 		$T->GUI->activateFeature("addSaveDefaultButton", $T, "TodoRemind");
 			
@@ -515,8 +516,8 @@ END:VCALENDAR";
 			
 		if($T->A("TodoClass") == "DBMail"){
 			#$answer = "; {  Popup.load('Antworten', 'Mail', '-1', 'writeMail', [15,14699,'answer'], '', 'newMail', 'Mail.PopupOptions'); }";
-			$answer = OnEvent::popup("Antworten", "Mail", "-1", "writeMail", array("Mail.currentMailKontoID", $T->A("TodoClassID"), "'answer'"), "MailGUI;usePreset:DBMail2Object", "Mail.PopupOptions", "newMail");
-			$T->GUI->replaceEvent("onSave", "function(){ Mail.updateRow(".$T->A("TodoClassID")."); ".OnEvent::closePopup("mKalender")." $answer }");
+		#	$answer = OnEvent::popup("Antworten", "Mail", "-1", "writeMail", array("Mail.currentMailKontoID", $T->A("TodoClassID"), "'answer'"), "MailGUI;usePreset:DBMail2Object", "Mail.PopupOptions", "newMail");
+			$T->GUI->replaceEvent("onSave", "function(){ Mail.updateRow(".$T->A("TodoClassID")."); ".OnEvent::closePopup("mKalender")."}");
 			
 		}
 		
@@ -648,7 +649,8 @@ END:VCALENDAR";
 		#echo $T->A("TodoOrt");
 		if($T->A("TodoClass") == "WAdresse"){
 			$O = $T->getOwnerObject();
-			$KE->value("Kunde", $O->getHTMLFormattedAddress());
+			if(method_exists($O, "getHTMLFormattedAddress"))
+				$KE->value("Kunde", $O->getHTMLFormattedAddress());
 		}
 		
 		if($T->A("TodoClass") == "Projekt"){
@@ -725,6 +727,8 @@ END:VCALENDAR";
 		if($T->A("TodoClass") == "GRLBM"){
 			$Auftrag = new Auftrag($O->A("AuftragID"));
 			$Adresse = new Adresse($Auftrag->A("AdresseID"));
+			
+			$KE->canNotify(true, $T->A("TodoNotified") == "1");
 			
 			$KE->value("Telefon", $Adresse->A("tel"));
 		}

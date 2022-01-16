@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 class Kalender {
 	private $events;
@@ -126,7 +126,7 @@ class Kalender {
 		}
 
 		if(!isset($this->events[$day]))
-			return null;
+			return [];
 
 		return $this->events[$day];
 	}

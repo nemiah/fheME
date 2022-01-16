@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 class UtilGUI extends Util {
 	function __construct($nonSense = ""){}
@@ -320,15 +320,28 @@ class UtilGUI extends Util {
 					$BD->doBefore("event.stopPropagation(); %AFTER");
 					$BD->rmePCR("Util", "-1", "reminderDone", array("'Aufgabe'", "'".$E->getID()."'"), "function(){ \$j('#bottom').html(''); \$j('#$id').hide(); if(!\$j('.event:visible').length) window.close(); }");
 					
+					$actions = "";
+					$titel = mb_substr($E->A("AufgabeText"), 0, 30);
+					if($E->A("AufgabeByClass") == "DBMail"){
+						$Mail = new DBMail($E->A("AufgabeByClassID"));
+						$titel = $Mail->A("DBMailFromName");
+
+						$BWindow = new Button("Neues Fenster", "new_window", "iconicL");
+						$BWindow->windowRme("Mail", $E->A("AufgabeByClassID"), "getInWindow");
+						$BWindow->style("margin-left:10px;");
+
+						$actions = $BWindow."";
+					}
+					
 					$R[] = array(
 						$id,
-						"<div class=\"event\" id=\"$id\" style=\"padding:5px;cursor:pointer;\" onclick=\"\$j('.confirm').removeClass('confirm'); \$j(this).addClass('confirm');\$j('#bottom').html('".str_replace("\n", "", addslashes(nl2br($E->A("AufgabeText"))))."');\" onmouseover=\"\$j(this).addClass('highlight');\" onmouseout=\"\$j(this).removeClass('highlight');\">
+						"<div class=\"event\" id=\"$id\" style=\"padding:5px;cursor:pointer;\" onclick=\"\$j('.confirm').removeClass('confirm'); \$j(this).addClass('confirm');\$j('#bottom').html('".str_replace("\n", "", addslashes(nl2br($E->A("AufgabeText"))))."');\$j('#actions').html(window.atob('". base64_encode($actions)."'));\" onmouseover=\"\$j(this).addClass('highlight');\" onmouseout=\"\$j(this).removeClass('highlight');\">
 							<div style=\"width:15%;display:inline-block;vertical-align:top;\">
 								Aufgabe
 							</div><div style=\"width:45%;display:inline-block;overflow:hidden;vertical-align:top;\">
-								".mb_substr($E->A("AufgabeText"), 0, 30)."
+								".$titel."
 							</div><div style=\"width:33%;display:inline-block;vertical-align:top;\">
-								".Util::CLTimeParser($E->A("AufgabeUhrzeitVon"))." Uhr"."
+								".($E->A("AufgabeUhrzeitVon") > 0 ? Util::CLTimeParser($E->A("AufgabeUhrzeitVon"))." Uhr" : "")."
 							</div><div style=\"width:7%;display:inline-block;vertical-align:top;\">
 								$BD
 							</div>

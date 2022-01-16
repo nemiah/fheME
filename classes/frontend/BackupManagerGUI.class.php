@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 function BackupManagerGUIFatalErrorShutdownHandler() {
 	$last_error = error_get_last();
@@ -265,7 +265,7 @@ class BackupManagerGUI implements iGUIHTML2 {
 		if(!BackupManagerGUI::checkForTodaysBackup() OR $redo){
 			$T = new HTMLTable(1);
 			
-			if($redo)
+			if($redo AND file_exists(BackupManagerGUI::getNewBackupName()))
 				unlink(BackupManagerGUI::getNewBackupName());
 			
 			$BOK = $this->makeBackupOfToday();
@@ -383,7 +383,7 @@ class BackupManagerGUI implements iGUIHTML2 {
 		foreach($Backups AS $fileName => $size){
 			$i++;
 
-			if($i > 27){
+			if($i > 40){
 				unlink(self::getBackupDir().$fileName);
 				#$F->deleteMe();
 			}
@@ -419,8 +419,8 @@ class BackupManagerGUI implements iGUIHTML2 {
 		return $data;
 	}
 	
-	public static function getNewBackupName(){
-		return self::getBackupDir().$_SESSION["DBData"]["datab"].".".date("Ymd")."_utf8.sql.gz";
+	public static function getNewBackupName($regex = false){
+		return ($regex == true ? "" : self::getBackupDir()).$_SESSION["DBData"]["datab"].".".date("Ymd_".($regex ? "[0-9]+" : "Hi"))."_utf8.sql.gz";
 	}
 
 	public function makeBackupOfToday(){
@@ -469,6 +469,7 @@ require valid-user
 		
 		if(file_exists($filename))
 			chmod(self::getBackupDir().$filename, 0666);
+		
 		return $filename;
 	}
 
@@ -630,10 +631,25 @@ require valid-user
 	}
 
 	public static function checkForTodaysBackup(){
-		$BF = BackupManagerGUI::getNewBackupName();
-		$F = new File($BF);
-		$F->loadMe();
-		return $F->getA() != null;
+		$BF = BackupManagerGUI::getNewBackupName(true);
+		
+		$today = false;
+		$dir = new DirectoryIterator(self::getBackupDir());
+		foreach ($dir as $file) {
+			if($file->isDot())
+				continue;
+			
+			if($file->isDir()) 
+				continue;
+
+			if(!preg_match("/$BF/", $file->getFilename()))
+				continue;
+			
+			$today = true;
+			break;
+		}
+		
+		return $today;
 	}
 
 	public function GoAway(){

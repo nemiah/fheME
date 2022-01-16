@@ -52,7 +52,7 @@ input, select, textarea {
   * SPECIAL
   **/
   
-.hasFocus {
+input:focus, select:focus, textarea:focus {
 	background-color:white;
 	border-bottom-color:#c57b23;
 }

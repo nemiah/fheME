@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 class HTMLGUIX {
 
@@ -111,8 +111,8 @@ class HTMLGUIX {
 		$this->tableWeight = $weight;
 	}
 	
-	public function screenHeight(){
-		$this->useScreenHeight = true;
+	public function screenHeight($b = true){
+		$this->useScreenHeight = $b;
 	}
 	
 	public function requestFocus($first, $second = null){
@@ -195,7 +195,7 @@ class HTMLGUIX {
 			$this->texts = $c->getEditTexts();
 		}*/
 		
-		$html = "";
+		$Buttons = [];
 		if(PMReflector::implementsInterface($pluginName,"iNewWithValues") AND $userCanCreate) $os = "1";
 		else $os = "0";
 
@@ -216,11 +216,18 @@ class HTMLGUIX {
 			$B->style("float:right;margin-top:-3px;");
 			$B->contextMenu("HTML", "operations:$pluginName:$id:$os", "Operationen");
 			
-			$html = $B;
+			$Buttons[] = $B;
 		}
 			#$html .= "<img title=\"Operationen\" id=\"".$pluginName."Operations\" src=\"./images/i2/settings.png\" onclick=\"phynxContextMenu.start(this, 'HTML','operations:$pluginName:$id:$os','".$this->texts["Operationen"].":');\" style=\"float:right;\" />";
-
-		return $html;
+		
+		if(PMReflector::implementsInterface($this->object,"iLinkable")){
+			$B = new Button("Link kopieren", "link", "iconic");
+			$B->style("float:right;margin-top:-3px;".(count($Buttons) ? "margin-right:5px;" : ""));
+			$B->onclick("var link = window.location.origin+window.location.pathname+'".$this->object->getLink()."'; if(typeof navigator.clipboard != 'undefined') navigator.clipboard.writeText(link).then(() => { showMessage('Link kopiert'); }); else prompt('Bitte kopieren Sie die Adresse:', link);");
+			$Buttons[] = $B;
+		}
+		
+		return $Buttons;
 	}
 	
 	public function header(array $header){
@@ -446,6 +453,9 @@ class HTMLGUIX {
 		if($DM == "popupN")
 			$this->addToEvent("onSave", "/*ADD*/ Popup.close('".$this->object->getClearClass("GUI")."', 'edit');");
 				
+		if($DM == "popupN2")
+			$this->replaceEvent("onSave", "function(transport) { /*ADD*/  Popup.close('".$this->object->getClearClass("GUI")."', 'edit'); }");
+				
 		if($DM == "popupS")
 			$this->addToEvent("onSave", "/*ADD*/ contentManager.reloadFrame('contentScreen'); Popup.close('".$this->object->getClearClass("GUI")."', 'edit');");
 
@@ -514,7 +524,7 @@ class HTMLGUIX {
 	 */
 	// <editor-fold defaultstate="collapsed" desc="parser">
 	function parser($attributeName, $function) {
-		if(strpos($function, "::") === false)
+		if(is_string($function) AND strpos($function, "::") === false)
 			$function = get_class($this->object)."::$function";
 		
 		$this->parsers[$attributeName] = $function;
@@ -622,7 +632,7 @@ class HTMLGUIX {
 		if($this->formID == null)
 			$this->formID = "edit".get_class($this->object);
 		
-		$F = new HTMLForm($this->formID == null ? "edit".get_class($this->object) : $this->formID, $this->attributes == null ? $this->object : $this->attributes, strpos($this->displayMode, "popup") === false ? $this->operationsButton().T::_($this->name) : null);
+		$F = new HTMLForm($this->formID == null ? "edit".get_class($this->object) : $this->formID, $this->attributes == null ? $this->object : $this->attributes, strpos($this->displayMode, "popup") === false ? implode("", $this->operationsButton()).T::_($this->name) : null);
 		$F->getTable()->setColWidth(1, 120);
 		$F->getTable()->addTableClass("contentEdit");
 		$F->cols($this->cols, $this->widths);
@@ -656,7 +666,7 @@ class HTMLGUIX {
 			$F->setDescriptionField($n, $l, $this->descriptionsFieldReplace1[$n]);
 
 		foreach($this->parsers AS $n => $l)
-			$F->setType($n, "parser", null, array($l, $this->object, $this));
+			$F->setType($n, "parser", null, array($l, $this->object, $this, $n));
 
 		foreach($this->spaces AS $n => $l)
 			$F->insertSpaceAbove($n, $l);
@@ -746,9 +756,9 @@ class HTMLGUIX {
 
 		#$this->multiPageDetails["target"] = $this->frame;#"contentRight";
 		#$GUIF->setMultiPageDetails($this->multiPageDetails);
-
+		
 		if($this->object->targetFrame)
-			$this->targetFrame ($this->object->targetFrame);
+			$this->targetFrame($this->object->targetFrame);
 		
 		if($this->targetFrame != null)
 			$GUIF->targetFrame($this->targetFrame);
@@ -815,7 +825,7 @@ class HTMLGUIX {
 			if($lineWithId == -1 AND $this->displayGroup != null AND $DisplayGroup != $E->A($this->displayGroup[0])){
 				if($this->displayGroup[1] != null){
 					$DGP = explode("::", $this->displayGroup[1]);
-					$GUIF->buildGroupLine(Util::invokeStaticMethod($DGP[0], $DGP[1], array($E->A($this->displayGroup[0]), $E)));
+					$GUIF->buildGroupLine(Util::invokeStaticMethod($DGP[0], $DGP[1], array($E->A($this->displayGroup[0]), $E, $this->displayGroup[0])));
 				} else
 					$GUIF->buildGroupLine($E->A($this->displayGroup[0]));
 			}
@@ -826,7 +836,7 @@ class HTMLGUIX {
 				$LineContent = $E->A($attributeName);
 
 				if(isset($this->parsers[$attributeName]))
-					$LineContent = $this->invokeParser($this->parsers[$attributeName], $LineContent, $E);
+					$LineContent = $this->invokeParser($this->parsers[$attributeName], $LineContent, $E, $attributeName);
 				else
 					$LineContent = htmlspecialchars($LineContent);
 
@@ -904,6 +914,7 @@ class HTMLGUIX {
 			$TT->addTableClass("browserContainerSubHeight");
 			
 			if($this->displayMode == "CRMSubframeContainer"){
+				$TT->setTableStyle("width:690px;max-width:690px;margin-left:10px;");
 				$buttons = "";
 				foreach($this->topButtons AS $B)
 					$buttons .= $B;
@@ -950,16 +961,16 @@ class HTMLGUIX {
 	}
 
 	// <editor-fold defaultstate="collapsed" desc="invokeParser">
-	protected function invokeParser($function, $value, $element){
+	protected function invokeParser($function, $value, $element, $elementName = ""){
 		if($function instanceof Closure){
-			return $function($value, $element, $element);
+			return $function($value, $element, $element, $elementName);
 			return;
 		}
 		
 		$c = explode("::", $function);
 		$method = new ReflectionMethod($c[0], $c[1]);
 		try {
-			return $method->invoke(null, $value, $element, $element); //second $element due to legacy reasons!
+			return $method->invoke(null, $value, $element, $element, $elementName); //second $element due to legacy reasons!
 		} catch(ReflectionException $e){
 			echo "<p>Die Methode $function existiert nicht oder ist nicht statisch!</p>";
 		}

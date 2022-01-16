@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 
 class HTMLList {
@@ -57,8 +57,8 @@ class HTMLList {
 		return $B;
 	}
 	
-	public function sortable($handle, $saveTo = null, $connectWith = null, $dropPlaceholder = null, $axis = "y", $additionalParameters = array()){
-		$this->sortable = OnEvent::sortable("%LISTID%", $handle, $saveTo, $axis, $connectWith, $dropPlaceholder, "", $additionalParameters);
+	public function sortable($handle, $saveTo = null, $connectWith = null, $dropPlaceholder = null, $axis = "y", $additionalParameters = array(), $onUpdateComplete = ""){
+		$this->sortable = OnEvent::sortable("%LISTID%", $handle, $saveTo, $axis, $connectWith, $dropPlaceholder, $onUpdateComplete, $additionalParameters);
 	}
 	
 	public function maxHeight($height){

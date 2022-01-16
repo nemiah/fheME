@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 
 class OnEvent {
@@ -29,7 +29,7 @@ class OnEvent {
 	 * 
 	 * @return string
 	 */
-	public static function window($targetObject, $targetMethod, $targetMethodParameters = "", $bps = null, $target = null){
+	public static function window($targetObject, $targetMethod, $targetMethodParameters = "", $bps = "", $target = "", $windowOptions = "{}"){
 		$useID = "-1";
 		if(!($targetObject instanceof Collection) AND !($targetObject instanceof UnpersistentClass))
 			$useID = ($targetObject->getID() == "" ? "-1" : $targetObject->getID());
@@ -37,7 +37,7 @@ class OnEvent {
 		if(!is_numeric($useID))
 			$useID = "'$useID'";
 		
-		return "windowWithRme('".str_replace("GUI", "", get_class($targetObject))."', $useID, '$targetMethod', ".(is_array($targetMethodParameters) ? "['".implode("','", $targetMethodParameters)."']" : "'$targetMethodParameters'").($bps != null ? ", '$bps'" : "").($target != null ? ", '$target'" : "")."); ";
+		return "windowWithRme('".str_replace("GUI", "", get_class($targetObject))."', $useID, '$targetMethod', ".(is_array($targetMethodParameters) ? "['".implode("','", $targetMethodParameters)."']" : "'$targetMethodParameters'").", '$bps', '$target', $windowOptions); ";
 	}
 	
 	public static function tip($targetElement, $title, $text, $options = "{}"){
@@ -224,7 +224,7 @@ class OnEvent {
 		if($target == "Screen")
 			$target = "contentScreen";
 		
-		return "contentManager.loadFrame('$target', '$plugin', ".($withId != "transport.responseText" ? "'$withId'" : $withId).", '$page', '$bps', ".($onSuccessFunction != null ? $onSuccessFunction : "function(){}").");";
+		return "contentManager.loadFrame('$target', '$plugin', ".($withId != "transport.responseText" ? "encodeURIComponent('$withId')" : $withId).", '$page', '$bps', ".($onSuccessFunction != null ? $onSuccessFunction : "function(){}").");";
 	}
 	
 	public static function popup($title, $targetClass, $targetClassId, $targetMethod, $targetMethodParameters = "", $bps = "", $popupOptions = null, $popupName = "edit"){

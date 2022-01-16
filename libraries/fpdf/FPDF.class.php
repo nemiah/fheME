@@ -319,10 +319,10 @@ class FPDF {
 
 	function Error($msg) {
 		//Fatal error
-		if(defined("PHYNX_VIA_INTERFACE"))
-			throw new Exception('FPDF error:' . $msg);
+		#if(defined("PHYNX_VIA_INTERFACE"))
+			throw new Exception($msg);
 		
-		die('FPDF error:' . $msg);
+		#die('FPDF error:' . $msg);
 	}
 
 	function Open() {
@@ -506,10 +506,14 @@ class FPDF {
 		#if($dir != "")
 		#	include($file);
 		#else
-		include($this->_getfontpath($file));
+		$fontFile = $this->_getfontpath($file);
+		if(!file_exists($fontFile))
+			$this->Error("Font definition file does not exist! ($fontFile)");
+		
+		include($fontFile);
 		
 		if (!isset($name))
-			$this->Error('Could not include font definition file '.$file);
+			$this->Error('Could not include font definition file '.$file." (path: ".$fontFile.")");
 		
 		$i = count($this->fonts) + 1;
 		$this->fonts[$fontkey] = array('i' => $i, 'type' => $type, 'name' => $name, 'desc' => $desc, 'up' => $up, 'ut' => $ut, 'cw' => $cw, 'enc' => $enc, 'file' => $file);
@@ -1054,6 +1058,9 @@ class FPDF {
 	}
 
 	protected function _getfontpath($file = null) {
+		if(file_exists($file))
+			return $file;
+		
 		if(file_exists(Util::getRootPath()."specifics/$file"))
 			return Util::getRootPath()."specifics/$file";
 		

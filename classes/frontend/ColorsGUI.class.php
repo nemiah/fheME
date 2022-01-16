@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 
 class ColorsGUI {
@@ -27,13 +27,37 @@ class ColorsGUI {
 		try {
 			$r->colors = mUserdata::getUDValueS("phynxColor", Environment::getS("cssColorsDir", "standard"));
 			$r->layout = mUserdata::getUDValueS("phynxLayout", "horizontal");
+			$r->highContrast = mUserdata::getUDValueS("phynxHighContrast", "");
 		} catch (Exception $e){
 			$r->colors = "standard";
 			$r->layout = "horizontal";
+			$r->highContrast = "";
 		}
 		
 		
 		echo json_encode($r, JSON_UNESCAPED_UNICODE);
+	}
+	
+	public static $colors = [
+		"#f94144",
+		"#f3722c",
+		"#f8961e",
+		"#f9844a",
+		"#f9c74f",
+		"#90be6d",
+		"#43aa8b",
+		"#4d908e",
+		"#577590",
+		"#277da1"
+		]; 
+	
+	public static function stringToColor($string){
+		$split = str_split($string);
+		$sum = 0;
+		foreach($split AS $char)
+			$sum += ord($char);
+		
+		return self::$colors[$sum % count(self::$colors)];
 	}
 	
 	public function saveContextMenu($identifier, $key){
@@ -57,6 +81,11 @@ class ColorsGUI {
 				$ud = new mUserdata();
 				$ud->setUserdata("phynxIcons", $key);
 				SpeedCache::clearCache();
+			break;
+			
+			case "5":
+				//setcookie("phynx_layout", $key, time() + 3600 * 24 * 3650, "/");
+				mUserdata::setUserdataS("phynxHighContrast", $key);
 			break;
 		}
 	}

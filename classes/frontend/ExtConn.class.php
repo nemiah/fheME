@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 class ExtConn {
 	protected $absolutePath;
@@ -84,9 +84,14 @@ class ExtConn {
 			$this->paths[] = $this->absolutePath."classes/toolbox/phynxMailer.class.php";
 
 			$this->paths[] = $this->absolutePath."classes/interfaces/iFileBrowser.class.php";
+			
+			if(file_exists($this->absolutePath."plugins/Customizer/iCustomizer.class.php"))
+				$this->paths[] = $this->absolutePath."plugins/Customizer/iCustomizer.class.php";
+			
 			$this->paths[] = $this->absolutePath."classes/interfaces/iLDAPExport.class.php";
 			#$this->paths[] = $this->absolutePath."classes/interfaces/iDesktopLink.class.php";
 			$this->paths[] = $this->absolutePath."classes/interfaces/icontextMenu.class.php";
+			$this->paths[] = $this->absolutePath."classes/interfaces/iLinkable.class.php";
 			$this->paths[] = $this->absolutePath."classes/interfaces/iCloneable.class.php";
 			$this->paths[] = $this->absolutePath."classes/interfaces/iDeletable.class.php";
 			$this->paths[] = $this->absolutePath."classes/interfaces/iDeletable2.class.php";
@@ -377,7 +382,7 @@ class ExtConn {
 				$params["secure"], $params["httponly"]
 			);
 		}
-		
+		unset($_SESSION["viaInterface"]);
 		session_destroy();
 	}
 }

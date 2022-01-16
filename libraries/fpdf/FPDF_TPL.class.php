@@ -335,7 +335,7 @@ class FPDF_TPL extends FPDI_BRIDGE
     {
         if (is_subclass_of($this, 'TCPDF')) {
             $args = func_get_args();
-            return call_user_func_array(array($this, 'TCPDF::Image'), $args);
+			return parent::Image(...$args);
         }
 
         $ret = parent::Image($file, $x, $y, $w, $h, $type, $link);

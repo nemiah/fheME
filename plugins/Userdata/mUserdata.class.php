@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 class mUserdata extends anyC {
 	function __construct() {
@@ -304,7 +304,7 @@ class mUserdata extends anyC {
 		
 		if($UserID == 0){
 			if($_SESSION["S"]->getCurrentUser() == null)
-				throw new Exception();
+				throw new Exception("No User signed in!");
 			
 			$UserID = $_SESSION["S"]->getCurrentUser()->getID();
 		}

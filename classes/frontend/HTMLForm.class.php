@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 class HTMLForm {
 	protected $id;
@@ -701,10 +701,29 @@ class HTMLForm {
 				
 				if(!isset($this->types[$v]) OR $this->types[$v] != "hidden"){
 
-					if($this->cols == 2) $this->table->addLV(
-						T::_(isset($this->labels[$v]) ? $this->labels[$v] : ucfirst($v)).($this->printColon ? ":" : ""),
-						$B.$InputS.(isset($this->descriptionField[$v]) ? "<br><small style=\"color:grey;\">".T::_($this->descriptionField[$v], isset($this->descriptionFieldReplace1[$v]) ? $this->descriptionFieldReplace1[$v] : null)."</small>" : ""));
-
+					if($this->cols == 2){
+						$C1 = T::_(isset($this->labels[$v]) ? $this->labels[$v] : ucfirst($v)).($this->printColon ? ":" : "");
+						$C2 = $B.$InputS.(isset($this->descriptionField[$v]) ? "<br><small style=\"color:grey;\">".T::_($this->descriptionField[$v], isset($this->descriptionFieldReplace1[$v]) ? $this->descriptionFieldReplace1[$v] : null)."</small>" : "");
+						if($this->types[$v] != "textarea")
+							$this->table->addLV(
+								$C1,
+								$C2
+							);
+						
+						else{
+							$this->table->addRow(
+								"<label>".$C1."</label>"
+							);
+							$this->table->addRowColspan(1, 2);
+							
+							$this->table->addRow(
+								$C2
+							);
+							$this->table->addRowColspan(1, 2);
+							$this->table->addRowClass("backgroundColor3");
+						}
+					}
+					
 					if($this->cols == 1) {
 						
 						if(isset($this->labels[$v]) AND $this->labels[$v] != ""){
@@ -745,7 +764,7 @@ class HTMLForm {
 					if($this->spaces[$v] == ""){
 						if(count($row) == 0) {
 							$this->table->addRow(array("", "", "", ""));
-							$this->table->addRowClass("backgroundColor0");
+							$this->table->addRowClass("FormSeparatorWithLabel");
 						}
 						if(count($row) == 2) {
 							$row[] = "";
@@ -754,12 +773,14 @@ class HTMLForm {
 							$row = array();
 							
 							$this->table->addRow(array("", "", "", ""));
-							$this->table->addRowClass("backgroundColor0");
+							$this->table->addRowClass("FormSeparatorWithLabel");
 						}
 					} else {
 						if(count($row) == 0) {
 							$this->table->addRow(array($this->spaces[$v], "", "", ""));
-							$this->table->addRowClass("backgroundColor0");
+							#$this->table->addRowClass("backgroundColor0");
+							$this->table->addRowColspan(1, 4);
+							$this->table->addRowClass("FormSeparatorWithLabel");
 						}
 						if(count($row) == 2) {
 							$row[] = "";
@@ -768,7 +789,9 @@ class HTMLForm {
 							$row = array();
 							
 							$this->table->addRow(array($this->spaces[$v], "", "", ""));
-							$this->table->addRowClass("backgroundColor0");
+							#$this->table->addRowClass("backgroundColor0");
+							$this->table->addRowColspan(1, 4);
+							$this->table->addRowClass("FormSeparatorWithLabel");
 						}
 					}
 

@@ -15,10 +15,10 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 
-if(!function_exists("random_int")){
+if(!function_exists("random_int") AND filter_input(INPUT_GET, "ignoreVersion") === null AND php_sapi_name() !== 'cli'){
 	require_once "./system/basics.php";
 	
 	emoFatalError("I'm sorry, but your PHP version is too old.", "You need at least PHP version 7.0 to run this program.<br>You are using ".phpversion().". Please talk to your provider about this.", "open3A");
@@ -48,6 +48,9 @@ $scripts = array(
 
 if(file_exists(__DIR__."/plugins/WebAuth/WebAuth.js"))
 	$scripts[] = "./plugins/WebAuth/WebAuth.js";
+
+if(file_exists(__DIR__."/plugins/Websocket/autobahn.min.js"))
+	$scripts[] = "./plugins/Websocket/autobahn.min.js";
 
 foreach($scripts AS $url)
 	header("Link: <$url>; rel=preload; as=script", false);
@@ -117,7 +120,10 @@ if(Phynx::build()){
 		
 		header("Cache-Control: no-cache, must-revalidate");
 		header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
-		setcookie("phynx_lastSeenBuild", Phynx::build(), time() + 3600 * 24 * 365);
+		setcookie("phynx_lastSeenBuild", Phynx::build(), [
+				'expires' => time() + 3600 * 24 * 365,
+				'samesite' => 'Strict',
+			]);
 		//header("location: ".  basename(__FILE__));
 		
 		$button = "
@@ -146,7 +152,10 @@ if(Phynx::build()){
 			<div style=\"clear:both;\"></div>
 			</div>", T::_("Diese Anwendung wurde aktualisiert"), false, "ok");
 	} elseif(!isset($_COOKIE["phynx_lastSeenBuild"]))
-		setcookie("phynx_lastSeenBuild", Phynx::build(), time() + 3600 * 24 * 365);
+		setcookie("phynx_lastSeenBuild", Phynx::build(), [
+				'expires' => time() + 3600 * 24 * 365,
+				'samesite' => 'Strict',
+			]);
 	
 	$build = Phynx::build();
 }
@@ -163,7 +172,7 @@ if(isset($_GET["title"]) AND preg_match("/[a-zA-Z0-9 _-]*/", $_GET["title"])){
 	$updateTitle = false;
 }
 
-$favico = Environment::getS("alterFavicon", "./images/FHSFavicon.ico");
+$favico = Environment::getS("alterFavicon", "./images/open3AFavicon.svg?v=4");
 $sephy = Session::physion();
 if($sephy AND isset($sephy[3]) AND $sephy[3])
 		$favico = $sephy[3];
@@ -304,6 +313,7 @@ foreach($mandanten AS $ID => $host)
 	<head>
 		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+		<meta name="theme-color" content="rgb(122, 179, 0)">
 		<title><?php echo $title ?></title>
 
 		<link rel="shortcut icon" href="<?php echo $favico ?>" /> 
@@ -390,6 +400,8 @@ foreach($mandanten AS $ID => $host)
 		#if($cssColorsDir != "standard") 
 			echo '
 		<link rel="stylesheet" id="interfaceColors" type="text/css" href="./styles/'.$cssColorsDir.'/colors.css" />';
+			echo '
+		<link rel="stylesheet" id="interfaceHighContrast" type="text/css" href="" />';
 		
 		if($cssCustomFiles != null){
 			foreach (explode("\n", $cssCustomFiles) AS $cssFile)
@@ -470,6 +482,7 @@ foreach($mandanten AS $ID => $host)
 								id="loginPassword"
 								onkeydown="userControl.abortAutoCertificateLogin(); userControl.abortAutoLogin(); if(event.keyCode == 13) userControl.doLogin();"
 							/>
+							<span onclick="if($j('#loginPassword').prop('type') == 'password') $j('#loginPassword').prop('type', 'text'); else $j('#loginPassword').prop('type', 'password');" class="iconic eye" style="color:grey;margin-left:-30px;" title=""></span>
 						</td>
 					</tr>
 					<tr class="changePassword" style="display:none;">
@@ -530,7 +543,7 @@ foreach($mandanten AS $ID => $host)
 									id="anwendung"
 									name="anwendung"
 									onkeydown="if(event.keyCode == 13) userControl.doLogin();">
-									<?php echo $_SESSION["applications"]->getHTMLOptions(isset($_GET["application"]) ? $_GET["application"] : null); ?>
+									<?php echo $_SESSION["applications"]->getHTMLOptions(isset($_GET["application"]) ? $_GET["application"] : null, isset($_GET["applicationL"]) ? $_GET["applicationL"] : null); ?>
 								</select>
 							<?php }
 							
@@ -810,7 +823,7 @@ foreach($mandanten AS $ID => $host)
 							alt="Desktop"><xsl:attribute name="src"><xsl:value-of select="iconDesktop" /></xsl:attribute></img>
 					</xsl:if>-->
 					<?php if(Environment::getS("showCopyright", "1") == "1")
-						echo Environment::getS("contentCopyright", 'Copyright (C) 2007 - 2020 by <a href="https://www.open3A.de">open3A GmbH</a>. This program comes with ABSOLUTELY NO WARRANTY;<br>this is free software, and you are welcome to redistribute it under certain conditions; see <a href="agpl.txt">agpl.txt</a> for details.<!--<br />Thanks to the authors of the libraries and icons used by this program. <a href="javascript:contentManager.loadFrame(\'contentRight\',\'Credits\');">View credits.</a>-->');
+						echo Environment::getS("contentCopyright", 'Copyright (C) 2007 - 2021 by <a href="https://www.open3A.de">open3A GmbH</a>. This program comes with ABSOLUTELY NO WARRANTY;<br>this is free software, and you are welcome to redistribute it under certain conditions; see <a href="agpl.txt">agpl.txt</a> for details.<!--<br />Thanks to the authors of the libraries and icons used by this program. <a href="javascript:contentManager.loadFrame(\'contentRight\',\'Credits\');">View credits.</a>-->');
 					?>
 				</p>
 			</div>
@@ -827,6 +840,9 @@ foreach($mandanten AS $ID => $host)
 
 						if(event.data == "login")
 							userControl.loadApplication();
+
+						if(event.data == "reloadScreen")
+							contentManager.reloadFrame("contentScreen");
 
 						if(Ajax.physion == "default" && event.data == "appSwitch")
 							contentManager.switchApplication(null, false);
@@ -871,9 +887,7 @@ foreach($mandanten AS $ID => $host)
 					echo "
 				contentManager.updateTitle = false;";
 				
-
 				echo "contentManager.init();";
-				
 				?>
 				
 				$j('#altLogins').hover(function(){
@@ -889,6 +903,9 @@ foreach($mandanten AS $ID => $host)
 
 				if($j.jStorage.get('phynxUserCert', null) != null && $j('#buttonCertificateLogin').length > 0)
 					$j('#altLogins').show();
+				
+				//phpOverWebsocket.start('ws://localhost:8080', '<?php echo session_id(); ?>');
+				
 				/*setTimeout(function(){
 					if($j.jStorage.get('phynxUserCert', null) == null && $j('#buttonCertificateLogin').length > 0)
 						$j('#buttonCertificateLogin').css('opacity', '0.2');
@@ -900,11 +917,11 @@ foreach($mandanten AS $ID => $host)
 		</script>
 		
 		<div style="display:none;" id="messageTouch" title="Touch-Eingabe">
-			<?php echo T::_("Ihr Gerät unterstützt Touch-Eingaben. Möchten Sie die Touch-Optimierungen aktivieren? Maus-Eingaben werden dann nicht mehr funktionieren.<br /><br />Wenn Sie 'Ja' auswählen, wird die Anwendung neu geladen. Sie können diese Auswahl mit dem %1-Knopf rechts unten rückgängig machen.", "<span class=\"iconic iconicG cursor\"></span>"); ?>
+			<?php echo T::_("Ihr Gerät unterstützt Touch-Eingaben. Möchten Sie die Touch-Optimierungen aktivieren? Maus-Eingaben werden dann nicht mehr funktionieren.<br><br>Wenn Sie 'Ja' auswählen, wird die Anwendung neu geladen. Sie können diese Auswahl mit dem %1-Knopf rechts unten rückgängig machen.", "<span class=\"iconic iconicG cursor\"></span>"); ?>
 		</div>
 		
 		<!--<div style="display:none;" id="messageTouchReset" title="Touch-Eingabe">
-			<?php echo T::_("Möchten Sie die Eingabemethode zurücksetzen? Sie werden dann erneut gefragt, ob Sie die Touch-Optimierungen nutzen möchten.<br /><br />Wenn Sie 'Ja' auswählen, wird die Anwendung neu geladen."); ?>
+			<?php echo T::_("Möchten Sie die Eingabemethode zurücksetzen? Sie werden dann erneut gefragt, ob Sie die Touch-Optimierungen nutzen möchten.<br><br>Wenn Sie 'Ja' auswählen, wird die Anwendung neu geladen."); ?>
 		</div>-->
 	</body>
 </html>

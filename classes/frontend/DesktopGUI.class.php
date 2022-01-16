@@ -15,10 +15,21 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 class DesktopGUI extends UnpersistentClass implements iGUIHTML2 {
+	private $zuckerfest = [ //infos von http://islam.de/2860
+		"20220502",
+		"20230421",
+		"20240410",
+		"20250330",
+		"20260320",
+		"20270309"
+	];
+	
 	public function getHTML($id){
+		$this->customize();
+		
 		if(Applications::activeApplication() != "supportBox" AND $_SESSION["S"]->isUserAdmin()) {
 			$D = new ADesktopGUI();
 			return $D->getHTML($id);
@@ -59,6 +70,21 @@ class DesktopGUI extends UnpersistentClass implements iGUIHTML2 {
 		$message = "<small style=\"color:#aaa;\">Willkommen bei</small>
 			<br>".Applications::activeApplicationLabel()."!";
 		$style = "letter-spacing: 0.2em;";
+		
+		$isZuckerfest = false;
+		$D = new Datum();
+		for($i = 0; $i <= 3; $i++){
+			if(in_array(date("Ymd", $D->time()), $this->zuckerfest))
+				$isZuckerfest = true;
+			
+			$D->addDay();
+		}
+		
+		if($isZuckerfest){
+			$message = "<small style=\"color:#aaa;\">".Applications::activeApplicationLabel()." wünscht Ihnen</small><br>ein frohes <a href=\"https://de.wikipedia.org/wiki/Fest_des_Fastenbrechens\" target=\"_blank\">Zuckerfest</a>!";
+			$style = "letter-spacing: 0.1em;";
+			$backgroundStyle = "background-image: url(./images/seasons/sweets.svg);background-size:35%;background-position: 99% 1em;background-repeat: no-repeat;";
+		}
 		
 		if(date("md") >= 1201 AND date("md") < 1224){
 			$message = "<small style=\"color:#aaa;\">".Applications::activeApplicationLabel()." wünscht Ihnen</small><br>eine schöne Adventszeit!";
@@ -117,6 +143,12 @@ class DesktopGUI extends UnpersistentClass implements iGUIHTML2 {
 		
 		$T->addRow(["E-Mail-Anfrage stellen <span style=\"color:grey;\">(Webseite)</span>", $B]);
 		$T->addRowEvent("click", "window.open('https://www.open3a.de/page-Kontakt');");
+		
+		#$T->addRow(["Video aufnehmen <span style=\"color:grey;\">(Webseite)</span>", $B]);
+		#$T->addRowEvent("click", "window.open('https://www.open3a.de/VHS','open3A VHS','height=650,width=875,scrollbars=yes,resizable=yes');");
+		
+		#$T->addRow(["Video aufnehmen", $B]);
+		#$T->addRowEvent("click", OnEvent::window(new SupportGUI(), "captureVideo", "", "", "", "{width:500, height:300}"));
 		
 		if(!isset($data->hotline)){
 			$T->addRow(["Hotline-Zeiten und Rufnummer <span style=\"color:grey;\">(Webseite)</span>", $B]);
@@ -223,7 +255,7 @@ class DesktopGUI extends UnpersistentClass implements iGUIHTML2 {
 				<br>
 				Erzählen Sie doch Ihren Kollegen, Vorgesetzten und Kunden von open3A!<br> 
 				<br>
-				Oder unterstützen Sie open3A direkt mit einem Abo und Sie erhalten - zusätzlich zur immer aktuellen Version - <strong>16% Rabatt!</strong> 
+				Oder unterstützen Sie open3A direkt mit einem Abo und Sie erhalten - zusätzlich zur immer aktuellen Version - <strong>10% Rabatt!</strong> 
 				auf Ihre verwendeten Pakete und Plugins.</div>$B";
 			
 			$html .= $this->spell(new Button("Cloud", "support", "icon"), "Abo", $textAbo);
@@ -346,10 +378,10 @@ class DesktopGUI extends UnpersistentClass implements iGUIHTML2 {
 			$html .= $this->spell(new Button("Datensicherung", "disk", "icon"), "Datensicherung", $htmlBackup.$T);
 		}
 		
-				
-		$html .= $this->spell(new Button("Version", "version", "icon"), "Version", "<span id=\"versionContent\"></span>").
-		OnEvent::script(OnEvent::rme("ADesktop", "getOpen3AVersion", "", "function(t){ \$j('#versionContent').html(t.responseText); }"));
-		
+		if(Util::getCloudHost() === null){
+			$html .= $this->spell(new Button("Version", "version", "icon"), "Version", "<span id=\"versionContent\"></span>").
+			OnEvent::script(OnEvent::rme("ADesktop", "getOpen3AVersion", "", "function(t){ \$j('#versionContent').html(t.responseText); }"));
+		}
 		
 		$BR = "";
 		if(Session::isPluginLoaded("mWebAuth")){
@@ -393,13 +425,17 @@ class DesktopGUI extends UnpersistentClass implements iGUIHTML2 {
 		
 		$default = $this->getColors("standard");
 		
-		$T = new HTMLTable(5);
-		$T->useForSelection(false);
-		$T->setColWidth(1, 20);
-		$T->setColWidth(3, 40);
-		$T->setColWidth(4, 40);
-		$T->setColWidth(5, 40);
-		$T->weight("lightlyColored");
+		$collect = "";
+		$TI = new HTMLTable(5);
+		$TI->useForSelection(false);
+		$TI->setColWidth(1, 20);
+		$TI->setColWidth(3, 25);
+		$TI->setColWidth(4, 25);
+		$TI->setColWidth(5, 25);
+		$TI->weight("lightlyColored");
+		
+		$T = clone $TI;
+		$j = 0;
 		$fp = opendir("../styles/");
 		while(($file = readdir($fp)) !== false) {
 			if($file[0] == ".") 
@@ -414,6 +450,11 @@ class DesktopGUI extends UnpersistentClass implements iGUIHTML2 {
 				continue;
 			if($file == "future")
 				continue;
+			
+			if($j == 4){
+				$collect .= "<diV style=\"width:49%;display:inline-block;vertical-align:top;margin-right:2%;\">".$T."</div>";
+				$T = clone $TI;
+			}
 			
 			$label = ucfirst($file);
 			if($file == "yellow")
@@ -457,12 +498,32 @@ class DesktopGUI extends UnpersistentClass implements iGUIHTML2 {
 			for($i = 1; $i < 4; $i++)
 				$T->addCellStyle($i + 2, "background-color:".(isset($matches[$i]) ? $matches[$i] : $default[$i]));
 			
-			
+			$j++;
 			#$kal[$file] = $label;
 		}
 		
+		$B = new Button("", "./images/i2/empty.png", "icon");
+		if(mUserdata::getUDValueS("phynxHighContrast", "") != "")
+			$B = new Button("", "check", "iconicG");
+		
+		$T->addRow([
+			$B,
+			"Hoher Kontrast",
+			"&nbsp;",
+			"&nbsp;",
+			"&nbsp;"
+		]);
+		$T->addRowColspan(2, 5);
+		if(mUserdata::getUDValueS("phynxHighContrast", "") == "")
+			$T->addRowEvent("click", OnEvent::rme("Colors", "saveContextMenu", ["5", "'./styles/standard/highContrast.css'"], "function(){ ".OnEvent::frame("Screen", "Desktop")." Interface.setup();}"));
+		else
+			$T->addRowEvent("click", OnEvent::rme("Colors", "saveContextMenu", ["5", "''"], "function(){ ".OnEvent::frame("Screen", "Desktop")." Interface.setup();}"));
+		
+		$collect .= "<diV style=\"width:49%;display:inline-block;vertical-align:top;\">".$T."</div>";
+		
+		
 		#$html .= "<div class=\"backgroundColor4\" style=\"padding:10px;\">";
-		$html .= $this->spell(new Button("Farben", "farben", "icon"), "Farben", $T, true);
+		$html .= $this->spell(new Button("Farben", "farben", "icon"), "Farben", $collect, true);
 		
 		
 		
@@ -528,6 +589,7 @@ class DesktopGUI extends UnpersistentClass implements iGUIHTML2 {
 		$N->label = "Standard";
 		$N->rel = "";
 		$N->examples = ["address", "rechnung", "index"];
+		$N->base = "";
 		
 		$values = ["default" => $N];
 		$hasIconSet = false;
@@ -578,7 +640,7 @@ class DesktopGUI extends UnpersistentClass implements iGUIHTML2 {
 		#$html .= "<div style=\"clear:both;\"></div>";
 		
 		$html .= "</div>";
-		return $html.OnEvent::script(OnEvent::rme("ADesktop", "dataUpdate"));/*.OnEvent::script("  \$j( function() { \$j( '.SpellbookContainer' ).sortable({
+		return $html.Aspect::joinPoint("below", $this, __METHOD__).OnEvent::script(OnEvent::rme("ADesktop", "dataUpdate"));/*.OnEvent::script("  \$j( function() { \$j( '.SpellbookContainer' ).sortable({
       placeholder: 'highlight'
     });  \$j( '.SpellbookContainer' ).disableSelection(); } );");*/
 	}

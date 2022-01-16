@@ -1,0 +1,117 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "61b8d02f983338db1f622e9de54c329a",
+    "packages": [
+        {
+            "name": "jszczypk/wampsyncclient",
+            "version": "v1.0.9",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/jszczypk/WampSyncClient.git",
+                "reference": "a10ca1dd5436f55943080c20cff92df17382af0b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/jszczypk/WampSyncClient/zipball/a10ca1dd5436f55943080c20cff92df17382af0b",
+                "reference": "a10ca1dd5436f55943080c20cff92df17382af0b",
+                "shasum": ""
+            },
+            "require": {
+                "jszczypk/websocket": "^1.0.5",
+                "php": ">=7.2.0"
+            },
+            "require-dev": {
+                "phan/phan": "^2.2",
+                "squizlabs/php_codesniffer": "^3.4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "JSzczypk\\WampSyncClient\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-3.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Janusz Szczypka",
+                    "email": "janusz@smartb2b.eu",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Synchronous (blocking) PHP client for WAMP protocol implementing Caller and Publisher roles",
+            "keywords": [
+                "WAMP",
+                "rpc"
+            ],
+            "support": {
+                "issues": "https://github.com/jszczypk/WampSyncClient/issues",
+                "source": "https://github.com/jszczypk/WampSyncClient/tree/master"
+            },
+            "time": "2019-08-29T23:07:06+00:00"
+        },
+        {
+            "name": "jszczypk/websocket",
+            "version": "v1.0.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/jszczypk/WebSocket.git",
+                "reference": "45ce2b65eeae3b35a482bc4ca8f3c807d4601875"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/jszczypk/WebSocket/zipball/45ce2b65eeae3b35a482bc4ca8f3c807d4601875",
+                "reference": "45ce2b65eeae3b35a482bc4ca8f3c807d4601875",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.2.0"
+            },
+            "require-dev": {
+                "phan/phan": "^2.2",
+                "squizlabs/php_codesniffer": "^3.4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "JSzczypk\\WebSocket\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-3.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Janusz Szczypka",
+                    "email": "janusz@smartb2b.eu",
+                    "role": "Developer"
+                }
+            ],
+            "description": "WebSocket client library",
+            "keywords": [
+                "websocket"
+            ],
+            "support": {
+                "issues": "https://github.com/jszczypk/WebSocket/issues",
+                "source": "https://github.com/jszczypk/WebSocket/tree/master"
+            },
+            "time": "2019-08-20T18:40:45+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": [],
+    "plugin-api-version": "2.0.0"
+}

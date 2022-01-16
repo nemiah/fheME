@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 class SysMessages {
 	private $messages = array();
@@ -165,7 +165,8 @@ class SysMessages {
 		foreach($messages as $key => $value){
 			$e = explode("#",$messages[$key]);
 			
-			if(!isset($oldTime)) $oldTime = $e[0];
+			if(!isset($oldTime)) 
+				$oldTime = $e[0];
 			
 			if($cats[$key] != $category AND $category != "all")
 				continue;

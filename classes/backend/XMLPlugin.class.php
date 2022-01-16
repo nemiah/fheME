@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 class XMLPlugin extends PluginV2 {
 	private $file;
@@ -126,7 +126,7 @@ class XMLPlugin extends PluginV2 {
 			$this->version = $vals[$index["version"][0]]["value"];
 
 		
-		if(count($allowedPlugins) > 0 AND !in_array($this->registerClassName(), $allowedPlugins))
+		if($allowedPlugins AND count($allowedPlugins) > 0 AND !in_array($this->registerClassName(), $allowedPlugins))
 			return;
 		
 		if(isset($index["application"]) AND isset($vals[$index["application"][0]])){

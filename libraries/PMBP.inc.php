@@ -136,7 +136,7 @@ function PMBP_dump($CONF, $PMBP_SYS_VAR, $db, $tables, $data, $drop, $zip, $comm
 	set_time_limit(0);
 	$error = false;
 	
-	$time = date("Ymd");
+	$time = date("Ymd_Hi");
 	#if ($zip == "gzip")
 		$backupfile = $db . "." . $time . "_utf8.sql.gz";
 	#else
@@ -340,8 +340,8 @@ function PMBP_get_db_list($CONF) {
 	#global $CONF;
 	// if there is given the name of a single database
 	if ($CONF['sql_db']) {
-		@mysqli_connect($CONF['sql_host'], $CONF['sql_user'], $CONF['sql_passwd']);
-		if (@mysqli_select_db($CONF['sql_db']))
+		$con = @mysqli_connect($CONF['sql_host'], $CONF['sql_user'], $CONF['sql_passwd']);
+		if (@mysqli_select_db($con, $CONF['sql_db']))
 			$dbs = array($CONF['sql_db']);
 		else
 			$dbs = array();

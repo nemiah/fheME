@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 class ADesktopGUI extends UnpersistentClass implements iGUIHTML2 {
 	function  __construct() {
@@ -51,9 +51,11 @@ class ADesktopGUI extends UnpersistentClass implements iGUIHTML2 {
 	public function getOpen3AVersion(){
 		$this->currentVersion = $_SESSION["applications"]->getRunningVersion();
 
+		$appName = Applications::activeApplicationLabel();
+		
 		$hpVersion = null;
 		
-		$version = Util::httpTestAndLoad("http://www.open3a.de/open3AcurrentVersion.php", 2);
+		$version = Util::httpTestAndLoad("http://www.open3a.de/currentVersion.php?app=".Applications::activeApplication(), 2);
 		#var_dump($version);
 		$XML = new XMLC();
 		$XML->setXML($version["_response"]);
@@ -69,7 +71,7 @@ class ADesktopGUI extends UnpersistentClass implements iGUIHTML2 {
 		if($hpVersion != null AND (Util::versionCheck($hpVersion, $this->currentVersion) OR Util::versionCheck($hpVersion, $this->currentVersion, "<"))) 
 			$html .= "
 				
-					".(Util::versionCheck($hpVersion, $this->currentVersion) ? "Auf der Homepage steht eine neue Version von open3A Faktura zur Verfügung ($hpVersion). Sie benutzen Version $this->currentVersion." : (Util::versionCheck($hpVersion, $this->currentVersion, "==") ? "Ihre open3A Faktura-Version ist auf dem aktuellen Stand." : "Ihre open3A Faktura-Version ist aktueller als die Version auf der Homepage!"))."
+					".(Util::versionCheck($hpVersion, $this->currentVersion) ? "Auf der Homepage steht eine neue Version von $appName zur Verfügung ($hpVersion). Sie benutzen Version $this->currentVersion." : (Util::versionCheck($hpVersion, $this->currentVersion, "==") ? "Ihre $appName-Version ist auf dem aktuellen Stand." : "Ihre $appName-Version ist aktueller als die Version auf der Homepage!"))."
 				";
 		
 		$B = new Button("Zur\nRegistrierung", "navigation");

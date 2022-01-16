@@ -173,7 +173,7 @@ caption {
 
 #windows table, #windowsPersistent table {
 	margin:auto;
-	width:95%;
+	width:calc(100% - 10px);
 }
 
 #phim {

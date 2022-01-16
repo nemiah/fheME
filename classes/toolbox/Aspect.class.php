@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 class Aspect {
 
@@ -24,11 +24,23 @@ class Aspect {
 	
 	private static $sessionVariable = "phynx_Aspects";
 	
+	public static function joinPointOAB($mode, $class, $method, $args = []){
+		$args = (object) $args;
+		
+		Aspect::findPointCut($mode, $class, $method, $args);
+		
+		$args = (array) $args;
+		return $args;
+	}
 	public static function joinPoint($mode, $class, $method, $args = null, $defaultValue = null){
 		$value = Aspect::findPointCut($mode, $class, $method, $args);
 
-		if(Session::isPluginLoaded("mAchievement") AND $mode == "after")
-			Achievement::findPointCut($class, $method, $args);
+		if(Session::isPluginLoaded("mAchievement") AND $mode == "after"){
+			try {
+				$A = new Achievement(-1);
+				Achievement::findPointCut($class, $method, $args);
+			} catch (ClassNotFoundException $e){ }
+		}
 		
 		if($value === null)
 			return $defaultValue;
@@ -41,30 +53,32 @@ class Aspect {
 			foreach($_SESSION[self::$sessionVariable] AS $PA)
 				self::registerPointCut($PA[0], $PA[1], $PA[2]);
 		
+		
 		if($mode == "around" AND !isset(Aspect::$pointCuts[$mode][$method]))
 			throw new AOPNoAdviceException();
 
 		if($mode == "after" AND !isset(self::$pointCuts[$mode][$method]))
 			return $args;
 			
-		if(isset(Aspect::$pointCuts[$mode][$method]) AND count(Aspect::$pointCuts[$mode][$method]) > 0){
-			$values = array();
-			foreach(Aspect::$pointCuts[$mode][$method] AS $k => $advice) {
-				$values[] = Aspect::invokeParser($advice, $class, $args);
-				
-				if(isset(Aspect::$onetimePointCuts[$mode."_".$method])){
-					unset(Aspect::$onetimePointCuts[$mode."_".$method]);
-					unset(Aspect::$pointCuts[$mode][$method][$k]);
-				}
+		
+		if(!isset(Aspect::$pointCuts[$mode][$method]) OR count(Aspect::$pointCuts[$mode][$method]) == 0)
+			return null;
+		
+		
+		$values = array();
+		foreach(Aspect::$pointCuts[$mode][$method] AS $k => $advice) {
+			$values[] = Aspect::invokeParser($advice, $class, $args);
+
+			if(isset(Aspect::$onetimePointCuts[$mode."_".$method])){
+				unset(Aspect::$onetimePointCuts[$mode."_".$method]);
+				unset(Aspect::$pointCuts[$mode][$method][$k]);
 			}
-			
-			if(count($values) > 1 AND $mode != "after") 
-				return $values;
-			
-			return $values[0];
 		}
 
-		return null;
+		if(count($values) > 1 AND $mode != "after") 
+			return $values;
+
+		return $values[0];
 	}
 
 	public static function invokeParser($method, $class, $args = null){

@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 var Popup = {
 	windowsOpen: 0,
@@ -51,18 +51,18 @@ var Popup = {
 			Popup.update(transport, targetPlugin, name);
 		}, bps, true, function(){ Popup.close(targetPlugin, name); });
 		 
-		Popup.lastPopups[targetPlugin] = [title, targetPlugin, targetPluginID, targetPluginMethod, arrayCopy, null];
+		Popup.lastPopups[targetPlugin+"_"+name] = [title, targetPlugin, targetPluginID, targetPluginMethod, arrayCopy, null];
 	},
 
 	loading: function(targetPlugin, name){
 		Popup.update({ responseText: "<p style=\"color:grey;\"><img src=\"./images/loading.svg\" style=\"height:32px;width:32px;float:left;margin-right:10px;\" />Die Daten<br />werden geladen...</p>" }, targetPlugin, name);
 	},
 
-	refresh: function(targetPlugin, bps, firstParameter){
-		if(typeof Popup.lastPopups[targetPlugin] == "undefined")
+	refresh: function(targetPlugin, bps, firstParameter, name = "edit"){
+		if(typeof Popup.lastPopups[targetPlugin+"_"+name] == "undefined")
 			return;
 		
-		var values = Popup.lastPopups[targetPlugin];
+		var values = Popup.lastPopups[targetPlugin+"_"+name];
 		var arrayCopy = values[4].slice(0, values[4].length); //because targetPluginMethodParameters is only a reference
 		if(typeof firstParameter != "undefined"){
 			arrayCopy[0] = firstParameter;

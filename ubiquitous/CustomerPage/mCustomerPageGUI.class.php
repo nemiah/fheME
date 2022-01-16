@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses></http:>.
  * 
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 
 class mCustomerPageGUI extends UnpersistentClass implements iGUIHTMLMP2 {
@@ -63,7 +63,7 @@ class mCustomerPageGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 			#if($c->isDisabled())
 			#	$T->addCellStyle (2, "color:grey;");
 		}
-		
+		unset($_SESSION["viaInterface"]);
 		return "<p class=\"prettyTitle\">".T::_("Externe Seiten")."</p><div id=\"externFrame\">".$T."</div>".
 				OnEvent::script("\$j('#externFrame').css('overflow', 'auto').css('height', contentManager.maxHeight() - \$j('.prettyTitle').outerHeight());");
 		

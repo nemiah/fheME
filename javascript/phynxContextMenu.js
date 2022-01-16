@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 
 var phynxContextMenu = {
@@ -50,12 +50,14 @@ var phynxContextMenu = {
 	remove: function(){
 		//var b = document.getElementsByTagName("body");
 		//if($(phynxContextMenu.container.id)) phynxContextMenu.toButton.parentNode.removeChild(phynxContextMenu.container);
-		if(phynxContextMenu.container != null && $(phynxContextMenu.container.id)){
+		/*if(phynxContextMenu.container != null && $(phynxContextMenu.container.id)){
 			$j('#contentLeft').removeChild(phynxContextMenu.container);
 		}
 		if(phynxContextMenu.fakeContainer != null && $(phynxContextMenu.fakeContainer.id)){
 			$j('#contentLeft').removeChild(phynxContextMenu.fakeContainer);
-		}
+		}*/
+		$j('#cMDiv').remove();
+		$j('#fakecMDiv').remove();
 			
 		phynxContextMenu.container = null;
 		phynxContextMenu.fakeContainer = null;

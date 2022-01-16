@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 class PersistentObject {
 	protected $ID;
@@ -364,6 +364,14 @@ class PersistentObject {
 		$this->loadMe();
 
 		return json_encode($this->A, defined("JSON_UNESCAPED_UNICODE") ? JSON_UNESCAPED_UNICODE : 0);
+	}
+	
+	public function getLink(){
+		return "?:".str_replace("open3A ", "", Applications::activeApplicationLabel()).",m".$this->getClearClass().",".$this->getID();
+	}
+	
+	public function setLink(){
+		
 	}
 }
 

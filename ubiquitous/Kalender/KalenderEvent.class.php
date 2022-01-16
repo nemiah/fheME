@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 class KalenderEvent extends KalenderEntry {
 	private $day;
@@ -681,9 +681,12 @@ class KalenderEvent extends KalenderEntry {
 		
 		if(count($this->values) > 0)
 			$T->insertSpaceAbove();
-		foreach($this->values AS $label => $value)
-			$T->addLV($label, $value);
+		foreach($this->values AS $label => $value){
+			$url = '~(?:(https?)://([^\s<]+)|(www\.[^\s<]+?\.[^\s<]+))(?<![\.,:])~i'; 
+			$value = preg_replace($url, '<a href="$0" target="_blank" title="$0">Link öffnen</a>', $value);
 
+			$T->addLV($label, $value);
+		}
 		$BN = "";
 		if($this->canNotify){
 			// TODO: Entfernen sobald Einladungen funktionieren

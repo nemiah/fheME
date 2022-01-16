@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 
 /**var cookieManager = {
@@ -53,6 +53,7 @@ function checkResponse(transport, hideError) {
 	if(typeof hideError == "undefined") hideError = false;
 	
 	var response = transport.responseText;
+	//console.log(response);
 	if(response.charAt(0) == "{" && response.charAt(response.length - 1) == "}"){
 		var obj = jQuery.parseJSON(response);
 		if(obj.type)
@@ -99,6 +100,15 @@ function checkResponse(transport, hideError) {
 		else alert(message);
 		return true;
 	}
+	
+	if(response.search(/<br \/>\s*<b>Fatal error<\/b>/) > -1){
+		var error = response.substr(response.search(/<br \/>\s*<b>Fatal error<\/b>/));
+		
+		Popup.load("Fehler", "Support", -1, "fatalError", [error+"", Ajax.lastRequest+""], "", "edit", "{width: 600, blackout: true, hPosition: 'center', top:30}");
+		
+		return false;
+	}
+	
 	if(response.search(/^\s*Fatal error/) > -1 || response.search(/^\s*Parse error/) > -1 || response.search(/^<br \/>\s*<b>Fatal error<\/b>/) > -1){
 		if(!hideError) {
 			//alert(response.replace(/<br \/>/g,"\n").replace(/<b>/g,"").replace(/<\/b>/g,"").replace(/&gt;/g,">").replace(/^\s+/, '').replace(/\s+$/, ''));
@@ -118,7 +128,8 @@ function checkResponse(transport, hideError) {
 		return false;
 	}
 	if(response.search(/^\s*FPDF error:/) > -1){
-		alert(response.replace("FPDF error:","").replace(/<br \/>/g,"\n").replace(/<b>/g,"").replace(/<\/b>/g,"").replace(/<code>/g,"").replace(/<\/code>/g,"").replace(/&gt;/g,">").replace(/^\s+/, '').replace(/\s+$/, ''));
+		var msg = response.replace(/<br \/>/g,"\n").replace(/<b>/g,"").replace(/<\/b>/g,"").replace(/<code>/g,"").replace(/<\/code>/g,"").replace(/&gt;/g,">").replace(/^\s+/, '').replace(/\s+$/, '');
+		Popup.load("Fehler", "Support", -1, "fatalError", [msg+"", Ajax.lastRequest+""], "", "edit", "{width: 600, blackout: true, hPosition: 'center', top:30}");
 		return false;
 	}
 	
@@ -236,8 +247,9 @@ function windowWithRmeP(targetClass, targetClassId, targetMethod, targetMethodPa
 function windowWithRme(targetClass, targetClassId, targetMethod, targetMethodParameters, bps, target, windowOptions){
 	var height = 650;
 	var width = 875;
-	var left = 20;
-	var top = 20;
+	var left = window.screenX + $j(window).width() - width - 20;
+	var top = window.screenY + 20;
+	
 	var name = 'Druckansicht';
 	var onload = null;
 	var scroll = true;

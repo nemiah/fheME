@@ -20,11 +20,11 @@
 	background-color:#666;
 }
 .backgroundColor2 {
-	background-color:#ccc;
+	background-color:#e5e5e5;
 }
 
 .backgroundColor3 {
-	background-color:#bbb;
+	background-color:#d7d6d6;
 }
 
 .FormSeparatorWithLabel {
@@ -50,6 +50,8 @@ input[type=password],
 input[type=radio],
 input[type=checkbox],
 input[type=button],
+input[type=number],
+input[type=date],
 input[type=submit], select, textarea, .AJAXUpload {
 	border-bottom-color:#444;
 }
@@ -58,7 +60,7 @@ input[type=submit], select, textarea, .AJAXUpload {
   * SPECIAL
   **/
   
-.hasFocus {
+input:focus, select:focus, textarea:focus {
 	background-color:white;
 	border-bottom-color:#444;
 }

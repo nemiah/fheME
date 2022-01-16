@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 class Phynx {
 	public static function build(){
@@ -26,6 +26,21 @@ class Phynx {
 			$xml = new SimpleXMLElement(file_get_contents(Util::getRootPath()."system/build.xml"));
 		
 			return $xml->build->prefix."-".$xml->build->number;
+		} catch(Exception $e){
+			return false;
+		}
+	}
+	
+	public static function users(){
+		if(!file_exists(Util::getRootPath()."system/build.xml"))
+			return 1;
+		
+		try {
+			$xml = new SimpleXMLElement(file_get_contents(Util::getRootPath()."system/build.xml"));
+			if(!isset($xml->build->users))
+				return 1;
+			
+			return $xml->build->users;
 		} catch(Exception $e){
 			return false;
 		}

@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 
 class SpellbookGUI implements iGUIHTMLMP2 {
@@ -228,7 +228,7 @@ class SpellbookGUI implements iGUIHTMLMP2 {
 			
 			#border-width:1px;border-style:solid;
 			$html .= "<div style=\"\" class=\"SpellbookSpell\">
-				<div style=\"margin:10px;border-radius:5px;\" class=\"borderColor1 spell\">
+				<div style=\"margin:10px;\" class=\"borderColor1 spell\">
 					<div class=\"backgroundColor2\" style=\"padding:10px;padding-bottom:5px;\">
 						$B<span style=\"float:right;margin-top:7px;\">".($isAdmin ? "Admin!" : "")."</span><h2  style=\"margin-bottom:0px;margin-top:0px;\">$key</h2>
 					</div>

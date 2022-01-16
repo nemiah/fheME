@@ -59,14 +59,14 @@ table { border-collapse: collapse; border-spacing: 0; }
 td { /*vertical-align: top; */padding:3px; }
 
 h1 { font-family:Roboto; padding-top:30px;padding-bottom:15px; }
-h2 { font-family:Roboto; padding-top:20px;padding-bottom:10px; }
+h2 { font-family:Roboto; padding-top:20px;padding-bottom:10px;font-size:18px; }
 h3 { font-family:Roboto; padding-top:10px;padding-bottom:5px; }
 
 label { text-align:right; width:120px; display:block; /*font-weight:bold;*/ }
 .submitFormButton { float:right; padding:4px; width:auto; padding-left:10px; padding-right:10px; }
 .abortFormButton { padding:4px; width:auto; padding-left:10px; padding-right:10px; }
 
-input, select, textarea { border:0px; border-bottom:1px solid grey; padding:2px; border-color: #97a652;background-color:#EFEFEF; width:100%;max-width:250px; }
+input, select, textarea { border:0px; border-bottom:1px solid grey; padding:2px; border-color: #97a652;background-color:#EFEFEF; width:100%;max-width:330px; }
 input[type="checkbox"], input[type="radio"] { width:auto; }
 .borderColor1 { border-color: #97a652; }
 .backgroundColor1 { background-color: #F5FFC5; }
@@ -79,14 +79,19 @@ input[type="checkbox"], input[type="radio"] { width:auto; }
 	background-color: #F5FFC5;
 }
 
-form table { width:100%; max-width:370px; }
+form table { width:100%; max-width:500px; }
 form table td { width:120px; }
 form table td+td { width:250px; }
-form { border:1px dashed #BBB; padding:10px; box-sizing:border-box;width:100%;max-width:390px; }
+form { border:1px dashed #BBB; padding:10px; box-sizing:border-box;width:100%;max-width:500px; }
 .ui-dialog form {
 	border:0px; padding:0px; width:100%;
 }
 p { padding:10px; }
+
+input, select, textarea {
+	padding:10px;
+	box-sizing: border-box;
+}
 
 input[disabled="disabled"]{
 	color:grey;
@@ -165,6 +170,10 @@ tr.selectable:hover {
 	cursor: default;
 	padding-left: 37px;
 }*/
+
+body {
+	background-color:white;
+}
 
 @font-face {
   font-family: 'Roboto';

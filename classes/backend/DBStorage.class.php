@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 
 class DBStorage {
@@ -194,11 +194,14 @@ class DBStorage {
 			$rand = "RANDOM".rand(10000,100000);
 		
 		if(!$view)
-			$CIA->MySQL = str_replace("CREATE TABLE `$regs[1]`","CREATE TABLE `".$regs[1].$rand."`",$CIA->MySQL);
+			$CIA->MySQL = str_replace("CREATE TABLE `$regs[1]`", "CREATE TABLE `".$regs[1].$rand."`",$CIA->MySQL);
 		else
-			$CIA->MySQL = str_replace("CREATE VIEW `$regs[1]`","CREATE VIEW `".$regs[1].$rand."`",$CIA->MySQL);
+			$CIA->MySQL = str_replace("CREATE VIEW `$regs[1]`", "CREATE VIEW `".$regs[1].$rand."`",$CIA->MySQL);
+
+		$result = $this->createTable($CIA);
+		if($result->errno)
+			throw new Exception($result->error);
 		
-		$this->createTable($CIA);
 		$newTable = PMReflector::getAttributesArrayAnyObject($this->getTableColumns($regs[1].$rand));
 
 		if(!$view)
@@ -206,9 +209,15 @@ class DBStorage {
 		else
 			$this->dropView($regs[1].$rand);
 		
-		$oldTable = PMReflector::getAttributesArrayAnyObject($this->getTableColumns($regs[1]));
-		$unterschied2 = array_diff($newTable,$oldTable);
+		try {
+			$oldTable = PMReflector::getAttributesArrayAnyObject($this->getTableColumns($regs[1]));
+		} catch (TableDoesNotExistException $e){
+			$this->createTable($CIAAlt);
+			return 0;
+		}
 		
+		$unterschied2 = array_diff($newTable,$oldTable);
+
 		$this->cWrite->query("ALTER TABLE `$regs[1]` COMMENT = '".$_SESSION["applications"]->getActiveApplication()."_".$_SESSION["applications"]->getRunningVersion().";'");
 		DBStorage::$queryCounter++;
 
@@ -230,6 +239,7 @@ class DBStorage {
 		
 		$_SESSION["messages"]->addMessage("Please be aware that this function only works on properly formatted SQL-code. The fieldname must be enclosed by ` and a newline \\n must follow the ,.");
 		$changes = 0;
+		
 		foreach($unterschied2 as $key => $value){
 			$newSQL = strstr($CIA->MySQL,"`$value`");
 			#$ex = explode(",", $newSQL);
@@ -638,10 +648,9 @@ class DBStorage {
 		}
 		#if($this->c->error AND $this->c->errno == 1028) //aborted query
 		#	die($sql);
-		if($this->c->error AND $this->c->errno == 2006) throw new StorageException($this->c->error);
-		
-		
-		
+		if($this->c->error AND ($this->c->errno == 2006 OR $this->c->errno == 1052)) 
+			throw new StorageException($this->c->error." (".$this->c->errno."): ".$sql);
+			
 		if($this->c->error)
 			echo "MySQL-Fehler: ".$this->c->error." (".$this->c->errno.")<br>\nQuery:$sql";
 		

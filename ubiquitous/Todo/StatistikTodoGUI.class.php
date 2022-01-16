@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 class StatistikTodoGUI extends StatistikGUI implements iGUIHTML2 {
 	function __construct(){
@@ -113,7 +113,8 @@ class StatistikTodoGUI extends StatistikGUI implements iGUIHTML2 {
 		
 		$AC = $this->data();
 		$AC->setOrderV3("anzahl", "DESC");
-		$AC->addJoinV3("Adresse", "TodoClassID", "=", "AdresseID");
+		if(BPS::getProperty("StatistikControlling", "ProjektID", -1) == -1)
+			$AC->addJoinV3("Adresse", "TodoClassID", "=", "AdresseID");
 		$AC->setGroupV3("CONCAT(TodoClass, TodoClassID)");
 		$AC->addAssocV3("TodoUserID", "=", $UserID);
 		$AC->setFieldsV3(array(
@@ -177,6 +178,12 @@ class StatistikTodoGUI extends StatistikGUI implements iGUIHTML2 {
 			foreach($ps AS $key => $value) 
 				if(strstr($key, "pluginSpecificCanSeeFrom"))
 					$AC->addAssocV3("TodoUserID", "=", str_replace("pluginSpecificCanSeeFrom", "", $key), "OR", "2");
+		}
+		
+		$ProjektID = BPS::getProperty("StatistikControlling", "ProjektID", -1);
+		if($ProjektID != -1){
+			$AC->addJoinV3("Adresse", "TodoClassID", "=", "AdresseID");
+			$AC->addAssocV3("AdresseProjektID", "=", $ProjektID);
 		}
 		
 		$AC->setFieldsV3(array(

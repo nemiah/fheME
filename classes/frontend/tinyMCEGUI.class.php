@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 class tinyMCEGUI {
 	private $ID;
@@ -50,12 +50,21 @@ class tinyMCEGUI {
 			});';
 	}
 	
-	public static function editorDokument($tinyMCEID, $saveCallback, $buttons = null, $css = "./styles/tinymce/office.css", $picturesDir = null, $onInit = ""){
+	public static function editorDokument($tinyMCEID, $saveCallback, $buttons = null, $css = "./styles/tinymce/office.css", $picturesDir = null, $onInit = "", $sidePanelTarget = "tinyMCE"){
 		if($buttons == null)
 			$buttons = "save | undo redo | pastetext | styleselect fontsizeselect fontselect | bold italic underline forecolor | hr fullscreen code";
 		
+		if(Session::isPluginLoaded("mTCPDF"))
+			$buttons .= " | numlist bullist | alignleft aligncenter alignright alignjustify";
+		else
+			$buttons .= " | bullist | alignleft aligncenter";
+		
+		if($picturesDir AND Session::isPluginLoaded("mFile"))
+			$buttons .= " | table phynximage";
+		
+		
 		$B = new Button("Bilder", "new", "icon");
-		$B->sidePanel("tinyMCE", "-1", "sidePanelAttachments", array("'$picturesDir'"));
+		$B->sidePanel($sidePanelTarget, "-1", "sidePanelAttachments", array("'$picturesDir'"));
 		
 		$fonts = "";
 		if(file_exists(Util::getRootPath()."ubiquitous/Fonts/"))
@@ -155,14 +164,14 @@ class tinyMCEGUI {
 		
 		$ITA = new HTMLInput("tinyMCEEditor", "textarea");
 		$ITA->id($tinyMCEID);
-		$ITA->style("width:".($variablesCallback != null ? "830" : "1000")."px;height:500px;");
+		$ITA->style("width:".($variablesCallback != null ? "calc(100% - 170px)" : "1000px").";height:500px;");
 		
 		if($variablesCallback != null)
 			echo "<div style=\"float:right;width:158px;margin:5px;height:524px;overflow-y:auto;overflow-x:hidden;\">
 					<p><small id=\"tinyMCEVarsDescription\"></small></p>
 					<p style=\"margin-top:5px;\" id=\"tinyMCEVars\"></p></div>";
 
-		echo "<div style=\"width:".($variablesCallback != null ? "830" : "1000")."px;\">".$ITA."</div>";
+		echo "<div style=\"width:100%;\">".$ITA."</div>";
 		
 		$buttons = "save | undo redo | pastetext | styleselect fontsizeselect fontselect | bold italic underline forecolor | hr pagebreak code";
 		if($picturesDir AND Session::isPluginLoaded("mFile")){
@@ -177,7 +186,7 @@ class tinyMCEGUI {
 		echo OnEvent::script("
 setTimeout(function(){
 	//console.log('#$formID [name=$fieldName]');
-	\$j('#$tinyMCEID').val(\$j('#$formID [name=$fieldName]').val());
+	\$j('#$tinyMCEID').val(\$j('#$formID [name=$fieldName]').val()).css('height', \$j(window).height() - 150);
 	".$this->editorDokument($tinyMCEID, "function(content){\$j('#$formID [name=$fieldName]').val(content.getContent()).trigger('change'); ".OnEvent::closePopup("tinyMCE").OnEvent::closePopup("nicEdit")."}", $buttons, "./styles/tinymce/office.css", $picturesDir, $onInit)."
 			".($variablesCallback != null ? "$variablesCallback('$fieldName');" : "")."
 		}, 100);");
@@ -205,13 +214,13 @@ setTimeout(function(){
 		}, 100);");
 	}
 	
-	public function sidePanelAttachments($filesDir){
+	public function sidePanelAttachments($filesDir, $sidePanelTarget = "tinyMCE"){
 		$I = new HTMLInput("TBAttachments", "file");
-		$I->onchange(OnEvent::rme($this, "processAttachmentUpload", array("'$filesDir'", "fileName"), " ".OnEvent::reloadSidePanel("tinyMCE")));
+		$I->onchange(OnEvent::rme($this, "processAttachmentUpload", array("'$filesDir'", "fileName"), " ".OnEvent::reloadSidePanel($sidePanelTarget)));
 		echo "<div style=\"padding:5px;height:50px;\">".$I."</div></div>";
 		
 		if(!file_exists(FileStorage::getFilesDir()."$filesDir"))
-			mkdir(FileStorage::getFilesDir()."$filesDir");
+			mkdir(FileStorage::getFilesDir()."$filesDir", 0777, true);
 		
 		$T = new HTMLTable(2, "Bilder");
 		$dir = new DirectoryIterator(FileStorage::getFilesDir()."$filesDir");
@@ -223,12 +232,12 @@ setTimeout(function(){
 			
 			$BD = new Button("Datei löschen", "./images/i2/delete.gif", "icon");
 			$BD->style("float:right;margin-left:5px;");
-			$BD->rmePCR("tinyMCE", "", "deleteAttachment", array("'$filesDir'", "'".$file->getFilename()."'"), OnEvent::reloadSidePanel("tinyMCE"));
+			$BD->rmePCR("tinyMCE", "", "deleteAttachment", array("'$filesDir'", "'".$file->getFilename()."'"), OnEvent::reloadSidePanel($sidePanelTarget));
 			
 			$T->addRow(array($BI, "$BD<small style=\"color:grey;float:right;margin-top:4px;\">".Util::formatByte($file->getSize())." </small>".(strlen($file->getFilename()) > 15 ? substr($file->getFilename(), 0, 15)."..." : $file->getFilename())));
 			$T->addRowStyle("cursor:pointer;");
 			
-			$T->addRowEvent("click", "contentManager.tinyMCEAddImage('".DBImageGUI::imageLink("tinyMCEGUI", $filesDir, $file->getFilename(), true)."');");
+			$T->addCellEvent(1, "click", "contentManager.tinyMCEAddImage('".DBImageGUI::imageLink("tinyMCEGUI", $filesDir, $file->getFilename(), true)."');");
 		}
 		
 		echo $T;
@@ -239,7 +248,7 @@ setTimeout(function(){
 	}
 	
 	public function A($name){
-		if($this->ID != "Textbausteine")
+		if($this->ID != "Textbausteine" AND strpos($this->ID, "Dokument") !== 0)
 			return;
 		
 		return DBImageGUI::stringifyS("image/".Util::ext($name), FileStorage::getFilesDir().$this->ID."/$name");
@@ -248,7 +257,7 @@ setTimeout(function(){
 	public function processAttachmentUpload($filesDir, $fileName){
 		$uloadedFile = Util::getTempDir().$fileName.".tmp";
 		
-		if(copy($uloadedFile, FileStorage::getFilesDir()."$filesDir/$fileName"))
+		if(copy($uloadedFile, FileStorage::getFilesDir()."$filesDir/".Util::makeFilename($fileName)))
 			unlink($uloadedFile);
 		else
 			Red::errorD("Fehler beim Upload der Datei!");

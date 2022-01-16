@@ -15,12 +15,15 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 class CCPage {
 	protected $loggedIn = false;
+	protected $OTPTarget = null;
 	
 	function __construct() {
+		$this->loadPlugin("ubiquitous", "OTP", true);
+		
 		$_SESSION["viaInterface"] = true;
 		if(isset($_GET["cloud"]) AND !isset($_SESSION["phynx_customer"]))
 			$_SESSION["phynx_customer"] = $_GET["cloud"];
@@ -79,17 +82,22 @@ class CCPage {
 	}
 	
 	function formLogin(){
-		$T = new HTMLForm("login", array("benutzer", "password", "action"), "Anmeldung");
+		$fields = array("benutzer", "password", "action");
+		if($this->OTPTarget AND Session::isPluginLoaded("mOTP") AND OTP::use($this->OTPTarget))
+			$fields[]= "otp";
+		
+		$T = new HTMLForm("login", $fields, "Anmeldung");
 			
 		$T->setValue("action", "login");
 		$T->setType("action", "hidden");
 		$T->setType("password", "password");
 
 		$T->setLabel("password", "Passwort");
+		$T->setLabel("otp", "OTP 2FA");
 
 		$T->setSaveCustomerPage("Anmelden", "", false, "function(){ document.location.reload(); }");
 
-		return $T.OnEvent::script("\$j(function(){ \$j('[name=benutzer]').trigger('focus'); });");;
+		return $T.OnEvent::script("\$j(function(){ \$j('[name=benutzer]').trigger('focus'); \$j('#login input').keypress(function (e) { if(e.which != 13) return; \$j('#login').submit(); });});");
 	}
 	
 	function logout(){
@@ -102,6 +110,11 @@ class CCPage {
 			case "login":
 				if(!Users::login($valuesAssocArray["benutzer"], $valuesAssocArray["password"], "open3A", "default", false, false))
 					Red::errorD("Benutzer/Passwort unbekannt");
+				
+				if($this->OTPTarget AND Session::isPluginLoaded("mOTP") AND OTP::use($this->OTPTarget)){
+					$O = new OTPGUI(-1);
+					$O->authenticate($this->OTPTarget, $valuesAssocArray["otp"]);
+				}
 			break;
 		}
 	}

@@ -15,14 +15,18 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 class SupportGUI {
 	
 	public static $errorMessage;
 	
 	public static function mailAddress(){
-		return array("Furtmeier Hard- und Software", "Support@Furtmeier.IT");
+		return array("open3A GmbH", "Support@Furtmeier.IT");
+	}
+	
+	public function getID(){
+		return -1;
 	}
 	
 	public function fatalError($error, $request = "", $return = false, $inWindow = false){
@@ -56,6 +60,7 @@ class SupportGUI {
 		
 		echo $r;
 	}
+	
 	
 	public static function sendEmail($subject, $body, $recipient, $inWindow, $files, $cc, $sender){
 		$S = new SupportGUI();

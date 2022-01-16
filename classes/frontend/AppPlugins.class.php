@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 class AppPlugins {
 	private $folders = array();
@@ -89,7 +89,7 @@ class AppPlugins {
 			if($value == "plugins") 
 				continue;
 			
-			if($value == "customer") 
+			if($value == "customer" OR $value == "specifics") 
 				continue;
 			
 			unset($this->menuEntries[array_search($key, $this->menuEntries)]);
@@ -144,10 +144,11 @@ class AppPlugins {
 
 			
 			sort($plugins);
-
+			
 			foreach($plugins as $key => $file){
 				$f = explode(".",$file);
-				if($f[0][0] == "-") continue;
+				if($f[0][0] == "-") 
+					continue;
 
 				#if($f[1] == "xml") {
 				$c = new XMLPlugin("$p/$folder/$file", $allowedPlugins);
@@ -243,7 +244,7 @@ class AppPlugins {
 				#}
 					
 				$n = $c->registerClassName();
-				if($n != "" AND ($appFolder == null OR $appFolder == "customer")){
+				if($n != "" AND ($appFolder == null OR $appFolder == "customer" OR $appFolder == "specifics")){
 					try {
 						$nc = new $n();
 						if(method_exists($nc,'getCollectionOf')){
@@ -281,7 +282,7 @@ class AppPlugins {
 				}
 				#}
 				
-				if($appFolder == null OR $appFolder == "customer")
+				if($appFolder == null OR $appFolder == "customer" OR $appFolder == "specifics")
 					$c->doSomethingElse();
 				
 				$_SESSION["messages"]->endMessage(" successful");

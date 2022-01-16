@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 class HTMLInput {
 	private $type;
@@ -29,7 +29,6 @@ class HTMLInput {
 	private $id = null;
 	private $onkeyup = "";
 	private $onkeydown = null;
-	private $hasFocusEvent = true;
 	private $isSelected = false;
 	protected $isDisabled = false;
 	private $isDisplayMode = false;
@@ -119,7 +118,7 @@ class HTMLInput {
 		$this->multiEditOptions = array($targetClass, $targetClassID, $onSuccessFunction);
 	}
 
-	public function setOptions($options, $labelField = null, $zeroEntry = "bitte auswählen", $additionalOptions = null){
+	public function setOptions($options, $labelField = null, $zeroEntry = "Bitte auswählen…", $additionalOptions = null){
 		if(is_object($options) AND $options instanceof Collection AND $labelField != null){
 			if($zeroEntry !== null)
 				$this->options = array("0" => $zeroEntry);
@@ -194,10 +193,6 @@ class HTMLInput {
 	public function onEnter($function){
 		$this->onkeyup .= "if(event.keyCode == 13) { ".$function." }";
 		$this->onenter = $function;
-	}
-
-	public function hasFocusEvent($bool){
-		$this->hasFocusEvent = $bool;
 	}
 
 	public function isSelected($bool){
@@ -279,12 +274,12 @@ class HTMLInput {
 			break;
 		
 			case "HTMLEditor":
-
-				$B = new Button("in HTML-Editor\nbearbeiten","editor");
+				throw new Exception("HTMLEditor no longer supported!");
+				/*$B = new Button("in HTML-Editor\nbearbeiten","editor");
 				$B->windowRme("Wysiwyg","","getEditor","","WysiwygGUI;FieldClass:{$this->options[0]};FieldClassID:{$this->options[1]};FieldName:{$this->options[2]}");
 				$B->className("backgroundColor2");
 
-				return $B->__toString();
+				return $B->__toString();*/
 			break;
 		
 			case "TextEditor":
@@ -306,7 +301,6 @@ class HTMLInput {
 					$BO[] = "'{$this->options[2]}'";
 					
 				$B = new Button("in Editor\nbearbeiten","editor");
-				#$B->windowRme("Wysiwyg","","getEditor","","WysiwygGUI;FieldClass:{$this->options[0]};FieldClassID:{$this->options[1]};FieldName:{$this->options[2]}");
 				$B->doBefore("Overlay.showDark(); %AFTER");
 				$B->popup("", "Editor", "nicEdit", "-1", "editInPopup", $BO, "", "Popup.presets.large");
 				$B->className("backgroundColor2");
@@ -324,7 +318,6 @@ class HTMLInput {
 					$BO[] = "'{$this->options[3]}'";
 					
 				$B = new Button("in Editor\nbearbeiten","editor");
-				#$B->windowRme("Wysiwyg","","getEditor","","WysiwygGUI;FieldClass:{$this->options[0]};FieldClassID:{$this->options[1]};FieldName:{$this->options[2]}");
 				$B->doBefore("Overlay.showDark(); %AFTER");
 				$B->popup("", "Editor", "tinyMCE", "-1", "editInPopup", $BO, "", "Popup.presets.large");
 				$B->className("backgroundColor2");
@@ -365,11 +358,6 @@ class HTMLInput {
 					$this->onkeyup .= "if(event.keyCode == 13) saveMultiEditInput('".$this->multiEditOptions[0]."','".$this->multiEditOptions[1]."','".$this->name."'".($this->multiEditOptions[2] != null ? ", ".$this->multiEditOptions[2] : "").");";
 					$this->onblur .= "if(contentManager.oldValue != this.value) saveMultiEditInput('".$this->multiEditOptions[0]."','".$this->multiEditOptions[1]."','".$this->name."'".($this->multiEditOptions[2] != null ? ", ".$this->multiEditOptions[2] : "").");";
 				
-					if($this->hasFocusEvent) {
-						$this->onfocus .= "focusMe(this);";
-						$this->onblur .= "blurMe(this);";
-					}
-					$this->hasFocusEvent = false;
 				}
 
 				return "<textarea
@@ -384,7 +372,6 @@ class HTMLInput {
 					".($this->onfocus != null ? "onfocus=\"$this->onfocus\"" : "")."
 					".($this->onkeyup != null ? "onkeyup=\"$this->onkeyup\"" : "")."
 					".($this->isDisabled ? "disabled=\"disabled\"" : "")."
-					".($this->hasFocusEvent ? "onfocus=\"focusMe(this);\" onblur=\"blurMe(this);\"" : "")."
 					".($this->id != null ? "id=\"$this->id\"" : "").">$this->value</textarea>";
 			break;
 
@@ -470,11 +457,6 @@ class HTMLInput {
 					return $this->value."";
 				}
 
-				if($this->hasFocusEvent){
-					$this->onfocus .= "focusMe(this);";
-					$this->onblur .= "blurMe(this);";
-				}
-
 				if($this->multiEditOptions != null){
 					$this->id($this->name."ID".$this->multiEditOptions[1]);
 					
@@ -499,9 +481,11 @@ class HTMLInput {
 					$cal->onclick("\$j('#$this->id').focus();");
 					$cal->style("float:right;");
 
-					$JS = "<script type=\"text/javascript\">\$j('#$this->id').datepicker();</script>";
+					$this->value = $this->value != "" ? date("Y-m-d", Util::CLDateParserE($this->value, "store")) : $this->value;
 					
-					$this->type = "text";
+					#$JS = "<script type=\"text/javascript\">\$j('#$this->id').datepicker();</script>";
+					
+					#$this->type = "text";
 				}
 
 				$value = "value=\"".htmlspecialchars($this->value)."\"";
@@ -646,16 +630,21 @@ class HTMLInput {
 		
 			case "select":
 			case "select-multiple":
-				if($this->hasFocusEvent){
-					$this->onfocus .= "focusMe(this);";
-					$this->onblur .= "blurMe(this);";
-				}
 				
 				if($this->type == "select-multiple")
 					$values = trim($this->value) != "" ? explode(";:;", $this->value) : array();
 
-				if($this->isDisplayMode) return is_object($this->options[$this->value]) ? $this->options[$this->value]->__toString() : $this->options[$this->value];
-
+				if($this->isDisplayMode) {
+					
+					if(is_object($this->options[$this->value]))
+						return $this->options[$this->value]->__toString();
+						
+					if($this->options[$this->value] === null)
+						return "";
+					
+					return $this->options[$this->value];
+				}
+				
 				if($this->multiEditOptions != null){
 					$this->onchange .= "saveMultiEditInput('".$this->multiEditOptions[0]."','".$this->multiEditOptions[1]."','".$this->name."'".($this->multiEditOptions[2] != null ? ", ".$this->multiEditOptions[2] : "").");";
 					$this->id($this->name."ID".$this->multiEditOptions[1]);
@@ -690,6 +679,9 @@ class HTMLInput {
 
 				return $html;
 			break;
+			
+			default:
+				return "Typ '$this->type' unbekannt!";
 		}
 		
 	}

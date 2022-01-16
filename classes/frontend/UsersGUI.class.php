@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 class UsersGUI extends Users implements iGUIHTML2{
 	public function getHTML($id){
@@ -201,7 +201,7 @@ class UsersGUI extends Users implements iGUIHTML2{
 			die();
 		}
 		
-		if($r === 0 AND $arguments["loginUsername"] != "0")
+		if($r === 0 AND $arguments["loginUsername"] != "000000000000001")
 			sleep (2);
 		
 		echo $r;

@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 class Session {
 	static $instance;
@@ -148,6 +148,7 @@ class Session {
 		if($plugin == "LoginData" AND $this->isUserAdmin()) return true;
 		if($plugin == "LoginDataGUI" AND $this->isUserAdmin()) return true;
 		if($plugin == "TempFile" AND $this->isUserAdmin()) return true;
+		if($plugin == "TestStep" AND $this->isUserAdmin()) return true;
 
 		#if(!SpeedCache::inCache("allowedPlugins"))
 		#	SpeedCache::setCache("allowedPlugins", Environment::getS("allowedPlugins", array()));
@@ -226,7 +227,7 @@ class Session {
 	}*/
 
 	public static function isPluginLoaded($pluginName){
-
+		
 		if(isset($_SESSION["viaInterface"]) AND $_SESSION["viaInterface"] == true)
 			return class_exists($pluginName, false);
 
@@ -274,6 +275,7 @@ class Session {
 		$_SESSION["CurrentAppPlugins"]->scanPlugins();
 		$_SESSION["applications"]->setActiveApplication($application);
 		$_SESSION["CurrentAppPlugins"]->scanPlugins("customer");
+		$_SESSION["CurrentAppPlugins"]->scanPlugins("specifics");
 		$_SESSION["CurrentAppPlugins"]->scanPlugins();
 		$_SESSION["classPaths"] = array();
 		

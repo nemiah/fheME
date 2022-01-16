@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 class TodoGUI extends Todo implements iGUIHTML2 {
 	public $GUI;
@@ -186,7 +186,7 @@ class TodoGUI extends Todo implements iGUIHTML2 {
 			
 			$gui->type("TodoTeilnehmer","select-multiple", $usersAdd);
 			
-			$gui->label("TodoTeilnehmer", "Mehr");
+			$gui->label("TodoTeilnehmer", "Teilnehmer");
 			
 			$B = $gui->addFieldButton("TodoUserID", "Weitere Benutzer", "./images/i2/add.png");
 			$B->onclick("contentManager.toggleFormFields('show', ['TodoTeilnehmer']);");
@@ -303,9 +303,16 @@ class TodoGUI extends Todo implements iGUIHTML2 {
 			$A = new WAdresseGUI($E->A("TodoClassID"));
 			$T = $A->getShortAddress();
 		}
+		
 		$IK = new HTMLInput("TodoKunde", "text", $T);
-		$IK->autocomplete("mWAdresse", "function(selection){ $('editTodoGUI').TodoClass.value = 'WAdresse'; $('editTodoGUI').TodoClassID.value = selection.value; $('editTodoGUI').TodoKunde.value = selection.label; /*if($('editTodoGUI').TodoName) contentManager.toggleFormFields('hide', ['TodoName'], 'editTodoGUI');*/ return false; }");
+		$IK->autocomplete("mWAdresse", "function(selection){ ".OnEvent::rme(new Todo(-1), "getData", ["selection.value"], "function(t){ \$j('[name=TodoLocation]').val(t.responseText.split(';')[0]).trigger('keydown'); if(t.responseText.split(';')[1].trim() != '') \$j('[name=TodoDescription]').val(t.responseText.split(';')[1]+'\\n'+\$j('[name=TodoDescription]').val()).trigger('keydown'); }")." $('editTodoGUI').TodoClass.value = 'WAdresse'; $('editTodoGUI').TodoClassID.value = selection.value; $('editTodoGUI').TodoKunde.value = selection.label; /*if($('editTodoGUI').TodoName) contentManager.toggleFormFields('hide', ['TodoName'], 'editTodoGUI');*/ return false; }");
+		
 		return $I.$IK;
+	}
+	
+	public function getData($AdresseID){
+		$Adresse = new Adresse($AdresseID);
+		echo trim(trim($Adresse->A("strasse")." ".$Adresse->A("nr").", ".$Adresse->A("plz")." ".$Adresse->A("ort")), " ,").";".trim($Adresse->A("vorname")." ".$Adresse->A("nachname")."\n".$Adresse->A("tel").($Adresse->A("mobil") != $Adresse->A("tel") ? "\n".$Adresse->A("mobil") : ""));
 	}
 	
 	static function getPriorities($nr = -1){

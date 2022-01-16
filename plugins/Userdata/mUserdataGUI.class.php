@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 class mUserdataGUI extends mUserdata implements iGUIHTML2, icontextMenu {
 	function __construct() {
@@ -27,10 +27,7 @@ class mUserdataGUI extends mUserdata implements iGUIHTML2, icontextMenu {
 	public function getHTML($id){
 		$this->addOrderV3("name");
 		if($this->A == null) $this->lCV3($id);
-		
-		$singularLanguageClass = $this->loadLanguageClass("Userdata");
-		$text = $singularLanguageClass != null ? $singularLanguageClass->getText() : "";
-		
+				
 		$gui = new HTMLGUI();
 		$gui->setName("Benutzereinschränkungen");
 		if($this->collector != null) $gui->setAttributes($this->collector);
@@ -45,7 +42,7 @@ class mUserdataGUI extends mUserdata implements iGUIHTML2, icontextMenu {
 		$html = "
 		<table>
 			<tr>
-				<td class=\"backgroundColor3\"><input type=\"button\" style=\"background-image:url(./images/navi/seiten.png);\" class=\"bigButton backgroundColor2\" value=\"".(isset($text["copy"]) ? $text["copy"] : "von Benutzer\nkopieren")."\" onclick=\"phynxContextMenu.start(this, 'mUserdata','copyFromUser','kopieren:', 'right', 'up');\" /></td>
+				<td class=\"backgroundColor3\"><input type=\"button\" style=\"background-image:url(./images/navi/seiten.png);\" class=\"bigButton backgroundColor2\" value=\"von Benutzer\nkopieren\" onclick=\"phynxContextMenu.start(this, 'mUserdata','copyFromUser','kopieren:', 'right', 'up');\" /></td>
 			</tr>
 		</table>";
 		$gui->addRowAfter("1","addRestriction");
@@ -58,10 +55,6 @@ class mUserdataGUI extends mUserdata implements iGUIHTML2, icontextMenu {
 	}
 	
 	public static function nameParser($w, $l, $p){
-		$ac = new anyC();
-		$singularLanguageClass = $ac->loadLanguageClass("Userdata");
-		$text = $singularLanguageClass != null ? $singularLanguageClass->getText() : "";
-		
 		$ps = $_SESSION["CurrentAppPlugins"]->getAllPlugins();
 		
 		$html = "";
@@ -79,7 +72,7 @@ class mUserdataGUI extends mUserdata implements iGUIHTML2, icontextMenu {
 		}
 		
 		if(stristr($w,"antDelete")) {
-			$html .= "<img title=\"".(isset($text["kann nicht löschen"]) ? $text["kann nicht löschen"] : "kann nicht löschen")."\" style=\"float:left;margin-left:10px;margin-right:5px;\" src=\"./images/i2/delete.gif\" />";
+			$html .= "<img title=\"kann nicht löschen\" style=\"float:left;margin-left:10px;margin-right:5px;\" src=\"./images/i2/delete.gif\" />";
 			$w = str_replace("cantDelete","",$w);
 			$isRestricted = true;
 			$w = array_search($w,$ps);
@@ -87,14 +80,14 @@ class mUserdataGUI extends mUserdata implements iGUIHTML2, icontextMenu {
 		}
 		
 		if(stristr($w,"antCreate") AND !stristr($w,"pluginSpecific")) {
-			$html .= "<img title=\"".(isset($text["kann nicht erstellen"]) ? $text["kann nicht erstellen"] : "kann nicht erstellen")."\" style=\"float:left;margin-left:10px;margin-right:5px;\" src=\"./images/i2/new.gif\" />";
+			$html .= "<img title=\"kann nicht erstellen\" style=\"float:left;margin-left:10px;margin-right:5px;\" src=\"./images/i2/new.gif\" />";
 			$w = str_replace("cantCreate","",$w);
 			$isRestricted = true;
 			$w = array_search($w,$ps);
 			if($w == "") $w = "Plugin ".str_replace("cantCreate","",$p)." nicht geladen<br /><small style=\"color:grey;\">Dieses Plugin steht in der aktiven Anwendung nicht zur Verfügung.</small>";
 		}
 		if(stristr($w,"antEdit")) {
-			$html .= "<img title=\"".(isset($text["kann nicht bearbeiten"]) ? $text["kann nicht bearbeiten"] : "kann nicht bearbeiten")."\" style=\"float:left;margin-left:10px;margin-right:5px;\" src=\"./images/i2/edit.png\" />";
+			$html .= "<img title=\"kann nicht bearbeiten\" style=\"float:left;margin-left:10px;margin-right:5px;\" src=\"./images/i2/edit.png\" />";
 			$w = str_replace("cantEdit","",$w);
 			$isRestricted = true;
 			$w = array_search($w,$ps);
@@ -102,7 +95,7 @@ class mUserdataGUI extends mUserdata implements iGUIHTML2, icontextMenu {
 		}
 		
 		if(stristr($w,"relabel")) {
-			$html .= "<img title=\"".(isset($text["Feld wurde umbenannt"]) ? $text["Feld wurde umbenannt"] : "Feld wurde umbenannt")."\" style=\"float:left;margin-left:10px;margin-right:5px;\" src=\"./images/i2/relabel.png\" />";
+			$html .= "<img title=\"Feld wurde umbenannt\" style=\"float:left;margin-left:10px;margin-right:5px;\" src=\"./images/i2/relabel.png\" />";
 			$w = str_replace("relabel","",$w);
 			$s = explode(":",$w);
 			$w = $s[0].": ".$s[1]." = ".$p;
@@ -110,7 +103,7 @@ class mUserdataGUI extends mUserdata implements iGUIHTML2, icontextMenu {
 		}
 		
 		if(stristr($w,"hideField")) {
-			$html .= "<img title=\"".(isset($text["Feld wurde versteckt"]) ? $text["Feld wurde versteckt"] : "Feld wurde versteckt")."\" style=\"float:left;margin-left:10px;margin-right:5px;\" src=\"./images/i2/clear.png\" />";
+			$html .= "<img title=\"Feld wurde versteckt\" style=\"float:left;margin-left:10px;margin-right:5px;\" src=\"./images/i2/clear.png\" />";
 			$w = str_replace("hideField","",$w);
 			$s = explode(":",$w);
 			$w = $s[0].": ".$s[1];
@@ -118,7 +111,7 @@ class mUserdataGUI extends mUserdata implements iGUIHTML2, icontextMenu {
 		}
 		
 		if(stristr($w,"pluginSpecific")) {
-			$html .= "<img title=\"".(isset($text["Plugin-spezifisch"]) ? $text["Plugin-spezifisch"] : "Plugin-spezifisch")."\" style=\"float:left;margin-left:10px;margin-right:5px;\" src=\"./images/i2/lieferschein.png\" />";
+			$html .= "<img title=\"Plugin-spezifisch\" style=\"float:left;margin-left:10px;margin-right:5px;\" src=\"./images/i2/lieferschein.png\" />";
 			try {
 				$C = new $p();
 				$pSRs = $C->getPluginSpecificRestrictions();
@@ -131,7 +124,7 @@ class mUserdataGUI extends mUserdata implements iGUIHTML2, icontextMenu {
 		}
 		
 		if(stristr($w,"hidePlugin")) {
-			$html .= "<img title=\"".(isset($text["Plugin ausblenden"]) ? $text["Plugin ausblenden"] : "Plugin ausblenden")."\" style=\"float:left;margin-left:10px;margin-right:5px;\" src=\"./images/i2/tab.png\" />";
+			$html .= "<img title=\"Plugin ausblenden\" style=\"float:left;margin-left:10px;margin-right:5px;\" src=\"./images/i2/tab.png\" />";
 			$w = array_search($p,$ps);
 			$isRestricted = true;
 			if($w == "") $w = "Plugin ".str_replace("cantDelete","",$p)." nicht geladen";
@@ -144,16 +137,6 @@ class mUserdataGUI extends mUserdata implements iGUIHTML2, icontextMenu {
 	}
 	
 	public static function addRestrictionParser($w,$l,$p){
-		$deText = array();
-		$deText["Umbenennung"] = "Umbenennung";
-		$deText["Einschränkung"] = "Einschränkung";
-		$deText["Ausblenden"] = "Ausblenden";
-		$deText["Plugin"] = "Plugin";
-		
-		$ac = new anyC();
-		$singularLanguageClass = $ac->loadLanguageClass("Userdata");
-		$text = $singularLanguageClass != null ? $singularLanguageClass->getText() : $deText;
-		
 		$BA = new Button("Anmeldung", "./plugins/Userdata/login.png");
 		$BA->contextMenu("mUserdata", "login", "Anmeldung", "right", "up");
 		$BA->style("float:right;");
@@ -174,14 +157,14 @@ class mUserdataGUI extends mUserdata implements iGUIHTML2, icontextMenu {
 		
 		
 		return "<p class=\"highlight\">Achtung: Die möglichen Berechtigungen sind von der geladenen Anwendung und ihren Plugins abhängig. Melden Sie sich an einer anderen Anwendung an, um weitere Berechtigungen zu vergeben.</p>"."
-		<!--<input type=\"button\" class=\"bigButton backgroundColor3\" title=\"".(isset($text["Feld\numbenennen"]) ? $text["Feld\numbenennen"] : "Feld\numbenennen")."\" onclick=\"phynxContextMenu.start(this, 'mUserdata','2','".$text["Umbenennung"].":');\" style=\"float:right;background-image:url(./images/navi/relabel.png);\" />
-		<button class=\"bigButton backgroundColor3\" value=\"".(isset($text["Einschränkung\nhinzufügen"]) ? $text["Einschränkung\nhinzufügen"] : "")."\" onclick=\"phynxContextMenu.start(this, 'mUserdata','1','".$text["Einschränkung"].":');\" style=\"margin-bottom:10px;background-image:url(./images/navi/restrictions.png);\" /><br />-->
+		<!--<input type=\"button\" class=\"bigButton backgroundColor3\" title=\"Feld\numbenennen\" onclick=\"phynxContextMenu.start(this, 'mUserdata','2','Umbenennung:');\" style=\"float:right;background-image:url(./images/navi/relabel.png);\" />
+		<button class=\"bigButton backgroundColor3\" value=\"Einschränkung\nhinzufügen\" onclick=\"phynxContextMenu.start(this, 'mUserdata','1','Einschränkung:');\" style=\"margin-bottom:10px;background-image:url(./images/navi/restrictions.png);\" /><br />-->
 		$BN$BS<br><br>
-		<!--<input type=\"button\" class=\"bigButton backgroundColor3\" title=\"".(isset($text["Feld\nausblenden"]) ? $text["Feld\nausblenden"] : "Feld\nausblenden")."\" onclick=\"phynxContextMenu.start(this, 'mUserdata','3','".$text["Ausblenden"].":');\" style=\"float:right;background-image:url(./images/navi/clear.png);\" />
-		<button class=\"bigButton backgroundColor3\" title=\"".(isset($text["Plugin-\nspezifisch"]) ? $text["Plugin-\nspezifisch"] : "Plugin-\nspezifisch")."\" onclick=\"phynxContextMenu.start(this, 'mUserdata','4','".$text["Plugin"].":');\" style=\"margin-bottom:10px;background-image:url(./images/navi/lieferschein.png);\" />-->
+		<!--<input type=\"button\" class=\"bigButton backgroundColor3\" title=\"Feld\nausblenden\" onclick=\"phynxContextMenu.start(this, 'mUserdata','3','Ausblenden:');\" style=\"float:right;background-image:url(./images/navi/clear.png);\" />
+		<button class=\"bigButton backgroundColor3\" title=\"Plugin-\nspezifisch\" onclick=\"phynxContextMenu.start(this, 'mUserdata','4','Plugin:');\" style=\"margin-bottom:10px;background-image:url(./images/navi/lieferschein.png);\" />-->
 		$BP$BA<br><br>
 		$BR
-		<!--<button class=\"bigButton backgroundColor3\" title=\"".(isset($text["Plugin\nausblenden"]) ? $text["Plugin\nausblenden"] : "Plugin\nausblenden")."\" onclick=\"phynxContextMenu.start(this, 'mUserdata','5','".$text["Plugin"].":');\" style=\"background-image:url(./images/navi/tab.png);\" />-->";
+		<!--<button class=\"bigButton backgroundColor3\" title=\"Plugin\nausblenden\" onclick=\"phynxContextMenu.start(this, 'mUserdata','5','Plugin:');\" style=\"background-image:url(./images/navi/tab.png);\" />-->";
 	}
 	
 	public function pluginSpecificPopup($UserID){
@@ -192,20 +175,26 @@ class mUserdataGUI extends mUserdata implements iGUIHTML2, icontextMenu {
 		$o = array(new HTMLInput("Bitte Plugin auswählen…", "option", "0"));
 		#$opts = "";
 		foreach($ps as $key => $value){
-			if($key == "mUserdata") continue;
-			if(!PMReflector::implementsInterface($key,"iPluginSpecificRestrictions"))
+			if($key == "mUserdata") 
 				continue;
 			
-			$c = new $key();
-			if(!$c->getPluginSpecificRestrictions())
+			try {
+				if(!PMReflector::implementsInterface($key,"iPluginSpecificRestrictions"))
+					continue;
+
+				$c = new $key();
+				if(!$c->getPluginSpecificRestrictions())
+					continue;
+
+				if($value == "Kunde")
+					continue;
+
+				if(!$_SESSION["CurrentAppPlugins"]->getIsAdminOnly($key) AND $_SESSION["CurrentAppPlugins"]->isCollectionOfFlip($key) != "")
+					#$opts .= "<option value=\"$key:".$_SESSION["CurrentAppPlugins"]->isCollectionOfFlip($key)."\">$value</option>";
+					$o[] = new HTMLInput($value, "option", $key);
+			} catch (Exception $e){
 				continue;
-			
-			if($value == "Kunde")
-				continue;
-			
-			if(!$_SESSION["CurrentAppPlugins"]->getIsAdminOnly($key) AND $_SESSION["CurrentAppPlugins"]->isCollectionOfFlip($key) != "")
-				#$opts .= "<option value=\"$key:".$_SESSION["CurrentAppPlugins"]->isCollectionOfFlip($key)."\">$value</option>";
-				$o[] = new HTMLInput($value, "option", $key);
+			}
 		}
 		
 		$I = new HTMLInput("relabelPlugin", "select", isset($bps["plugin"]) ? $bps["plugin"] : 0, $o);
@@ -353,9 +342,7 @@ class mUserdataGUI extends mUserdata implements iGUIHTML2, icontextMenu {
 		$deTexts["newFieldName"] = "Neuer Feldname";
 		$deTexts["maybeHidden"] = "Bitte beachten Sie, dass hier interne Namen angezeigt werden, die von der Feldbeschriftung abweichen können!<br />Manche internen Felder werden möglichweise gar nicht angezeigt.";
 		
-		$ac = new anyC();
-		$singularLanguageClass = $ac->loadLanguageClass("Userdata");
-		$text = $singularLanguageClass != null ? $singularLanguageClass->getText() : $deTexts;
+		$text = $deTexts;
 		
 		$opts = "";
 		$ps = array_flip($_SESSION["CurrentAppPlugins"]->getAllPlugins());
@@ -389,9 +376,9 @@ class mUserdataGUI extends mUserdata implements iGUIHTML2, icontextMenu {
 		if(isset($s[1])) $identifier = $s[0];
 		switch($identifier){
 			case "1":
-				$c = (isset($text["kann nicht erstellen"]) ? $text["kann nicht erstellen"] : "kann nicht\nerstellen");
-				$b = (isset($text["kann nicht bearbeiten"]) ? $text["kann nicht bearbeiten"] : "kann nicht\nbearbeiten");
-				$l = (isset($text["kann nicht löschen"]) ? $text["kann nicht löschen"] : "kann nicht\nlöschen");
+				$c = "kann nicht\nerstellen";
+				$b = "kann nicht\nbearbeiten";
+				$l = "kann nicht\nlöschen";
 				
 				echo "
 				<table>

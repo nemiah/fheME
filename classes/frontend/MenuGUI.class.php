@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 class MenuGUI extends UnpersistentClass implements iGUIHTML2, icontextMenu {
 	function  __construct() {
@@ -89,7 +89,8 @@ class MenuGUI extends UnpersistentClass implements iGUIHTML2, icontextMenu {
 
 			#$appMenuHidden = $this->getAppMenuOrder("appMenuHidden");
 			$appMenuDisplayed = $this->getAppMenuOrder("appMenuDisplayed");
-			
+			$appMenuDisplayed = Aspect::joinPoint("displayed", $this, __METHOD__, [$appMenuDisplayed], $appMenuDisplayed);
+		
 			#if($appMenuDisplayed != "" AND $appMenuHidden == "")
 			#	$appMenuHidden = implode(";", array_diff(array_values($es), explode(";", $appMenuDisplayed)));
 			
@@ -232,7 +233,7 @@ class MenuGUI extends UnpersistentClass implements iGUIHTML2, icontextMenu {
 			$ex = explode("_", $U->A("language"));
 			if(isset($ex[2]))
 				unset($ex[2]);
-			echo "<script type=\"text/javascript\">Interface.application = '".Applications::activeApplication()."'; Interface.locale = '".implode("_", $ex)."'; \$j.datepicker.setDefaults(\$j.datepicker.regional['".implode("_", $ex)."']); ".(Session::physion() ? "\$j('#navigation').hide();" : "")."</script>";
+			echo "<script type=\"text/javascript\">Interface.application = '".Applications::activeApplication()."'; Interface.applicationLabel = '".str_replace("open3A ", "", Applications::activeApplicationLabel())."'; Interface.locale = '".implode("_", $ex)."'; \$j.datepicker.setDefaults(\$j.datepicker.regional['".implode("_", $ex)."']); ".(Session::physion() ? "\$j('#navigation').hide();" : "")."</script>";
 		} catch (Exception $e){ }
 	}
 
@@ -286,7 +287,7 @@ class MenuGUI extends UnpersistentClass implements iGUIHTML2, icontextMenu {
 
 	public static function saveAppMenuOrder($cat, $order){
 		$order1 = substr($order, 0, 150);
-		$order2 = substr($order, 150, 150);
+		$order2 = substr($order, 150);
 
 		$ud = new mUserdata();
 		$ud->setUserdata(Applications::activeApplication().$cat."1", $order1);

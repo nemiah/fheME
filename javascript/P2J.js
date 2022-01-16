@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 
 /*
@@ -151,28 +151,6 @@
 	});
 })(jQuery);
 
-/*extension String {
-
-    var containsEmoji: Bool {
-        for scalar in unicodeScalars {
-            switch scalar.value {
-            case 0x1F600...0x1F64F, // Emoticons
-                 0x1F300...0x1F5FF, // Misc Symbols and Pictographs
-                 0x1F680...0x1F6FF, // Transport and Map
-                 0x2600...0x26FF,   // Misc symbols
-                 0x2700...0x27BF,   // Dingbats
-                 0xFE00...0xFE0F,   // Variation Selectors
-                 0x1F900...0x1F9FF, // Supplemental Symbols and Pictographs
-                 0x1F1E6...0x1F1FF: // Flags
-                return true
-            default:
-                continue
-            }
-        }
-        return false
-    }
-
-}*/
 
 var $j = jQuery.noConflict();
 
@@ -263,7 +241,8 @@ var Ajax = {
 		Ajax.lastRequestTime = Date.now();
 		var counter = Ajax.counter;
 		var start;
-		$j.ajax({
+		
+		var data = {
 			url: anurl+(Ajax.physion != "default" ? (anurl.indexOf("?") > -1 ? "&": "?")+"physion="+Ajax.physion : ""),
 			//timeout: 10000,
 			beforeSend: function(){
@@ -308,10 +287,21 @@ var Ajax = {
 				};
 				options.onSuccess(t, textStatus, request); 
 			},
+			error: function(par1, par2, par3){
+				if(typeof options.onError === "function")
+					options.onError(par1, par2, par3);
+				
+				Popup.load("Fehler", "Support", -1, "fatalError", [par1.status+" "+par3+" ("+par2+")", Ajax.lastRequest+""], "", "edit", "{width: 600, blackout: true, hPosition: 'center', top:30}");
+			},
 			type: options.method ? options.method : "GET",
 			data: options.parameters ? options.parameters : null,
 			cache : false
-		});
+		};
+		
+		/*if(typeof phpOverWebsocket !== "undefined" && phpOverWebsocket.ready())
+			phpOverWebsocket.send(data);
+		else*/
+			$j.ajax(data);
 	},
 	
 	Responders: {

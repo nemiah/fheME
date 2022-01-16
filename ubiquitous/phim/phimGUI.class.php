@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 		
 class phimGUI extends phim implements iGUIHTML2 {
@@ -96,8 +96,15 @@ class phimGUI extends phim implements iGUIHTML2 {
 	}
 	
 	function communicationNewGroup($class, $classID, $members){
+		
+		$text = "";
+		if($class == "DBMail"){
+			$M = new DBMail($classID);
+			$text = "zu E-Mail von ".($M->A("DBMailFromName") != "" ? $M->A("DBMailFromName") : $M->A("DBMailFromAddress"));
+		}
+		
 		$F = new Factory("phimGruppe");
-		$F->sA("phimGruppeName", "Rückfrage");
+		$F->sA("phimGruppeName", "Rückfrage $text");
 		$F->sA("phimGruppeMasterUserID", Session::currentUser()->getID());
 		$F->sA("phimGruppeMembers", $members);
 		$F->sA("phimGruppeClassName", $class);
@@ -106,42 +113,5 @@ class phimGUI extends phim implements iGUIHTML2 {
 		$F->store();
 	}
 	
-	
-	function setRead($from){
-		if($from[0] == "g"){
-			$AC = anyC::get("phim");
-			$AC->addAssocV3("phimphimGruppeID", "=", substr($from, 1));
-			$AC->addAssocV3("INSTR(phimReadBy, ';".Session::currentUser()->getID().";')", "=", "0");
-			
-			while($P = $AC->n()){
-				$P->changeA("phimReadBy", $P->A("phimReadBy").";".Session::currentUser()->getID().";");
-				$P->saveMe();
-			}
-			
-			return;
-		}
-		
-		$AC = anyC::get("phim");
-		$AC->addAssocV3("phimFromUserID", "=", $from);
-		$AC->addAssocV3("phimToUserID", "=", Session::currentUser()->getID());
-		#$AC->addAssocV3("phimReadBy", "=", "0");
-		$AC->addAssocV3("INSTR(phimReadBy, ';".Session::currentUser()->getID().";')", "=", "0");
-		while($P = $AC->n()){
-			$P->changeA("phimReadBy", $P->A("phimReadBy").";".Session::currentUser()->getID().";");
-			$P->saveMe();
-		}
-		
-		$message = new stdClass();
-		$message->method = "read";
-		#$message->content = $text;
-		$message->from = Session::currentUser()->getID();
-		#$message->fromUser = Session::currentUser()->A("name");
-		$message->to = $from;
-		$message->time = time();
-		
-		#$F->store();
-		
-		$this->go($message, $from);
-	}
 }
 ?>

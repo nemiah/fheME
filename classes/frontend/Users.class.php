@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 class Users extends anyC {
 	function __construct(){
@@ -249,7 +249,7 @@ class Users extends anyC {
 			}
 		}
 		if($p["loginSprache"] != "default") $U->changeA("language", $p["loginSprache"]);
-		if(strtolower($U->getA()->username) != strtolower($p["loginUsername"])) return 0;
+		if(trim(strtolower($U->getA()->username)) != trim(strtolower($p["loginUsername"]))) return 0;
 		
 		$_SESSION["S"]->setLoggedInUser($U);
 		$_SESSION["S"]->initApp($p["anwendung"]);

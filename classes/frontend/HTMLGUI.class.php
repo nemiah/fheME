@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 
 class HTMLGUI implements icontextMenu {
@@ -220,15 +220,15 @@ class HTMLGUI implements icontextMenu {
 					$B->rme("mUserdata","","setUserdata",array("'DefaultValue".$class->getClearClass()."$par1'","$('$par1').checked ? 1 : 0", "''", "0", "1"),"checkResponse(transport);");
 				$B->type("icon");
 				$B->style("float:right;");
-				if($this->types[$par1] != "checkbox")
-					$this->setInputStyle($par1,"width:90%;");
+				#if($this->types[$par1] != "checkbox")
+				#	$this->setInputStyle($par1,"width:90%;");
 				$this->buttonsNextToFields[$par1] = $B;
 			break;
 			
 			case "addCustomButton":
 				$par2->style("float:right;");
 				$par2->type("icon");
-				$this->setInputStyle($par1,"width:90%;");
+				#$this->setInputStyle($par1,"width:90%;");
 				$this->buttonsNextToFields[$par1] = $par2;
 			break;
 			
@@ -240,7 +240,7 @@ class HTMLGUI implements icontextMenu {
 				else $B->onclick("alert('Sie müssen den Artikel zuerst speichern, bevor Sie Übersetzungen eintragen können')");
 				$B->type("icon");
 				$B->style("float:right;");
-				$this->setInputStyle($par1,"width:90%;");
+				#$this->setInputStyle($par1,"width:90%;");
 				$this->buttonsNextToFields[$par1] = $B;
 			break;
 		}
@@ -571,6 +571,11 @@ class HTMLGUI implements icontextMenu {
 		$this->parserParameters[$attributeName] = $parameters;
 	}
 	
+	function parser($attributeName, $function){
+		$this->parsers[$attributeName] = $function;
+		$this->parserParameters[$attributeName] = [];
+	}
+	
 	function setDisplayGroupParser($function,$parameters = array()){
 		$this->dgParser = $function;
 		$this->dgParserParameters = $parameters;
@@ -808,12 +813,29 @@ class HTMLGUI implements icontextMenu {
 		}
 		
 		if(isset($this->types[$as]) AND $this->types[$as] == "HTMLEditor") {
-			$_SESSION["BPS"]->registerClass("WysiwygGUI");
+			
+			/*$BO = array("'{$this->options[0]}'", "'{$this->options[1]}'");
+			if(isset($this->options[2]))
+				$BO[] = "'{$this->options[2]}'";
+			if(isset($this->options[3]))
+				$BO[] = "'{$this->options[3]}'";*/
+
+			$B = new Button("in Editor\nbearbeiten","editor");
+			$B->doBefore("Overlay.showDark(); %AFTER");
+			$B->popup("", "Editor", "tinyMCE", "-1", "editInPopup", ["'$this->FormID'", "'$as'"], "", "Popup.presets.large");
+			$B->className("backgroundColor2");
+
+			$ITA = new HTMLInput($as, "hidden", $this->attributes->$as);
+
+			return $B->__toString().$ITA;
+				
+			//throw new Exception("HTMLEditor no longer supported!");
+			/*$_SESSION["BPS"]->registerClass("WysiwygGUI");
 			$_SESSION["BPS"]->setACProperty("FieldClass", get_class($this->object));
 			$_SESSION["BPS"]->setACProperty("FieldClassID",$this->editedID);
 			$_SESSION["BPS"]->setACProperty("FieldName",$as);
 			
-			return "<input ".(isset($this->events[$as]) ? $eve : "")." style=\"background-image:url(./images/navi/editor.png);".(isset($this->inputStyle[$as]) ? "".$this->inputStyle[$as]."" : "")."\" type=\"button\" class=\"bigButton backgroundColor2\" onclick=\"windowWithRme('Wysiwyg','','getEditor','');\" value=\"in HTML-Editor\nbearbeiten\" />";
+			return "<input ".(isset($this->events[$as]) ? $eve : "")." style=\"background-image:url(./images/navi/editor.png);".(isset($this->inputStyle[$as]) ? "".$this->inputStyle[$as]."" : "")."\" type=\"button\" class=\"bigButton backgroundColor2\" onclick=\"windowWithRme('Wysiwyg','','getEditor','');\" value=\"in HTML-Editor\nbearbeiten\" />";*/
 		}
 		
 		if(isset($this->types[$as]) AND $this->types[$as] == "TextEditor64") {
@@ -863,7 +885,13 @@ class HTMLGUI implements icontextMenu {
 		if(isset($this->parsers[$as])) {
 			$r = "";
 			$m = explode("::", $this->parsers[$as]);
+			if(!method_exists($m[0] , $m[1]))
+				return "FEHLER! ".$this->parsers[$as]." existiert nicht!";
+			
 			$r = Util::invokeStaticMethod($m[0], $m[1], array((isset($this->attributes->$as) ? $this->attributes->$as : ""), $this->object, implode("%§%",$this->parserParameters[$as]), $this));
+			$r = "$r";
+			#if(!is_string($r))
+			#	return "FEHLER! ".$this->parsers[$as];
 			#return("\$r = ".$this->parsers[$as]."(\"".(isset($this->attributes->$as) ? $this->attributes->$as : "")."\",\"\",\"".implode("%§%",$this->parserParameters[$as])."\");");
 			return $r;
 		}
@@ -878,7 +906,7 @@ class HTMLGUI implements icontextMenu {
 			#$this->texts = $c->getEditTexts();
 		#}
 
-		$html = "";
+		$Buttons = [];
 		if(PMReflector::implementsInterface($pluginName,"iNewWithValues") AND $userCanCreate) $os = "1";
 		else $os = "0";
 
@@ -900,9 +928,17 @@ class HTMLGUI implements icontextMenu {
 			$B->onclick("phynxContextMenu.start(this, 'HTML','operations:$pluginName:$id:$os','".T::_("Operationen").":');");
 			$B->style("float:right;margin-top:-3px;");
 			
-			return $B;#"<span title=\"Operationen\" id=\"".$pluginName."Operations\" class=\"iconic wrench\" onclick=\"\" style=\"\" ></span>";
+			$Buttons[] = $B;#"<span title=\"Operationen\" id=\"".$pluginName."Operations\" class=\"iconic wrench\" onclick=\"\" style=\"\" ></span>";
 		}
-		return "";
+		
+		if(PMReflector::implementsInterface($this->object,"iLinkable")){
+			$B = new Button("Link kopieren", "link", "iconic");
+			$B->style("float:right;margin-top:-3px;".(count($Buttons) ? "margin-right:5px;" : ""));
+			$B->onclick("var link = window.location.origin+window.location.pathname+'".$this->object->getLink()."'; if(typeof navigator.clipboard != 'undefined') navigator.clipboard.writeText(link).then(() => { showMessage('Link kopiert'); }); else prompt('Bitte kopieren Sie die Adresse:', link);");
+			$Buttons[] = $B;
+		}
+		
+		return $Buttons;
 	}
 	
 	/**
@@ -961,13 +997,13 @@ class HTMLGUI implements icontextMenu {
 		$html .= "
 			<form id=\"$this->FormID\">
 				<div class=\"backgroundColor1 Tab\">
-					<p>".$this->getOperationsHTML($pluginName, $this->editedID)."".($this->labelCaption == null ? T::_("%1 editieren", T::_($this->name)).":" : T::_($this->labelCaption))."</p>
+					<p>".implode("", $this->getOperationsHTML($pluginName, $this->editedID))."".($this->labelCaption == null ? T::_("%1 editieren", T::_($this->name)).":" : T::_($this->labelCaption))."</p>
 				</div>
 				<div>
 				<table>
 					<colgroup>
-					   <col class=\"backgroundColor3\" style=\"width:120px;\" />
-					   <col class=\"backgroundColor2\" />
+					   <col class=\"backgroundColor2\" style=\"width:120px;\" />
+					   <col class=\"backgroundColor3\" />
 					</colgroup>";
 
 		$tab = 0;
@@ -1006,8 +1042,8 @@ class HTMLGUI implements icontextMenu {
 				<div id=\"Tab$this->className$tab\" style=\"display:none;\">
 				<table>
 					<colgroup>
-						<col class=\"backgroundColor2\" style=\"width:120px;\" />
-						<col class=\"backgroundColor3\" />
+						<col class=\"backgroundColor3\" style=\"width:120px;\" />
+						<col class=\"backgroundColor2\" />
 					</colgroup>";
 					$tab++;	
 				}
@@ -1017,11 +1053,21 @@ class HTMLGUI implements icontextMenu {
 			if(isset($this->labels[$value])) $label = $this->labels[$value];
 			if(isset($userLabels[$value])) $label = $userLabels[$value];
 			
-			$html .= "
-					<tr ".(isset($this->style[$value]) ? "style=\"".$this->style[$value]."\"" : "").">
-						<td id=\"".$value."EditL\"><label for=\"".$value."\">".T::_($label).":".(isset($this->labelDescriptions[$value]) ? "<br /><small>".$this->labelDescriptions[$value]."</small>" : "")."</label></td>
-						<td id=\"".$value."EditR\">".$this->getInput($value)."".(isset($this->fieldDescriptions[$value]) ? "<br /><small style=\"color:grey;\">".T::_($this->fieldDescriptions[$value], isset($this->fieldDescriptionsReplacement1[$value]) ? $this->fieldDescriptionsReplacement1[$value] : null)."</small>" : "")."</td>
-					</tr>";
+			if(!isset($this->types[$value]) OR $this->types[$value] != "textarea")
+				$html .= "
+						<tr ".(isset($this->style[$value]) ? "style=\"".$this->style[$value]."\"" : "").">
+							<td id=\"".$value."EditL\"><label for=\"".$value."\">".T::_($label).":".(isset($this->labelDescriptions[$value]) ? "<br /><small>".$this->labelDescriptions[$value]."</small>" : "")."</label></td>
+							<td id=\"".$value."EditR\">".$this->getInput($value)."".(isset($this->fieldDescriptions[$value]) ? "<br /><small style=\"color:grey;\">".T::_($this->fieldDescriptions[$value], isset($this->fieldDescriptionsReplacement1[$value]) ? $this->fieldDescriptionsReplacement1[$value] : null)."</small>" : "")."</td>
+						</tr>";
+			else
+				$html .= "
+						<tr ".(isset($this->style[$value]) ? "style=\"".$this->style[$value]."\"" : "").">
+							<td colspan=\"2\" id=\"".$value."EditL\"><label for=\"".$value."\">".T::_($label).":".(isset($this->labelDescriptions[$value]) ? "<br /><small>".$this->labelDescriptions[$value]."</small>" : "")."</label></td>
+						</tr>
+						<tr class=\"backgroundColor3\" ".(isset($this->style[$value]) ? "style=\"".$this->style[$value]."\"" : "").">
+							<td colspan=\"2\"  id=\"".$value."EditR\">".$this->getInput($value)."".(isset($this->fieldDescriptions[$value]) ? "<br /><small style=\"color:grey;\">".T::_($this->fieldDescriptions[$value], isset($this->fieldDescriptionsReplacement1[$value]) ? $this->fieldDescriptionsReplacement1[$value] : null)."</small>" : "")."</td>
+						</tr>";
+				
 			
 		}
 
@@ -2119,7 +2165,6 @@ class HTMLGUI implements icontextMenu {
 	public function getPageSelectionField(){
 		$IPage = new HTMLInput("page", "text", $this->multiPageMode[1]+1);
 		$IPage->onkeyup("if(event.keyCode == 13 && this.value > 0) contentManager.loadPage('{$this->multiPageMode[3]}',this.value - 1);");
-		$IPage->hasFocusEvent(true);
 
 		return $IPage;
 	}

@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 class HTMLPopupGUI {
 	private $object;
@@ -27,6 +27,9 @@ class HTMLPopupGUI {
 	private $showTrash = true;
 	private $showNew = true;
 	private $showEdit = true;
+	private $sortable = null;
+	private $event = [];
+	private $topButtons = [];
 	
 	public function __construct($object){
 		$this->object = $object;
@@ -64,20 +67,47 @@ class HTMLPopupGUI {
 		return $BC."<div style=\"clear:both;\"></div>".$gui->getEditHTML();
 	}
 	
+	public function sortable($saveTo, $handleClass, $onUpdateComplete = "", $additionalParameters = array()){
+		$this->sortable = func_get_args();
+	}
+	
+	public function addToEvent($event, $action){
+		$this->event[$event] = $action;
+	}
+	
+	public function addTopButton($labelOrButton, $image = ""){
+		if(!is_object($labelOrButton))
+			$B = new Button($labelOrButton, $image);
+		else
+			$B = $labelOrButton;
+
+		$this->topButtons[] = $B;
+
+		return $B;
+	}
+	
 	public function emptyCheckField($name, $value = null){
 		$this->emptyCheckField = $name;
 		$this->emptyCheckValue = $value;
 	}
 	
-	public function parser($column, $method){
-		$this->parsers[$column] = $method;
+	public function parser($column, $method, $args = []){
+		$this->parsers[$column] = [$method , $args];
 	}
 	
 	public function browser(){
 		$BA = new Button("Eintrag\nhinzufügen", "new");
 		$BA->doBefore("\$j('#popupEditEntry').fadeOut(400, function(){ \$j('#editDetails".$this->object->getClearClass()."').animate({'width':'400px'}, 200, 'swing', function(){ %AFTER }); });");
 		$BA->rmePCR($this->object->getClearClass(), "-1", "create", $this->parametersCreate, OnEvent::reloadPopup($this->object->getClearClass()));
-		$BA->style("margin:10px;");
+		$BA->style("margin:5px;");
+		
+		if(isset($this->parsers["add"])){
+			$BA = new Button("Eintrag\nhinzufügen", "new");
+			$BA->style("margin:5px;");
+			$BA->onclick("\$j('#popupEditEntry').fadeOut(400, function(){ \$j('#editDetails".$this->object->getClearClass()."').animate({'width':'400px'}, 200, 'swing', function(){ \$j('#popupListAdd').slideDown(); \$j('#popupListEdit').slideUp(); });\$j('#editDetails".$this->object->getClearClass()."').animate({'width':'400px'}, 200, 'swing'); });");
+		
+		}
+		
 		if(!$this->showNew)
 			$BA = "";
 		
@@ -94,6 +124,9 @@ class HTMLPopupGUI {
 		$TE->maxHeight(400);
 		$TE->weight("light");
 		
+		if($this->sortable !== null)
+			$TE->sortable(...$this->sortable);
+		
 		$BE = new Button("Eintrag bearbeiten", "arrow_right", "iconicG");
 		
 		$autoLoad = false;
@@ -102,7 +135,7 @@ class HTMLPopupGUI {
 			
 			$BD = new Button("Eintrag löschen", "trash_stroke", "iconic");
 			$BD->doBefore("\$j('#popupEditEntry').fadeOut(400, function(){ \$j('#editDetails".$this->object->getClearClass()."').animate({'width':'400px'}, 200, 'swing', function(){ %AFTER }); });");
-			$BD->onclick("deleteClass('".get_class($A)."','".$A->getID()."', function() { ".OnEvent::reloadPopup($this->object->getClearClass())." },'Eintrag wirklich löschen?');");
+			$BD->onclick("deleteClass('".get_class($A)."','".$A->getID()."', function() { ".OnEvent::reloadPopup($this->object->getClearClass())." ".(isset($this->event["onDelete"]) ? $this->event["onDelete"] : "")." },'Eintrag wirklich löschen?');");
 
 			$isEmpty = false;
 			if($this->emptyCheckField != null AND !is_array($this->emptyCheckField) AND $A->A($this->emptyCheckField) == $this->emptyCheckValue){
@@ -144,21 +177,38 @@ class HTMLPopupGUI {
 			
 			if(!$isEmpty){
 				$obj = get_class($this->object);
-				$meth = $this->parsers["main"];
-				if(strpos($this->parsers["main"], "::")){
-					$ex = explode("::", $this->parsers["main"]);
+				$meth = $this->parsers["main"][0];
+				if(is_string($this->parsers["main"][0]) AND strpos($this->parsers["main"][0], "::")){
+					$ex = explode("::", $this->parsers["main"][0]);
 					$obj = $ex[0];
 					$meth = $ex[1];
 				}
-				$div = Util::invokeStaticMethod($obj, $meth, array($A));#($A->A("TinkerforgeBrickletUID") != "" ? $A->A("TinkerforgeBrickletUID") : "Neuer Eintrag");
+				if(is_string($meth))
+					$div = Util::invokeStaticMethod($obj, $meth, array($A));#($A->A("TinkerforgeBrickletUID") != "" ? $A->A("TinkerforgeBrickletUID") : "Neuer Eintrag");
+				if($meth instanceof \Closure)
+					$div = $meth($A);
 			} else
 				$div = "Neuer Eintrag";
 			
-			$row = array();
+			$row = [];
+			$style = [];
 			
 			if($this->showTrash)
 				$row[] = $BD;
 			
+			foreach($this->colsLeft AS $col){
+				$obj = get_class($this->object);
+				$meth = $col[0];
+				if(strpos($col[0], "::")){
+					$ex = explode("::", $col[0]);
+					$obj = $ex[0];
+					$meth = $ex[1];
+				}
+				
+				$row[] = Util::invokeStaticMethod($obj, $meth, array($A));
+				
+				$style[count($row)] = $col[1];
+			}
 			
 			$row[] = $div;
 			
@@ -178,9 +228,14 @@ class HTMLPopupGUI {
 				$row[] = $BE;
 			
 			$TE->addRow($row);
+			if($this->sortable !== null)
+				$TE->setRowID("Element_".$A->getID());
 			
 			if($this->showTrash)
 				$TE->addCellStyle(1, "vertical-align:top;");
+			
+			foreach($style AS $k => $s)
+				$TE->addCellStyle($k, $s);
 			
 			#$TE->addCellEvent(2, "click", $action);
 			
@@ -202,9 +257,28 @@ class HTMLPopupGUI {
 			$TE->addRowColspan(1, $cols);
 		}
 		
-		return "$BA
+		$add = "";
+		if(isset($this->parsers["add"])){
+			$actionClose = OnEvent::reloadPopup($this->object->getClearClass());
+			$add = Util::invokeStaticMethod(get_class($this->object), $this->parsers["add"][0], array_merge([$actionClose], $this->parsers["add"][1]));
+			
+			$BC = new Button("Abbrechen", "stop");
+			$BC->style("margin:5px;");
+			$BC->onclick("\$j('#popupListAdd').slideUp(); \$j('#popupListEdit').slideDown();");
+			
+			$add = $BC.$add;
+		}
+		
+				
+		return "
 			<div style=\"float:right;width:calc(100% - 400px);height:500px;display:none;background-color:#f4f4f4;overflow:auto;\" id=\"popupEditEntry\"></div>
-			<div id=\"popupListEntries\" style=\"width:400px;height:440px;overflow:auto;\">$TE</div>
+			<div id=\"popupListEdit\">
+				$BA".implode("", $this->topButtons)."
+				<div id=\"popupListEntries\" style=\"width:400px;height:440px;overflow:auto;\">$TE</div>
+			</div>
+			<div id=\"popupListAdd\" style=\"width:400px;height:500px;overflow:auto;display:none;\">
+				$add
+			</div>
 			<div style=\"clear:both;\"></div>
 			".($autoLoad ? OnEvent::script($autoLoad) : "");
 		

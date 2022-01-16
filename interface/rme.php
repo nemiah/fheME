@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 $par = "";
 
@@ -77,6 +77,7 @@ if(
 	AND $cla != "Colors"
 	AND $cla != "Support"
 	AND $cla != "nicEdit"
+	AND $cla != "Websocket"
 	AND $cla != "Telefonanlage"
 	AND $cla != "NextcloudUser"
 	AND $cla != "WebAuth"
@@ -112,8 +113,12 @@ $d = new $c($con);
 
 Timer::now("init", __FILE__, __LINE__);
 $pars = explode("','",$par);
-$pars[0] = substr($pars[0],1);
-$pars[count($pars) - 1] = substr($pars[count($pars) - 1],0,strlen($pars[count($pars) - 1])-1);
+$pars[0] = substr($pars[0], 1);
+$pars[count($pars) - 1] = substr($pars[count($pars) - 1], 0, strlen($pars[count($pars) - 1]) - 1);
+
+$pars = array_map(function($v){
+	return str_replace("\\'", "'", $v);
+}, $pars);
 
 if(!method_exists($d, $met)){
 	if(!method_exists($d, "__call")) 

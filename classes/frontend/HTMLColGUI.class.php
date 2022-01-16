@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 
 class HTMLColGUI {
@@ -69,9 +69,9 @@ class HTMLColGUI {
 		
 		if($this->cols == 2){
 			$html = "
-		<div style=\"display:inline-block;vertical-align:top;margin:0px;padding:0px;width:50%;\" id=\"contentScreenLeft\">
+		<div style=\"display:inline-block;vertical-align:top;margin:0px;padding:0px;width:".($this->widths != null ? $this->widths["left"] : "50%").";\" id=\"contentScreenLeft\">
 			".$this->content["left"]."
-		</div><div style=\"-webkit-box-sizing:border-box;-moz-box-sizing:border-box;-ms-box-sizing:border-box;box-sizing:border-box;overflow:auto;display:inline-block;width:50%;vertical-align:top;border-left-style:solid;border-left-width:1px;margin:0px;min-height:400px;\" id=\"contentScreenRight\" class=\"borderColor1\">
+		</div><div style=\"-webkit-box-sizing:border-box;-moz-box-sizing:border-box;-ms-box-sizing:border-box;box-sizing:border-box;overflow:auto;display:inline-block;width:".($this->widths != null ? $this->widths["right"] : "50%").";vertical-align:top;border-left-style:solid;border-left-width:1px;margin:0px;min-height:400px;\" id=\"contentScreenRight\" class=\"borderColor1\">
 			".$this->content["right"]."
 		</div>";
 		
@@ -88,7 +88,7 @@ class HTMLColGUI {
 		
 		if($this->cols == 3){
 			$html = "
-		<div style=\"-webkit-box-sizing:border-box;-moz-box-sizing:border-box;-ms-box-sizing:border-box;box-sizing:border-box;display:inline-block;overflow:auto;vertical-align:top;width:".($this->widths != null ? $this->widths["left"] : "33%").";margin:0px;padding:0px;min-height:500px;\" id=\"contentScreenLeft\">
+		<div style=\"-webkit-box-sizing:border-box;-moz-box-sizing:border-box;-ms-box-sizing:border-box;box-sizing:border-box;display:inline-block;overflow:auto;vertical-align:top;width:".($this->widths != null ? $this->widths["left"] : "33%").";margin:0px;padding:0px;min-height:400px;\" id=\"contentScreenLeft\">
 			
 				".$this->content["left"]."
 			

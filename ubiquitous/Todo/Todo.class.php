@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
 class Todo extends PersistentObject {
 	
@@ -81,6 +81,14 @@ class Todo extends PersistentObject {
 		if($this->A("TodoClass") != "" AND $this->A("TodoClass") != "Kalender" AND $this->A("TodoName") == "")
 			$this->changeA("TodoName", $this->getOwnerObject()->getCalendarTitle());
 		
+		if(Session::isPluginLoaded("mAufgabe")){
+			$TID = ($this->A("TodoLinkID") != 0 ? $this->A("TodoLinkID") : $this->getID());
+			
+			$AC = anyC::get("Aufgabe", "AufgabeTodoID", $TID);
+			$AC->addAssocV3("AufgabeStatus", "=", "0");
+			while($T = $AC->n())
+				$T->saveMe();
+		}
 		
 		if(Session::isPluginLoaded("mAufgabe") AND ($this->A("TodoType") == 3 OR $this->A("TodoType") == 4 OR $this->A("TodoType") == 5) AND $this->A("TodoUserID") > 0){
 			$F = new Factory("Aufgabe");
@@ -182,8 +190,13 @@ class Todo extends PersistentObject {
 				$ST = new Todo(-1);
 				$ST->setA(clone $this->getA());
 				$ST->changeA("TodoUserID", $UserID);
+				$ST->changeA("TodoLinkID", $id);
 				$ST->newMe();
 			}
+			
+			$T = new Todo($id);
+			$T->changeA("TodoLinkID", $id);
+			$T->saveMe();
 		}
 		
 		if(Session::isPluginLoaded("mSync") AND ($this->A("TodoExceptionForID") == "0" OR $this->A("TodoExceptionForID") == ""))

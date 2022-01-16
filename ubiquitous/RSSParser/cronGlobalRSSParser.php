@@ -15,18 +15,18 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2020, open3A GmbH - Support@open3A.de
+ *  2007 - 2021, open3A GmbH - Support@open3A.de
  */
-if(!file_exists("/var/www/status/cron_".gethostname()))
+if(!file_exists("/var/www/status/cron_".gethostbyaddr('127.0.1.1')))
 	die("Status file missing!");
 
 ini_set('default_socket_timeout', 7);
 
-if(file_exists("/var/www/status/cron_".gethostname())){
-	$status = file_get_contents("/var/www/status/cron_".gethostname());
+if(file_exists("/var/www/status/cron_".gethostbyaddr('127.0.1.1'))){
+	$status = file_get_contents("/var/www/status/cron_".gethostbyaddr('127.0.1.1'));
 	#if(trim($status) !== "active")
 	#	die();
-	if(gethostname() != "cloud02.furtmeier.it")
+	if(gethostbyaddr('127.0.1.1') != "cloud02.furtmeier.it")
 		die();
 }
 
