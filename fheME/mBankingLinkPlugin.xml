@@ -27,6 +27,7 @@
 		<folder>../open3A/Banking</folder>
 
 		<adminOnly>false</adminOnly>
+		<registry>Overview;mBankingGUI::getOverviewPlugin</registry>
 		
 		<version>0.6</version>
 
