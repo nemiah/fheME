@@ -96,7 +96,7 @@ class UPnPPlayerGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 		$xml = new SimpleXMLElement($result["Result"]);
 		$entries = $UPnPSource->findEntries($xml);
 		$series = $UPnPSource->findSeries($entries);
-		
+
 		$filterSeries = false;
 		if(isset($bps["series"]) AND $bps["series"] != ""){
 			$entries = $series[$bps["series"]];
