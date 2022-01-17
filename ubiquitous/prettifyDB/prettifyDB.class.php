@@ -20,19 +20,19 @@
 class prettifyDB extends PersistentObject {
 	private static $prettifyerRules = array(
 		"seriesEpisodeNameDownloaded" => array(
-			"^OneDDL.com-|^1-3-3-8.com[_-]|Ddlsource.com_" => "",
-			"-ctu|-immerse|[-.]2hd|-bia|-wasabi|-Hannibal|-FoV|.immerse|-EVOLVE|c4tv|-HoC|Repack|-compulsion|-ASAP|-SiNNERS|-ECI|BluRay|-AVS|-KILLERS|-LOL" => "",
-			"[-.]DIMENSION|-MADHACKER|-FEVER|[-.]PiLAF|.PROPER|WEBRip|AAC" => "",
+			"^OneDDL.com-|^1-3-3-8.com[_-]|Ddlsource.com_|DDLValley.me" => "",
+			"-ctu|-immerse|[-.]2hd|-bia|-wasabi|-Hannibal|-FoV|.immerse|GOSSIP|-EVOLVE|c4tv|-HoC|Repack|-compulsion|-ASAP|-SiNNERS|-ECI|BluRay|-AVS|-KILLERS|-LOL" => "",
+			"[-.]DIMENSION|-MADHACKER|-FEVER|[-.]PiLAF|.PROPER|WEBRip|AAC|-ION10" => "",
 			"s([0-9]+)e([0-9]+)" => "S\\1E\\2",
-			"^([a-z])" => "strtoupper('\\1')",
+			#"^([a-z])" => "strtoupper('\\1')",
 			".hdtv|-orenji|[-.]x264|[_.]WEB[-.]DL|[._]h.264|-kyr" => "",
 			"([0-9]{1,2})×([0-9]{2})" => "S\\1E\\2",
-			"(.[a-z])" => "strtoupper('\\1')",
+			#"(.[a-z])" => "strtoupper('\\1')",
 			"Mkv" => "mkv",
 			"Mp4" => "mp4",
 			".720p" => "",
-			".(20[0-9]{2})." => "' (\\1) '",
-			"." => "' '"
+			".(20[0-9]{2})." => " (\\1) ",
+			"." => " "
 		)
 	);
 	
@@ -44,8 +44,11 @@ class prettifyDB extends PersistentObject {
 	}
 	
 	public static function apply($target, $text){
+		$text = preg_replace_callback("/^([a-z])/", function($matches){ return strtoupper($matches[0]); }, $text);
+		$text = preg_replace_callback("/(\.[a-z])/", function($matches){ return strtoupper($matches[0]); }, $text);
+		
 		foreach(self::rules($target) AS $reg => $replace)
-			$text = preg_replace("/".str_replace(".", "\.", $reg)."/ei", str_replace(array("."), array("\."), $replace), $text);
+			$text = preg_replace("/".str_replace(".", "\.", $reg)."/i", str_replace(array("."), array("\."), $replace), $text);
 		
 		return $text;
 	}
