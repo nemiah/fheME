@@ -254,15 +254,14 @@ class mUPnPGUI extends mUPnP implements iGUIHTMLMP2 {
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true );
 
 			$result = json_decode(curl_exec($ch));
-			curl_close($ch);
-			
-			if(curl_errno($ch) == 7 OR curl_errno($ch) == 28 OR $result === null){
+			if($result === null OR curl_errno($ch) == 7 OR curl_errno($ch) == 28){
 				$BO = new Button("Ausgeschaltet", "bolt", "touch");
 				$BO->style("margin:10px;display:inline-block;width:150px;vertical-align:top;opacity:.5;");
 				echo $BO;
 				
 				continue;
 			}
+			curl_close($ch);
 			
 			$BG = new Button("Play", "play", "touch");
 			$BG->style("margin:10px;display:inline-block;width:150px;vertical-align:top;");
