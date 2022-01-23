@@ -173,6 +173,9 @@ class Kalender {
 	}
 
 	public static function parseDay($day){
+		if($day === null)
+			return null;
+		
 		return Util::parseDate("de_DE", $day[0].$day[1].".".$day[2].$day[3].".".$day[4].$day[5].$day[6].$day[7]);
 	}
 
