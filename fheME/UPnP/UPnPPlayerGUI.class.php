@@ -202,7 +202,8 @@ class UPnPPlayerGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 			$ex = explode(":", $ex[0]);
 			$duration = $ex[0] * 60 + $ex[1];
 			$BF = new Button($newName."<br><small style=\"color:grey;\">".$duration." Min, {$count}x</small>", $played ? "check" : "document_alt_stroke", "touch");
-			$BF->onclick(OnEvent::rme($UPnPSource, "readSetStart", array("'".$item->attributes()->id."'", "'".$UPnPTarget->getID()."'"), "function(){ ".OnEvent::rme($this, "played", array("'".$item->attributes()->id."'"))." \$j('#button$k span').removeClass('document_alt_stroke').addClass('check'); }"));
+			#$BF->onclick(OnEvent::rme($UPnPSource, "readSetStart", array("'".$item->attributes()->id."'", "'".$UPnPTarget->getID()."'"), "function(){ ".OnEvent::rme($this, "played", array("'".$item->attributes()->id."'"))." \$j('#button$k span').removeClass('document_alt_stroke').addClass('check'); }"));
+			$BF->onclick(OnEvent::rme($UPnPSource, "addToPlaylist", array("'".$item->attributes()->id."'", "'".$UPnPTarget->getID()."'"), "function(){ ".OnEvent::rme($this, "played", array("'".$item->attributes()->id."'"))." \$j('#button$k span').removeClass('document_alt_stroke').addClass('check'); }"));
 			$BF->style("width:calc(25% - 10px);margin-left:10px;display:inline-block;vertical-align:top;box-sizing:border-box;text-overflow:hidden;overflow: hidden;white-space: nowrap;");
 			$BF->id("button$k");
 			
@@ -213,10 +214,9 @@ class UPnPPlayerGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 		echo "</div></div>";
 	}
 	
-	public function playlistPopup(){
+	public function playlist($action){
 		$UPnPTarget = anyC::getFirst("UPnP", "UPnPName", mUserdata::getGlobalSettingValue("UPnPPlayerTarget", ""));
 		
-		echo "<pre>";
 		$url = parse_url($UPnPTarget->A("UPnPLocation"));
 		
 		$crl = curl_init('http://'.$url["host"].':8080/jsonrpc');
@@ -224,32 +224,84 @@ class UPnPPlayerGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 		curl_setopt($crl, CURLOPT_POST, true);
 		curl_setopt($crl, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
 		
-		/*curl_setopt($crl, CURLOPT_POSTFIELDS, '{"jsonrpc": "2.0", "method": "Player.GetActivePlayers", "id": 1}');
-		$result = curl_exec($crl);
-		$r = json_decode($result);
-		print_r($r);
+		if($action == "clear"){
+			curl_setopt($crl, CURLOPT_POSTFIELDS, '{"jsonrpc": "2.0", "method": "Playlist.Clear", "params": { "playlistid": 1}, "id": 1}');
+			curl_exec($crl);
+		}
 		
+		if($action == "play"){
+			curl_setopt($crl, CURLOPT_POSTFIELDS, '{"jsonrpc":"2.0", "method": "Player.Open", "params": {"item":{"playlistid":1,"position":0}},"id":1}');
+			curl_exec($crl);
+		}
+		#$r = json_decode($result);
+		#echo "Clear:\n";
+		#print_r($r);
+		
+	}
+	
+	public function playlistPopup(){
+		$UPnPTarget = anyC::getFirst("UPnP", "UPnPName", mUserdata::getGlobalSettingValue("UPnPPlayerTarget", ""));
+		
+		$url = parse_url($UPnPTarget->A("UPnPLocation"));
+		
+		$crl = curl_init('http://'.$url["host"].':8080/jsonrpc');
+		curl_setopt($crl, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($crl, CURLOPT_POST, true);
+		curl_setopt($crl, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+		
+		curl_setopt($crl, CURLOPT_POSTFIELDS, '{"jsonrpc": "2.0", "method": "Playlist.GetItems", "params": { "properties": [ "runtime", "showtitle", "title" ], "playlistid": 1}, "id": 1}');
+		$result = curl_exec($crl);
+		#print_r($result);
+		$r = json_decode($result);
+		#echo "List:\n";
+		echo "<p>Die Playlist hat ".$r->result->limits->total." Einträge</p>";
+		
+		$L = new HTMLTable(1);
+		$L->useForSelection(false);
+		
+		$L->addRow("Playlist leeren");
+		$L->addCellStyle(1, "padding:15px;");
+		$L->addCellEvent(1, "click", OnEvent::rme($this, "playlist", ["'clear'"], OnEvent::reloadPopup("UPnPPlayer")));
+		
+		$L->addRow("Playlist abspielen");
+		$L->addCellStyle(1, "padding:15px;");
+		$L->addCellEvent(1, "click", OnEvent::rme($this, "playlist", ["'play'"], OnEvent::reloadPopup("UPnPPlayer")));
+		
+		echo $L;
+		
+		echo "<pre>";
+		/*
 		
 		curl_setopt($crl, CURLOPT_POSTFIELDS, '{"jsonrpc": "2.0", "method": "Player.GetItem", "params": { "properties": ["title", "album", "artist", "season", "episode", "duration", "showtitle", "tvshowid", "thumbnail", "file", "fanart", "streamdetails"], "playerid": 1 }, "id": "VideoGetItem"}');
 		$result = curl_exec($crl);
 		$r = json_decode($result);
 		print_r($r);*/
 		
-		curl_setopt($crl, CURLOPT_POSTFIELDS, '{"jsonrpc": "2.0", "method": "Playlist.Clear", "params": { "playlistid": 1}, "id": 1}');
-		$result = curl_exec($crl);
-		$r = json_decode($result);
-		print_r($r);
+		#curl_setopt($crl, CURLOPT_POSTFIELDS, '{"jsonrpc": "2.0", "method": "Playlist.Clear", "params": { "playlistid": 1}, "id": 1}');
+		#$result = curl_exec($crl);
+		#$r = json_decode($result);
+		#echo "Clear:\n";
+		#print_r($r);
 		
-		curl_setopt($crl, CURLOPT_POSTFIELDS, '{"jsonrpc": "2.0", "method": "Playlist.Add", "params": { "item": {"http":"//192.168.7.11:8200/MediaItems/36678.mp4"}, "playlistid": 1}, "id": 1}');
-		$result = curl_exec($crl);
-		$r = json_decode($result);
-		print_r($r);
+		#curl_setopt($crl, CURLOPT_POSTFIELDS, '{"jsonrpc": "2.0", "method": "Playlist.Add", "params": { "item": {"file":"http://192.168.7.11:8200/MediaItems/41578.mp4"}, "playlistid": 1}, "id": 1}');
+		#$result = curl_exec($crl);
+		#$r = json_decode($result);
+		#echo "Add:\n";
+		#print_r($r);
 		
-		curl_setopt($crl, CURLOPT_POSTFIELDS, '{"jsonrpc": "2.0", "method": "Playlist.GetItems", "params": { "properties": [ "runtime", "showtitle", "season", "title", "artist" ], "playlistid": 1}, "id": 1}');
-		$result = curl_exec($crl);
-		$r = json_decode($result);
-		print_r($r);
-		echo "</pre>";
+		#curl_setopt($crl, CURLOPT_POSTFIELDS, '{"jsonrpc": "2.0", "method": "Player.GetActivePlayers", "id": 1}');
+		#$result = curl_exec($crl);
+		#$r = json_decode($result);
+		#if(count($r->result) == 0){
+		#	curl_setopt($crl, CURLOPT_POSTFIELDS, '{"jsonrpc":"2.0", "method": "Player.Open", "params": {"item":{"playlistid":1,"position":0}},"id":1}');
+			#$result = curl_exec($crl);
+			#print_r($result);
+			#$r = json_decode($result);
+			#echo "Play:\n";
+			#print_r($r);
+		#}
+		
+		#echo "</pre>";
 	}
 	
 	public function tvcontrolPopup(){
@@ -269,13 +321,13 @@ class UPnPPlayerGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 		$L->addCellEvent(1, "click", OnEvent::rme($this, "tvControl", ["'toggle'"], OnEvent::closePopup("UPnPPlayer")));
 		
 		
-		$L->addRow("Lauter");
+		/*$L->addRow("Lauter");
 		$L->addCellStyle(1, "padding:15px;");
 		$L->addCellEvent(1, "click", OnEvent::rme($this, "tvControl", ["'VolUp'"]));
 		
 		$L->addRow("Leiser");
 		$L->addCellStyle(1, "padding:15px;");
-		$L->addCellEvent(1, "click", OnEvent::rme($this, "tvControl", ["'VolDown'"]));
+		$L->addCellEvent(1, "click", OnEvent::rme($this, "tvControl", ["'VolDown'"]));*/
 		
 		echo $L;
 	}

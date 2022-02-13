@@ -300,25 +300,67 @@ class UPnPGUI extends UPnP implements iGUIHTML2 {
 	}
 	
 	public function readSetStart($ObjectID, $targetUPnPID){
-		$B = new Button("Reload", "refresh");
-		$B->onclick(OnEvent::popup("", "UPnP", $this->getID(), "readSetStart", array("'".$ObjectID."'")));
-		$B->style("margin:10px;");
+		#$B = new Button("Reload", "refresh");
+		#$B->onclick(OnEvent::popup("", "UPnP", $this->getID(), "readSetStart", array("'".$ObjectID."'")));
+		#$B->style("margin:10px;");
 		
 		$result = $this->Browse($ObjectID, "BrowseMetadata", "*");
-		echo $B;
+		#echo $B;
 		
-		echo "<pre style=\"max-height:300px;overflow:auto;padding:5px;\">";
+		#echo "<pre style=\"max-height:300px;overflow:auto;padding:5px;\">";
 		#$this->prettyfy($result["Result"]);
 		
 		$xml = new SimpleXMLElement($result["Result"]);
-		print_r($xml->item[0]->res[0]."");
+		#print_r($xml->item[0]->res[0]."");
 		
 		$U = new UPnP($targetUPnPID);
 		$U->SetAVTransportURI(0, $xml->item[0]->res[0]."");
 		$U->Play();
 		
-		echo "</pre>";
+		#echo "</pre>";
+	}
+	
+	
+	public function addToPlaylist($ObjectID, $targetUPnPID){
+		#$UPnPTarget = anyC::getFirst("UPnP", "UPnPName", mUserdata::getGlobalSettingValue("UPnPPlayerTarget", ""));
+		$UPnPTarget = new UPnP($targetUPnPID);
+		#echo "<pre>";
 		
+		$result = $this->Browse($ObjectID, "BrowseMetadata", "*");
+		$xml = new SimpleXMLElement($result["Result"]);
+		$url = parse_url($UPnPTarget->A("UPnPLocation"));
+		
+		$crl = curl_init('http://'.$url["host"].':8080/jsonrpc');
+		curl_setopt($crl, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($crl, CURLOPT_POST, true);
+		curl_setopt($crl, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+		
+		
+		curl_setopt($crl, CURLOPT_POSTFIELDS, '{"jsonrpc": "2.0", "method": "Player.GetActivePlayers", "id": 1}');
+		$result = curl_exec($crl);
+		$r = json_decode($result);
+		if(count($r->result) === 0){
+			curl_setopt($crl, CURLOPT_POSTFIELDS, '{"jsonrpc": "2.0", "method": "Playlist.Clear", "params": { "playlistid": 1}, "id": 1}');
+			curl_exec($crl);
+		}
+		
+		
+		curl_setopt($crl, CURLOPT_POSTFIELDS, '{"jsonrpc": "2.0", "method": "Playlist.Add", "params": { "item": {"file":"'.$xml->item[0]->res[0].'"}, "playlistid": 1}, "id": 1}');
+		$result = curl_exec($crl);
+		json_decode($result);
+		
+		curl_setopt($crl, CURLOPT_POSTFIELDS, '{"jsonrpc": "2.0", "method": "Player.GetActivePlayers", "id": 1}');
+		$result = curl_exec($crl);
+		$r = json_decode($result);
+		if(count($r->result) === 0){
+			
+			curl_setopt($crl, CURLOPT_POSTFIELDS, '{"jsonrpc": "2.0", "method": "Playlist.GetItems", "params": { "properties": [ "runtime", "showtitle", "title" ], "playlistid": 1}, "id": 1}');
+			curl_exec($crl);
+			
+			curl_setopt($crl, CURLOPT_POSTFIELDS, '{"jsonrpc":"2.0", "method": "Player.Open", "params": {"item":{"playlistid":1,"position":'.($r->result->limits->total - 1).'}},"id":1}');
+			curl_exec($crl);
+		}
+		#echo "</pre>";
 	}
 	
 	public function controls(){
