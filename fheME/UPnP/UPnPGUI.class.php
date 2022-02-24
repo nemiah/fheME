@@ -357,7 +357,7 @@ class UPnPGUI extends UPnP implements iGUIHTML2 {
 			curl_setopt($crl, CURLOPT_POSTFIELDS, '{"jsonrpc": "2.0", "method": "Playlist.GetItems", "params": { "properties": [ "runtime", "showtitle", "title" ], "playlistid": 1}, "id": 1}');
 			curl_exec($crl);
 			
-			curl_setopt($crl, CURLOPT_POSTFIELDS, '{"jsonrpc":"2.0", "method": "Player.Open", "params": {"item":{"playlistid":1,"position":'.($r->result->limits->total - 1).'}},"id":1}');
+			curl_setopt($crl, CURLOPT_POSTFIELDS, '{"jsonrpc":"2.0", "method": "Player.Open", "params": {"item":{"playlistid":1,"position":0}},"id":1}');
 			curl_exec($crl);
 		}
 		#echo "</pre>";
