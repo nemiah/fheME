@@ -267,7 +267,7 @@ class mEinkaufszettelGUI extends anyC implements iGUIHTMLMP2 {
 		$LC->noDots();
 		$LC->addListStyle("padding-top:10px;padding-left:0px;");
 		
-		$L = "";
+		$L = clone $LC;
 		$last = "";
 		$html = "";
 		while($B = $AC->getNextEntry()){
