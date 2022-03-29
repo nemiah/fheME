@@ -35,6 +35,9 @@ class CCShopping implements iCustomContent {
 	#}
 	
 	function getCMSHTML() {
+		if(file_exists(Util::getRootPath()."open3A/Banking"))
+			addClassPath(Util::getRootPath()."open3A/Banking");
+		
 		$key = substr(Util::eK(), 0, 5);
 		if(!isset($_GET["key"]) OR $key != $_GET["key"])
 			return "<span style=\"color:red;\">Bitte geben Sie den richtigen Schlüssel zum Aufrufen der Seite in der Adresszeile an.</span>";
@@ -147,6 +150,17 @@ class CCShopping implements iCustomContent {
 		$html .= "<div style=\"".($AC->numLoaded() == 0 ? "" : "display:none;")."\" class=\"entry backgroundColor1 borderColor1\" id=\"emptyEntry\">Die Einkaufsliste enthält keine Einträge.<br /><small style=\"color:grey;\">".Util::CLDateParser(time())."</small></div>";
 		
 		$html .= "</div>";
+		
+		if(Session::isPluginLoaded("mBanking")){
+			$AC = anyC::get("BankingKonto");
+
+			while($MC = $AC->getNextEntry()){
+				$html .= "
+					<div style=\"padding-left:10px;padding-top:5px;padding-bottom:5px;\">
+					".$MC->A("BankingKontoName").": ".Util::CLFormatCurrency($MC->A("BankingKontoBalance"))."<small style=\"color:grey;\">, ".Util::CLDateTimeParser($MC->A("BankingKontoLastCheck"))."</small>
+					</div>";
+			}
+		}
 		
 		return $html.OnEvent::script("
 		var Touch = {};
