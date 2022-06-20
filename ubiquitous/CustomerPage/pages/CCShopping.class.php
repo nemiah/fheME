@@ -151,7 +151,7 @@ class CCShopping implements iCustomContent {
 		
 		$html .= "</div>";
 		
-		if(Session::isPluginLoaded("mBanking")){
+		try {
 			$AC = anyC::get("BankingKonto");
 
 			while($MC = $AC->getNextEntry()){
@@ -160,6 +160,8 @@ class CCShopping implements iCustomContent {
 					".$MC->A("BankingKontoName").": ".Util::CLFormatCurrency($MC->A("BankingKontoBalance"))."<small style=\"color:grey;\">, ".Util::CLDateTimeParser($MC->A("BankingKontoLastCheck"))."</small>
 					</div>";
 			}
+		} catch (Exception $e){
+			
 		}
 		
 		return $html.OnEvent::script("
