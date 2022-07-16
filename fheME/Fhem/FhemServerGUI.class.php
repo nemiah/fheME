@@ -38,7 +38,7 @@ class FhemServerGUI extends FhemServer implements iGUIHTML2 {
 		$gui->setOptions("FhemServerType", array_keys($types), array_values($types));
 
 		$gui->setStandardSaveButton($this, "mFhemServer");
-		$gui->translate($this->loadTranslation());
+		#$gui->translate($this->loadTranslation());
 		return $gui->getEditHTML();
 	}
 }
