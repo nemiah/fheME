@@ -26,8 +26,8 @@ class HeizungGUI extends Heizung implements iGUIHTML2 {
 		
 		$gui->label("HeizungFhemServerID", "Server");
 		
-		$B = $gui->addSideButton("Sonne", "new");
-		$B->popup("", "Datenanzeigen", "Heizung", $this->getID(), "sun");
+		#$B = $gui->addSideButton("Sonne", "new");
+		#$B->popup("", "Datenanzeigen", "Heizung", $this->getID(), "sun");
 		
 		$B = $gui->addSideButton("Daten\nanzeigen", "new");
 		$B->popup("", "Datenanzeigen", "Heizung", $this->getID(), "showData", "", "", "{width:800}");
