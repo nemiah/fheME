@@ -153,6 +153,8 @@ class Telnet {
 	        } else if (($c == $this->WILL) || ($c == $this->WONT)) {
 				$opt = $this->getc();            
 				fwrite($this->socket, $this->IAC . $this->DONT . $opt);
+			} else if (ord($c ) == 244) {
+				//Dont, know who you are!
 			} else
 				throw new Exception('Error: unknown control character ' . ord($c ));   
 				         
