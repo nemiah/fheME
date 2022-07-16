@@ -43,9 +43,9 @@ class Heizung extends PersistentObject {
 		
 		$data = date_sun_info(time(), (float) $this->A("HeizungLat"), (float) $this->A("HeizungLon"));
 		
-		$c = "set ".$this->A("HeizungFhemName")." programHC1_Mo-So_0 ".date("H:i", $this->round($data["sunrise"] + 1800))."--".date("H:i", $this->round($data["sunset"] - 1800))."\n";
+		$c = "set ".$this->A("HeizungFhemName")." programHC1_Mo-So_0 ".date("H:i", $this->round($data["sunrise"] + 1800))."--".date("H:i", $this->round($data["sunset"] - 1800));
 		$this->connection->fireAndForget($c);
-		echo $c;
+		echo $c."\n";
 	}
 	
 	function air() {
