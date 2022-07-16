@@ -60,11 +60,11 @@ class OpenWeatherMapGUI extends OpenWeatherMap implements iGUIHTML2 {
 	public static function parserJSONForecast($w){
 		$data = json_decode($w);
 		
-		$T = new HTMLTable(1);
+		$T = new HTMLTable(2);
 		$T->setTableStyle("color:grey;font-size:10px;");
 		$T->maxHeight(100);
 		foreach($data->list AS $I){
-			$T->addRow(array(Util::CLDateTimeParser($I->dt).": ".$I->main->temp."°"));
+			$T->addRow(array(Util::CLDateTimeParser($I->dt).": ".$I->main->temp."°", $I->weather[0]->description));
 		}
 		return $T;
 	}
