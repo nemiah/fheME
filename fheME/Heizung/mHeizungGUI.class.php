@@ -29,7 +29,7 @@ class mHeizungGUI extends anyC implements iGUIHTMLMP2 {
 
 		$gui->name("Heizung");
 		
-		$gui->attributes(array());
+		$gui->attributes(array("HeizungName"));
 		
 		return $gui->getBrowserHTML($id);
 	}
