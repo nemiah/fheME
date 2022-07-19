@@ -50,7 +50,7 @@ class mWechselrichterGUI extends anyC implements iGUIHTMLMP2 {
 			#$x = $json->{"Battery SOC"} / 100;
 			#$myColor = array((2.0 * $x > 1 ? 1 : 1), 2.0 * (1 - $x) > 1 ? 1 : 2.0 * (1 - $x), 0);
 			
-			$empty = array();
+			/*$empty = array();
 			$v = new stdClass();
 			$v->data = $json->{"Battery SOC"};
 			$v->label = "";
@@ -61,10 +61,10 @@ class mWechselrichterGUI extends anyC implements iGUIHTMLMP2 {
 			$v->data = 100 - $json->{"Battery SOC"};
 			$v->label = "leer";
 			$v->color = "#FFF";
-			$empty[] = $v;
+			$empty[] = $v;*/
 
 
-			$html .= "<div id=\"battChart_".$W->getID()."\" style=\"float:left;width:100px;height:100px;margin-right:10px;margin-top:0px;margin-bottom:10px;\"></div>
+			/*$html .= "<div id=\"battChart_".$W->getID()."\" style=\"float:left;width:100px;height:100px;margin-right:10px;margin-top:0px;margin-bottom:10px;\"></div>
 				<div id=\"graphLegendContainer\" style=\"font-size:16px;width:100px;position:absolute;margin-left:0px;margin-top:40px;text-align:center;\">".$json->{"Battery SOC"}."%</div>
 					<script type=\"text/javascript\">
 			var plot = \$j.plot(
@@ -81,18 +81,10 @@ class mWechselrichterGUI extends anyC implements iGUIHTMLMP2 {
 						},
 						legend: {
 							show: false,
-							/*,noColumns: null,
-							labelFormatter: null,
-							labelBoxBorderColor: null,
-							container: \$j('#graphLegendContainer'),
-							position: 'ne',
-							margin:0,
-							backgroundColor: null,
-							backgroundOpacity: 0.85*/
 						}
 					}
 			);
-		</script>";
+		</script>";*/
 				
 			$grid = "";
 			if($W->A("WechselrichterSmartMeterID")){
@@ -122,12 +114,11 @@ class mWechselrichterGUI extends anyC implements iGUIHTMLMP2 {
 			
 			$html .= "
 				<span style=\"font-size:14px;\">
-					<br>
 					<span style=\"display:inline-block;width:100px;\">Photovoltaik:</span> ".Util::CLNumberParser($solar)."W<br>
 					<span style=\"display:inline-block;width:100px;\">Inverter:</span> ".Util::CLNumberParser($json->{"Inverter power generated"})."W<br>
 					<!--<span style=\"display:inline-block;width:100px;\">Verbrauch:</span> ".Util::CLNumberParser($json->{"Consumption power Home total"})."W<br>-->
 					<span style=\"display:inline-block;width:100px;\">Netz:</span> $grid<br>
-					<span style=\"display:inline-block;width:100px;\">Batterie:</span> {$json->{"Actual battery charge-discharge power"}}W
+					<span style=\"display:inline-block;width:100px;\">Batterie:</span> {$json->{"Actual battery charge-discharge power"}}W (".$json->{"Battery SOC"}."%)
 				</span>";
 					#".Util::CLNumberParser($json->{"Consumption power Home Battery"})."W
 				
@@ -139,7 +130,7 @@ class mWechselrichterGUI extends anyC implements iGUIHTMLMP2 {
 	
 	public static function getOverviewPlugin(){
 		$P = new overviewPlugin("mWechselrichterGUI", "Photovoltaik", 0);
-		$P->updateInterval(10);
+		$P->updateInterval(60);
 		#$P->updateFunction("function(){  }");
 		return $P;
 	}
