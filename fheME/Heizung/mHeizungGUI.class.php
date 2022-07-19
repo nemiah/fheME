@@ -35,5 +35,85 @@ class mHeizungGUI extends anyC implements iGUIHTMLMP2 {
 	}
 
 
+	public function getOverviewContent(){
+		$html = "<div class=\"touchHeader\"><span class=\"lastUpdate\" id=\"lastUpdatemHeizungGUI\"></span><p>Heizung</p></div>
+			<div style=\"padding:10px;overflow:auto;\">";
+
+		
+		$AC = anyC::get("Heizung");
+		
+		while($H = $AC->n()){
+			$C = $H->connect();
+			$C->setPrompt("</FHZINFO>");
+			$answer = $C->fireAndGet("xmllist ".$H->A("HeizungFhemName"))."</FHZINFO>";
+			$states = [];
+			$xml = new SimpleXMLElement($answer);
+			foreach($xml->THZ_LIST->THZ[0]->STATE AS $STATE){
+				$states[$STATE["key"].""] = $STATE["value"]."";
+			}
+			
+			preg_match_all("/([a-zA-Z]+): ([0-9\-\.]+) /", $states["sGlobal"], $matches);
+			$parsed = [];
+			foreach($matches[1] AS $k => $v)
+				$parsed[$v] = $matches[2][$k];
+
+			$airP = [1 => "p37Fanstage1AirflowInlet", 2 => "p38Fanstage2AirflowInlet", 3 => "p39Fanstage3AirflowInlet"];
+			
+			#$html .= "Außentemperatur: ".Util::formatNumber("de_DE", (float) $parsed["outsideTemp"], 1)."<br>";
+
+			
+			$B = new Button("Lüftung", "./fheME/Heizung/wind.svg", "icon");
+			$B->style("float:left;margin-right:5px;width:32px;");
+			
+			$html .= "
+			<div class=\"touchButton\">
+				".$B."
+				<div class=\"label\" style=\"padding-top:0;\">
+					".str_replace("--", " - ", $states["programFan_Mo-So_0"])."<br>
+					<small style=\"color:grey;\">Tag: ".$states["p07FanStageDay"]." (".str_replace("m3/h", "m³/h", $states[$airP[$states["p07FanStageDay"]]])."), Nacht: ".$states["p08FanStageNight"]." (".str_replace("m3/h", "m³/h", $states[$airP[$states["p08FanStageNight"]]]).")</small>
+				</div>
+				<div style=\"clear:both;\"></div>
+			</div>";
+			
+			$B = new Button("Wasser", "./fheME/Heizung/water.svg", "icon");
+			$B->style("float:left;margin-right:5px;width:32px;");
+			
+			$html .= "
+			<div class=\"touchButton\">
+				".$B."
+				<div class=\"label\" style=\"padding-top:0;\">
+					".str_replace("--", " - ", $states["programDHW_Mo-So_0"])."<br>
+					<small style=\"color:grey;\">Tag: ".$states["p04DHWsetDayTemp"].", Nacht: ".$states["p05DHWsetNightTemp"]."</small>
+				</div>
+				<div style=\"clear:both;\"></div>
+			</div>";
+			
+			$B = new Button("Heizung", "./fheME/Heizung/heat.svg", "icon");
+			$B->style("float:left;margin-right:5px;width:32px;");
+			
+			$html .= "
+			<div class=\"touchButton\">
+				".$B."
+				<div class=\"label\" style=\"padding-top:0;\">
+					".str_replace("--", " - ", $states["programHC1_Mo-So_0"])."<br>
+					<small style=\"color:grey;\">Tag: ".$states["p01RoomTempDayHC1"].", Nacht: ".$states["p02RoomTempNightHC1"]."</small>
+				</div>
+				<div style=\"clear:both;\"></div>
+			</div>";
+			
+			$H->disconnect();
+		}
+		
+		$html .= "</div>";
+		echo $html;
+	}
+	
+	public static function getOverviewPlugin(){
+		$P = new overviewPlugin("mHeizungGUI", "Heizung", 0);
+		$P->updateInterval(3600);
+		
+		return $P;
+	}
+
 }
 ?>

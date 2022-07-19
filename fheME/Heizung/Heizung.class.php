@@ -23,6 +23,7 @@ class Heizung extends PersistentObject {
 		$S = new FhemServer($this->A("HeizungFhemServerID"));
 		
 		$this->connection = new Telnet($S->A("FhemServerIP"), $S->A("FhemServerPort"));
+		return $this->connection;
 	}
 	
 	function disconnect(){
