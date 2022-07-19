@@ -82,7 +82,7 @@ class mHeizungGUI extends anyC implements iGUIHTMLMP2 {
 			<div class=\"touchButton\">
 				".$B."
 				<div class=\"label\" style=\"padding-top:0;\">
-					".str_replace("--", " - ", $states["programDHW_Mo-So_0"])."<br>
+					".str_replace("--", " - ", $states["programDHW_Mo-So_0"]).", Aktuell: ".Util::formatNumber("de_DE", (float) $parsed["dhwTemp"], 1)." °C<br>
 					<small style=\"color:grey;\">Tag: ".$states["p04DHWsetDayTemp"].", Nacht: ".$states["p05DHWsetNightTemp"]."</small>
 				</div>
 				<div style=\"clear:both;\"></div>
@@ -110,7 +110,7 @@ class mHeizungGUI extends anyC implements iGUIHTMLMP2 {
 	
 	public static function getOverviewPlugin(){
 		$P = new overviewPlugin("mHeizungGUI", "Heizung", 0);
-		$P->updateInterval(3600);
+		$P->updateInterval(15 * 60);
 		
 		return $P;
 	}
