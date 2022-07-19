@@ -179,7 +179,7 @@ class mOpenWeatherMapGUI extends anyC implements iGUIHTMLMP2 {
 	}
 	
 	public static function getOverviewPlugin(){
-		$P = new overviewPlugin("mOpenWeatherMapGUI", "Wetter", 249);
+		$P = new overviewPlugin("mOpenWeatherMapGUI", "Wetter", 210);
 		$P->updateInterval(1800);
 		
 		return $P;
