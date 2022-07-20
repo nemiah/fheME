@@ -321,10 +321,10 @@ class UPnPPlayerGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 		$L->addCellEvent(1, "click", OnEvent::rme($this, "tvControl", ["'toggle'"], OnEvent::closePopup("UPnPPlayer")));
 		
 		
-		/*$L->addRow("Lauter");
+		$L->addRow("Shutdown");
 		$L->addCellStyle(1, "padding:15px;");
-		$L->addCellEvent(1, "click", OnEvent::rme($this, "tvControl", ["'VolUp'"]));
-		
+		$L->addCellEvent(1, "click", OnEvent::rme($this, "tvControl", ["'shutdown'"]));
+		/*
 		$L->addRow("Leiser");
 		$L->addCellStyle(1, "padding:15px;");
 		$L->addCellEvent(1, "click", OnEvent::rme($this, "tvControl", ["'VolDown'"]));*/
@@ -355,6 +355,14 @@ class UPnPPlayerGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 				$r = json_decode($result);
 				print_r($r);
 				
+			break;
+		
+			case "shutdown":
+				curl_setopt($crl, CURLOPT_POSTFIELDS, '{ "jsonrpc": "2.0", "method": "System.Shutdown", "params": { }, "id": 1 }');
+				$result = curl_exec($crl);
+				$r = json_decode($result);
+				#print_r($r);
+				#print_r(file_get_contents('http://'.$url["host"].':8080/jsonrpc?request={ "jsonrpc": "2.0", "method": "Application.SetVolume", "params": { "volume": "increment" }, "id": 1 }'));
 			break;
 		
 			case "VolUp":
