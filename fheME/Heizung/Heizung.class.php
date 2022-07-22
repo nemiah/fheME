@@ -19,6 +19,7 @@
  */
 class Heizung extends PersistentObject {
 	private $connection;
+	private $data;
 	function connect(){
 		$S = new FhemServer($this->A("HeizungFhemServerID"));
 		
@@ -26,34 +27,7 @@ class Heizung extends PersistentObject {
 		return $this->connection;
 	}
 	
-	function disconnect(){
-		$this->connection->disconnect();
-	}
-	
-	protected function getData(){
-		$S = new FhemServer($this->A("HeizungFhemServerID"));
-		$data = $S->getListXML();
-		$xml = new SimpleXMLElement($data);
-		return $xml;
-	}
-	
-	function heat(){
-		#programHC1_Mo-So_0 06:00--21:30
-		#programHC1_Mo-So_1 n.a.--n.a.
-		#programHC1_Mo-So_2 n.a.--n.a.
-		
-		$data = date_sun_info(time(), (float) $this->A("HeizungLat"), (float) $this->A("HeizungLon"));
-		
-		$c = "set ".$this->A("HeizungFhemName")." programHC1_Mo-So_0 ".date("H:i", $this->round($data["sunrise"] + 1800))."--".date("H:i", $this->round($data["sunset"] - 1800));
-		$this->connection->fireAndForget($c);
-		echo $c."\n";
-	}
-	
-	function air() {
-		#programFan_Mo-So_0 00:00--06:30
-		#programFan_Mo-So_1 n.a.--n.a.
-		#programFan_Mo-So_2 21:00--24:00
-		
+	function data(){
 		$this->connection->setPrompt("</FHZINFO>");
 		$answer = $this->connection->fireAndGet("xmllist ".$this->A("HeizungFhemName"))."</FHZINFO>";
 
@@ -76,6 +50,63 @@ class Heizung extends PersistentObject {
 		$parsed = [];
 		foreach($matches[1] AS $k => $v)
 			$parsed[$v] = $matches[2][$k];
+		
+		$this->data = $parsed;
+	}
+	
+	function disconnect(){
+		$this->connection->disconnect();
+	}
+	
+	protected function getData(){
+		$S = new FhemServer($this->A("HeizungFhemServerID"));
+		$data = $S->getListXML();
+		$xml = new SimpleXMLElement($data);
+		return $xml;
+	}
+	
+	function heat(){
+		#programHC1_Mo-So_0 06:00--21:30
+		#programHC1_Mo-So_1 n.a.--n.a.
+		#programHC1_Mo-So_2 n.a.--n.a.
+		
+		$lastTimes = mUserdata::getGlobalSettingValue("HeizungHeatLastTimes", "");
+		if($lastTimes != date("Ymd")){
+			$data = date_sun_info(time(), (float) $this->A("HeizungLat"), (float) $this->A("HeizungLon"));
+
+			$c = "set ".$this->A("HeizungFhemName")." programHC1_Mo-So_0 ".date("H:i", $this->round($data["sunrise"] + 1800))."--".date("H:i", $this->round($data["sunset"] - 1800));
+			$this->connection->fireAndForget($c);
+			
+			echo $c."\n";
+		}
+		
+		mUserdata::setUserdataS("HeizungHeatLastTimes", date("Ymd"), "", -1);
+	}
+	
+	function log(){
+		if($this->A("HeizungTempLog") == "")
+			$this->changeA("HeizungTempLog", "[]");
+		
+		#$this->changeA("HeizungTempLog", str_replace(["{", "}"], ["[", "]"], $this->A("HeizungTempLog")));
+		
+		$log = json_decode($this->A("HeizungTempLog"), true);
+		
+		$log[time()] = $this->data["outsideTemp"];
+		
+		foreach($log AS $time => $value)
+			if(time() - $time > 3600 * 36)
+				unset($log[$time]);
+			
+		$this->changeA("HeizungTempLog", json_encode($log, JSON_UNESCAPED_UNICODE));
+		$this->saveMe();
+	}
+	
+	function air() {
+		#programFan_Mo-So_0 00:00--06:30
+		#programFan_Mo-So_1 n.a.--n.a.
+		#programFan_Mo-So_2 21:00--24:00
+		
+		$parsed = $this->data;
 
 		if($parsed["outsideTemp"] < (float) $this->A("HeizungFanCutoffTemp")){
 			$c = "set ".$this->A("HeizungFhemName")." p07FanStageDay ".$this->A("HeizungFanStageBelowDay")."\n";
@@ -96,19 +127,29 @@ class Heizung extends PersistentObject {
 		}
 		
 		
-		$data = date_sun_info(time(), (float) $this->A("HeizungLat"), (float) $this->A("HeizungLon"));
+		$lastTimes = mUserdata::getGlobalSettingValue("HeizungAirLastTimes", "");
+		if($lastTimes != date("Ymd")){
+			$data = date_sun_info(time(), (float) $this->A("HeizungLat"), (float) $this->A("HeizungLon"));
+
+			$c = "set ".$this->A("HeizungFhemName")." programFan_Mo-So_0 ".date("H:i", $this->round($data["sunrise"] + 3600))."--".date("H:i", $this->round($data["sunset"] - 3600));
+			$this->connection->fireAndForget($c);
+			echo $c."\n";
+		}
 		
-		$c = "set ".$this->A("HeizungFhemName")." programFan_Mo-So_0 ".date("H:i", $this->round($data["sunrise"] + 3600))."--".date("H:i", $this->round($data["sunset"] - 3600));
-		$this->connection->fireAndForget($c);
-		echo $c."\n";
+		mUserdata::setUserdataS("HeizungAirLastTimes", date("Ymd"), "", -1);
 	}
 	
 	function water(){
-		$data = date_sun_info(time(), (float) $this->A("HeizungLat"), (float) $this->A("HeizungLon"));
+		$lastTimes = mUserdata::getGlobalSettingValue("HeizungWaterLastTimes", "");
+		if($lastTimes != date("Ymd")){
+			$data = date_sun_info(time(), (float) $this->A("HeizungLat"), (float) $this->A("HeizungLon"));
+
+			$c = "set ".$this->A("HeizungFhemName")." programDHW_Mo-So_0 ".date("H:i", $this->round($data["sunrise"] + 3600))."--".date("H:i", $this->round($data["sunset"] - 3600));
+			$this->connection->fireAndForget($c);
+			echo $c."\n";
+		}
 		
-		$c = "set ".$this->A("HeizungFhemName")." programDHW_Mo-So_0 ".date("H:i", $this->round($data["sunrise"] + 3600))."--".date("H:i", $this->round($data["sunset"] - 3600));
-		$this->connection->fireAndForget($c);
-		echo $c."\n";
+		mUserdata::setUserdataS("HeizungWaterLastTimes", date("Ymd"), "", -1);
 	}
 	
 	private function round($time){
