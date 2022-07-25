@@ -57,7 +57,9 @@ class mHeizungGUI extends anyC implements iGUIHTMLMP2 {
 			foreach($matches[1] AS $k => $v)
 				$parsed[$v] = $matches[2][$k];
 
-			$airP = [1 => "p37Fanstage1AirflowInlet", 2 => "p38Fanstage2AirflowInlet", 3 => "p39Fanstage3AirflowInlet"];
+			$states["pXXFanstage0AirflowInlet"] = "0 m3/h";
+			
+			$airP = [0 => "pXXFanstage0AirflowInlet", 1 => "p37Fanstage1AirflowInlet", 2 => "p38Fanstage2AirflowInlet", 3 => "p39Fanstage3AirflowInlet"];
 			
 			#$html .= "Außentemperatur: ".Util::formatNumber("de_DE", (float) $parsed["outsideTemp"], 1)."<br>";
 

@@ -108,22 +108,45 @@ class Heizung extends PersistentObject {
 		
 		$parsed = $this->data;
 
+		$ventHours = [23, 0, 1, 2, 3, 4, 5, 6, 7, 8];
+		
+		if(in_array(date("h"), $ventHours)){
+			$log = json_decode($this->A("HeizungTempLog"), true);
+			$highest = [0, 0];
+			foreach($log AS $time => $value){
+				if(time() - $time > 3600 * 24)
+					continue;
+
+				if($value > $highest[0])
+					$highest = [$value, $time];
+			}
+			
+			if($highest[0] > $this->A("HeizungFanCutoffTemp")){
+				echo "Höchste Temperatur der letzten 24 Stunden: $highest[0], um ".date("H:i", $highest[1])." Uhr\n";
+				if($parsed["outsideTemp"] <= $this->A("HeizungVentTemp")){
+					echo "Außentemperatur ".$parsed["outsideTemp"]." <= ".$this->A("HeizungVentTemp")." Könnte Lüften!\n";
+				} else {
+					echo "Außentemperatur ".$parsed["outsideTemp"]." > ".$this->A("HeizungVentTemp")." NICHT Lüften!\n";
+				}
+			}
+		}
+		
 		if($parsed["outsideTemp"] < (float) $this->A("HeizungFanCutoffTemp")){
 			$c = "set ".$this->A("HeizungFhemName")." p07FanStageDay ".$this->A("HeizungFanStageBelowDay")."\n";
 			$this->connection->fireAndForget($c);
-			echo $c;
+			#echo $c;
 			
 			$c = "set ".$this->A("HeizungFhemName")." p08FanStageNight ".$this->A("HeizungFanStageBelowNight")."\n";
 			$this->connection->fireAndForget($c);
-			echo $c;
+			#echo $c;
 		} else {
 			$c = "set ".$this->A("HeizungFhemName")." p07FanStageDay ".$this->A("HeizungFanStageAboveDay")."\n";
 			$this->connection->fireAndForget($c);
-			echo $c;
+			#echo $c;
 			
 			$c = "set ".$this->A("HeizungFhemName")." p08FanStageNight ".$this->A("HeizungFanStageAboveNight")."\n";
 			$this->connection->fireAndForget($c);
-			echo $c;
+			#echo $c;
 		}
 		
 		

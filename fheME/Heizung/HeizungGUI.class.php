@@ -29,10 +29,30 @@ class HeizungGUI extends Heizung implements iGUIHTML2 {
 		#$B = $gui->addSideButton("Sonne", "new");
 		#$B->popup("", "Datenanzeigen", "Heizung", $this->getID(), "sun");
 		
+		$gui->space("HeizungVentStage", "Sommerlüftung");
+		
+		$gui->parser("HeizungTempLog", "parserTempLog");
+		
 		$B = $gui->addSideButton("Daten\nanzeigen", "new");
 		$B->popup("", "Datenanzeigen", "Heizung", $this->getID(), "showData", "", "", "{width:800}");
 		
 		return $gui->getEditHTML();
+	}
+	
+	public static function parserTempLog($w, $l, $E){
+		$B = new Button("Log\nanzeigen", "new");
+		$B->popup("", "Log", "Heizung", $E->getID(), "logPopup");
+		return $B;
+	}
+	
+	public function logPopup(){
+		$log = json_decode($this->A("HeizungTempLog"), true);
+		$T = new HTMLTable(2);
+		$T->maxHeight(400);
+		foreach($log AS $time => $value)
+			$T->addRow([Util::CLDateTimeParser($time), $value]);
+		
+		echo $T;
 	}
 	
 	function showData(){
