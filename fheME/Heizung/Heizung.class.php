@@ -109,9 +109,9 @@ class Heizung extends PersistentObject {
 		$parsed = $this->data;
 
 		$ventHours = [23, 0, 1, 2, 3, 4, 5, 6, 7, 8];
-		
+
 		$overrideStage = null;
-		if(in_array(date("h"), $ventHours)){
+		if(in_array(date("H"), $ventHours)){
 			$log = json_decode($this->A("HeizungTempLog"), true);
 			$highest = [0, 0];
 			foreach($log AS $time => $value){
@@ -127,9 +127,9 @@ class Heizung extends PersistentObject {
 				if($parsed["outsideTemp"] <= $this->A("HeizungVentTemp")){
 					echo "Außentemperatur ".$parsed["outsideTemp"]." <= ".$this->A("HeizungVentTemp")." Jetzt Lüften!\n";
 					$overrideStage = $this->A("HeizungVentStage");
-				}# else {
-				#	echo "Außentemperatur ".$parsed["outsideTemp"]." > ".$this->A("HeizungVentTemp")." NICHT Lüften!\n";
-				#}
+				} else {
+					echo "Außentemperatur ".$parsed["outsideTemp"]." > ".$this->A("HeizungVentTemp")." NICHT Lüften!\n";
+				}
 			}
 		}
 		
