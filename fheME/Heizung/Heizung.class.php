@@ -125,11 +125,11 @@ class Heizung extends PersistentObject {
 			if($highest[0] > $this->A("HeizungFanCutoffTemp")){
 				echo "Höchste Temperatur der letzten 24 Stunden: $highest[0], um ".date("H:i", $highest[1])." Uhr\n";
 				if($parsed["outsideTemp"] <= $this->A("HeizungVentTemp")){
-					echo "Außentemperatur ".$parsed["outsideTemp"]." <= ".$this->A("HeizungVentTemp")." Könnte Lüften!\n";
+					echo "Außentemperatur ".$parsed["outsideTemp"]." <= ".$this->A("HeizungVentTemp")." Jetzt Lüften!\n";
 					$overrideStage = $this->A("HeizungVentStage");
-				} else {
-					echo "Außentemperatur ".$parsed["outsideTemp"]." > ".$this->A("HeizungVentTemp")." NICHT Lüften!\n";
-				}
+				}# else {
+				#	echo "Außentemperatur ".$parsed["outsideTemp"]." > ".$this->A("HeizungVentTemp")." NICHT Lüften!\n";
+				#}
 			}
 		}
 		
