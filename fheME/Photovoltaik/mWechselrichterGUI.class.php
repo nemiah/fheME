@@ -115,10 +115,10 @@ class mWechselrichterGUI extends anyC implements iGUIHTMLMP2 {
 			$html .= "
 				<span style=\"font-size:14px;\">
 					<span style=\"display:inline-block;width:100px;\">Photovoltaik:</span> ".Util::CLNumberParser($solar)."W<br>
-					<span style=\"display:inline-block;width:100px;\">Inverter:</span> ".Util::CLNumberParser($json->{"Inverter power generated"})."W<br>
-					<!--<span style=\"display:inline-block;width:100px;\">Verbrauch:</span> ".Util::CLNumberParser($json->{"Consumption power Home total"})."W<br>-->
+					<!--<span style=\"display:inline-block;width:100px;\">Inverter:</span> ".Util::CLNumberParser($json->{"Inverter power generated"})."W<br>-->
+					<span style=\"display:inline-block;width:100px;\">Haus:</span> ".Util::CLNumberParser($json->{"Consumption power Home total"})."W<br>
 					<span style=\"display:inline-block;width:100px;\">Netz:</span> $grid<br>
-					<span style=\"display:inline-block;width:100px;\">Batterie:</span> {$json->{"Actual battery charge-discharge power"}}W (".$json->{"Battery SOC"}."%)
+					<span style=\"display:inline-block;width:100px;\">Batterie:</span> ".$json->{"Battery SOC"}."%
 				</span>";
 					#".Util::CLNumberParser($json->{"Consumption power Home Battery"})."W
 				
