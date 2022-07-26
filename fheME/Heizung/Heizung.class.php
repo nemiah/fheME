@@ -107,10 +107,11 @@ class Heizung extends PersistentObject {
 		#programFan_Mo-So_2 21:00--24:00
 		
 		$parsed = $this->data;
-
-		$ventHours = [23, 0, 1, 2, 3, 4, 5, 6, 7, 8];
-
 		$overrideStage = null;
+		
+		
+		/*$ventHours = [23, 0, 1, 2, 3, 4, 5, 6];
+
 		if(in_array(date("H"), $ventHours)){
 			$log = json_decode($this->A("HeizungTempLog"), true);
 			$highest = [0, 0];
@@ -131,7 +132,7 @@ class Heizung extends PersistentObject {
 					echo "Außentemperatur ".$parsed["outsideTemp"]." > ".$this->A("HeizungVentTemp")." NICHT Lüften!\n";
 				}
 			}
-		}
+		}*/
 		
 		if($parsed["outsideTemp"] < (float) $this->A("HeizungFanCutoffTemp")){
 			$c = "set ".$this->A("HeizungFhemName")." p07FanStageDay ".($overrideStage !== null ? $overrideStage : $this->A("HeizungFanStageBelowDay"));
