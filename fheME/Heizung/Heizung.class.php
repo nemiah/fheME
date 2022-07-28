@@ -110,7 +110,7 @@ class Heizung extends PersistentObject {
 		$overrideStage = null;
 		
 		
-		/*$ventHours = [23, 0, 1, 2, 3, 4, 5, 6];
+		$ventHours = [5, 6, 7, 8];
 
 		if(in_array(date("H"), $ventHours)){
 			$log = json_decode($this->A("HeizungTempLog"), true);
@@ -132,24 +132,24 @@ class Heizung extends PersistentObject {
 					echo "Außentemperatur ".$parsed["outsideTemp"]." > ".$this->A("HeizungVentTemp")." NICHT Lüften!\n";
 				}
 			}
-		}*/
+		}
 		
 		if($parsed["outsideTemp"] < (float) $this->A("HeizungFanCutoffTemp")){
 			$c = "set ".$this->A("HeizungFhemName")." p07FanStageDay ".($overrideStage !== null ? $overrideStage : $this->A("HeizungFanStageBelowDay"));
 			$this->connection->fireAndForget($c);
-			echo $c."\n";
+			#echo $c."\n";
 			
 			$c = "set ".$this->A("HeizungFhemName")." p08FanStageNight ".($overrideStage !== null ? $overrideStage : $this->A("HeizungFanStageBelowNight"));
 			$this->connection->fireAndForget($c);
-			echo $c."\n";
+			#echo $c."\n";
 		} else {
 			$c = "set ".$this->A("HeizungFhemName")." p07FanStageDay ".($overrideStage !== null ? $overrideStage : $this->A("HeizungFanStageAboveDay"));
 			$this->connection->fireAndForget($c);
-			echo $c."\n";
+			#echo $c."\n";
 			
 			$c = "set ".$this->A("HeizungFhemName")." p08FanStageNight ".($overrideStage !== null ? $overrideStage : $this->A("HeizungFanStageAboveNight"));
 			$this->connection->fireAndForget($c);
-			echo $c."\n";
+			#echo $c."\n";
 		}
 		
 		
