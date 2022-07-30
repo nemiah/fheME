@@ -166,11 +166,31 @@ class Heizung extends PersistentObject {
 	}
 	
 	function water(){
+		if($this->A("HeizungWechselrichterID")){
+			$W = new Wechselrichter($this->A("HeizungWechselrichterID"));
+			$data = $W->getData();
+			if(!$data){
+				echo "Keine Daten vom Wechselrichter!";
+				$c  = "set p04DHWsetDayTemp ".$this->A("HeizungWaterDayTemp");
+				$this->connection->fireAndForget($c);
+				echo $c."\n";
+			} else {
+				$json = json_decode($data);
+				if($json->{"Total DC power Panels"} > $this->A("HeizungWaterHotAboveW"))
+					$c = "set p04DHWsetDayTemp ".$this->A("HeizungWaterHotTemp");
+				else
+					$c = "set p04DHWsetDayTemp ".$this->A("HeizungWaterDayTemp");
+				
+				$this->connection->fireAndForget($c);
+				echo $c."\n";
+			}
+		}
+		
 		$lastTimes = mUserdata::getGlobalSettingValue("HeizungWaterLastTimes", "");
 		if($lastTimes != date("Ymd")){
 			$data = date_sun_info(time(), (float) $this->A("HeizungLat"), (float) $this->A("HeizungLon"));
 
-			$c = "set ".$this->A("HeizungFhemName")." programDHW_Mo-So_0 ".date("H:i", $this->round($data["sunrise"] + 3600))."--".date("H:i", $this->round($data["sunset"] - 3600));
+			$c = "set ".$this->A("HeizungFhemName")." programDHW_Mo-So_0 ".date("H:i", $this->round($data["sunrise"] + 7200))."--".date("H:i", $this->round($data["sunset"] - 7200));
 			$this->connection->fireAndForget($c);
 			echo $c."\n";
 		}

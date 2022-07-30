@@ -17,30 +17,8 @@
  * 
  *  2007 - 2017, Furtmeier Hard- und Software - Support@Furtmeier.IT
  */
-class WechselrichterGUI extends Wechselrichter implements iGUIHTML2 {
-	function getHTML($id){
-		$gui = new HTMLGUIX($this);
-		$gui->name("Wechselrichter");
-	
-		$B = $gui->addSideButton("Daten\nabfragen", "system");
-		$B->popup("", "Daten", "Wechselrichter", $this->getID(), "requestDataPopup");
-		
-		$gui->label("WechselrichterSmartMeterID", "Smart Meter");
-		
-		$gui->type("WechselrichterSmartMeterID", "select", anyC::get("SmartMeter"), "SmartMeterName", "kein");
-		
-		return $gui->getEditHTML();
-	}
-	
-	public function requestDataPopup(){
-		echo "<pre>";
 
-		#$C = new SystemCommand();
-		echo $this->getData();
-		#$C->execute();
-		#echo $C->getOutput();
-		
-		echo "</pre>";
-	}
+class mWechselrichter extends anyC {
+
 }
 ?>

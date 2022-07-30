@@ -38,6 +38,7 @@ $e = new ExtConn($absolutePathToPhynx);
 $e->addClassPath(FileStorage::getFilesDir());
 $e->loadPlugin("fheME", "Heizung");
 $e->loadPlugin("fheME", "Fhem");
+$e->loadPlugin("fheME", "Photovoltaik");
 
 $e->useDefaultMySQLData();
 

@@ -30,8 +30,13 @@ class HeizungGUI extends Heizung implements iGUIHTML2 {
 		#$B->popup("", "Datenanzeigen", "Heizung", $this->getID(), "sun");
 		
 		$gui->space("HeizungVentStage", "Sommerlüftung");
+		$gui->space("HeizungWaterHotTemp", "Wasser-Speicher");
 		
 		$gui->parser("HeizungTempLog", "parserTempLog");
+		
+		$gui->descriptionField("HeizungWaterHotTemp", "Max 55 Grad");
+		
+		$gui->type("HeizungWechselrichterID", "select", anyC::get("Wechselrichter"), "WechselrichterName", "Bitte auswählen…");
 		
 		$B = $gui->addSideButton("Daten\nanzeigen", "new");
 		$B->popup("", "Datenanzeigen", "Heizung", $this->getID(), "showData", "", "", "{width:800}");
