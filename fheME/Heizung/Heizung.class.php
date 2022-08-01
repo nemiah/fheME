@@ -110,7 +110,7 @@ class Heizung extends PersistentObject {
 		$overrideStage = null;
 		
 		
-		$ventHours = [5, 6, 7, 8];
+		$ventHours = [4, 6, 7, 8];
 
 		if(in_array(date("H"), $ventHours)){
 			$log = json_decode($this->A("HeizungTempLog"), true);
