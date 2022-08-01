@@ -43,6 +43,7 @@ class CCShopping implements iCustomContent {
 			return "<span style=\"color:red;\">Bitte geben Sie den richtigen Schlüssel zum Aufrufen der Seite in der Adresszeile an.</span>";
 		
 		registerClassPath("Einkaufszettel", Util::getRootPath()."fheME/Einkaufszettel/Einkaufszettel.class.php");
+		registerClassPath("mEinkaufszettelGUI", Util::getRootPath()."fheME/Einkaufszettel/mEinkaufszettelGUI.class.php");
 		/*
 		registerClassPath("GSRaumgruppe", Util::getRootPath()."FCalc/GSRaumgruppe/GSRaumgruppe.class.php");
 		registerClassPath("ObjektL", Util::getRootPath()."personalKartei/ObjekteL/ObjektL.class.php");
@@ -153,7 +154,7 @@ class CCShopping implements iCustomContent {
 		
 		$I = new HTMLInput("newEntry");
 		$I->onEnter("CustomerPage.rme('newEntry', [this.value], function(){ document.location.reload(); });");
-		$I->style("width:100%;max-width:100%;");
+		$I->style("width:100%;max-width:100%;font-size: 2em;");
 		$I->placeholder("Neuer Eintrag…");
 		$html .= $I;
 		
