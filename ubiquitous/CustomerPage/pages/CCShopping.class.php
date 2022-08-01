@@ -151,6 +151,12 @@ class CCShopping implements iCustomContent {
 		
 		$html .= "</div>";
 		
+		$I = new HTMLInput("newEntry");
+		$I->onEnter("CustomerPage.rme('newEntry', [this.value], function(){ document.location.reload(); });");
+		$I->style("width:100%;max-width:100%;");
+		$I->placeholder("Neuer Eintrag…");
+		$html .= $I;
+		
 		try {
 			$AC = anyC::get("BankingKonto");
 
@@ -194,6 +200,11 @@ class CCShopping implements iCustomContent {
 			//$(ev.target).trigger('touchend');
 		});
 	");
+	}
+	
+	public function newEntry($data){
+		$mE = new mEinkaufszettelGUI();
+		$mE->addItem($data["P0"]);
 	}
 	
 	public static function setBought($args){
