@@ -124,13 +124,13 @@ class Heizung extends PersistentObject {
 			}
 			
 			if($highest[0] > $this->A("HeizungFanCutoffTemp")){
-				echo "Höchste Temperatur der letzten 24 Stunden: $highest[0], um ".date("H:i", $highest[1])." Uhr\n";
+				#echo "Höchste Temperatur der letzten 24 Stunden: $highest[0], um ".date("H:i", $highest[1])." Uhr\n";
 				if($parsed["outsideTemp"] <= $this->A("HeizungVentTemp")){
-					echo "Außentemperatur ".$parsed["outsideTemp"]." <= ".$this->A("HeizungVentTemp")." Jetzt Lüften!\n";
+					#echo "Außentemperatur ".$parsed["outsideTemp"]." <= ".$this->A("HeizungVentTemp")." Jetzt Lüften!\n";
 					$overrideStage = $this->A("HeizungVentStage");
-				} else {
-					echo "Außentemperatur ".$parsed["outsideTemp"]." > ".$this->A("HeizungVentTemp")." NICHT Lüften!\n";
-				}
+				}# else {
+				#	echo "Außentemperatur ".$parsed["outsideTemp"]." > ".$this->A("HeizungVentTemp")." NICHT Lüften!\n";
+				#}
 			}
 		}
 		
@@ -176,13 +176,17 @@ class Heizung extends PersistentObject {
 				echo $c."\n";
 			} else {
 				$json = json_decode($data);
-				if($json->{"Total DC power Panels"} > $this->A("HeizungWaterHotAboveW"))
-					$c = "set p04DHWsetDayTemp ".$this->A("HeizungWaterHotTemp");
+				if($json->{"Total DC power Panels"} > $this->A("HeizungWaterHotAboveW") AND $json->{"Battery SOC"} > 20)
+					$temp = $this->A("HeizungWaterHotTemp");
 				else
-					$c = "set p04DHWsetDayTemp ".$this->A("HeizungWaterDayTemp");
+					$temp = $this->A("HeizungWaterDayTemp");
 				
-				$this->connection->fireAndForget($c);
-				echo $c."\n";
+				$last = mUserdata::getGlobalSettingValue("p04DHWsetDayTemp", "0");
+				if($last != $temp){
+					$this->connection->fireAndForget("set p04DHWsetDayTemp ".$temp);
+					echo "set p04DHWsetDayTemp ".$temp."\n";
+					$last = mUserdata::setUserdataS("p04DHWsetDayTemp", $temp, "", -1);
+				}
 			}
 		}
 		
