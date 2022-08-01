@@ -43,7 +43,8 @@ class mHeizungGUI extends anyC implements iGUIHTMLMP2 {
 		$AC = anyC::get("Heizung");
 		
 		while($H = $AC->n()){
-			$C = $H->connect();
+			$states = $H->getParsedData();
+			/*$C = $H->connect();
 			$C->setPrompt("</FHZINFO>");
 			$answer = $C->fireAndGet("xmllist ".$H->A("HeizungFhemName"))."</FHZINFO>";
 			$states = [];
@@ -55,8 +56,9 @@ class mHeizungGUI extends anyC implements iGUIHTMLMP2 {
 			preg_match_all("/([a-zA-Z]+): ([0-9\-\.]+) /", $states["sGlobal"], $matches);
 			$parsed = [];
 			foreach($matches[1] AS $k => $v)
-				$parsed[$v] = $matches[2][$k];
-
+				$parsed[$v] = $matches[2][$k];*/
+			$parsed = $states["sGlobal"];
+			
 			$states["pXXFanstage0AirflowInlet"] = "0 m3/h";
 			
 			$airP = [0 => "pXXFanstage0AirflowInlet", 1 => "p37Fanstage1AirflowInlet", 2 => "p38Fanstage2AirflowInlet", 3 => "p39Fanstage3AirflowInlet"];
@@ -103,9 +105,19 @@ class mHeizungGUI extends anyC implements iGUIHTMLMP2 {
 				<div style=\"clear:both;\"></div>
 			</div>";
 			
-			$H->disconnect();
+			$B = new Button("Ferien", "./fheME/Heizung/sun.svg", "icon");
+			$B->style("float:left;margin-right:5px;width:32px;");
+			$html .= "
+			<div class=\"touchButton\" onclick=\"".OnEvent::popup("Ferien", "Heizung", $H->getID(), "ferienPopup")."\">
+				".$B."
+				<div class=\"label\" style=\"padding-top:0;\">
+					Ferien<br><small style=\"color:grey;\">".$states["pHolidayBeginDay"].".".$states["pHolidayBeginMonth"].".20".$states["pHolidayBeginYear"]." - ".$states["pHolidayEndDay"].".".$states["pHolidayEndMonth"].".20".$states["pHolidayEndYear"]."</small></div>
+				<div style=\"clear:both;\"></div>
+			</div>";
+			
+			#$H->disconnect();
 		}
-		
+			
 		$html .= "</div>";
 		echo $html;
 	}

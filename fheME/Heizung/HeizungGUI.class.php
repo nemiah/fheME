@@ -69,5 +69,61 @@ class HeizungGUI extends Heizung implements iGUIHTML2 {
 		
 		echo $T;
 	}
+	
+	public function ferienPopup(){
+		$data = $this->getParsedData();
+		#echo "<pre>";
+		#print_r($data);
+		#echo "</pre>";
+		echo "Aktuelle Einstellungen:<br>";
+		echo "Start: ".$data["pHolidayBeginDay"].".".$data["pHolidayBeginMonth"].".".$data["pHolidayBeginYear"].", ".$data["pHolidayBeginTime"]." Uhr<br>";
+		echo "Ende: ".$data["pHolidayEndDay"].".".$data["pHolidayEndMonth"].".".$data["pHolidayEndYear"].", ".$data["pHolidayEndTime"]." Uhr<br>";
+		
+		$F = new HTMLForm("holiday", ["start", "end"]);
+		$F->setType("start", "date");
+		$F->setType("end", "date");
+		
+		$F->setSaveRMEPCR("Speichern", "", "Heizung", $this->getID(), "ferienSet", OnEvent::closePopup("Heizung"));
+		
+		echo $F;
+	}
+	
+	public function ferienSet($start, $end){
+		$start = Util::CLDateParser($start, "store");
+		$end = Util::CLDateParser($end, "store");
+		$c = $this->connect();
+		
+		$com = "set ".$this->A("HeizungFhemName")." pHolidayBeginDay ".date("d", $start);
+		$c->fireAndForget($com);
+		echo $com."\n";
+		
+		$com = "set ".$this->A("HeizungFhemName")." pHolidayBeginMonth ".date("m", $start);
+		$c->fireAndForget($com);
+		echo $com."\n";
+		
+		$com = "set ".$this->A("HeizungFhemName")." pHolidayBeginYear ".date("y", $start);
+		$c->fireAndForget($com);
+		echo $com."\n";
+		
+		$com = "set ".$this->A("HeizungFhemName")." pHolidayBeginTime 12:00";
+		$c->fireAndForget($com);
+		echo $com."\n";
+		
+		$com = "set ".$this->A("HeizungFhemName")." pHolidayEndDay ".date("d", $end);
+		$c->fireAndForget($com);
+		echo $com."\n";
+		
+		$com = "set ".$this->A("HeizungFhemName")." pHolidayEndMonth ".date("m", $end);
+		$c->fireAndForget($com);
+		echo $com."\n";
+		
+		$com = "set ".$this->A("HeizungFhemName")." pHolidayEndYear ".date("y", $end);
+		$c->fireAndForget($com);
+		echo $com."\n";
+		
+		$com = "set ".$this->A("HeizungFhemName")." pHolidayEndTime 01:00";
+		$c->fireAndForget($com);
+		echo $com."\n";
+	}
 }
 ?>

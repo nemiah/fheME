@@ -19,7 +19,7 @@
  */
 class Heizung extends PersistentObject {
 	private $connection;
-	private $data;
+	protected $data;
 	function connect(){
 		$S = new FhemServer($this->A("HeizungFhemServerID"));
 		
@@ -63,6 +63,23 @@ class Heizung extends PersistentObject {
 		$data = $S->getListXML();
 		$xml = new SimpleXMLElement($data);
 		return $xml;
+	}
+	
+	public function getParsedData(){
+		$xml = $this->getData();
+		$states = [];
+		foreach($xml->THZ_LIST->THZ[0]->STATE AS $STATE)
+			$states[$STATE["key"].""] = $STATE["value"]."";
+		
+		
+		preg_match_all("/([a-zA-Z]+): ([0-9\-\.]+) /", $states["sGlobal"], $matches);
+		$parsed = [];
+		foreach($matches[1] AS $k => $v)
+			$parsed[$v] = $matches[2][$k];
+			
+		$states["sGlobal"] = $parsed;
+		
+		return $states;
 	}
 	
 	function heat(){
