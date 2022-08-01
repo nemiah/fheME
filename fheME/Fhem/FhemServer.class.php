@@ -33,7 +33,9 @@ class FhemServer extends PersistentObject {
 	public function getListXML(){
 		$T = new Telnet($this->A("FhemServerIP"), $this->A("FhemServerPort"));
 		$T->setPrompt("</FHZINFO>");
-		return $T->fireAndGet("xmllist")."</FHZINFO>";
+		$data = $T->fireAndGet("xmllist")."</FHZINFO>";
+		$T->disconnect();
+		return $data;
 	}
 	
 	public function getListDevices(){
