@@ -39,6 +39,7 @@ $e->addClassPath(FileStorage::getFilesDir());
 $e->loadPlugin("fheME", "Heizung");
 $e->loadPlugin("fheME", "Fhem");
 $e->loadPlugin("fheME", "Photovoltaik");
+$e->loadPlugin("ubiquitous", "OWM");
 
 $e->useDefaultMySQLData();
 
