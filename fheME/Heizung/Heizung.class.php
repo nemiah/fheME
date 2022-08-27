@@ -20,6 +20,9 @@
 class Heizung extends PersistentObject {
 	private $connection;
 	protected $data;
+	protected $dataWechselrichter;
+	protected $dataWeather;
+	
 	function connect(){
 		$S = new FhemServer($this->A("HeizungFhemServerID"));
 		
@@ -51,7 +54,17 @@ class Heizung extends PersistentObject {
 		foreach($matches[1] AS $k => $v)
 			$parsed[$v] = $matches[2][$k];
 		
-		$this->data = $parsed;
+		$this->dataFhem = $parsed;
+		
+		if($this->A("HeizungWechselrichterID")){
+			$W = new Wechselrichter($this->A("HeizungWechselrichterID"));
+			$this->dataWechselrichter = json_decode($W->getData());
+		}
+		
+		
+		if($this->A("HeizungOpenWeatherMapID"))
+			$this->dataWeather = new OpenWeatherMap($this->A("HeizungOpenWeatherMapID"));
+		
 	}
 	
 	function disconnect(){
@@ -108,7 +121,7 @@ class Heizung extends PersistentObject {
 		
 		$log = json_decode($this->A("HeizungTempLog"), true);
 		
-		$log[time()] = $this->data["outsideTemp"];
+		$log[time()] = $this->dataFhem["outsideTemp"];
 		
 		foreach($log AS $time => $value)
 			if(time() - $time > 3600 * 36)
@@ -123,7 +136,7 @@ class Heizung extends PersistentObject {
 		#programFan_Mo-So_1 n.a.--n.a.
 		#programFan_Mo-So_2 21:00--24:00
 		
-		$parsed = $this->data;
+		$parsed = $this->dataFhem;
 		$overrideStage = null;
 		
 		
@@ -140,9 +153,31 @@ class Heizung extends PersistentObject {
 					$highest = [$value, $time];
 			}
 			
+			$hasBatt = true;
+			if($this->dataWechselrichter === null)
+				echo "Lüftung: Keine Daten vom Wechselrichter!\n";
+			else 
+				if($this->dataWechselrichter->{"Battery SOC"} < 30){
+					$hasBatt = false;
+					echo "Lüftung: Nicht mehr genug Akku!\n";
+				}
+			
+			$willBeHot = true;
+			if($this->dataWeather === null)
+				echo "Lüftung: Keine Wetterdaten!\n";
+			else {
+				$jsonForecast = json_decode($this->dataWeather->A("OpenWeatherMapDataForecastDaily"));
+				#echo Util::CLDateTimeParser($jsonForecast->list[0]->dt);
+				if($jsonForecast->list[0]->temp->max < $this->A("HeizungFanCutoffTemp")){
+					$willBeHot = false;
+					echo "Lüftung: Heute wird es nicht warm genug!\n";
+				}
+			}
+				
+			
 			if($highest[0] > $this->A("HeizungFanCutoffTemp")){
 				#echo "Höchste Temperatur der letzten 24 Stunden: $highest[0], um ".date("H:i", $highest[1])." Uhr\n";
-				if($parsed["outsideTemp"] <= $this->A("HeizungVentTemp") AND $parsed["outsideTemp"] > 14){
+				if($parsed["outsideTemp"] <= $this->A("HeizungVentTemp") AND $parsed["outsideTemp"] > 14 AND $hasBatt AND $willBeHot){
 					#echo "Außentemperatur ".$parsed["outsideTemp"]." <= ".$this->A("HeizungVentTemp")." Jetzt Lüften!\n";
 					$overrideStage = $this->A("HeizungVentStage");
 				}# else {
@@ -184,15 +219,16 @@ class Heizung extends PersistentObject {
 	
 	function water(){
 		if($this->A("HeizungWechselrichterID")){
-			$W = new Wechselrichter($this->A("HeizungWechselrichterID"));
-			$data = $W->getData();
-			if(!$data){
+			#$W = new Wechselrichter($this->A("HeizungWechselrichterID"));
+			#$data = $W->getData();
+			$json = $this->dataWechselrichter;
+			if(!$json){
 				echo "Keine Daten vom Wechselrichter!";
 				$c  = "set p04DHWsetDayTemp ".$this->A("HeizungWaterDayTemp");
 				$this->connection->fireAndForget($c);
 				echo $c."\n";
 			} else {
-				$json = json_decode($data);
+				#$json = json_decode($data);
 				if($json->{"Total DC power Panels"} > $this->A("HeizungWaterHotAboveW") AND $json->{"Battery SOC"} > 20)
 					$temp = $this->A("HeizungWaterHotTemp");
 				else
