@@ -24,7 +24,8 @@ class HeizungGUI extends Heizung implements iGUIHTML2 {
 	
 		$gui->type("HeizungFhemServerID", "select", anyC::get("FhemServer"), "FhemServerName", "Bitte auswählen…");
 		
-		$gui->label("HeizungFhemServerID", "Server");
+		$gui->label("HeizungFhemServerID", "Fhem-Server");
+		$gui->label("HeizungOpenWeatherMapID", "Wetter");
 		
 		#$B = $gui->addSideButton("Sonne", "new");
 		#$B->popup("", "Datenanzeigen", "Heizung", $this->getID(), "sun");
@@ -37,6 +38,7 @@ class HeizungGUI extends Heizung implements iGUIHTML2 {
 		$gui->descriptionField("HeizungWaterHotTemp", "Max 55 Grad");
 		
 		$gui->type("HeizungWechselrichterID", "select", anyC::get("Wechselrichter"), "WechselrichterName", "Bitte auswählen…");
+		$gui->type("HeizungOpenWeatherMapID", "select", anyC::get("OpenWeatherMap"), "OpenWeatherMapName", "Bitte auswählen…");
 		
 		$B = $gui->addSideButton("Daten\nanzeigen", "new");
 		$B->popup("", "Datenanzeigen", "Heizung", $this->getID(), "showData", "", "", "{width:800}");
