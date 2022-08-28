@@ -224,7 +224,7 @@ class Heizung extends PersistentObject {
 			$json = $this->dataWechselrichter;
 			if(!$json){
 				echo "Keine Daten vom Wechselrichter!";
-				$c  = "set p04DHWsetDayTemp ".$this->A("HeizungWaterDayTemp");
+				$c  = "set ".$this->A("HeizungFhemName")." p04DHWsetDayTemp ".$this->A("HeizungWaterDayTemp");
 				$this->connection->fireAndForget($c);
 				echo $c."\n";
 			} else {
@@ -236,8 +236,8 @@ class Heizung extends PersistentObject {
 				
 				$last = mUserdata::getGlobalSettingValue("p04DHWsetDayTemp", "0");
 				if($last != $temp){
-					$this->connection->fireAndForget("set p04DHWsetDayTemp ".$temp);
-					echo "set p04DHWsetDayTemp ".$temp."\n";
+					$this->connection->fireAndForget("set ".$this->A("HeizungFhemName")." p04DHWsetDayTemp ".$temp);
+					echo "set ".$this->A("HeizungFhemName")." p04DHWsetDayTemp ".$temp."\n";
 					$last = mUserdata::setUserdataS("p04DHWsetDayTemp", $temp, "", -1);
 				}
 			}
