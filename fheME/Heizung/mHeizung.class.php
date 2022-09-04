@@ -24,6 +24,7 @@ class mHeizung extends anyC {
 		while($H = $AC->n()){
 			$H->connect();
 			$H->data();//first!
+			$H->time();
 			$H->air();
 			$H->water();
 			$H->heat();
