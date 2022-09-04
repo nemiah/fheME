@@ -170,7 +170,7 @@ class Heizung extends PersistentObject {
 				#echo Util::CLDateTimeParser($jsonForecast->list[0]->dt);
 				if($jsonForecast->list[0]->temp->max < $this->A("HeizungFanCutoffTemp")){
 					$willBeHot = false;
-					echo "Lüftung: Heute wird es nicht warm genug!\n";
+					#echo "Lüftung: Heute wird es nicht warm genug!\n";
 				}
 			}
 				
@@ -215,6 +215,27 @@ class Heizung extends PersistentObject {
 		}
 		
 		mUserdata::setUserdataS("HeizungAirLastTimes", date("Ymd"), "", -1);
+	}
+	
+	function time(){
+		
+		
+		$lastTimes = mUserdata::getGlobalSettingValue("HeizungTimeLastTimes", "");
+		if($lastTimes != date("Ymd")){
+			$c = "set ".$this->A("HeizungFhemName")." pClockMinutes ".date("i");
+			$this->connection->fireAndForget($c);
+			echo $c."\n";
+			
+			$c = "set ".$this->A("HeizungFhemName")." pClockHour ".date("H");
+			$this->connection->fireAndForget($c);
+			echo $c."\n";
+			
+			#$c = "set ".$this->A("HeizungFhemName")." pClockMinutes ".date("m");
+			#$this->connection->fireAndForget($c);
+			#echo $c."\n";
+		}
+		
+		mUserdata::setUserdataS("HeizungTimeLastTimes", date("Ymd"), "", -1);
 	}
 	
 	function water(){
