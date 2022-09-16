@@ -161,10 +161,10 @@ class Heizung extends PersistentObject {
 			if($this->dataWechselrichter === null)
 				echo "Lüftung: Keine Daten vom Wechselrichter!\n";
 			else 
-				if($this->dataWechselrichter->{"Battery SOC"} < 30){
+				if($this->dataWechselrichter->{"Battery SOC"} < 30)
 					$hasBatt = false;
-					echo "Lüftung: Nicht mehr genug Akku!\n";
-				}
+					#echo "Lüftung: Nicht mehr genug Akku!\n";
+				
 			
 			$willBeHot = true;
 			if($this->dataWeather === null)
