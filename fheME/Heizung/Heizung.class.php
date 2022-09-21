@@ -100,6 +100,32 @@ class Heizung extends PersistentObject {
 		#programHC1_Mo-So_1 n.a.--n.a.
 		#programHC1_Mo-So_2 n.a.--n.a.
 		
+		$raumtempDefault = 20;
+		$raumtempHeat = 24;
+		
+		$json = $this->dataWechselrichter;
+		$hasBatt = false;
+		if($json === null){
+			echo "Heizung: Keine Daten vom Wechselrichter!\n";
+		
+			$c  = "set ".$this->A("HeizungFhemName")." p01RoomTempDayHC1 $raumtempDefault";
+			$this->connection->fireAndForget($c);
+			echo $c."\n";	
+		} else 
+			if($json->{"Battery SOC"} >= 90)
+				$hasBatt = true;
+			
+		if($json->{"Total DC power Panels"} > 1500 AND $hasBatt){
+			#print_r($this->dataWechselrichter);
+			$c = "set ".$this->A("HeizungFhemName")." p01RoomTempDayHC1 $raumtempHeat";
+			$this->connection->fireAndForget($c);
+			echo $c."\n";
+		} else {
+			$c = "set ".$this->A("HeizungFhemName")." p01RoomTempDayHC1 $raumtempDefault";
+			$this->connection->fireAndForget($c);
+			echo $c."\n";
+		}
+			
 		$lastTimes = mUserdata::getGlobalSettingValue("HeizungHeatLastTimes", "");
 		if($lastTimes != date("Ymd")){
 			$data = date_sun_info(time(), (float) $this->A("HeizungLat"), (float) $this->A("HeizungLon"));
