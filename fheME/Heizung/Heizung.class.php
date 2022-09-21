@@ -100,7 +100,7 @@ class Heizung extends PersistentObject {
 		#programHC1_Mo-So_1 n.a.--n.a.
 		#programHC1_Mo-So_2 n.a.--n.a.
 		
-		$raumtempDefault = 20;
+		$raumtempDefault = 17;
 		$raumtempHeat = 24;
 		
 		$json = $this->dataWechselrichter;
