@@ -102,7 +102,11 @@ class Heizung extends PersistentObject {
 		
 		$raumtempDefault = 17;
 		$raumtempHeat = 24;
+		$summerModeTempDefault = 10;
+		$summerModeTempHeat = 16;
 		
+		#$parsed = $this->dataFhem;
+		print_r($parsed);
 		$json = $this->dataWechselrichter;
 		$hasBatt = false;
 		if($json === null){
@@ -114,14 +118,25 @@ class Heizung extends PersistentObject {
 		} else 
 			if($json->{"Battery SOC"} >= 90)
 				$hasBatt = true;
-			
+		
+		$last = mUserdata::getGlobalSettingValue("p01RoomTempDayHC1", "0");
 		if($json->{"Total DC power Panels"} > 1500 AND $hasBatt){
 			#print_r($this->dataWechselrichter);
 			$c = "set ".$this->A("HeizungFhemName")." p01RoomTempDayHC1 $raumtempHeat";
 			$this->connection->fireAndForget($c);
 			echo $c."\n";
-		} else {
+			$last = mUserdata::setUserdataS("p01RoomTempDayHC1", $raumtempHeat, "", -1);
+			
+			$c = "set ".$this->A("HeizungFhemName")." p49SummerModeTemp $summerModeTempHeat";
+			$this->connection->fireAndForget($c);
+			echo $c."\n";
+		} elseif($last != $raumtempDefault) {
 			$c = "set ".$this->A("HeizungFhemName")." p01RoomTempDayHC1 $raumtempDefault";
+			$this->connection->fireAndForget($c);
+			echo $c."\n";
+			$last = mUserdata::setUserdataS("p01RoomTempDayHC1", $raumtempDefault, "", -1);
+			
+			$c = "set ".$this->A("HeizungFhemName")." p49SummerModeTemp $summerModeTempDefault";
 			$this->connection->fireAndForget($c);
 			echo $c."\n";
 		}
