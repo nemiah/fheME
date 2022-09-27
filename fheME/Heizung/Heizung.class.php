@@ -85,12 +85,19 @@ class Heizung extends PersistentObject {
 			$states[$STATE["key"].""] = $STATE["value"]."";
 		
 		
-		preg_match_all("/([a-zA-Z]+): ([0-9\-\.]+) /", $states["sGlobal"], $matches);
+		preg_match_all("/([a-zA-Z0-9]+): ([0-9\-\.]+) /", $states["sGlobal"], $matches);
 		$parsed = [];
 		foreach($matches[1] AS $k => $v)
 			$parsed[$v] = $matches[2][$k];
 			
 		$states["sGlobal"] = $parsed;
+		
+		preg_match_all("/([a-zA-Z]+): ([a-zA-Z0-9\-\.]+) /", $states["sHC1"], $matches);
+		$parsed = [];
+		foreach($matches[1] AS $k => $v)
+			$parsed[$v] = $matches[2][$k];
+			
+		$states["sHC1"] = $parsed;
 		
 		return $states;
 	}
