@@ -100,7 +100,7 @@ class mHeizungGUI extends anyC implements iGUIHTMLMP2 {
 				".$B."
 				<div class=\"label\" style=\"padding-top:0;\">
 					".str_replace("--", " - ", $states["programHC1_Mo-So_0"])."<br>
-					<small style=\"color:grey;\">Tag: ".$states["p01RoomTempDayHC1"].", Nacht: ".$states["p02RoomTempNightHC1"]."</small>
+					<small style=\"color:grey;\">Tag: ".$states["p01RoomTempDayHC1"].", Nacht: ".$states["p02RoomTempNightHC1"].", ".$states["sHC1"]["seasonMode"]."</small>
 				</div>
 				<div style=\"clear:both;\"></div>
 			</div>";
