@@ -95,12 +95,18 @@ class mHeizungGUI extends anyC implements iGUIHTMLMP2 {
 			$B = new Button("Heizung", "./fheME/Heizung/heat.svg", "icon");
 			$B->style("float:left;margin-right:5px;width:32px;");
 			
+			$BW = "";
+			if($states["sHC1"]["seasonMode"] == "winter"){
+				$BW = new Button("Winter", "./fheME/Heizung/cold.svg", "icon");
+				$BW->style("float:right;width:32px;");
+			}
+			
 			$html .= "
 			<div class=\"touchButton\">
-				".$B."
+				$BW".$B."
 				<div class=\"label\" style=\"padding-top:0;\">
 					".str_replace("--", " - ", $states["programHC1_Mo-So_0"])."<br>
-					<small style=\"color:grey;\">Tag: ".$states["p01RoomTempDayHC1"].", Nacht: ".$states["p02RoomTempNightHC1"].", ".$states["sHC1"]["seasonMode"]."</small>
+					<small style=\"color:grey;\">Tag: ".$states["p01RoomTempDayHC1"].", Nacht: ".$states["p02RoomTempNightHC1"]."</small>
 				</div>
 				<div style=\"clear:both;\"></div>
 			</div>";
