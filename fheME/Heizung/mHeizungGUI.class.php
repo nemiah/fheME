@@ -68,10 +68,14 @@ class mHeizungGUI extends anyC implements iGUIHTMLMP2 {
 			
 			$B = new Button("Lüftung", "./fheME/Heizung/wind.svg", "icon");
 			$B->style("float:left;margin-right:5px;width:32px;");
-			
+			$BZ = "";
+			if($states["sDisplay"]["filterUp"] == "1" OR $states["sDisplay"]["filterDown"] == "1"){
+				$BZ = new Button("Filter", "./fheME/Heizung/zap.svg", "icon");
+				$BZ->style("float:right;width:32px;margin-left:5px;");
+			}
 			$html .= "
 			<div class=\"touchButton\">
-				".$B."
+				$BZ".$B."
 				<div class=\"label\" style=\"padding-top:0;\">
 					".str_replace("--", " - ", $states["programFan_Mo-So_0"])."<br>
 					<small style=\"color:grey;\">Tag: ".$states["p07FanStageDay"]." (".str_replace("m3/h", "m³/h", $states[$airP[$states["p07FanStageDay"]]])."), Nacht: ".$states["p08FanStageNight"]." (".str_replace("m3/h", "m³/h", $states[$airP[$states["p08FanStageNight"]]]).")</small>
@@ -82,9 +86,15 @@ class mHeizungGUI extends anyC implements iGUIHTMLMP2 {
 			$B = new Button("Wasser", "./fheME/Heizung/water.svg", "icon");
 			$B->style("float:left;margin-right:5px;width:32px;");
 			
+			$BH = "";
+			if($states["sDisplay"]["heatingDHW"] == "1"){
+				$BH = new Button("Heizt", "./fheME/Heizung/play.svg", "icon");
+				$BH->style("float:right;width:32px;margin-left:5px;");
+			}
+			
 			$html .= "
 			<div class=\"touchButton\">
-				".$B."
+				$BH".$B."
 				<div class=\"label\" style=\"padding-top:0;\">
 					".str_replace("--", " - ", $states["programDHW_Mo-So_0"]).", Aktuell: ".Util::formatNumber("de_DE", (float) $parsed["dhwTemp"], 1)." °C<br>
 					<small style=\"color:grey;\">Tag: ".$states["p04DHWsetDayTemp"].", Nacht: ".$states["p05DHWsetNightTemp"]."</small>
@@ -98,12 +108,22 @@ class mHeizungGUI extends anyC implements iGUIHTMLMP2 {
 			$BW = "";
 			if($states["sHC1"]["seasonMode"] == "winter"){
 				$BW = new Button("Winter", "./fheME/Heizung/cold.svg", "icon");
-				$BW->style("float:right;width:32px;");
+				$BW->style("float:right;width:32px;margin-left:5px;");
+			}
+			$BC = "";
+			if($states["sDisplay"]["compressor"] == "1"){
+				$BC = new Button("Kompressor", "./fheME/Heizung/compressor.svg", "icon");
+				$BC->style("float:right;width:32px;margin-left:5px;");
+			}
+			$BT = "";
+			if($states["sDisplay"]["service"] == "1"){
+				$BT = new Button("Service", "./fheME/Heizung/tool.svg", "icon");
+				$BT->style("float:right;width:32px;margin-left:5px;");
 			}
 			
 			$html .= "
 			<div class=\"touchButton\">
-				$BW".$B."
+				$BW$BC$BT".$B."
 				<div class=\"label\" style=\"padding-top:0;\">
 					".str_replace("--", " - ", $states["programHC1_Mo-So_0"])."<br>
 					<small style=\"color:grey;\">Tag: ".$states["p01RoomTempDayHC1"].", Nacht: ".$states["p02RoomTempNightHC1"]."</small>
