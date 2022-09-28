@@ -84,22 +84,20 @@ class Heizung extends PersistentObject {
 		foreach($xml->THZ_LIST->THZ[0]->STATE AS $STATE)
 			$states[$STATE["key"].""] = $STATE["value"]."";
 		
-		
-		preg_match_all("/([a-zA-Z0-9]+): ([0-9\-\.]+) /", $states["sGlobal"], $matches);
-		$parsed = [];
-		foreach($matches[1] AS $k => $v)
-			$parsed[$v] = $matches[2][$k];
-			
-		$states["sGlobal"] = $parsed;
-		
-		preg_match_all("/([a-zA-Z]+): ([a-zA-Z0-9\-\.]+) /", $states["sHC1"], $matches);
-		$parsed = [];
-		foreach($matches[1] AS $k => $v)
-			$parsed[$v] = $matches[2][$k];
-			
-		$states["sHC1"] = $parsed;
+		$states["sGlobal"] = $this->parse($states["sGlobal"]);
+		$states["sHC1"] = $this->parse($states["sHC1"]);
+		$states["sDisplay"] = $this->parse($states["sDisplay"]);
 		
 		return $states;
+	}
+	
+	private function parse($data){
+		preg_match_all("/([a-zA-Z]+): ([a-zA-Z0-9\-\.]+) /", $data, $matches);
+		$parsed = [];
+		foreach($matches[1] AS $k => $v)
+			$parsed[$v] = $matches[2][$k];
+		
+		return $parsed;
 	}
 	
 	function heat(){
