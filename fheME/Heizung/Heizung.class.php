@@ -121,7 +121,7 @@ class Heizung extends PersistentObject {
 			$this->connection->fireAndForget($c);
 			echo $c."\n";	
 		} else 
-			if($json->{"Battery SOC"} > 93)
+			if($json->{"Battery SOC"} >= 95)
 				$hasBatt = true;
 		
 		$last = mUserdata::getGlobalSettingValue("p01RoomTempDayHC1", "0");
