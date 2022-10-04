@@ -107,7 +107,7 @@ class mHeizungGUI extends anyC implements iGUIHTMLMP2 {
 			
 			$BW = "";
 			if($states["sHC1"]["seasonMode"] == "winter"){
-				$BW = new Button("Winter", "./fheME/Heizung/cold.svg", "icon");
+				$BW = new Button("Winter ab ".($states["p49SummerModeTemp"] - ($states["p50SummerModeHysteresis"] / 2))."°C", "./fheME/Heizung/cold.svg", "icon");
 				$BW->style("float:right;width:32px;margin-left:5px;");
 			}
 			$BC = "";
