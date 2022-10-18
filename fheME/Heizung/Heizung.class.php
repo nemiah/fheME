@@ -18,7 +18,7 @@
  *  2007 - 2022, open3A GmbH - Support@open3A.de
  */
 class Heizung extends PersistentObject {
-	private $connection;
+	protected $connection;
 	protected $data;
 	protected $dataWechselrichter;
 	protected $dataWeather;
@@ -100,24 +100,35 @@ class Heizung extends PersistentObject {
 		return $parsed;
 	}
 	
+	public static $raumtempDefault = 17;
+	public static $raumtempHeat = 24;
+	public static $summerModeTempDefault = 10;
+	public static $summerModeTempHeat = 20;
+	
 	function heat(){
 		#programHC1_Mo-So_0 06:00--21:30
 		#programHC1_Mo-So_1 n.a.--n.a.
 		#programHC1_Mo-So_2 n.a.--n.a.
 		
-		$raumtempDefault = 17;
-		$raumtempHeat = 24;
-		$summerModeTempDefault = 10;
-		$summerModeTempHeat = 16;
+		#$raumtempDefault = 17;
+		#$raumtempHeat = 24;
+		#$summerModeTempDefault = 10;
+		#$summerModeTempHeat = 20;
+		
+		$override = mUserdata::getGlobalSettingValue("HeizungHeatUntil", "0");
+		if($override > time()){
+			echo "Heizung: Manueller Modus bis ".date("H:i:s", $override).", tue  nichts!\n";
+			return;
+		}
 		
 		#$parsed = $this->dataFhem;
-		print_r($parsed);
+		#print_r($parsed);
 		$json = $this->dataWechselrichter;
 		$hasBatt = false;
 		if($json === null){
 			echo "Heizung: Keine Daten vom Wechselrichter!\n";
 		
-			$c  = "set ".$this->A("HeizungFhemName")." p01RoomTempDayHC1 $raumtempDefault";
+			$c  = "set ".$this->A("HeizungFhemName")." p01RoomTempDayHC1 ".self::$raumtempDefault;
 			$this->connection->fireAndForget($c);
 			echo $c."\n";	
 		} else 
@@ -127,21 +138,21 @@ class Heizung extends PersistentObject {
 		$last = mUserdata::getGlobalSettingValue("p01RoomTempDayHC1", "0");
 		if($json->{"Total DC power Panels"} > 1500 AND $hasBatt){
 			#print_r($this->dataWechselrichter);
-			$c = "set ".$this->A("HeizungFhemName")." p01RoomTempDayHC1 $raumtempHeat";
+			$c = "set ".$this->A("HeizungFhemName")." p01RoomTempDayHC1 ".self::$raumtempHeat;
 			$this->connection->fireAndForget($c);
 			echo $c."\n";
-			$last = mUserdata::setUserdataS("p01RoomTempDayHC1", $raumtempHeat, "", -1);
+			$last = mUserdata::setUserdataS("p01RoomTempDayHC1", self::$raumtempHeat, "", -1);
 			
-			$c = "set ".$this->A("HeizungFhemName")." p49SummerModeTemp $summerModeTempHeat";
+			$c = "set ".$this->A("HeizungFhemName")." p49SummerModeTemp ".self::$summerModeTempHeat;
 			$this->connection->fireAndForget($c);
 			echo $c."\n";
-		} elseif($last != $raumtempDefault) {
-			$c = "set ".$this->A("HeizungFhemName")." p01RoomTempDayHC1 $raumtempDefault";
+		} elseif($last != self::$raumtempDefault) {
+			$c = "set ".$this->A("HeizungFhemName")." p01RoomTempDayHC1 ".self::$raumtempDefault;
 			$this->connection->fireAndForget($c);
 			echo $c."\n";
-			$last = mUserdata::setUserdataS("p01RoomTempDayHC1", $raumtempDefault, "", -1);
+			$last = mUserdata::setUserdataS("p01RoomTempDayHC1", self::$raumtempDefault, "", -1);
 			
-			$c = "set ".$this->A("HeizungFhemName")." p49SummerModeTemp $summerModeTempDefault";
+			$c = "set ".$this->A("HeizungFhemName")." p49SummerModeTemp ".self::$summerModeTempDefault;
 			$this->connection->fireAndForget($c);
 			echo $c."\n";
 		}

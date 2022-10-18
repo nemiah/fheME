@@ -69,7 +69,7 @@ class mHeizungGUI extends anyC implements iGUIHTMLMP2 {
 			$B = new Button("Lüftung", "./fheME/Heizung/wind.svg", "icon");
 			$B->style("float:left;margin-right:5px;width:32px;");
 			$BZ = "";
-			if($states["sDisplay"]["filterUp"] == "1" OR $states["sDisplay"]["filterDown"] == "1"){
+			if($states["sDisplay"]["filterUp"] == "1" OR $states["sDisplay"]["filterDown"] == "1" OR $states["sDisplay"]["filterBoth"] == "1"){
 				$BZ = new Button("Filter", "./fheME/Heizung/zap.svg", "icon");
 				$BZ->style("float:right;width:32px;margin-left:5px;");
 			}
@@ -121,9 +121,15 @@ class mHeizungGUI extends anyC implements iGUIHTMLMP2 {
 				$BT->style("float:right;width:32px;margin-left:5px;");
 			}
 			
+			$override = mUserdata::getGlobalSettingValue("HeizungHeatUntil", "0");
+			$BM = "";
+			if($override > time()){
+				$BM = new Button("Manuell", "./fheME/Heizung/heart.svg", "icon");
+				$BM->style("float:right;width:32px;margin-left:5px;");
+			}
 			$html .= "
-			<div class=\"touchButton\">
-				$BW$BC$BT".$B."
+			<div class=\"touchButton\" onclick=\"".OnEvent::popup("Ferien", "Heizung", $H->getID(), "heatPopup")."\">
+				$BW$BC$BT$BM".$B."
 				<div class=\"label\" style=\"padding-top:0;\">
 					".str_replace("--", " - ", $states["programHC1_Mo-So_0"])."<br>
 					<small style=\"color:grey;\">Tag: ".$states["p01RoomTempDayHC1"].", Nacht: ".$states["p02RoomTempNightHC1"]."</small>
