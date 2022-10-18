@@ -101,7 +101,7 @@ class Heizung extends PersistentObject {
 	}
 	
 	public static $raumtempDefault = 17;
-	public static $raumtempHeat = 24;
+	public static $raumtempHeat = 28;
 	public static $summerModeTempDefault = 10;
 	public static $summerModeTempHeat = 20;
 	
