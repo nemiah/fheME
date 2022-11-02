@@ -478,7 +478,7 @@ class FhemControlGUI implements iGUIHTML2 {
 		if($status == "on")
 			$this->setDevice($FhemID, "off");
 		
-		if($status == "off")
+		if($status == "off" OR $status == "Initialized")
 			$this->setDevice($FhemID, "on");
 	}
 
@@ -754,13 +754,13 @@ class FhemControlGUI implements iGUIHTML2 {
 					$FS = new Button("", "./fheME/Fhem/off.png", "icon");
 					$FS->style("float:left;margin-right:5px;");
 
-					if($state != "off" && $state != "aus")
+					if($state != "off" && $state != "aus" && $state != "initialized")
 						$FS->image("./fheME/Fhem/on.png");
 
-					if(!is_numeric(str_replace("%", "", $state)))
-						$state = "";
+					#if(!is_numeric(str_replace("%", "", $state)))
+					#	$state = "";
 
-					$result[$F->getID()] = array("model" => $F->A("FhemModel"), "state" => "$FS<b>".($F->A("FhemAlias") == "" ? $F->A("FhemName") : $F->A("FhemAlias"))."</b> <small style=\"color:grey;\" id=\"FhemID_".$F->getID()."State\">$state</small><div style=\"clear:both;\"></div>");
+					$result[$F->getID()] = array("model" => $F->A("FhemModel"), "state" => "$FS<b>".($F->A("FhemAlias") == "" ? $F->A("FhemName") : $F->A("FhemAlias"))."</b><br><small style=\"color:grey;\" id=\"FhemID_".$F->getID()."State\">$state</small><div style=\"clear:both;\"></div>");
 					
 				}
 			
