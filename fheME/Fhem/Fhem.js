@@ -103,7 +103,12 @@ var Fhem = {
 	},
 
 	requestUpdate: function(id){
-		contentManager.rmePCR('FhemControl','','updateGUI',typeof id != "undefined" ? id : "",'Fhem.updateControls(transport);', "", false);
+		if(typeof Fhem.timeout != 'undefined' && Fhem.timeout != null)
+			window.clearTimeout(Fhem.timeout);
+		
+		Fhem.timeout = window.setTimeout(function(){
+			contentManager.rmePCR('FhemControl','','updateGUI',typeof id != "undefined" ? id : "",'Fhem.updateControls(transport);', "", false);
+		}, 1500);
 	},
 
 	updateControls: function(transport){
