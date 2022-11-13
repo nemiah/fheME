@@ -130,6 +130,8 @@ class FhemControlGUI implements iGUIHTML2 {
 			</div>";
 	}
 
+	private static $counter = 0;
+	
 	function getControl(Fhem $f){
 		if($f->getA()->FhemType == "FHZ") return;
 		if($f->getA()->FhemType == "notify") return;
@@ -152,7 +154,12 @@ class FhemControlGUI implements iGUIHTML2 {
 						}
 					})";
 					
-					$html = "<div id=\"FhemControlID_".$f->getID()."\" onclick=\"$onclick\" style=\"cursor:pointer;\" class=\"touchButton\">
+					
+					$white = "width:calc(50% - 5px);";
+					if(self::$counter++ % 2 == 0)
+						$white = "width:calc(50% - 5px);margin-right: 10px;";
+					
+					$html = "<div id=\"FhemControlID_".$f->getID()."\" onclick=\"$onclick\" style=\"cursor:pointer;{$white}box-sizing:border-box;display:inline-block;\" class=\"touchButton\">
 							
 							<div id=\"FhemID_".$f->getID()."\">
 								
@@ -174,7 +181,11 @@ class FhemControlGUI implements iGUIHTML2 {
 						$values = array("off" => "off", /*6, 12, 18,*/ "dim25%" => "25%", /*31, 37, 43,*/ "dim50%" => "50%", /*56, 62, 68,*/ "dim75%" => "75%", /*81, 87, 93,*/ "dim100%" => "100%");
 
 					
-					$html = "<div id=\"FhemControlID_".$f->getID()."\" onclick=\"$onclick\" style=\"cursor:pointer;\" class=\"touchButton\">
+					$white = "width:calc(50% - 5px);";
+					if(self::$counter++ % 2 == 0)
+						$white = "width:calc(50% - 5px);margin-right: 10px;";
+					
+					$html = "<div id=\"FhemControlID_".$f->getID()."\" onclick=\"$onclick\" style=\"cursor:pointer;{$white}box-sizing:border-box;display:inline-block;\" class=\"touchButton\">
 							<div id=\"FhemID_".$f->getID()."\">
 								
 							</div>
