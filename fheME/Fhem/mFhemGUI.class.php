@@ -86,12 +86,18 @@ class mFhemGUI extends anyC implements iGUIHTML2 {
 			$this->addAssocV3("FhemType","!=","FHZ");
 		}
 		#----------------------------------------------
+		$this->addOrderV3("FhemOrder");
 		$this->addOrderV3("FhemServerID");
 		$this->addOrderV3("FhemType");
 		$this->addOrderV3("FhemName");
 		
 		$gui = new HTMLGUIX($this);
-		$gui->displayGroup("FhemServerID", "mFhemGUI::DGParser");
+		$gui->displayGroup("FhemSpace");#, "mFhemGUI::DGParser");
+		$gui->sortable("sorter");
+		
+		$gui->colWidth("FhemOrder", "20");
+		$gui->colWidth("FhemInOverview", 20);
+		$gui->parser("FhemInOverview", "Util::catchParser");
 		
 		$B = $gui->addSideButton("Load devices\nfrom server", "refresh");
 		$B->popup("", "Load devices", "mFhem", "-1", "loadDevices");
@@ -106,14 +112,33 @@ class mFhemGUI extends anyC implements iGUIHTML2 {
 		
 		#$this->lCV3($id);
 		
-		$gui->attributes(array("FhemName","FhemType"));
+		$gui->attributes(array("FhemOrder", "FhemInOverview", "FhemName","FhemType"));
 		
 		$gui->name("Device");
+		
+		$gui->parser("FhemOrder", "parserOrder");
 		
 		if($bps != -1 AND isset($bps["selectionMode"]))
 			$t2 = "";
 		
 		return $gui->getBrowserHTML($id);
+	}
+	
+	public function saveOrder($order){
+		$ex = explode(";", $order);
+		
+		foreach($ex AS $i => $e){
+			$F = new Fhem($e);
+			$F->changeA("FhemOrder", $i);
+			$F->saveMe();
+		}
+	}
+	
+	public static function parserOrder($w) {
+		$I = new Button("Sortieren", "./images/i2/topdown.png", "icon");
+		$I->addClass("sorter");
+		
+		return $I;
 	}
 	
 	public static function DGParser($w){
@@ -129,11 +154,11 @@ class mFhemGUI extends anyC implements iGUIHTML2 {
 			<div style=\"\" class=\"borderColor1\">";
 		
 		$FC = new FhemControlGUI();
-		$ac = $FC->getDevicesFHT(true);
-		while($t = $ac->getNextEntry())
-			$html .= $FC->getFHTControl($t);
+		#$ac = $FC->getDevicesFHT(true);
+		#while($t = $ac->getNextEntry())
+		#	$html .= $FC->getFHTControl($t);
 		
-		$html .= "<div style=\"clear:both;\"></div></div><div style=\"\">";
+		#$html .= "<div style=\"clear:both;\"></div></div><div style=\"\">";
 		
 		$ac = $FC->getDevices(true);
 		while($t = $ac->getNextEntry())

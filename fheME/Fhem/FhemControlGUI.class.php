@@ -63,6 +63,7 @@ class FhemControlGUI implements iGUIHTML2 {
 		$ac->addAssocV3("INSTR(FhemLocationBindHosts, '$_SERVER[REMOTE_ADDR]')", ">", "0", "AND", "2");
 		$ac->addAssocV3("FhemLocationBindHosts", "=", "", "OR", "2");
 		$ac->addAssocV3("t1.FhemLocationID", "=", "0", "OR", "2");
+		$ac->addOrderV3("FhemOrder");
 		$ac->addOrderV3("FhemModel");
 		$ac->addOrderV3("FhemITModel");
 		$ac->addOrderV3("FhemHMModel");
@@ -141,6 +142,11 @@ class FhemControlGUI implements iGUIHTML2 {
 
 		$html = "";
 
+		if($f->A("FhemSpace") != ""){
+			$html .= "<div style=\"margin-bottom:5px;\">".$f->A("FhemSpace")."</div>";
+			self::$counter = 0;
+		}
+		
 		if($f->A("FhemType") == "HUEDevice")
 			switch($f->A("FhemHUEModel")){
 				case "lightDimmable":
@@ -159,7 +165,7 @@ class FhemControlGUI implements iGUIHTML2 {
 					if(self::$counter++ % 2 == 0)
 						$white = "width:calc(50% - 5px);margin-right: 10px;";
 					
-					$html = "<div id=\"FhemControlID_".$f->getID()."\" onclick=\"$onclick\" style=\"cursor:pointer;{$white}box-sizing:border-box;display:inline-block;\" class=\"touchButton\">
+					$html .= "<div id=\"FhemControlID_".$f->getID()."\" onclick=\"$onclick\" style=\"cursor:pointer;{$white}box-sizing:border-box;display:inline-block;\" class=\"touchButton\">
 							
 							<div id=\"FhemID_".$f->getID()."\">
 								
@@ -185,7 +191,7 @@ class FhemControlGUI implements iGUIHTML2 {
 					if(self::$counter++ % 2 == 0)
 						$white = "width:calc(50% - 5px);margin-right: 10px;";
 					
-					$html = "<div id=\"FhemControlID_".$f->getID()."\" onclick=\"$onclick\" style=\"cursor:pointer;{$white}box-sizing:border-box;display:inline-block;\" class=\"touchButton\">
+					$html .= "<div id=\"FhemControlID_".$f->getID()."\" onclick=\"$onclick\" style=\"cursor:pointer;{$white}box-sizing:border-box;display:inline-block;\" class=\"touchButton\">
 							<div id=\"FhemID_".$f->getID()."\">
 								
 							</div>
@@ -214,7 +220,7 @@ class FhemControlGUI implements iGUIHTML2 {
 					if($togggle)
 						$controls = "";
 					
-					$html = "<div id=\"FhemControlID_".$f->getID()."\" onclick=\"$onclick\" style=\"cursor:pointer;\" class=\"touchButton\">
+					$html .= "<div id=\"FhemControlID_".$f->getID()."\" onclick=\"$onclick\" style=\"cursor:pointer;\" class=\"touchButton\">
 							$controls
 							<div id=\"FhemID_".$f->getID()."\">
 								
@@ -225,7 +231,7 @@ class FhemControlGUI implements iGUIHTML2 {
 
 				case "fs20irf":
 
-					$html = "
+					$html .= "
 					<script type=\"text/javascript\">
 						Fhem.startSliderOnOff('".$f->getID()."', ".($f->getID() != "timer" ? "100" : "0.00001").", true);
 					</script>
@@ -251,7 +257,7 @@ class FhemControlGUI implements iGUIHTML2 {
 
 				case "fs20rsu":
 
-					$html = "
+					$html .= "
 					<script type=\"text/javascript\">
 						Fhem.startSliderUpDown('".$f->getID()."');
 					</script>
@@ -291,7 +297,7 @@ class FhemControlGUI implements iGUIHTML2 {
 			#if($togggle)
 			#	$controls = "";
 
-			$html = "<div id=\"FhemControlID_".$f->getID()."\" onclick=\"$onclick\" style=\"cursor:pointer;\" class=\"touchButton\">
+			$html .= "<div id=\"FhemControlID_".$f->getID()."\" onclick=\"$onclick\" style=\"cursor:pointer;\" class=\"touchButton\">
 					$controls
 					<div id=\"FhemID_".$f->getID()."\">
 
@@ -306,7 +312,7 @@ class FhemControlGUI implements iGUIHTML2 {
 			$values = array("on" => "on", "off" => "off");
 			$onclick = OnEvent::rme($this, "toggleDevice", $f->getID(), "if(Fhem.doAutoUpdate) Fhem.requestUpdate();");
 
-			$html = "<div id=\"FhemControlID_".$f->getID()."\" onclick=\"$onclick\" style=\"cursor:pointer;\" class=\"touchButton\">
+			$html .= "<div id=\"FhemControlID_".$f->getID()."\" onclick=\"$onclick\" style=\"cursor:pointer;\" class=\"touchButton\">
 					
 					<div id=\"FhemID_".$f->getID()."\">
 
@@ -327,7 +333,7 @@ class FhemControlGUI implements iGUIHTML2 {
 
 					$controls = $this->getSetTable("D".$f->getID(), $values);
 
-					$html = "<div onclick=\"\$j('.fhemeControl:not(#controls_D".$f->getID().")').hide(); \$j('#controls_D".$f->getID()."').toggle();\" style=\"cursor:pointer;width:210px;float:left;min-height:15px;border-radius:5px;border-width:1px;border-style:solid;margin:5px;padding:5px;\" class=\"borderColor1\">
+					$html .= "<div onclick=\"\$j('.fhemeControl:not(#controls_D".$f->getID().")').hide(); \$j('#controls_D".$f->getID()."').toggle();\" style=\"cursor:pointer;width:210px;float:left;min-height:15px;border-radius:5px;border-width:1px;border-style:solid;margin:5px;padding:5px;\" class=\"borderColor1\">
 							$controls
 							<div id=\"FhemID_".$f->getID()."\">
 								<b>".$f->A("FhemName")."</b>
@@ -365,7 +371,7 @@ class FhemControlGUI implements iGUIHTML2 {
 
 					$controls = $this->getSetTable("D".$f->getID(), $values);
 
-					$html = "<div onclick=\"\$j('.fhemeControl:not(#controls_D".$f->getID().")').hide(); \$j('#controls_D".$f->getID()."').toggle();\" style=\"cursor:pointer;width:210px;float:left;min-height:15px;border-radius:5px;border-width:1px;border-style:solid;margin:5px;padding:5px;\" class=\"borderColor1\">
+					$html .= "<div onclick=\"\$j('.fhemeControl:not(#controls_D".$f->getID().")').hide(); \$j('#controls_D".$f->getID()."').toggle();\" style=\"cursor:pointer;width:210px;float:left;min-height:15px;border-radius:5px;border-width:1px;border-style:solid;margin:5px;padding:5px;\" class=\"borderColor1\">
 							$B$controls
 							<div id=\"FhemID_".$f->getID()."\">
 								<b>".$f->A("FhemName")."</b>
@@ -375,7 +381,7 @@ class FhemControlGUI implements iGUIHTML2 {
 				break;
 				
 				case "HM-Sec-RHS":
-					$html = "<div id=\"FhemControlID_".$f->getID()."\" onclick=\"\" style=\"cursor:pointer;\" class=\"touchButton\">
+					$html .= "<div id=\"FhemControlID_".$f->getID()."\" onclick=\"\" style=\"cursor:pointer;\" class=\"touchButton\">
 							<div id=\"FhemID_".$f->getID()."\">
 								
 							</div>
@@ -388,7 +394,7 @@ class FhemControlGUI implements iGUIHTML2 {
 
 				case "EMEM":
 
-					$html = "<div onclick=\"\$j('.fhemeControl:not(#controls_D".$f->getID().")').hide(); \$j('#controls_D".$f->getID()."').toggle();\" style=\"cursor:pointer;width:210px;float:left;min-height:15px;border-radius:5px;border-width:1px;border-style:solid;margin:5px;padding:5px;\" class=\"borderColor1\">
+					$html .= "<div onclick=\"\$j('.fhemeControl:not(#controls_D".$f->getID().")').hide(); \$j('#controls_D".$f->getID()."').toggle();\" style=\"cursor:pointer;width:210px;float:left;min-height:15px;border-radius:5px;border-width:1px;border-style:solid;margin:5px;padding:5px;\" class=\"borderColor1\">
 							$B$controls
 							<div id=\"FhemID_".$f->getID()."\">
 								<b>".$f->A("FhemName")."</b>
@@ -483,6 +489,9 @@ class FhemControlGUI implements iGUIHTML2 {
 	public function toggleDevice($FhemID){
 		$status = $this->getDeviceStatus($FhemID);
 
+		if($status == "unreachable")
+			return;
+		
 		if($status == null)
 			$this->setDevice($FhemID, "off");
 		
@@ -768,6 +777,11 @@ class FhemControlGUI implements iGUIHTML2 {
 					if($state != "off" && $state != "aus" && $state != "initialized")
 						$FS->image("./fheME/Fhem/on.png");
 
+					if($state == "unreachable"){
+						$FS->image("./fheME/Fhem/off.png");
+						$FS->style ("float:left;margin-right:5px;opacity:0.5;");
+					}
+					
 					#if(!is_numeric(str_replace("%", "", $state)))
 					#	$state = "";
 

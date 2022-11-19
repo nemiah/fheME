@@ -120,10 +120,11 @@ class FhemGUI extends Fhem implements iGUIHTML2 {
 
 		$gui->descriptionField("FhemRunOn","e.g. Door:toggle");
 		$gui->descriptionField("FhemCommand","you may use new line, it will be replaced by space");
-
+		$gui->descriptionField("FhemSpace", "- eingeben für eine leere Zeile");
+		
 		$gui->inputStyle("FhemCommand","height:300px;font-size:8px;");
 
-		$gui->attributes(array("FhemServerID", "FhemLocationID", "FhemName", "FhemAlias", "FhemInOverview", "FhemType", "FhemExtension", "FhemModel", "FhemITModel", "FhemHMModel", "FhemEMModel", "FhemFHTModel", "FhemSpecific", "FhemHMSub", "FhemHMClass", "FhemRoom", "FhemRunOn", "FhemCommand", "FhemHUEModel"/*, "FhemFHTDefaultDayTemp"*/));
+		$gui->attributes(array("FhemServerID", "FhemLocationID", "FhemName", "FhemSpace", "FhemAlias", "FhemInOverview", "FhemType", "FhemExtension", "FhemModel", "FhemITModel", "FhemHMModel", "FhemEMModel", "FhemFHTModel", "FhemSpecific", "FhemHMSub", "FhemHMClass", "FhemRoom", "FhemRunOn", "FhemCommand", "FhemHUEModel"/*, "FhemFHTDefaultDayTemp"*/));
 
 		$gui->space("FhemType");
 
