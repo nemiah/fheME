@@ -144,12 +144,24 @@ class mHeizungGUI extends anyC implements iGUIHTMLMP2 {
 			$B = new Button("Ferien", "./fheME/Heizung/sun.svg", "icon");
 			$B->style("float:left;margin-right:5px;width:32px;");
 			$html .= "
-			<div class=\"touchButton\" onclick=\"".OnEvent::popup("Ferien", "Heizung", $H->getID(), "ferienPopup")."\">
+			<div class=\"touchButton\" style=\"box-sizing:border-box;display:inline-block;vertical-align:top;width:calc(50% - 5px);margin-right:5px;\" onclick=\"".OnEvent::popup("Ferien", "Heizung", $H->getID(), "ferienPopup")."\">
 				".$B."
 				<div class=\"label\" style=\"padding-top:0;\">
 					Ferien<br><small style=\"color:grey;\">".$states["pHolidayBeginDay"].".".$states["pHolidayBeginMonth"].".20".$states["pHolidayBeginYear"]." - ".$states["pHolidayEndDay"].".".$states["pHolidayEndMonth"].".20".$states["pHolidayEndYear"]."</small></div>
 				<div style=\"clear:both;\"></div>
 			</div>";
+			
+			#$B = new Button("Ferien", "./fheME/Heizung/sun.svg", "icon");
+			#$B->style("float:left;margin-right:5px;width:32px;");
+			$html .= "
+			<div class=\"touchButton\" style=\"box-sizing:border-box;display:inline-block;vertical-align:top;width:calc(50% - 5px);height:42px;\" onclick=\"".OnEvent::popup("Ferien", "Heizung", $H->getID(), "ferienPopup")."\">
+
+				<div class=\"label\" style=\"padding-top:0;\">
+					Status<br><small style=\"color:grey;\">".$states["sDisplay"]["measured"]."</small></div>
+				<div style=\"clear:both;\"></div>
+			</div>";
+			
+			
 			
 			#$H->disconnect();
 		}
