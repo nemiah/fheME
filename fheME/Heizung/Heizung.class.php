@@ -81,12 +81,17 @@ class Heizung extends PersistentObject {
 	public function getParsedData(){
 		$xml = $this->getData();
 		$states = [];
-		foreach($xml->THZ_LIST->THZ[0]->STATE AS $STATE)
+		$measured = [];
+		foreach($xml->THZ_LIST->THZ[0]->STATE AS $STATE){
 			$states[$STATE["key"].""] = $STATE["value"]."";
+			$measured[$STATE["key"].""] = $STATE["measured"]."";
+		}
 		
 		$states["sGlobal"] = $this->parse($states["sGlobal"]);
 		$states["sHC1"] = $this->parse($states["sHC1"]);
 		$states["sDisplay"] = $this->parse($states["sDisplay"]);
+		
+		$states["sDisplay"]["measured"] = $measured["sDisplay"];
 		
 		return $states;
 	}
