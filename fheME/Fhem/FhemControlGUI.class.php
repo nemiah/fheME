@@ -165,7 +165,7 @@ class FhemControlGUI implements iGUIHTML2 {
 					if(self::$counter++ % 2 == 0)
 						$white = "width:calc(50% - 5px);margin-right: 10px;";
 					
-					$html .= "<div id=\"FhemControlID_".$f->getID()."\" onclick=\"$onclick\" style=\"cursor:pointer;{$white}box-sizing:border-box;display:inline-block;\" class=\"touchButton\">
+					$html .= "<div id=\"FhemControlID_".$f->getID()."\" onclick=\"$onclick\" style=\"cursor:pointer;{$white}box-sizing:border-box;display:inline-block;vertical-align:top;\" class=\"touchButton\">
 							
 							<div id=\"FhemID_".$f->getID()."\">
 								
@@ -191,7 +191,7 @@ class FhemControlGUI implements iGUIHTML2 {
 					if(self::$counter++ % 2 == 0)
 						$white = "width:calc(50% - 5px);margin-right: 10px;";
 					
-					$html .= "<div id=\"FhemControlID_".$f->getID()."\" onclick=\"$onclick\" style=\"cursor:pointer;{$white}box-sizing:border-box;display:inline-block;\" class=\"touchButton\">
+					$html .= "<div id=\"FhemControlID_".$f->getID()."\" onclick=\"$onclick\" style=\"cursor:pointer;{$white}box-sizing:border-box;display:inline-block;vertical-align:top;\" class=\"touchButton\">
 							<div id=\"FhemID_".$f->getID()."\">
 								
 							</div>
@@ -686,7 +686,7 @@ class FhemControlGUI implements iGUIHTML2 {
 		}*/
 		echo $tab;
 	}
-
+	
 	private function getDeviceStatus($FhemID){
 		$F = new Fhem($FhemID);
 		$S = new FhemServer($F->A("FhemServerID"));
@@ -785,7 +785,24 @@ class FhemControlGUI implements iGUIHTML2 {
 					#if(!is_numeric(str_replace("%", "", $state)))
 					#	$state = "";
 
-					$result[$F->getID()] = array("model" => $F->A("FhemModel"), "state" => "$FS<b>".($F->A("FhemAlias") == "" ? $F->A("FhemName") : $F->A("FhemAlias"))."</b><br><small style=\"color:grey;\" id=\"FhemID_".$F->getID()."State\">$state</small><div style=\"clear:both;\"></div>");
+					$trigger = [];
+					if(isset($x->at_LIST->at) AND count($x->at_LIST->at)){
+						foreach($x->at_LIST->at AS $kat => $vat){
+							if($vat->attributes()->name != "auto_".$F->A("FhemName")."_ein" AND $vat->attributes()->name != "auto_".$F->A("FhemName")."_aus")
+								continue;
+							
+							foreach($vat->INT AS $int){
+								if($int->attributes()->key != "TRIGGERTIME")
+									continue;
+								
+								$trigger[str_replace("auto_".$F->A("FhemName")."_", "", $vat->attributes()->name)] = date("H:i", $int->attributes()->value."");
+							}
+							
+							
+						}
+					}
+					
+					$result[$F->getID()] = array("model" => $F->A("FhemModel"), "state" => "$FS<b>".($F->A("FhemAlias") == "" ? $F->A("FhemName") : $F->A("FhemAlias"))."</b><br><small style=\"color:grey;\" id=\"FhemID_".$F->getID()."State\">".(count($trigger) ? (isset($trigger["ein"]) ? $trigger["ein"]." - " : "").$trigger["aus"] : "")."</small><div style=\"clear:both;\"></div>");
 					
 				}
 			
