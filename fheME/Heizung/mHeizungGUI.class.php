@@ -43,7 +43,11 @@ class mHeizungGUI extends anyC implements iGUIHTMLMP2 {
 		$AC = anyC::get("Heizung");
 		
 		while($H = $AC->n()){
-			$states = $H->getParsedData();
+			try {
+				$states = $H->getParsedData();
+			} catch (Exception $e){
+				conitnue;
+			}
 			/*$C = $H->connect();
 			$C->setPrompt("</FHZINFO>");
 			$answer = $C->fireAndGet("xmllist ".$H->A("HeizungFhemName"))."</FHZINFO>";
