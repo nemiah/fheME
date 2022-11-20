@@ -172,7 +172,7 @@ class mHeizungGUI extends anyC implements iGUIHTMLMP2 {
 	
 	public static function getOverviewPlugin(){
 		$P = new overviewPlugin("mHeizungGUI", "Heizung", 0);
-		$P->updateInterval(30);
+		$P->updateInterval(60);
 		
 		return $P;
 	}
