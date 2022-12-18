@@ -135,7 +135,7 @@ class mHeizungGUI extends anyC implements iGUIHTMLMP2 {
 			<div class=\"touchButton\" onclick=\"".OnEvent::popup("Ferien", "Heizung", $H->getID(), "heatPopup")."\">
 				$BW$BC$BT$BM".$B."
 				<div class=\"label\" style=\"padding-top:0;\">
-					".str_replace("--", " - ", $states["programHC1_Mo-So_0"])."<br>
+					".str_replace("--", " - ", $states["programHC1_Mo-So_0"])."; ".$states["sElectrHCDay"]."<br>
 					<small style=\"color:grey;\">Tag: ".$states["p01RoomTempDayHC1"].", Nacht: ".$states["p02RoomTempNightHC1"]."</small>
 				</div>
 				<div style=\"clear:both;\"></div>
@@ -153,8 +153,9 @@ class mHeizungGUI extends anyC implements iGUIHTMLMP2 {
 			
 			#$B = new Button("Ferien", "./fheME/Heizung/sun.svg", "icon");
 			#$B->style("float:left;margin-right:5px;width:32px;");
+			
 			$html .= "
-			<div class=\"touchButton\" style=\"box-sizing:border-box;display:inline-block;vertical-align:top;width:calc(50% - 5px);height:42px;\" onclick=\"".OnEvent::popup("Ferien", "Heizung", $H->getID(), "ferienPopup")."\">
+			<div class=\"touchButton ".(time() - strtotime($states["sDisplay"]["measured"]) > 120 ? "error" : "")."\" style=\"box-sizing:border-box;display:inline-block;vertical-align:top;width:calc(50% - 5px);height:42px;\" onclick=\"".OnEvent::popup("Ferien", "Heizung", $H->getID(), "ferienPopup")."\">
 
 				<div class=\"label\" style=\"padding-top:0;\">
 					Status<br><small style=\"color:grey;\">".$states["sDisplay"]["measured"]."</small></div>
