@@ -99,7 +99,7 @@ class mHeizungGUI extends anyC implements iGUIHTMLMP2 {
 			$html .= "
 			<div class=\"touchButton\">
 				$BH".$B."
-				<div class=\"label\" style=\"padding-top:0;\">
+				<div class=\"label\" style=\"padding-top:0;\" onclick=\"".OnEvent::popup("Ferien", "Heizung", $H->getID(), "waterPopup")."\">
 					".str_replace("--", " - ", $states["programDHW_Mo-So_0"]).", Aktuell: ".Util::formatNumber("de_DE", (float) $parsed["dhwTemp"], 1)." °C<br>
 					<small style=\"color:grey;\">Tag: ".$states["p04DHWsetDayTemp"].", Nacht: ".$states["p05DHWsetNightTemp"]."</small>
 				</div>

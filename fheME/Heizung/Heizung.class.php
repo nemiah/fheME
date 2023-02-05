@@ -341,6 +341,13 @@ class Heizung extends PersistentObject {
 			$c = "set ".$this->A("HeizungFhemName")." programDHW_Mo-So_0 ".date("H:i", $this->round($data["sunrise"] + 7200))."--".date("H:i", $this->round($data["sunset"] - 7200));
 			$this->connection->fireAndForget($c);
 			echo $c."\n";
+			
+			$bathDay = mUserdata::getGlobalSettingValue("HeizungWaterBathDay", "");
+			if($bathDay != ""){
+				$c = "set ".$this->A("HeizungFhemName")." programDHW_{$bathDay}_0 8:00--".date("H:i", $this->round($data["sunset"] - 7200));
+				$this->connection->fireAndForget($c);
+				echo $c."\n";
+			}
 		}
 		
 		mUserdata::setUserdataS("HeizungWaterLastTimes", date("Ymd"), "", -1);

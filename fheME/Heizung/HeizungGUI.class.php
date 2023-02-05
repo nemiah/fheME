@@ -72,6 +72,39 @@ class HeizungGUI extends Heizung implements iGUIHTML2 {
 		echo $T;
 	}
 	
+	public function waterPopup(){
+		#$data = $this->getParsedData();
+		$tage = ["" => "keiner", "Mo" => "Montag", "Th" => "Dienstag", "We" => "Mittwoch", "Th" => "Donnerstag", "Fr" => "Freitag", "Sa" => "Samstag", "So" => "Sonntag"];
+		#echo "<pre>";
+		#print_r($data);
+		#echo str_replace("--", " - ", $data["programDHW_Mo-So_0"]);
+		#echo "</pre>";
+		
+		#echo "<p>Aktuelle Einstellungen:<br>";
+		$bathDay = mUserdata::getGlobalSettingValue("HeizungWaterBathDay", "");
+		#echo "Badetag: ".$tage[$bathDay];
+		#if($override > time())
+		#	echo "Manueller Modus bis ".Util::CLDateTimeParser($override)."<br>";
+		
+		#if($override < time())
+		#	echo "Manueller Modus beendet seit ".Util::CLDateTimeParser($override)."<br>";
+		#echo "</p>";
+		#echo "Start: ".$data["pHolidayBeginDay"].".".$data["pHolidayBeginMonth"].".".$data["pHolidayBeginYear"].", ".$data["pHolidayBeginTime"]." Uhr<br>";
+		#echo "Ende: ".$data["pHolidayEndDay"].".".$data["pHolidayEndMonth"].".".$data["pHolidayEndYear"].", ".$data["pHolidayEndTime"]." Uhr<br>";
+		
+		$F = new HTMLForm("water", ["badetag"]);
+		$F->getTable()->setColWidth(1, 120);
+		$F->setType("badetag", "select", $bathDay, $tage);
+		
+		$F->setSaveRMEPCR("Speichern", "", "Heizung", $this->getID(), "waterSet", OnEvent::closePopup("Heizung"));
+		
+		echo $F;
+	}
+	
+	public function waterSet($bathDay){
+		mUserdata::setUserdataS("HeizungWaterBathDay", $bathDay, "", -1);
+	}
+	
 	public function heatPopup(){
 		#$data = $this->getParsedData();
 		#echo "<pre>";
@@ -89,6 +122,7 @@ class HeizungGUI extends Heizung implements iGUIHTML2 {
 		#echo "Ende: ".$data["pHolidayEndDay"].".".$data["pHolidayEndMonth"].".".$data["pHolidayEndYear"].", ".$data["pHolidayEndTime"]." Uhr<br>";
 		
 		$F = new HTMLForm("heat", ["dauer"]);
+		$F->getTable()->setColWidth(1, 120);
 		$F->setType("dauer", "select", "0", [-1 => "Ausschalten", 0 => "Nichts ändern", 60 => "Heizen für 1 Stunde", 120 => "Heizen für 2 Stunden", 180 => "Heizen für 3 Stunden"]);
 		
 		$F->setSaveRMEPCR("Speichern", "", "Heizung", $this->getID(), "heatSet", OnEvent::closePopup("Heizung"));
@@ -143,6 +177,7 @@ class HeizungGUI extends Heizung implements iGUIHTML2 {
 		echo "Ende: ".$data["pHolidayEndDay"].".".$data["pHolidayEndMonth"].".".$data["pHolidayEndYear"].", ".$data["pHolidayEndTime"]." Uhr<br>";
 		
 		$F = new HTMLForm("holiday", ["start", "end"]);
+		$F->getTable()->setColWidth(1, 120);
 		$F->setType("start", "date");
 		$F->setType("end", "date");
 		
