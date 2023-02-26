@@ -100,7 +100,7 @@ class mHeizungGUI extends anyC implements iGUIHTMLMP2 {
 			<div class=\"touchButton\">
 				$BH".$B."
 				<div class=\"label\" style=\"padding-top:0;\" onclick=\"".OnEvent::popup("Ferien", "Heizung", $H->getID(), "waterPopup")."\">
-					".str_replace("--", " - ", $states["programDHW_Mo-So_0"]).", Aktuell: ".Util::formatNumber("de_DE", (float) $parsed["dhwTemp"], 1)." °C<br>
+					".str_replace("--", " - ", $states["programDHW_Mo-So_0"])."; ".Util::formatNumber("de_DE", (float) $parsed["dhwTemp"], 1)." °C; ".Util::CLNumberParserZ(Util::kRound(str_replace(" Wh", "", $states["sElectrDHWDay"]) / 1000))." kWh<br>
 					<small style=\"color:grey;\">Tag: ".$states["p04DHWsetDayTemp"].", Nacht: ".$states["p05DHWsetNightTemp"]."</small>
 				</div>
 				<div style=\"clear:both;\"></div>
@@ -135,7 +135,7 @@ class mHeizungGUI extends anyC implements iGUIHTMLMP2 {
 			<div class=\"touchButton\" onclick=\"".OnEvent::popup("Ferien", "Heizung", $H->getID(), "heatPopup")."\">
 				$BW$BC$BT$BM".$B."
 				<div class=\"label\" style=\"padding-top:0;\">
-					".str_replace("--", " - ", $states["programHC1_Mo-So_0"])."; ".$states["sElectrHCDay"]."<br>
+					".str_replace("--", " - ", $states["programHC1_Mo-So_0"])."; ".Util::CLNumberParserZ(Util::kRound(str_replace(" Wh", "", $states["sElectrHCDay"]) / 1000))." kWh<br>
 					<small style=\"color:grey;\">Tag: ".$states["p01RoomTempDayHC1"].", Nacht: ".$states["p02RoomTempNightHC1"]."</small>
 				</div>
 				<div style=\"clear:both;\"></div>
