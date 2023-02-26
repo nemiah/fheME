@@ -22,6 +22,8 @@ class Heizung extends PersistentObject {
 	protected $data;
 	protected $dataWechselrichter;
 	protected $dataWeather;
+	protected $dataFhem;
+	protected $dataMythz;
 	
 	function connect(){
 		$S = new FhemServer($this->A("HeizungFhemServerID"));
@@ -36,7 +38,10 @@ class Heizung extends PersistentObject {
 
 		$xml = new SimpleXMLElement($answer);
 		$data = "";
+		$dataAll = [];
 		foreach($xml->THZ_LIST->THZ[0]->STATE AS $STATE){
+			$dataAll[(string) $STATE["key"]] = (string) $STATE["value"];
+			
 			if($STATE["key"] != "sGlobal")
 				continue;
 			
@@ -48,6 +53,7 @@ class Heizung extends PersistentObject {
 		
 		if(trim($data) == "")
 			throw new Exception("No data!");
+		$this->dataMythz = $dataAll;
 		
 		preg_match_all("/([a-zA-Z]+): ([0-9\-\.]+) /", $data, $matches);
 		$parsed = [];
@@ -179,17 +185,37 @@ class Heizung extends PersistentObject {
 		if($this->A("HeizungTempLog") == "")
 			$this->changeA("HeizungTempLog", "[]");
 		
+		if($this->A("HeizungHeatLog") == "")
+			$this->changeA("HeizungHeatLog", "[]");
+		
+		if($this->A("HeizungWaterLog") == "")
+			$this->changeA("HeizungWaterLog", "[]");
+		
 		#$this->changeA("HeizungTempLog", str_replace(["{", "}"], ["[", "]"], $this->A("HeizungTempLog")));
 		
-		$log = json_decode($this->A("HeizungTempLog"), true);
+		$logT = json_decode($this->A("HeizungTempLog"), true);
+		$logH = json_decode($this->A("HeizungHeatLog"), true);
+		$logW = json_decode($this->A("HeizungWaterLog"), true);
 		
-		$log[time()] = $this->dataFhem["outsideTemp"];
+		$logT[time()] = $this->dataFhem["outsideTemp"];
+		$logH[time()] = [str_replace(" Wh", "", $this->dataMythz["sElectrHCDay"])];
+		$logW[time()] = [str_replace(" Wh", "", $this->dataMythz["sElectrDHWDay"])];
 		
-		foreach($log AS $time => $value)
+		foreach($logT AS $time => $value)
 			if(time() - $time > 3600 * 36)
-				unset($log[$time]);
+				unset($logT[$time]);
 			
-		$this->changeA("HeizungTempLog", json_encode($log, JSON_UNESCAPED_UNICODE));
+		foreach($logH AS $time => $value)
+			if(time() - $time > 3600 * 24 * 21)
+				unset($logH[$time]);
+			
+		foreach($logW AS $time => $value)
+			if(time() - $time > 3600 * 24 * 21)
+				unset($logW[$time]);
+			
+		$this->changeA("HeizungTempLog", json_encode($logT, JSON_UNESCAPED_UNICODE));
+		$this->changeA("HeizungHeatLog", json_encode($logH, JSON_UNESCAPED_UNICODE));
+		$this->changeA("HeizungWaterLog", json_encode($logW, JSON_UNESCAPED_UNICODE));
 		$this->saveMe();
 	}
 	
