@@ -198,8 +198,8 @@ class Heizung extends PersistentObject {
 		$logW = json_decode($this->A("HeizungWaterLog"), true);
 		
 		$logT[time()] = $this->dataFhem["outsideTemp"];
-		$logH[time()] = [str_replace(" Wh", "", $this->dataMythz["sElectrHCDay"])];
-		$logW[time()] = [str_replace(" Wh", "", $this->dataMythz["sElectrDHWDay"])];
+		$logH[time()] = [str_replace(" Wh", "", $this->dataMythz["sElectrHCDay"]), $this->dataFhem["flowTemp"], $this->dataFhem["returnTemp"], $this->dataFhem["flowRate"]];
+		$logW[time()] = [str_replace(" Wh", "", $this->dataMythz["sElectrDHWDay"]), $this->dataFhem["dhwTemp"]];
 		
 		foreach($logT AS $time => $value)
 			if(time() - $time > 3600 * 36)
