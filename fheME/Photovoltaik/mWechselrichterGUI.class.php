@@ -118,7 +118,8 @@ class mWechselrichterGUI extends anyC implements iGUIHTMLMP2 {
 					<!--<span style=\"display:inline-block;width:100px;\">Inverter:</span> ".Util::CLNumberParser($json->{"Inverter power generated"})."W<br>-->
 					<span style=\"display:inline-block;width:100px;\">Haus:</span> ".Util::CLNumberParser($json->{"Consumption power Home total"})."W<br>
 					<span style=\"display:inline-block;width:100px;\">Netz:</span> $grid<br>
-					<span style=\"display:inline-block;width:100px;\">Batterie:</span> ".$json->{"Battery SOC"}."%
+					<span style=\"display:inline-block;width:100px;\">Batterie:</span> ".$json->{"Battery SOC"}."%<br>
+					<span style=\"display:inline-block;width:100px;\">PV heute:</span> ".Util::CLNumberParserZ(round($json->{"Daily yield"}/1000, 2))."kWh
 				</span>";
 					#".Util::CLNumberParser($json->{"Consumption power Home Battery"})."W
 				
