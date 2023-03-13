@@ -34,6 +34,8 @@ class HeizungGUI extends Heizung implements iGUIHTML2 {
 		$gui->space("HeizungWaterHotTemp", "Wasser-Speicher");
 		
 		$gui->parser("HeizungTempLog", "parserTempLog");
+		$gui->parser("HeizungHeatLog", "parserHeatLog");
+		$gui->parser("HeizungWaterLog", "parserWaterLog");
 		
 		$gui->descriptionField("HeizungWaterHotTemp", "Max 55 Grad");
 		
@@ -50,6 +52,65 @@ class HeizungGUI extends Heizung implements iGUIHTML2 {
 		$B = new Button("Log\nanzeigen", "new");
 		$B->popup("", "Log", "Heizung", $E->getID(), "logPopup");
 		return $B;
+	}
+	
+	public static function parserHeatLog($w, $l, $E){
+		$B = new Button("Log\nanzeigen", "new");
+		$B->popup("", "Log", "Heizung", $E->getID(), "logPopupHeat");
+		return $B;
+	}
+	
+	public static function parserWaterLog($w, $l, $E){
+		$B = new Button("Log\nanzeigen", "new");
+		$B->popup("", "Log", "Heizung", $E->getID(), "logPopupWater", "", "", "{width: 1000}");
+		return $B;
+	}
+	
+	public function logPopupWater(){
+		$log = json_decode($this->A("HeizungWaterLog"), true);
+		#print_r($log);
+		$data = [];
+		$data[0] = new stdClass();
+		$data[1] = new stdClass();
+		$T = new HTMLTable(2);
+		$T->maxHeight(400);
+		$maxDaily = [];
+		foreach($log AS $time => $value){
+			#$T->addRow([Util::CLDateTimeParser($time), "Verbrauch: $value[0]; Temperatur: $value[1]"]);
+			
+			if(!isset($maxDaily[date("Ymd", $time)]))
+				$maxDaily[date("Ymd", $time)] = 0;
+			
+			if($value[0] > $maxDaily[date("Ymd", $time)])
+				$maxDaily[date("Ymd", $time)] = $value[0];
+			
+			$data[0]->data[] = [$time * 1000, $value[0]];
+			$data[1]->data[] = [$time * 1000, $value[1]];
+			
+		}
+		
+		foreach($maxDaily AS $day => $E)
+			$T->addRow([$day, $E]);
+		
+		$data[1]->yaxis = 2;
+		echo "<div id=\"my_chart\" style=\"height:400px;\"></div>";
+		
+		echo OnEvent::script($this->getLineChart(true, "my_chart", $data, "day"));
+		
+		#str_replace(" Wh", "", $this->dataMythz["sElectrHCDay"]), $this->dataFhem["flowTemp"], $this->dataFhem["returnTemp"], $this->dataFhem["flowRate"]
+		echo $T;
+		
+	}
+	
+	public function logPopupHeat(){
+		$log = json_decode($this->A("HeizungHeatLog"), true);
+		#print_r($log);
+		$T = new HTMLTable(2);
+		$T->maxHeight(400);
+		foreach($log AS $time => $value)
+			$T->addRow([Util::CLDateTimeParser($time), "Verbrauch: $value[0]; Vorlauf: $value[1]; Rücklauf: $value[2]; Durchfluss: $value[3]"]);
+		#str_replace(" Wh", "", $this->dataMythz["sElectrHCDay"]), $this->dataFhem["flowTemp"], $this->dataFhem["returnTemp"], $this->dataFhem["flowRate"]
+		echo $T;
 	}
 	
 	public function logPopup(){
@@ -222,6 +283,75 @@ class HeizungGUI extends Heizung implements iGUIHTML2 {
 		$com = "set ".$this->A("HeizungFhemName")." pHolidayEndTime 01:00";
 		$c->fireAndForget($com);
 		echo $com."\n";
+	}
+
+	function getLineChart($perMonth = true, $chartDivID = "my_chart", $data = null, $tickSize = "month", $yMin = 0, $showPoints = true){
+		return "
+			var plot = \$j.plot(
+			\$j('#$chartDivID'), ".($data != null ? json_encode($data) : "[]").", {
+			xaxis: {
+				".($perMonth ? "
+				mode: 'time',
+				timezone: 'browser',
+				timeformat: '%m.%y',
+				tickSize: [1, '$tickSize']" : "")."
+			},
+			yaxes: [
+				{ min: 0 },
+				{ position: 'right' }
+			],
+			yaxis: {
+				min: $yMin
+			},
+			series: {
+				lines: { show: true },
+				points: { show: false }
+			},
+			legend: {
+				show:true,
+				position: 'se'
+			},
+
+			grid: {
+				hoverable: true,
+				/*clickable: true,*/
+				borderWidth: 1,
+				borderColor: '#AAAAAA'
+			}
+			});
+	
+			contentManager.showTooltip = function(x, y, contents) {
+				\$j('<div id=\"tooltip\"></div>').css({
+					position: 'absolute',
+					top: y + 3,
+					left: x - 5
+				}).appendTo('body').qtip(\$j.extend({}, qTipSharedYellow, {
+					content: {text: contents}
+				}));
+			}
+			var previousPoint = null;
+			\$j('#$chartDivID').bind('plothover', function (event, pos, item) {
+				if (item) {
+					if (previousPoint != item.dataIndex) {
+						previousPoint = item.dataIndex;
+
+						\$j('#tooltip').remove
+						contentManager.showTooltip(item.pageX, item.pageY, item.datapoint[1].toFixed(2));
+					}
+				}
+				else {
+					\$j('#tooltip').remove();
+					previousPoint = null;            
+				}
+			});
+
+			
+			\$j('#$chartDivID').bind('mouseleave', function (event, pos, item) {
+				\$j('#tooltip').remove();
+				previousPoint = null;
+			});
+
+			";
 	}
 }
 ?>
