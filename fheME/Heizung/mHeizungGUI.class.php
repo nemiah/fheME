@@ -108,10 +108,10 @@ class mHeizungGUI extends anyC implements iGUIHTMLMP2 {
 			
 			$B = new Button("Heizung", "./fheME/Heizung/heat.svg", "icon");
 			$B->style("float:left;margin-right:5px;width:32px;");
-			
+			#print_r($states);
 			$BW = "";
 			if($states["sHC1"]["seasonMode"] == "winter"){
-				$BW = new Button("Winter ab ".($states["p49SummerModeTemp"] - ($states["p50SummerModeHysteresis"] / 2))."°C", "./fheME/Heizung/cold.svg", "icon");
+				$BW = new Button("Winter ab ".((int) str_replace(" °C", "", $states["p49SummerModeTemp"]) - (((int) str_replace(" K", "", $states["p50SummerModeHysteresis"])) / 2))."°C", "./fheME/Heizung/cold.svg", "icon");
 				$BW->style("float:right;width:32px;margin-left:5px;");
 			}
 			$BC = "";
@@ -120,10 +120,10 @@ class mHeizungGUI extends anyC implements iGUIHTMLMP2 {
 				$BC->style("float:right;width:32px;margin-left:5px;");
 			}
 			$BT = "";
-			if($states["sDisplay"]["service"] == "1"){
-				$BT = new Button("Service", "./fheME/Heizung/tool.svg", "icon");
-				$BT->style("float:right;width:32px;margin-left:5px;");
-			}
+			#if($states["sDisplay"]["service"] == "1"){
+			#	$BT = new Button("Service", "./fheME/Heizung/tool.svg", "icon");
+			#	$BT->style("float:right;width:32px;margin-left:5px;");
+			#}
 			
 			$override = mUserdata::getGlobalSettingValue("HeizungHeatUntil", "0");
 			$BM = "";
