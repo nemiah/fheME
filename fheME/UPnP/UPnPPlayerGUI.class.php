@@ -55,20 +55,20 @@ class UPnPPlayerGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 			$target = "";
 		
 		$BD = new Button($target == "" ? "Ziel" : $target, "target", "touch");
-		$BD->style("width:120px;margin:10px;display:inline-block;border:1px solid #ccc;text-overflow:hidden;overflow: hidden;white-space: nowrap;");
+		$BD->style("width:120px;margin:10px;margin-right:5px;display:inline-block;border:1px solid #ccc;text-overflow:hidden;overflow: hidden;white-space: nowrap;");
 		$BD->popup("", "Abspielen auf", "UPnPPlayer", -1, "targetsPopup");
 		
 		$BQ = new Button($source == "" ? "Quelle" : $source, "book_alt2", "touch");
-		$BQ->style("width:120px;margin:10px;display:inline-block;border:1px solid #ccc;text-overflow:hidden;overflow: hidden;white-space: nowrap;");
+		$BQ->style("width:120px;margin:10px;margin-right:5px;display:inline-block;border:1px solid #ccc;text-overflow:hidden;overflow: hidden;white-space: nowrap;");
 		$BQ->popup("", "Abspielen von", "UPnPPlayer", -1, "sourcesPopup");
 		
 		$BTV = new Button("", "aperture", "touch");
-		$BTV->style("width:32px;margin:10px;display:inline-block;border:1px solid #ccc;text-overflow:hidden;overflow: hidden;white-space: nowrap;");
+		$BTV->style("width:32px;margin:10px;margin-right:5px;display:inline-block;border:1px solid #ccc;text-overflow:hidden;overflow: hidden;white-space: nowrap;");
 		$BTV->popup("", "TV", "UPnPPlayer", -1, "tvcontrolPopup");
 		
-		$BPL = new Button("", "clock", "touch");
-		$BPL->style("width:32px;margin:10px;display:inline-block;border:1px solid #ccc;text-overflow:hidden;overflow: hidden;white-space: nowrap;");
-		$BPL->popup("", "TV", "UPnPPlayer", -1, "playlistPopup");
+		#$BPL = new Button("", "clock", "touch");
+		#$BPL->style("width:32px;margin:10px;display:inline-block;border:1px solid #ccc;text-overflow:hidden;overflow: hidden;white-space: nowrap;");
+		#$BPL->popup("", "TV", "UPnPPlayer", -1, "playlistPopup");
 		
 		if($source == "" OR $target == ""){
 			echo "<div style=\"height:60px;\" class=\"backgroundColor4\">".$BQ.$BD."</div>";
@@ -110,19 +110,19 @@ class UPnPPlayerGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 		
 		
 		$BLauter = new Button("Lauter", "volume", "touch");
-		$BLauter->style("margin:10px;display:inline-block;border:1px solid #ccc;width:100px;vertical-align:top;");
+		$BLauter->style("margin:10px;margin-right:5px;display:inline-block;border:1px solid #ccc;width:100px;vertical-align:top;");
 		$BLauter->rmePCR("UPnPPlayer", "-1", "tvControl", ["'VolUp'"]);
 		
 		$BLeiser = new Button("Leiser", "volume_mute", "touch");
-		$BLeiser->style("margin:10px;display:inline-block;border:1px solid #ccc;width:100px;vertical-align:top;");
+		$BLeiser->style("margin:10px;margin-right:5px;display:inline-block;border:1px solid #ccc;width:100px;vertical-align:top;");
 		$BLeiser->rmePCR("UPnPPlayer", "-1", "tvControl", ["'VolDown'"]);
 		
 		$BG = new Button("Play", "play", "touch");
-		$BG->style("margin:10px;display:inline-block;border:1px solid #ccc;width:100px;vertical-align:top;");
+		$BG->style("margin:10px;margin-right:5px;display:inline-block;border:1px solid #ccc;width:100px;vertical-align:top;");
 		$BG->rmePCR("UPnP", $UPnPTarget->getID(), "Play", array("'0'"));
 		
 		$BP = new Button("Pause", "pause", "touch");
-		$BP->style("margin:10px;display:inline-block;border:1px solid #ccc;width:100px;vertical-align:top;");
+		$BP->style("margin:10px;margin-right:5px;display:inline-block;border:1px solid #ccc;width:100px;vertical-align:top;");
 		$BP->rmePCR("UPnP", $UPnPTarget->getID(), "Pause", array("'0'"));
 		
 		$BS = new Button("", "stop", "touch");
@@ -135,7 +135,7 @@ class UPnPPlayerGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 		$BB->onclick(OnEvent::reload("Screen", "UPnPPlayerGUI;folder:".implode("$", $ex)));
 		
 		$BX = new Button("", "x", "touch");
-		$BX->style("width:32px;text-overflow:hidden;overflow: hidden;white-space: nowrap;margin:10px;display:inline-block;border:1px solid #ccc;vertical-align:top;");
+		$BX->style("width:32px;margin-right:5px;text-overflow:hidden;overflow: hidden;white-space: nowrap;margin:10px;display:inline-block;border:1px solid #ccc;vertical-align:top;");
 		$BX->loadPlugin("contentScreen", "mfheOverview");
 		
 		
@@ -148,7 +148,7 @@ class UPnPPlayerGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 			echo $BB;
 		#.$BL;
 		
-		echo $BQ.$BD.$BTV.$BPL."</div>";
+		echo $BQ.$BD.$BTV."</div>";
 		
 		
 		
