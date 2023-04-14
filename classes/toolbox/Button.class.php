@@ -368,8 +368,7 @@ class Button {
 			$B = new Button("", $this->image, "iconicL");
 			#$B->style("float:left;margin-left:10px;margin-top:-1px;");
 			
-			return "
-			<div class=\"touchButton $this->class\" ".($this->id ? "id=\"$this->id\" " : "")." onclick=\"$onclick\" style=\"$this->style\">
+			return "<div class=\"touchButton $this->class\" ".($this->id ? "id=\"$this->id\" " : "")." onclick=\"$onclick\" style=\"$this->style\">
 				".$B."
 				<div class=\"label\" ".(strpos($this->label, "<br") !== false ? "style=\"margin-top:-8px;\"" : "").">".T::_($this->label)."</div>
 				<div style=\"clear:both;\"></div>
