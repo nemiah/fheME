@@ -44,13 +44,18 @@ class mZweiradGUI extends anyC implements iGUIHTMLMP2 {
 			$B = new Button("Zweirad", "./fheME/Zweirad/chevrons-right.svg", "icon");
 			$B->style("float:left;margin-right:5px;width:32px;");
 			
+			$BC = new Button("Lädt", "./fheME/Zweirad/zap.svg", "icon");
+			$BC->style("float:right;width:32px;margin-left:5px;");
+			
+			if($Z->A("ZweiradCharging") != 1)
+				$BC = "";
 			
 			$html .= "
-			<div class=\"touchButton\">
-				".$B."
+			<div class=\"touchButton ".(stripos($Z->A("ZweiradStatus"), "ERROR") !== false ? "error" : "")."\">
+				$BC".$B."
 				<div class=\"label\" style=\"padding-top:0;\">
-					".$Z->A("ZweiradName")."<br>
-					<small style=\"color:grey;\">".$Z->A("ZweiradSOC")."% ".$Z->A("ZweiradStatus")." ".$Z->A("ZweiradLastUpdate")."</small>
+					".$Z->A("ZweiradName")." ".$Z->A("ZweiradSOC")."%<br>
+					<small style=\"color:grey;\">".Util::CLDateTimeParser($Z->A("ZweiradLastUpdate"))." ".$Z->A("ZweiradStatus")."</small>
 				</div>
 				<div style=\"clear:both;\"></div>
 			</div>";
