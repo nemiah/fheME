@@ -68,7 +68,7 @@ class mZweiradGUI extends anyC implements iGUIHTMLMP2 {
 	
 	public static function getOverviewPlugin(){
 		$P = new overviewPlugin("mZweiradGUI", "Zweiräder", 0);
-		$P->updateInterval(60);
+		$P->updateInterval(180);
 		
 		return $P;
 	}
