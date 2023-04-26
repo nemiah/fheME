@@ -17,14 +17,21 @@
  * 
  *  2007 - 2022, open3A GmbH - Support@open3A.de
  */
-class ZweiradGUI extends Zweirad implements iGUIHTML2 {
-	function getHTML($id){
+
+class mNenaHomeGUI extends anyC implements iGUIHTMLMP2 {
+	public function getHTML($id, $page){
+		$this->loadMultiPageMode($id, $page, 0);
+
 		$gui = new HTMLGUIX($this);
-		$gui->name("Zweirad");
+		$gui->version("mNenaHome");
+		$gui->screenHeight();
+
+		$gui->name("NenaHome");
 		
-		$gui->type("ZweiradFhemID", "select", anyC::get("Fhem"), "FhemName", "Bitte auswählen…");
-	
-		return $gui->getEditHTML();
+		$gui->attributes(array("NenaHomeName"));
+		
+		return $gui->getBrowserHTML($id);
 	}
+
 }
 ?>

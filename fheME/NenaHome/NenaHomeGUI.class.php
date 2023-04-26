@@ -17,12 +17,18 @@
  * 
  *  2007 - 2022, open3A GmbH - Support@open3A.de
  */
-class ZweiradGUI extends Zweirad implements iGUIHTML2 {
+class NenaHomeGUI extends NenaHome implements iGUIHTML2 {
 	function getHTML($id){
 		$gui = new HTMLGUIX($this);
-		$gui->name("Zweirad");
+		$gui->name("NenaHome");
 		
-		$gui->type("ZweiradFhemID", "select", anyC::get("Fhem"), "FhemName", "Bitte auswählen…");
+		$gui->label("NenaHomeOpenWeatherMapID", "Wetter");
+		$gui->label("NenaHomeWechselrichterID", "Wechselrichter");
+		$gui->label("NenaHomeFhemServerID", "Fhem-Server");
+		
+		$gui->type("NenaHomeWechselrichterID", "select", anyC::get("Wechselrichter"), "WechselrichterName", "Bitte auswählen…");
+		$gui->type("NenaHomeOpenWeatherMapID", "select", anyC::get("OpenWeatherMap"), "OpenWeatherMapName", "Bitte auswählen…");
+		$gui->type("NenaHomeFhemServerID", "select", anyC::get("FhemServer"), "FhemServerName", "Bitte auswählen…");
 	
 		return $gui->getEditHTML();
 	}

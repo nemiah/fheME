@@ -1,5 +1,5 @@
-<?php
-/**
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- 
  *  This file is part of fheME.
 
  *  fheME is free software; you can redistribute it and/or modify
@@ -16,15 +16,22 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses></http:>.
  * 
  *  2007 - 2022, open3A GmbH - Support@open3A.de
- */
-class ZweiradGUI extends Zweirad implements iGUIHTML2 {
-	function getHTML($id){
-		$gui = new HTMLGUIX($this);
-		$gui->name("Zweirad");
+-->
+<phynx>
+	<plugin>
+		<name>NenaHome</name>
+		<menuName>NenaHome</menuName>
+		<collection>mNenaHome</collection>
 		
-		$gui->type("ZweiradFhemID", "select", anyC::get("Fhem"), "FhemName", "Bitte auswählen…");
-	
-		return $gui->getEditHTML();
-	}
-}
-?>
+		<icon>./fheME/NenaHome/NenaHome.png</icon>
+		<folder>NenaHome</folder>
+
+		<adminOnly>false</adminOnly>
+		
+		<version>0.6</version>
+
+		<deploy>
+			<table name="NenaHome" />
+		</deploy>
+	</plugin>
+</phynx>

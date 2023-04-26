@@ -17,14 +17,7 @@
  * 
  *  2007 - 2022, open3A GmbH - Support@open3A.de
  */
-class ZweiradGUI extends Zweirad implements iGUIHTML2 {
-	function getHTML($id){
-		$gui = new HTMLGUIX($this);
-		$gui->name("Zweirad");
-		
-		$gui->type("ZweiradFhemID", "select", anyC::get("Fhem"), "FhemName", "Bitte auswählen…");
-	
-		return $gui->getEditHTML();
-	}
+
+class mNenaHome extends anyC {
 }
 ?>
