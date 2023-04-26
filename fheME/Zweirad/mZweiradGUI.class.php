@@ -50,11 +50,21 @@ class mZweiradGUI extends anyC implements iGUIHTMLMP2 {
 			if($Z->A("ZweiradCharging") != 1)
 				$BC = "";
 			
+			$onclick = "Touchy.wheelOnFire(event, {
+				data: {'30': '30%', '40': '40%', '50': '50%', '60': '60%', '70': '70%', '80': '80%', '90': '90%', '100': '100%'},
+				selection: function(value){
+					".OnEvent::rme($Z, "setSOCTarget", array("value"), "function(){ fheOverview.loadContent('mZweiradGUI::getOverviewContent'); }")."
+				},
+				value: function(){
+					return ".$Z->A("ZweiradSOCTarget").";
+				}
+			})";
+					
 			$html .= "
-			<div class=\"touchButton ".(stripos($Z->A("ZweiradStatus"), "ERROR") !== false ? "error" : "")."\">
+			<div onclick=\"$onclick\" class=\"touchButton ".(stripos($Z->A("ZweiradStatus"), "ERROR") !== false ? "error" : "")."\">
 				$BC".$B."
 				<div class=\"label\" style=\"padding-top:0;\">
-					".$Z->A("ZweiradName")." ".$Z->A("ZweiradSOC")."%<br>
+					".$Z->A("ZweiradName")." ".$Z->A("ZweiradSOC")."%/".$Z->A("ZweiradSOCTarget")."%<br>
 					<small style=\"color:grey;\">".Util::CLDateTimeParser($Z->A("ZweiradLastUpdate"))." ".$Z->A("ZweiradStatus")."</small>
 				</div>
 				<div style=\"clear:both;\"></div>

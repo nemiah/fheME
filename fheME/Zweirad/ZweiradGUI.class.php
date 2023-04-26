@@ -26,5 +26,10 @@ class ZweiradGUI extends Zweirad implements iGUIHTML2 {
 	
 		return $gui->getEditHTML();
 	}
+	
+	public function setSOCTarget($target){
+		$this->changeA("ZweiradSOCTarget", $target);
+		$this->saveMe();
+	}
 }
 ?>
