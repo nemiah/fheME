@@ -83,7 +83,7 @@ class NenaHome extends PersistentObject {
 			if($currentState == "on")
 				$pvCurrentUsage -= $Z->A("ZweiradWatts");
 			
-			if($pvCurrentUsage + $Z->A("ZweiradWatts") < $pvCurrentPower AND $Z->A("ZweiradSOC") < 99){
+			if($pvCurrentUsage + $Z->A("ZweiradWatts") < $pvCurrentPower AND $Z->A("ZweiradSOC") < 99 AND $battSOC > 50){
 				if($currentState != "on")
 					$this->setFhemState($F, "on");
 				continue;
