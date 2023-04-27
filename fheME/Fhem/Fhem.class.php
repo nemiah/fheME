@@ -192,6 +192,9 @@ class Fhem extends PersistentObject implements iCloneable {
 		if($this->A("FhemType") == "FHT")
 			$target = $simpleXML->FHT_LIST->FHT;
 
+		if($this->A("FhemType") == "HUEDevice")
+			$target = $simpleXML->HUEDevice_LIST->HUEDevice;
+
 		if($this->A("FhemType") == "FS20")
 			$target = $simpleXML->FS20_LIST->FS20;
 

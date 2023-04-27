@@ -51,13 +51,9 @@ class NenaHome extends PersistentObject {
 		$battSOC = 0;
 		$pvCurrentPower = 0;
 		$pvCurrentUsage = 0;
-		if($json === null){
+		if($json === null)
 			echo "NenaHome: Keine Daten vom Wechselrichter ".__LINE__."!\n";
-		
-			#$c  = "set ".$this->A("HeizungFhemName")." p01RoomTempDayHC1 ".self::$raumtempDefault;
-			#$this->connection->fireAndForget($c);
-			#echo $c."\n";	
-		} else {
+		else {
 			$battSOC = $json->{"Battery SOC"};
 			$pvCurrentPower = $json->{"Total DC power Panels"};
 			$pvCurrentUsage = $json->{"Consumption power Home total"};
@@ -69,28 +65,40 @@ class NenaHome extends PersistentObject {
 		
 		$AC = anyC::get("Zweirad");
 		while($Z = $AC->n()){
+			$currentState = "unknown";
+			
+			$F = new Fhem($Z->A("ZweiradFhemID"));
+			foreach($F->getData()[0] AS $state){
+				if($state["key"]."" != "state")
+					continue;
+				
+				$currentState = $state["value"]."";
+			}
+			
 			if(time() - $Z->A("ZweiradLastUpdate") > 30 * 60 OR stripos($Z->A("ZweiradStatus"), "ERROR") !== false){
-				$this->setFhemState($Z->A("ZweiradFhemID"), "off");
+				$this->setFhemState($F, "off");
 				continue;
 			}
 			
+			if($currentState == "on")
+				$pvCurrentUsage -= $Z->A("ZweiradWatts");
+			
 			if($pvCurrentUsage + $Z->A("ZweiradWatts") < $pvCurrentPower AND $Z->A("ZweiradSOC") < 100){
-				$this->setFhemState($Z->A("ZweiradFhemID"), "on");
+				if($currentState != "on")
+					$this->setFhemState($F, "on");
 				continue;
 			}
 			
 			if($Z->A("ZweiradSOC") < $Z->A("ZweiradSOCTarget") AND !$Z->A("ZweiradCharging"))
-				$this->setFhemState($Z->A("ZweiradFhemID"), "on");
+				$this->setFhemState($F, "on");
 			
 			if($Z->A("ZweiradSOC") >= $Z->A("ZweiradSOCTarget") AND $Z->A("ZweiradCharging"))
-				$this->setFhemState($Z->A("ZweiradFhemID"), "off");
+				$this->setFhemState($F, "off");
 			
 		}
 	}
 	
-	private function setFhemState($FhemID, $state){
-		$F = new Fhem($FhemID);
-		
+	private function setFhemState($F, $state){
 		$c  = "set ".$F->A("FhemName")." $state";
 		$this->connectionFhem->fireAndForget($c);
 		
