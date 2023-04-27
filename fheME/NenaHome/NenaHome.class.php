@@ -69,25 +69,32 @@ class NenaHome extends PersistentObject {
 		
 		$AC = anyC::get("Zweirad");
 		while($Z = $AC->n()){
-			if(time() - $Z->A("ZweiradLastUpdate") > 30 * 60)
+			if(time() - $Z->A("ZweiradLastUpdate") > 30 * 60 OR stripos($Z->A("ZweiradStatus"), "ERROR") !== false){
+				$this->setFhemState($Z->A("ZweiradFhemID"), "off");
 				continue;
-			
-			if($Z->A("ZweiradSOC") < $Z->A("ZweiradSOCTarget") AND !$Z->A("ZweiradCharging")){
-				$F = new Fhem($Z->A("ZweiradFhemID"));
-				
-				$c  = "set ".$F->A("FhemName")." on";
-				$this->connectionFhem->fireAndForget($c);
-				echo $c."\n";
 			}
 			
-			if($Z->A("ZweiradSOC") >= $Z->A("ZweiradSOCTarget") AND $Z->A("ZweiradCharging")){
-				$F = new Fhem($Z->A("ZweiradFhemID"));
-				
-				$c  = "set ".$F->A("FhemName")." off";
-				$this->connectionFhem->fireAndForget($c);
-				echo $c."\n";
+			if($pvCurrentUsage + $Z->A("ZweiradWatts") < $pvCurrentPower AND $Z->A("ZweiradSOC") < 100){
+				$this->setFhemState($Z->A("ZweiradFhemID"), "on");
+				continue;
 			}
+			
+			if($Z->A("ZweiradSOC") < $Z->A("ZweiradSOCTarget") AND !$Z->A("ZweiradCharging"))
+				$this->setFhemState($Z->A("ZweiradFhemID"), "on");
+			
+			if($Z->A("ZweiradSOC") >= $Z->A("ZweiradSOCTarget") AND $Z->A("ZweiradCharging"))
+				$this->setFhemState($Z->A("ZweiradFhemID"), "off");
+			
 		}
+	}
+	
+	private function setFhemState($FhemID, $state){
+		$F = new Fhem($FhemID);
+		
+		$c  = "set ".$F->A("FhemName")." $state";
+		$this->connectionFhem->fireAndForget($c);
+		
+		echo $c."\n";
 	}
 }
 ?>
