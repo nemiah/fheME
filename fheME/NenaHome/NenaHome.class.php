@@ -74,9 +74,10 @@ class NenaHome extends PersistentObject {
 				
 				$currentState = $state["value"]."";
 			}
-			
+
 			if(time() - $Z->A("ZweiradLastUpdate") > 30 * 60 OR stripos($Z->A("ZweiradStatus"), "ERROR") !== false){
-				$this->setFhemState($F, "off");
+				if($currentState == "on")
+					$this->setFhemState($F, "off");
 				continue;
 			}
 			
