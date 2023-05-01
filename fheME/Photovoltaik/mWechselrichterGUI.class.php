@@ -34,6 +34,9 @@ class mWechselrichterGUI extends anyC implements iGUIHTMLMP2 {
 		$B = $gui->addSideButton("Smart Meter", "./fheME/Photovoltaik/chart_curve.png");
 		$B->loadPlugin("contentRight", "mSmartMeter");
 		
+		$B = $gui->addSideButton("Vorhersage", "./images/navi/daytime.svg");
+		$B->loadPlugin("contentRight", "mPhotovoltaikForecast");
+		
 		return $gui->getBrowserHTML($id);
 	}
 
