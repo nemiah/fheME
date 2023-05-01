@@ -124,6 +124,29 @@ class mWechselrichterGUI extends anyC implements iGUIHTMLMP2 {
 					#".Util::CLNumberParser($json->{"Consumption power Home Battery"})."W
 				
 		}
+		
+		$html .= "<div style=\"margin-top:10px;border-right:1px solid grey;\">";
+		
+		$html .= "
+			<div style=\"box-sizing:border-box;padding:3px;overflow:hidden;white-space: nowrap;background-color:#cacaca;width:".$json->{"Battery SOC"}."%;\">Batterie</div>";
+			
+		$AC = anyC::get("Zweirad");
+		while($Z = $AC->n())
+			$html .= "
+				<div style=\"box-sizing:border-box;padding:3px;margin-top:3px;overflow:hidden;white-space: nowrap;background-color:#cacaca;width:".$Z->A("ZweiradSOC")."%;\">".$Z->A("ZweiradName")."</div>";
+		
+		$AC = anyC::get("Heizung");
+		while($H = $AC->n()){
+			
+			$states = $H->getParsedData();
+		
+			$html .= "
+				<div style=\"box-sizing:border-box;padding:3px;margin-top:3px;overflow:hidden;white-space: nowrap;background-color:#cacaca;width:".(100 / $H->A("HeizungWaterHotTemp") * $states["sGlobal"]["dhwTemp"])."%;\">Wasser</div>";
+		}
+			
+		$html .= "
+		</div>";
+		
 		$html .= "</div>";
 		echo $html;
 	}
