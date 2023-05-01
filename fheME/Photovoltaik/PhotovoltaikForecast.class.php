@@ -20,6 +20,8 @@
 class PhotovoltaikForecast extends PersistentObject {
 	public static function update(){
 		$AC = anyC::get("PhotovoltaikForecast");
+		$AC->setLimitV3(1);
+		$AC->addAssocV3("PhotovoltaikForecastUpdate", "<", time() - 3600);
 		while($F = $AC->n()){
 			$data = file_get_contents($F->A("PhotovoltaikForecastURL"));
 			$F->changeA("PhotovoltaikForecastData", $data);
