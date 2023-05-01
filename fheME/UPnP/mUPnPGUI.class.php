@@ -217,14 +217,13 @@ class mUPnPGUI extends mUPnP implements iGUIHTMLMP2 {
 				<div style=\"clear:both;\"></div>
 			</div>";
 			
-			$B = new Button("Radio", "volume", "iconicL");
-			#Overlay.showDark();
+			/*$B = new Button("Radio", "volume", "iconicL");
 			$html .= "
 			<div class=\"touchButton\" onclick=\"".OnEvent::popup("Jukeboxen", "mUPnP", -1, "jukeboxes")."\">
 				".$B."
 				<div class=\"label\">Jukeboxen</div>
 				<div style=\"clear:both;\"></div>
-			</div>";
+			</div>";*/
 			
 			/*if(Session::isPluginLoaded("mPremiumize")){
 				$B = new Button("Cloud Player", "cloud", "iconicL");
