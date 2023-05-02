@@ -115,36 +115,68 @@ class mWechselrichterGUI extends anyC implements iGUIHTMLMP2 {
 			if($solar < 0)
 				$solar = 0;
 			
+			$forecastToday = 0;
+			$forecastTomorrow = 0;
+			$restToday = 0;
+			$AC = anyC::get("PhotovoltaikForecast");
+			while($F = $AC->n()){
+				if($F->A("PhotovoltaikForecastName") == "Süden")
+					continue;
+				
+				$jsonF = json_decode($F->A("PhotovoltaikForecastData"));
+				$forecastToday += $jsonF->result->watt_hours_day->{date("Y-m-d")};
+				$forecastTomorrow += $jsonF->result->watt_hours_day->{date("Y-m-d", time() + 3600 * 24)};
+				
+				foreach($jsonF->result->watt_hours_period AS $period => $wh){
+					if(strpos($period, date("Y-m-d")) === false)
+						continue;
+					
+					if(strtotime($period) < time() - 60 * 30)
+						continue;
+					
+					$restToday += $wh;
+					
+					#echo Util::CLDateTimeParser(strtotime($period))."<br>";
+				}
+				
+				$restToday += 0;
+			}
+			
+			$width = "130px";
+			
 			$html .= "
 				<span style=\"font-size:14px;\">
-					<span style=\"display:inline-block;width:100px;\">Photovoltaik:</span> ".Util::CLNumberParser($solar)."W<br>
-					<!--<span style=\"display:inline-block;width:100px;\">Inverter:</span> ".Util::CLNumberParser($json->{"Inverter power generated"})."W<br>-->
-					<span style=\"display:inline-block;width:100px;\">Haus:</span> ".Util::CLNumberParser($json->{"Consumption power Home total"})."W<br>
-					<span style=\"display:inline-block;width:100px;\">Netz:</span> $grid<br>
-					<span style=\"display:inline-block;width:100px;\">Batterie:</span> ".$json->{"Battery SOC"}."%<br>
-					<span style=\"display:inline-block;width:100px;\">PV heute:</span> ".Util::CLNumberParserZ(round($json->{"Daily yield"}/1000, 2))."kWh
+					<span style=\"display:inline-block;width:$width;\">Photovoltaik:</span> ".Util::CLNumberParser($solar)."W<br>
+					<!--<span style=\"display:inline-block;width:$width;\">Inverter:</span> ".Util::CLNumberParser($json->{"Inverter power generated"})."W<br>-->
+					<span style=\"display:inline-block;width:$width;\">Haus:</span> ".Util::CLNumberParser($json->{"Consumption power Home total"})."W<br>
+					<span style=\"display:inline-block;width:$width;\">Netz:</span> $grid<br>
+					<!--<span style=\"display:inline-block;width:$width;\">Batterie:</span> ".$json->{"Battery SOC"}."%<br>-->
+					<span style=\"display:inline-block;width:$width;\">PV heute:</span> ".Util::CLNumberParserZ(round($json->{"Daily yield"}/1000, 2))."kWh<br>
+					<span style=\"display:inline-block;width:$width;\">PV heute Vorhers.:</span> ".Util::CLNumberParserZ(round($forecastToday/1000, 2))."kWh<br>
+					<span style=\"display:inline-block;width:$width;\">PV heute Rest:</span> ".Util::CLNumberParserZ(round($restToday/1000, 2))."kWh<br>
+					<span style=\"display:inline-block;width:$width;\">PV morgen:</span> ".Util::CLNumberParserZ(round($forecastTomorrow/1000, 2))."kWh<br>
 				</span>";
 					#".Util::CLNumberParser($json->{"Consumption power Home Battery"})."W
 				
 		}
 		
-		$html .= "<div style=\"margin-top:10px;border-right:1px solid grey;\">";
+		$html .= "<div style=\"margin-top:10px;border-right:1px solid #bbb;\">";
 		
 		$html .= "
-			<div style=\"box-sizing:border-box;padding:3px;overflow:hidden;white-space: nowrap;background-color:#cacaca;width:".$json->{"Battery SOC"}."%;\">Batterie</div>";
+			<div style=\"box-sizing:border-box;padding:3px;overflow:hidden;white-space: nowrap;background-color:#f2f2f2;width:".$json->{"Battery SOC"}."%;\"><span style=\"float:right;\">".$json->{"Battery SOC"}."%</span>Batterie</div>";
 			
 		$AC = anyC::get("Zweirad");
 		while($Z = $AC->n())
 			$html .= "
-				<div style=\"box-sizing:border-box;padding:3px;margin-top:3px;overflow:hidden;white-space: nowrap;background-color:#cacaca;width:".$Z->A("ZweiradSOC")."%;\">".$Z->A("ZweiradName")."</div>";
+				<div style=\"box-sizing:border-box;padding:3px;margin-top:3px;overflow:hidden;white-space: nowrap;background-color:#f2f2f2;width:".$Z->A("ZweiradSOC")."%;\"><span style=\"float:right;\">".$Z->A("ZweiradSOC")."%</span>".$Z->A("ZweiradName")."</div>";
 		
 		$AC = anyC::get("Heizung");
 		while($H = $AC->n()){
 			
 			$states = $H->getParsedData();
-		
+			$WP = (100 / $H->A("HeizungWaterHotTemp") * $states["sGlobal"]["dhwTemp"]);
 			$html .= "
-				<div style=\"box-sizing:border-box;padding:3px;margin-top:3px;overflow:hidden;white-space: nowrap;background-color:#cacaca;width:".(100 / $H->A("HeizungWaterHotTemp") * $states["sGlobal"]["dhwTemp"])."%;\">Wasser</div>";
+				<div style=\"box-sizing:border-box;padding:3px;margin-top:3px;overflow:hidden;white-space: nowrap;background-color:#f2f2f2;width:".$WP."%;\"><span style=\"float:right;\">".round($WP)."%</span>Wasser</div>";
 		}
 			
 		$html .= "

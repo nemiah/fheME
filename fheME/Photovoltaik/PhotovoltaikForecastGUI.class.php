@@ -22,7 +22,16 @@ class PhotovoltaikForecastGUI extends PhotovoltaikForecast implements iGUIHTML2 
 		$gui = new HTMLGUIX($this);
 		$gui->name("Vorhersage");
 	
+		$B = $gui->addSideButton("Daten\nanzeigen", "new");
+		$B->popup("", "Daten anzeigen", "PhotovoltaikForecast", $this->getID(), "showData", "", "", "{width:800}");
+		
 		return $gui->getEditHTML();
+	}
+	
+	public function showData(){
+		echo "<pre>";
+		echo json_encode(json_decode($this->A("PhotovoltaikForecastData")), JSON_PRETTY_PRINT);
+		echo "</pre>";
 	}
 }
 ?>

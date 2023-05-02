@@ -29,7 +29,7 @@ class mPhotovoltaikForecastGUI extends anyC implements iGUIHTMLMP2 {
 
 		$gui->name("Vorhersage");
 		
-		$gui->attributes(array());
+		$gui->attributes(array("PhotovoltaikForecastName"));
 		
 		$B = $gui->addSideButton("Zurück", "back");
 		$B->loadPlugin("contentRight", "mWechselrichter");
