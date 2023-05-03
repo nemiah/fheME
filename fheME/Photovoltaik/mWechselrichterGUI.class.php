@@ -176,7 +176,7 @@ class mWechselrichterGUI extends anyC implements iGUIHTMLMP2 {
 			$states = $H->getParsedData();
 			$WP = (100 / $H->A("HeizungWaterHotTemp") * $states["sGlobal"]["dhwTemp"]);
 			$html .= "
-				<div style=\"box-sizing:border-box;padding:3px;margin-top:3px;overflow:hidden;white-space: nowrap;background-color:#f2f2f2;width:".$WP."%;\"><span style=\"float:right;\">".round($WP)."%</span>Wasser</div>";
+				<div style=\"box-sizing:border-box;padding:3px;margin-top:3px;overflow:hidden;white-space: nowrap;background-color:#f2f2f2;width:".($WP > 100 ? 100 : $WP)."%;\"><span style=\"float:right;\">".round($WP)."%</span>Wasser</div>";
 		}
 			
 		$html .= "
