@@ -123,6 +123,9 @@ class mWechselrichterGUI extends anyC implements iGUIHTMLMP2 {
 				if($F->A("PhotovoltaikForecastName") == "Süden")
 					continue;
 				
+				if(trim($F->A("PhotovoltaikForecastData")) == "")
+					continue;
+				
 				$jsonF = json_decode($F->A("PhotovoltaikForecastData"));
 				$forecastToday += $jsonF->result->watt_hours_day->{date("Y-m-d")};
 				$forecastTomorrow += $jsonF->result->watt_hours_day->{date("Y-m-d", time() + 3600 * 24)};
