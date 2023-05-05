@@ -103,7 +103,7 @@ class NenaHome extends PersistentObject {
 		$c  = "set ".$F->A("FhemName")." $state";
 		$this->connectionFhem->fireAndForget($c);
 		
-		echo $c."\n";
+		#echo $c."\n";
 	}
 }
 ?>
