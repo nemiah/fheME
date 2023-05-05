@@ -43,16 +43,16 @@ Details: http://wettwarn.de/DON", "", $description);
 		
 		$ex = explode("<br />", $description);
 		$style = "";
-		if(strpos($ex[2], "Stufe 1") !== false)
+		if(isset($ex[2]) AND strpos($ex[2], "Stufe 1") !== false)
 				$style = "color:grey;";
 		
-		if(strpos($ex[2], "Stufe 2") !== false)
+		if(isset($ex[2]) AND strpos($ex[2], "Stufe 2") !== false)
 				$style = "color:green;";
 		
-		if(strpos($ex[2], "Stufe 3") !== false)
+		if(isset($ex[2]) AND strpos($ex[2], "Stufe 3") !== false)
 				$style = "color:orange;";
 		
-		if(strpos($ex[2], "Stufe 4") !== false)
+		if(isset($ex[2]) AND strpos($ex[2], "Stufe 4") !== false)
 				$style = "color:red;";
 				
 		$ex[0] = "<strong>". str_replace("DWD ", "", $ex[0])."</strong>";
