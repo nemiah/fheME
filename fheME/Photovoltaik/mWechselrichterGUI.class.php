@@ -194,7 +194,7 @@ class mWechselrichterGUI extends anyC implements iGUIHTMLMP2 {
 			$inline = "";
 			
 			if($percent < 20)
-				$label = "";
+				$label = "&nbsp;";
 		}
 		return "<div style=\"vertical-align:top;display:inline-block;box-sizing:border-box;padding:3px;margin-top:3px;overflow:hidden;white-space: nowrap;background-color:#f2f2f2;width:".($percent > 100 ? 100 : $percent)."%;\">$inline".$label."</div>$outside";
 	}
