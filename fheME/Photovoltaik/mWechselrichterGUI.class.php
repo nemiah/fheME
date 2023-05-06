@@ -165,21 +165,18 @@ class mWechselrichterGUI extends anyC implements iGUIHTMLMP2 {
 		
 		$html .= "<div style=\"margin-top:10px;border-right:1px solid #bbb;\">";
 		
-		$html .= "
-			<div style=\"box-sizing:border-box;padding:3px;overflow:hidden;white-space: nowrap;background-color:#f2f2f2;width:".$json->{"Battery SOC"}."%;\"><span style=\"float:right;\">".$json->{"Battery SOC"}."%</span>Batterie</div>";
+		$html .= $this->bar("Batterie", $json->{"Battery SOC"});
 			
 		$AC = anyC::get("Zweirad");
 		while($Z = $AC->n())
-			$html .= "
-				<div style=\"box-sizing:border-box;padding:3px;margin-top:3px;overflow:hidden;white-space: nowrap;background-color:#f2f2f2;width:".$Z->A("ZweiradSOC")."%;\"><span style=\"float:right;\">".$Z->A("ZweiradSOC")."%</span>".$Z->A("ZweiradName")."</div>";
+			$html .= $this->bar($Z->A("ZweiradName"), $Z->A("ZweiradSOC"));
 		
 		$AC = anyC::get("Heizung");
 		while($H = $AC->n()){
 			
 			$states = $H->getParsedData();
-			$WP = (100 / $H->A("HeizungWaterHotTemp") * $states["sGlobal"]["dhwTemp"]);
-			$html .= "
-				<div style=\"box-sizing:border-box;padding:3px;margin-top:3px;overflow:hidden;white-space: nowrap;background-color:#f2f2f2;width:".($WP > 100 ? 100 : $WP)."%;\"><span style=\"float:right;\">".round($WP)."%</span>Wasser</div>";
+			$WP = round(100 / $H->A("HeizungWaterHotTemp") * $states["sGlobal"]["dhwTemp"]);
+			$html .= $this->bar("Wasser", $WP);
 		}
 			
 		$html .= "
@@ -189,6 +186,18 @@ class mWechselrichterGUI extends anyC implements iGUIHTMLMP2 {
 		echo $html;
 	}
 
+	private function bar($label, $percent){
+		$outside = "";
+		$inline = "<span style=\"float:right;\">".$percent."%</span>";
+		if($percent < 50){
+			$outside = "<div style=\"vertical-align:top;padding:3px;margin-top:3px;display:inline-block;box-sizing:border-box;\">".($percent < 20 ? $label." " : "").$percent."%</div>";
+			$inline = "";
+			
+			if($percent < 20)
+				$label = "";
+		}
+		return "<div style=\"vertical-align:top;display:inline-block;box-sizing:border-box;padding:3px;margin-top:3px;overflow:hidden;white-space: nowrap;background-color:#f2f2f2;width:".($percent > 100 ? 100 : $percent)."%;\">$inline".$label."</div>$outside";
+	}
 	
 	public static function getOverviewPlugin(){
 		$P = new overviewPlugin("mWechselrichterGUI", "Photovoltaik", 0);
