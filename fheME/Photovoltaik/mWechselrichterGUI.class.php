@@ -155,8 +155,7 @@ class mWechselrichterGUI extends anyC implements iGUIHTMLMP2 {
 					<span style=\"display:inline-block;width:$width;\">Netz:</span> $grid<br>
 					<!--<span style=\"display:inline-block;width:$width;\">Batterie:</span> ".$json->{"Battery SOC"}."%<br>-->
 					<span style=\"display:inline-block;width:$width;\">PV heute:</span> ".Util::CLNumberParserZ(round($json->{"Daily yield"}/1000, 2))."kWh<br>
-					<span style=\"display:inline-block;width:$width;\">PV heute Vorhers.:</span> ".Util::CLNumberParserZ(round($forecastToday/1000, 2))."kWh<br>
-					<span style=\"display:inline-block;width:$width;\">PV heute Rest:</span> ".Util::CLNumberParserZ(round($restToday/1000, 2))."kWh<br>
+					<span style=\"display:inline-block;width:$width;\">PV heute Vorhers.:</span> ".Util::CLNumberParserZ(round($restToday/1000, 2))."/".Util::CLNumberParserZ(round($forecastToday/1000, 2))."kWh<br>
 					<span style=\"display:inline-block;width:$width;\">PV morgen:</span> ".Util::CLNumberParserZ(round($forecastTomorrow/1000, 2))."kWh<br>
 				</span>";
 					#".Util::CLNumberParser($json->{"Consumption power Home Battery"})."W
@@ -165,18 +164,21 @@ class mWechselrichterGUI extends anyC implements iGUIHTMLMP2 {
 		
 		$html .= "<div style=\"margin-top:10px;border-right:1px solid #bbb;\">";
 		
-		$html .= $this->bar("Batterie", $json->{"Battery SOC"});
+		$html .= $this->bar("Batterie", $json->{"Battery SOC"}, "background: 15% top no-repeat url(./fheME/Photovoltaik/linie.png), 80% top no-repeat url(./fheME/Photovoltaik/linie.png);");
 			
 		$AC = anyC::get("Zweirad");
 		while($Z = $AC->n())
-			$html .= $this->bar($Z->A("ZweiradName"), $Z->A("ZweiradSOC"));
+			$html .= $this->bar($Z->A("ZweiradName"), $Z->A("ZweiradSOC"), "background: ".$Z->A("ZweiradSOCTarget")."% top no-repeat url(./fheME/Photovoltaik/linie.png);");
 		
 		$AC = anyC::get("Heizung");
 		while($H = $AC->n()){
 			
 			$states = $H->getParsedData();
 			$WP = round(100 / $H->A("HeizungWaterHotTemp") * $states["sGlobal"]["dhwTemp"]);
-			$html .= $this->bar("Wasser", $WP);
+			
+			$water = round(100 / $H->A("HeizungWaterHotTemp") * $H->A("HeizungWaterDayTemp"));
+			
+			$html .= $this->bar("Wasser", $WP, "background: $water% top no-repeat url(./fheME/Photovoltaik/linie.png);");
 		}
 			
 		$html .= "
@@ -186,7 +188,7 @@ class mWechselrichterGUI extends anyC implements iGUIHTMLMP2 {
 		echo $html;
 	}
 
-	private function bar($label, $percent){
+	private function bar($label, $percent, $style = ""){
 		$outside = "";
 		$inline = "<span style=\"float:right;\">".$percent."%</span>";
 		if($percent < 50){
