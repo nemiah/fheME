@@ -37,13 +37,13 @@ class WetterstationGUI extends Wetterstation implements iGUIHTML2 {
 		$T->maxHeight(400);
 		$T->addHeaderRow([
 			"Zeit",
-			"T innen",
+			"T draußen",
 			"Wind"
 		]);
 		while($L = $AC->n()){
 			$T->addRow([
 				Util::CLDateTimeParser($L->A("WetterstationLogTime")),
-				$L->A("WetterstationLogIndoorTemp"),
+				$L->A("WetterstationLogOutdoorTemp"),
 				$L->A("WetterstationLogOutdoorWindSpeed")
 			]);
 		}
