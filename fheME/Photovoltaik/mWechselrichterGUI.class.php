@@ -192,13 +192,13 @@ class mWechselrichterGUI extends anyC implements iGUIHTMLMP2 {
 		$outside = "";
 		$inline = "<span style=\"float:right;\">".$percent."%</span>";
 		if($percent < 50){
-			$outside = "<div style=\"vertical-align:top;padding:3px;margin-top:3px;display:inline-block;box-sizing:border-box;\">".($percent < 20 ? $label." " : "").$percent."%</div>";
+			$outside = "<div style=\"vertical-align:top;padding:3px;display:inline-block;box-sizing:border-box;\">".($percent < 20 ? $label." " : "").$percent."%</div>";
 			$inline = "";
 			
 			if($percent < 20)
 				$label = "&nbsp;";
 		}
-		return "<div style=\"vertical-align:top;display:inline-block;box-sizing:border-box;padding:3px;margin-top:3px;overflow:hidden;white-space: nowrap;background-color:#f2f2f2;width:".($percent > 100 ? 100 : $percent)."%;\">$inline".$label."</div>$outside";
+		return "<div style=\"{$style}margin-top:3px;\"><div style=\"vertical-align:top;display:inline-block;box-sizing:border-box;padding:3px;overflow:hidden;white-space: nowrap;background-color:rgba(230, 230, 230, .5);width:".($percent > 100 ? 100 : $percent)."%;\">$inline".$label."</div>$outside</div>";
 	}
 	
 	public static function getOverviewPlugin(){
