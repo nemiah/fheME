@@ -20,39 +20,41 @@ def sendToApi(text):
 
     cur = db.cursor()
 
-    cur.execute(f"""INSERT INTO `WetterstationLog` (
-	`WetterstationLogID`, 
-	`WetterstationLogWetterstationID`, 
-	`WetterstationLogTime`, 
-	`WetterstationLogIndoorTemp`, 
-	`WetterstationLogIndoorHumidity`, 
-	`WetterstationLogOutdoorTemp`, 
-	`WetterstationLogOutdoorHumidity`, 
-	`WetterstationLogOutdoorWindSpeed`, 
-	`WetterstationLogOutdoorWindGust`, 
-	`WetterstationLogOutdoorRainDaily`, 
-	`WetterstationLogOutdoorRainRate`, 
-	`WetterstationLogOutdoorRainWeek`, 
-	`WetterstationLogOutdoorRainMonth`, 
-	`WetterstationLogOutdoorRainTotal`, 
-	`WetterstationLogOutdoorUVI`, 
-	`WetterstationLogOutdoorSunRadiation`
-	) VALUES (
-	NULL, '1', UNIX_TIMESTAMP(), 
-	'0', 
-	'0', 
-	'{data['temperature_C']}', 
-	'{data['humidity']}', 
-	'0', 
-	'0', 
-	'0', 
-	'0', 
-	'0', 
-	'0', 
-	'0', 
-	'0', 
-	'0'
-	)""")
+    #cur.execute(f"""INSERT INTO `WetterstationLog` (
+	#`WetterstationLogID`, 
+	#`WetterstationLogWetterstationID`, 
+	#`WetterstationLogTime`, 
+	#`WetterstationLogIndoorTemp`, 
+	#`WetterstationLogIndoorHumidity`, 
+	#`WetterstationLogOutdoorTemp`, 
+	#`WetterstationLogOutdoorHumidity`, 
+	#`WetterstationLogOutdoorWindSpeed`, 
+	#`WetterstationLogOutdoorWindGust`, 
+	#`WetterstationLogOutdoorRainDaily`, 
+	#`WetterstationLogOutdoorRainRate`, 
+	#`WetterstationLogOutdoorRainWeek`, 
+	#`WetterstationLogOutdoorRainMonth`, 
+	#`WetterstationLogOutdoorRainTotal`, 
+	#`WetterstationLogOutdoorUVI`, 
+	#`WetterstationLogOutdoorSunRadiation`
+	#) VALUES (
+	#NULL, '1', UNIX_TIMESTAMP(), 
+	#'0', 
+	#'0', 
+	#'{data['temperature_C']}', 
+	#'{data['humidity']}', 
+	#'0', 
+	#'0', 
+	#'0', 
+	#'0', 
+	#'0', 
+	#'0', 
+	#'0', 
+	#'0', 
+	#'0'
+	#)""")
+    cur.execute(f"""UPDATE `Wetterstation` SET WetterstationOutdoorTemp = '{data['temperature_C']}', WetterstationOutdoorHumidity = '{data['humidity']}', WetterstationLastUpdate = UNIX_TIMESTAMP() WHERE WetterstationID = '1'""")
+
     db.commit()
 
     db.close()
