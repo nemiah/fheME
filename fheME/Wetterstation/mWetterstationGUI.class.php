@@ -38,8 +38,9 @@ class mWetterstationGUI extends anyC implements iGUIHTMLMP2 {
 		while($W = $this->n()){
 			#$W->download();
 			
-			$html .= "<div style=\"margin-top:5px;\">
-				<b style=\"font-size:30px;font-weight:bold;color:#555;\">".$W->A("WetterstationOutdoorTemp")." °C</b>
+			$html .= "<div style=\"display:flex;\">
+				<b style=\"flex:1;font-size:30px;font-weight:bold;color:#555;display:block;\">".Util::formatNumber("de_DE", (float) $W->A("WetterstationOutdoorTemp"), 1)." °C</b>
+				<b style=\"flex:1;font-size:30px;font-weight:bold;color:#555;display:block;text-align:center;\">".round($W->A("WetterstationOutdoorRainTotal") - $W->A("WetterstationOutdoorRainTotalYesterday"))." L</b>
 				</div>";
 			
 			$sunInfo = date_sun_info(time(), $W->A("WetterstationLat"), $W->A("WetterstationLon"));
@@ -50,7 +51,10 @@ class mWetterstationGUI extends anyC implements iGUIHTMLMP2 {
 			$BSS = new Button("Sonnenuntergang", "./fheME/Wetterstation/sunset.svg", "icon");
 			$BSS->style("height:15px;margin-right:3px;vertical-align:bottom;");
 			
-			$html .= "<div style=\"margin-top:15px;\">$BSR ".date("H:i", $sunInfo["sunrise"])." $BSS ".date("H:i", $sunInfo["sunset"])."</div>";
+			$BSU = new Button("UVI", "./fheME/Wetterstation/sun.svg", "icon");
+			$BSU->style("height:15px;margin-right:3px;vertical-align:bottom;");
+			
+			$html .= "<div style=\"margin-top:15px;\">$BSR ".date("H:i", $sunInfo["sunrise"])." $BSS ".date("H:i", $sunInfo["sunset"])." $BSU ".$W->A("WetterstationOutdoorUVI")."</div>";
 			
 			$MRS = new MoonRiseSet();
 			$moonInfo = $MRS->calculateMoonTimes(date("m"), date("d"), date("Y"), $W->A("WetterstationLat"), $W->A("WetterstationLon"));
