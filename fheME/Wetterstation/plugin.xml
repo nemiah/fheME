@@ -27,6 +27,7 @@
 		<folder>Wetterstation</folder>
 
 		<adminOnly>false</adminOnly>
+		<registry>Overview;mWetterstationGUI::getOverviewPlugin</registry>
 		
 		<version>0.6</version>
 
