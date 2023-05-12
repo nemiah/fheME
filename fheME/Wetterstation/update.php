@@ -87,7 +87,8 @@ try {
 		WetterstationOutdoorHumidity = '".$data->humidity."', 
 		WetterstationLastUpdate = UNIX_TIMESTAMP(),
 		WetterstationOutdoorRainTotal = '".$data->rain_mm."',$updateYesterday
-		WetterstationOutdoorUVI = '".$data->uvi."'
+		WetterstationOutdoorUVI = '".$data->uvi."',
+		WetterstationKey = '".$data->id."'
 	WHERE 
 		WetterstationID = '1'");
 } catch (FieldDoesNotExistException $e){
