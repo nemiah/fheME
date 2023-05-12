@@ -1,63 +1,32 @@
 import subprocess
-import json
-import datetime
-import MySQLdb
-import time
+#import json
+#import datetime
+#import MySQLdb
+#import time
+import os
+
+dir = os.path.dirname(os.path.realpath(__file__))
 
 from threading import Thread
 
-#def parse(printed_text):
-    # here you can parse your string input from the subprocess
-
 # sending to api
 def sendToApi(text):
-    data = json.loads(text)
+    #data = json.loads(text)
 
-    db = MySQLdb.connect(host="localhost",    # your host, usually localhost
-        user="fheme",         # your username
-        passwd="YvPJMjuehPVhqKBA",  # your password
-        db="fheme")        # name of the data base
+    subprocess.run("/usr/bin/php "+dir+"/update.php '"+text+"'", shell=True)
 
-    cur = db.cursor()
+    #db = MySQLdb.connect(host="localhost",    # your host, usually localhost
+    #    user="fheme",         # your username
+    #    passwd="YvPJMjuehPVhqKBA",  # your password
+    #    db="fheme")        # name of the data base
 
-    #cur.execute(f"""INSERT INTO `WetterstationLog` (
-	#`WetterstationLogID`, 
-	#`WetterstationLogWetterstationID`, 
-	#`WetterstationLogTime`, 
-	#`WetterstationLogIndoorTemp`, 
-	#`WetterstationLogIndoorHumidity`, 
-	#`WetterstationLogOutdoorTemp`, 
-	#`WetterstationLogOutdoorHumidity`, 
-	#`WetterstationLogOutdoorWindSpeed`, 
-	#`WetterstationLogOutdoorWindGust`, 
-	#`WetterstationLogOutdoorRainDaily`, 
-	#`WetterstationLogOutdoorRainRate`, 
-	#`WetterstationLogOutdoorRainWeek`, 
-	#`WetterstationLogOutdoorRainMonth`, 
-	#`WetterstationLogOutdoorRainTotal`, 
-	#`WetterstationLogOutdoorUVI`, 
-	#`WetterstationLogOutdoorSunRadiation`
-	#) VALUES (
-	#NULL, '1', UNIX_TIMESTAMP(), 
-	#'0', 
-	#'0', 
-	#'{data['temperature_C']}', 
-	#'{data['humidity']}', 
-	#'0', 
-	#'0', 
-	#'0', 
-	#'0', 
-	#'0', 
-	#'0', 
-	#'0', 
-	#'0', 
-	#'0'
-	#)""")
-    cur.execute(f"""UPDATE `Wetterstation` SET WetterstationOutdoorTemp = '{data['temperature_C']}', WetterstationOutdoorHumidity = '{data['humidity']}', WetterstationLastUpdate = UNIX_TIMESTAMP() WHERE WetterstationID = '1'""")
+    #cur = db.cursor()
 
-    db.commit()
+    #cur.execute(f"""UPDATE `Wetterstation` SET WetterstationOutdoorTemp = '{data['temperature_C']}', WetterstationOutdoorHumidity = '{data['humidity']}', WetterstationLastUpdate = UNIX_TIMESTAMP() WHERE WetterstationID = '1'""")
 
-    db.close()
+    #db.commit()
+
+    #db.close()
 
 
 # This method creates a subprocess with subprocess.Popen and takes a List<str> as command
