@@ -151,21 +151,21 @@ class Heizung extends PersistentObject {
 			#print_r($this->dataWechselrichter);
 			$c = "set ".$this->A("HeizungFhemName")." p01RoomTempDayHC1 ".self::$raumtempHeat;
 			$this->connection->fireAndForget($c);
-			echo $c."\n";
+			#echo $c."\n";
 			$last = mUserdata::setUserdataS("p01RoomTempDayHC1", self::$raumtempHeat, "", -1);
 			
 			$c = "set ".$this->A("HeizungFhemName")." p49SummerModeTemp ".self::$summerModeTempHeat;
 			$this->connection->fireAndForget($c);
-			echo $c."\n";
+			#echo $c."\n";
 		} elseif($last != self::$raumtempDefault) {
 			$c = "set ".$this->A("HeizungFhemName")." p01RoomTempDayHC1 ".self::$raumtempDefault;
 			$this->connection->fireAndForget($c);
-			echo $c."\n";
+			#echo $c."\n";
 			$last = mUserdata::setUserdataS("p01RoomTempDayHC1", self::$raumtempDefault, "", -1);
 			
 			$c = "set ".$this->A("HeizungFhemName")." p49SummerModeTemp ".self::$summerModeTempDefault;
 			$this->connection->fireAndForget($c);
-			echo $c."\n";
+			#echo $c."\n";
 		}
 			
 		$lastTimes = mUserdata::getGlobalSettingValue("HeizungHeatLastTimes", "");
@@ -175,7 +175,7 @@ class Heizung extends PersistentObject {
 			$c = "set ".$this->A("HeizungFhemName")." programHC1_Mo-So_0 ".date("H:i", $this->round($data["sunrise"] + 1800))."--".date("H:i", $this->round($data["sunset"] - 1800));
 			$this->connection->fireAndForget($c);
 			
-			echo $c."\n";
+			#echo $c."\n";
 		}
 		
 		mUserdata::setUserdataS("HeizungHeatLastTimes", date("Ymd"), "", -1);
@@ -307,7 +307,7 @@ class Heizung extends PersistentObject {
 
 			$c = "set ".$this->A("HeizungFhemName")." programFan_Mo-So_0 ".date("H:i", $this->round($data["sunrise"] + 3600))."--".date("H:i", $this->round($data["sunset"] - 3600));
 			$this->connection->fireAndForget($c);
-			echo $c."\n";
+			#echo $c."\n";
 		}
 		
 		mUserdata::setUserdataS("HeizungAirLastTimes", date("Ymd"), "", -1);
@@ -320,11 +320,11 @@ class Heizung extends PersistentObject {
 		if($lastTimes != date("Ymd")){
 			$c = "set ".$this->A("HeizungFhemName")." pClockMinutes ".date("i");
 			$this->connection->fireAndForget($c);
-			echo $c."\n";
+			#echo $c."\n";
 			
 			$c = "set ".$this->A("HeizungFhemName")." pClockHour ".date("H");
 			$this->connection->fireAndForget($c);
-			echo $c."\n";
+			#echo $c."\n";
 			
 			#$c = "set ".$this->A("HeizungFhemName")." pClockMinutes ".date("m");
 			#$this->connection->fireAndForget($c);
@@ -343,7 +343,7 @@ class Heizung extends PersistentObject {
 				echo "Keine Daten vom Wechselrichter!";
 				$c  = "set ".$this->A("HeizungFhemName")." p04DHWsetDayTemp ".$this->A("HeizungWaterDayTemp");
 				$this->connection->fireAndForget($c);
-				echo $c."\n";
+				#echo $c."\n";
 			} else {
 				#$json = json_decode($data);
 				if($json->{"Total DC power Panels"} > $this->A("HeizungWaterHotAboveW") AND $json->{"Battery SOC"} > 20)
@@ -354,7 +354,7 @@ class Heizung extends PersistentObject {
 				$last = mUserdata::getGlobalSettingValue("p04DHWsetDayTemp", "0");
 				if($last != $temp){
 					$this->connection->fireAndForget("set ".$this->A("HeizungFhemName")." p04DHWsetDayTemp ".$temp);
-					echo "set ".$this->A("HeizungFhemName")." p04DHWsetDayTemp ".$temp."\n";
+					#echo "set ".$this->A("HeizungFhemName")." p04DHWsetDayTemp ".$temp."\n";
 					$last = mUserdata::setUserdataS("p04DHWsetDayTemp", $temp, "", -1);
 				}
 			}
@@ -366,13 +366,13 @@ class Heizung extends PersistentObject {
 
 			$c = "set ".$this->A("HeizungFhemName")." programDHW_Mo-So_0 ".date("H:i", $this->round($data["sunrise"] + 7200))."--".date("H:i", $this->round($data["sunset"] - 7200));
 			$this->connection->fireAndForget($c);
-			echo $c."\n";
+			#echo $c."\n";
 			
 			$bathDay = mUserdata::getGlobalSettingValue("HeizungWaterBathDay", "");
 			if($bathDay != ""){
 				$c = "set ".$this->A("HeizungFhemName")." programDHW_{$bathDay}_0 8:00--".date("H:i", $this->round($data["sunset"] - 7200));
 				$this->connection->fireAndForget($c);
-				echo $c."\n";
+				#echo $c."\n";
 			}
 		}
 		
