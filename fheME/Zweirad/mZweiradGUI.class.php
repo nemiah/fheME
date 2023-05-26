@@ -37,7 +37,7 @@ class mZweiradGUI extends anyC implements iGUIHTMLMP2 {
 		$html = "<div class=\"touchHeader\"><span class=\"lastUpdate\" id=\"lastUpdatemZweiradGUI\"></span><p>Zweiräder</p></div>
 			<div style=\"padding:10px;overflow:auto;\">";
 
-		$AC = anyC::get("Zweirad");
+		$AC = anyC::get("Zweirad", "ZweiradInOverview", "1");
 		
 		while($Z = $AC->n()){
 			
@@ -69,6 +69,11 @@ class mZweiradGUI extends anyC implements iGUIHTMLMP2 {
 				</div>
 				<div style=\"clear:both;\"></div>
 			</div>";
+		}
+		
+		if($AC->numLoaded() == 0){
+			echo "";
+			return;
 		}
 		
 		$html .= "</div>";
