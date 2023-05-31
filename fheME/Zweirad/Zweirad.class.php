@@ -25,11 +25,41 @@ class Zweirad extends PersistentObject {
 		$Z = new Zweirad($data["ZweiradID"]);
 		$Z->loadMe();
 		unset($data["ZweiradID"]);
-		print_r($data);
+		#print_r($data);
 		foreach($data AS $k => $v)
 			$Z->changeA($k, $v);
 		
 		$Z->saveMe();
+	}
+	
+	public static function APIUpdate(){
+		$AC = anyC::get("Zweirad", "ZweiradAPIUpdate", "1");
+		while($Z = $AC->n())
+			$Z->updateFromAPI();
+		
+	}
+	
+	public function updateFromAPI(){
+		switch($this->A("ZweiradAPI")){
+			case "silence":
+				Util::alienAutloaderLoad(__DIR__."/vendor/autoload.php");
+				
+				$api = new nemiah\phpSilence\api($this->A("ZweiradAPIUser"), $this->A("ZweiradAPIPassword"));
+				$scooters = $api->getData();
+				Util::alienAutloaderUnload();
+				
+				foreach($scooters AS $scooter){
+					if($scooter->frameNo != $this->A("ZweiradAPIID"))
+						continue;
+					
+					$this->changeA("ZweiradSOC", $scooter->batterySoc);
+					$this->changeA("ZweiradCharging", $scooter->charging);
+					$this->changeA("ZweiradLastUpdate", strtotime($scooter->lastReportTime));
+					$this->saveMe();
+				}
+				
+			break;
+		}
 	}
 }
 ?>

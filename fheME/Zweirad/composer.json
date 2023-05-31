@@ -1,0 +1,5 @@
+{
+    "require": {
+        "nemiah/php-silence": "dev-main"
+    }
+}

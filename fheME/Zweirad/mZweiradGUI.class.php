@@ -29,7 +29,7 @@ class mZweiradGUI extends anyC implements iGUIHTMLMP2 {
 
 		$gui->name("Zweirad");
 		
-		$gui->attributes(array());
+		$gui->attributes(array("ZweiradName"));
 		
 		return $gui->getBrowserHTML($id);
 	}

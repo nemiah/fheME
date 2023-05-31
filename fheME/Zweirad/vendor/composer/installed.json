@@ -1,0 +1,58 @@
+{
+    "packages": [
+        {
+            "name": "nemiah/php-silence",
+            "version": "dev-main",
+            "version_normalized": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/nemiah/phpSilence.git",
+                "reference": "973e3c0419b0d3e2f4c7bd2c50af5b35981bc739"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/nemiah/phpSilence/zipball/973e3c0419b0d3e2f4c7bd2c50af5b35981bc739",
+                "reference": "973e3c0419b0d3e2f4c7bd2c50af5b35981bc739",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.4.0"
+            },
+            "time": "2023-05-31T13:37:23+00:00",
+            "default-branch": true,
+            "type": "library",
+            "installation-source": "dist",
+            "autoload": {
+                "psr-4": {
+                    "nemiah\\phpSilence\\": [
+                        "src/nemiah/phpSilence/"
+                    ]
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-3.0"
+            ],
+            "authors": [
+                {
+                    "name": "Nena Furtmeier",
+                    "email": "support@open3a.de",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Simple class for getting scooter data from silence server",
+            "homepage": "https://github.com/nemiah/phpSilence",
+            "keywords": [
+                "scooter",
+                "silence"
+            ],
+            "support": {
+                "issues": "https://github.com/nemiah/phpSilence/issues",
+                "source": "https://github.com/nemiah/phpSilence/tree/main"
+            },
+            "install-path": "../nemiah/php-silence"
+        }
+    ],
+    "dev": true,
+    "dev-package-names": []
+}

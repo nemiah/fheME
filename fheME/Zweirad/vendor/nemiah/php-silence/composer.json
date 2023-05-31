@@ -1,0 +1,24 @@
+{
+    "name": "nemiah/php-silence", 
+	"description": "Simple class for getting scooter data from silence server",
+	"license": "LGPL-3.0",
+	"type": "library",
+	"version": "1.0",
+	"keywords": ["silence","scooter"],
+	"homepage": "https://github.com/nemiah/phpSilence",
+	"authors": [
+        {
+            "name": "Nena Furtmeier",
+            "email": "support@open3a.de",
+            "role": "Developer"
+        }
+	],
+    "autoload": {
+        "psr-4": {
+            "nemiah\\phpSilence\\": ["src/nemiah/phpSilence/"]
+        }
+	},
+    "require": {
+        "php": ">=7.4.0"
+    }
+}

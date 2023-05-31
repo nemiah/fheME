@@ -1,0 +1,70 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "8f8fa1fa35954d9c54e0d16e10f1f3f2",
+    "packages": [
+        {
+            "name": "nemiah/php-silence",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/nemiah/phpSilence.git",
+                "reference": "973e3c0419b0d3e2f4c7bd2c50af5b35981bc739"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/nemiah/phpSilence/zipball/973e3c0419b0d3e2f4c7bd2c50af5b35981bc739",
+                "reference": "973e3c0419b0d3e2f4c7bd2c50af5b35981bc739",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.4.0"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "nemiah\\phpSilence\\": [
+                        "src/nemiah/phpSilence/"
+                    ]
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-3.0"
+            ],
+            "authors": [
+                {
+                    "name": "Nena Furtmeier",
+                    "email": "support@open3a.de",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Simple class for getting scooter data from silence server",
+            "homepage": "https://github.com/nemiah/phpSilence",
+            "keywords": [
+                "scooter",
+                "silence"
+            ],
+            "support": {
+                "issues": "https://github.com/nemiah/phpSilence/issues",
+                "source": "https://github.com/nemiah/phpSilence/tree/main"
+            },
+            "time": "2023-05-31T13:37:23+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": {
+        "nemiah/php-silence": 20
+    },
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": [],
+    "plugin-api-version": "2.3.0"
+}
