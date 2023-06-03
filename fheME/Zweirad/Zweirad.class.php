@@ -53,7 +53,7 @@ class Zweirad extends PersistentObject {
 						continue;
 					
 					$this->changeA("ZweiradSOC", $scooter->batterySoc);
-					$this->changeA("ZweiradCharging", $scooter->charging);
+					$this->changeA("ZweiradCharging", $scooter->charging ? "1" : "0");
 					$this->changeA("ZweiradLastUpdate", strtotime($scooter->lastReportTime));
 					$this->saveMe();
 				}
