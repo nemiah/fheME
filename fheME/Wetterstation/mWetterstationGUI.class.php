@@ -91,7 +91,7 @@ class mWetterstationGUI extends anyC implements iGUIHTMLMP2 {
 	
 	public static function getOverviewPlugin(){
 		$P = new overviewPlugin("mWetterstationGUI", "Wetterstation", 210);
-		$P->updateInterval(1800);
+		$P->updateInterval(300);
 		
 		return $P;
 	}
