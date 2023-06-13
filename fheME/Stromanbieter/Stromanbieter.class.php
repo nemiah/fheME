@@ -19,7 +19,7 @@
  */
 class Stromanbieter extends PersistentObject {
 	public function usageGet(){
-		$jsonLive = '{"query":"{ viewer { homes { consumption(resolution: DAILY, last: 65) { nodes { from to cost unitPrice unitPriceVAT consumption consumptionUnit }}}}}"}';
+		$jsonLive = '{"query":"{ viewer { homes { consumption(resolution: DAILY, last: '.(date("d") - 1).') { nodes { from to cost unitPrice unitPriceVAT consumption consumptionUnit }}}}}"}';
 
 		# Create a connection
 		$ch = curl_init('https://api.tibber.com/v1-beta/gql');
@@ -65,7 +65,7 @@ class Stromanbieter extends PersistentObject {
 		
 		#echo '<pre>';
 		$r = json_decode($response);
-
+				
 		$minD1 = 100;
 		$maxD1 = 0;
 		$minD2 = 100;
@@ -89,15 +89,19 @@ class Stromanbieter extends PersistentObject {
 		
 		foreach($r->data->viewer->homes[0]->currentSubscription->priceInfo->tomorrow AS $priceInfo){
 			$price = $priceInfo->total * 100;
-			$data[] = array(strtotime($priceInfo->startsAt) * 1000, $price * 100);
+			$data[] = array(strtotime($priceInfo->startsAt) * 1000, $price);
 			if($price < $minD2){
 				$minD2 = $price;
 				$minD2Time = strtotime($priceInfo->startsAt);
 			}
 			
 			if($price > $maxD2)
-				$maxD1 = $price;
+				$maxD2 = $price;
 		}
+		
+		#echo "<pre style=\"font-size:8px;\">";
+		#print_r($data);
+		#echo "</pre>";
 		
 		return [$data, $minD1, $maxD1, $minD1Time, $minD2, $maxD2, $minD2Time];
 	}

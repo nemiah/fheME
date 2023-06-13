@@ -43,12 +43,13 @@ class mStromanbieterGUI extends anyC implements iGUIHTMLMP2 {
 		while($S = $AC->n()){
 			
 			[$data, $minD1, $maxD1, $minD1Time, $minD2, $maxD2, $minD2Time] = $S->pricesGet();
+			#echo "<pre style=\"font-size:8px;\">";
 			#print_r($data);
 			#echo '</pre>';
 			$oData = new stdClass();
 			$oData->data = $data;
 			#$oData->label = "Preis";
-			
+			#continue;
 			$html .= "<div id=\"pricePlot\" style=\"width:100%;height:130px;\"></div>";
 			
 			$html .= OnEvent::script("
