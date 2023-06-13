@@ -18,9 +18,38 @@
  *  2007 - 2022, open3A GmbH - Support@open3A.de
  */
 class Stromanbieter extends PersistentObject {
+	public function usageGet(){
+		$jsonLive = '{"query":"{ viewer { homes { consumption(resolution: DAILY, last: 65) { nodes { from to cost unitPrice unitPriceVAT consumption consumptionUnit }}}}}"}';
+
+		# Create a connection
+		$ch = curl_init('https://api.tibber.com/v1-beta/gql');
+		curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'Authorization: Bearer sPcho87J0CoPsExquRkws97KfKQ7kdyWRFi8XNStpZo')); // Demo token
+		curl_setopt($ch, CURLOPT_POST, true);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonLive);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+		# Get the response
+		$response = curl_exec($ch);
+		$r = json_decode($response);
+		curl_close($ch);
+		
+		$collector = [];
+		
+		foreach($r->data->viewer->homes[0]->consumption->nodes AS $consumption){
+			#print_r($consumption);
+			$day = strtotime($consumption->from);
+			if(!isset($collector[date("Ym", $day)]))
+				$collector[date("Ym", $day)] = [0, 0];
+			
+			$collector[date("Ym", $day)][0] += $consumption->cost;
+			$collector[date("Ym", $day)][1] += $consumption->consumption;
+		}
+		
+		return $collector;
+	}
 	
 	public function pricesGet(){
-		$jsonLive = '{"query":"{ viewer {homes {currentSubscription{priceInfo{today {total startsAt } tomorrow { total startsAt }}}}}}"}';
+		$jsonLive = '{"query":"{ viewer { homes { currentSubscription { priceInfo{ today { total startsAt } tomorrow { total startsAt }}}}}}"}';
 
 		# Create a connection
 		$ch = curl_init('https://api.tibber.com/v1-beta/gql');
@@ -37,14 +66,40 @@ class Stromanbieter extends PersistentObject {
 		#echo '<pre>';
 		$r = json_decode($response);
 
+		$minD1 = 100;
+		$maxD1 = 0;
+		$minD2 = 100;
+		$maxD2 = 0;
+		$minD1Time = null;
+		$minD2Time = null;
+		
 		$data = [];
-		foreach($r->data->viewer->homes[0]->currentSubscription->priceInfo->today AS $priceInfo)
-			$data[] = array(strtotime($priceInfo->startsAt) * 1000, $priceInfo->total);
+		foreach($r->data->viewer->homes[0]->currentSubscription->priceInfo->today AS $priceInfo){
+			$price = $priceInfo->total * 100;
+			$data[] = array(strtotime($priceInfo->startsAt) * 1000, $price);
+			if($price < $minD1){
+				$minD1 = $price;
+				$minD1Time = strtotime($priceInfo->startsAt);
+			}
+			
+			if($price > $maxD1)
+				$maxD1 = $price;
+		}
 		
-		foreach($r->data->viewer->homes[0]->currentSubscription->priceInfo->tomorrow AS $priceInfo)
-			$data[] = array(strtotime($priceInfo->startsAt) * 1000, $priceInfo->total);
 		
-		return $data;
+		foreach($r->data->viewer->homes[0]->currentSubscription->priceInfo->tomorrow AS $priceInfo){
+			$price = $priceInfo->total * 100;
+			$data[] = array(strtotime($priceInfo->startsAt) * 1000, $price * 100);
+			if($price < $minD2){
+				$minD2 = $price;
+				$minD2Time = strtotime($priceInfo->startsAt);
+			}
+			
+			if($price > $maxD2)
+				$maxD1 = $price;
+		}
+		
+		return [$data, $minD1, $maxD1, $minD1Time, $minD2, $maxD2, $minD2Time];
 	}
 }
 ?>

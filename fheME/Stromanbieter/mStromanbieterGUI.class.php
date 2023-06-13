@@ -42,14 +42,14 @@ class mStromanbieterGUI extends anyC implements iGUIHTMLMP2 {
 		
 		while($S = $AC->n()){
 			
-			$data = $S->pricesGet();
+			[$data, $minD1, $maxD1, $minD1Time, $minD2, $maxD2, $minD2Time] = $S->pricesGet();
 			#print_r($data);
 			#echo '</pre>';
 			$oData = new stdClass();
 			$oData->data = $data;
 			#$oData->label = "Preis";
 			
-			$html .= "<div id=\"pricePlot\" style=\"width:100%;height:200px;\"></div>";
+			$html .= "<div id=\"pricePlot\" style=\"width:100%;height:130px;\"></div>";
 			
 			$html .= OnEvent::script("
 				
@@ -58,21 +58,27 @@ class mStromanbieterGUI extends anyC implements iGUIHTMLMP2 {
 					mode: 'time',
 					timezone: 'browser',
 					timeformat: '%H',
-					tickSize: [4, 'hour']
+					tickSize: [3, 'hour']
 				},
-				/*yaxis: {
-					min: 0
-				},*/
+				yaxis: {
+					tickSize: [1.5]/*,
+					tickLength:0*/
+					/*min: 0*/
+				},
 				series: {
 					lines: { show: true },
 					points: { show: false }
 				},
-
+				
 				grid: {
 					/*hoverable: true,
 					clickable: true,*/
 					borderWidth: 1,
-					borderColor: '#AAAAAA'
+					borderColor: '#AAAAAA',
+					markings: [
+						{ color: '#ff9a9a', yaxis: { from: ". max($maxD1, $maxD2).", to: ". max($maxD1, $maxD2)." } },
+						{ color: '#85af7b', yaxis: { from: ". min($minD1, $minD2).", to: ". min($minD1, $minD2)." } }
+					]
 				}
 				};
 
@@ -93,6 +99,16 @@ class mStromanbieterGUI extends anyC implements iGUIHTMLMP2 {
 						content: {text: contents}
 					}));
 				};");
+			
+			$html .= "Heute: Min $minD1 (".date("H:i", $minD1Time)."), Max $maxD1, Δ ".($maxD1 - $minD1);
+			if($maxD2 > 0)
+				$html .= "<br>Morgen: Min $minD2 (".date("H:i", $minD2Time)."), Max $maxD2, Δ ".($maxD2 - $minD2);
+			
+			
+			
+			foreach($S->usageGet() AS $month => $monthData){
+				$html .= "<br>".Util::CLMonthName(substr($month, 4))." ".substr($month, 0, 4).": ".Util::CLFormatCurrency(Util::kRound($monthData[0]), true).", $monthData[1] kWh";
+			}
 		}
 		
 		if($AC->numLoaded() == 0){
