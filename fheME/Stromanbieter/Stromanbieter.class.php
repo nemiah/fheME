@@ -23,7 +23,7 @@ class Stromanbieter extends PersistentObject {
 
 		# Create a connection
 		$ch = curl_init('https://api.tibber.com/v1-beta/gql');
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'Authorization: Bearer sPcho87J0CoPsExquRkws97KfKQ7kdyWRFi8XNStpZo')); // Demo token
+		curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'Authorization: Bearer '.$this->A("StromanbieterAPIToken"))); // Demo token
 		curl_setopt($ch, CURLOPT_POST, true);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonLive);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -53,7 +53,7 @@ class Stromanbieter extends PersistentObject {
 
 		# Create a connection
 		$ch = curl_init('https://api.tibber.com/v1-beta/gql');
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'Authorization: Bearer sPcho87J0CoPsExquRkws97KfKQ7kdyWRFi8XNStpZo')); // Demo token
+		curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'Authorization: Bearer '.$this->A("StromanbieterAPIToken"))); // Demo token
 		curl_setopt($ch, CURLOPT_POST, true);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonLive);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
