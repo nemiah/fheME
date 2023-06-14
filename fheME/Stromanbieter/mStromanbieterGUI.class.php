@@ -50,7 +50,7 @@ class mStromanbieterGUI extends anyC implements iGUIHTMLMP2 {
 			$oData->data = $data;
 			#$oData->label = "Preis";
 			#continue;
-			$html .= "<div id=\"pricePlot\" style=\"width:100%;height:130px;\"></div>";
+			$html .= "<div id=\"pricePlot\" style=\"width:100%;height:180px;\"></div>";
 			
 			$html .= OnEvent::script("
 				
