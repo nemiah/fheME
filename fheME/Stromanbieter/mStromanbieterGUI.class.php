@@ -36,21 +36,38 @@ class mStromanbieterGUI extends anyC implements iGUIHTMLMP2 {
 
 	public function getOverviewContent(){
 		$html = "<div class=\"touchHeader\"><span class=\"lastUpdate\" id=\"lastUpdatemStromanbieterGUI\"></span><p>Stromanbieter</p></div>
-			<div style=\"\">";
+			<div style=\"padding:10px;overflow:auto;\">";
 
 		$AC = anyC::get("Stromanbieter");
 		
 		while($S = $AC->n()){
+			# [$data, $minD1, $maxD1, $minD1Time, $minD2, $maxD2, $minD2Time] = $S->pricesGet();
 			
-			[$data, $minD1, $maxD1, $minD1Time, $minD2, $maxD2, $minD2Time] = $S->pricesGet();
+			$B = new Button("Lädt", "./fheME/Zweirad/zap.svg", "icon");
+			$B->style("float:left;margin-right:5px;width:32px;");
+			
+			$content = "";
+			foreach($S->usageGet() AS $month => $monthData)
+				$content .= Util::CLMonthName(substr($month, 4))." ".substr($month, 0, 4).": ".Util::CLFormatCurrency(Util::kRound($monthData[0]), true).", $monthData[1] kWh";
+			
+			$html .= "
+			<div onclick=\"".OnEvent::popup("Preise", "Stromanbieter", $S->getID(), "pricesShow", "", "", "{width:800}")."\" class=\"touchButton\">
+				".$B."
+				<div class=\"label\" style=\"padding-top:0;\">
+					".$S->A("StromanbieterName")."<br>
+					<small style=\"color:grey;\">$content</small>
+				</div>
+				<div style=\"clear:both;\"></div>
+			</div>";
+			
 			#echo "<pre style=\"font-size:8px;\">";
 			#print_r($data);
 			#echo '</pre>';
-			$oData = new stdClass();
-			$oData->data = $data;
+			#$oData = new stdClass();
+			#$oData->data = $data;
 			#$oData->label = "Preis";
 			#continue;
-			$html .= "<div id=\"pricePlot\" style=\"width:100%;height:180px;\"></div>";
+			/*$html .= "<div id=\"pricePlot\" style=\"width:100%;height:180px;\"></div>";
 			
 			$html .= OnEvent::script("
 				
@@ -62,9 +79,6 @@ class mStromanbieterGUI extends anyC implements iGUIHTMLMP2 {
 					tickSize: [3, 'hour']
 				},
 				yaxis: {
-					tickSize: [1.5]/*,
-					tickLength:0*/
-					/*min: 0*/
 				},
 				series: {
 					lines: { show: true },
@@ -72,8 +86,6 @@ class mStromanbieterGUI extends anyC implements iGUIHTMLMP2 {
 				},
 				
 				grid: {
-					/*hoverable: true,
-					clickable: true,*/
 					borderWidth: 1,
 					borderColor: '#AAAAAA',
 					markings: [
@@ -109,7 +121,7 @@ class mStromanbieterGUI extends anyC implements iGUIHTMLMP2 {
 			
 			foreach($S->usageGet() AS $month => $monthData){
 				$html .= "<br>".Util::CLMonthName(substr($month, 4))." ".substr($month, 0, 4).": ".Util::CLFormatCurrency(Util::kRound($monthData[0]), true).", $monthData[1] kWh";
-			}
+			}*/
 		}
 		
 		if($AC->numLoaded() == 0){

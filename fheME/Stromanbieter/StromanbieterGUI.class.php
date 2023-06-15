@@ -29,44 +29,50 @@ class StromanbieterGUI extends Stromanbieter implements iGUIHTML2 {
 	}
 	
 	public function pricesShow(){
-		$data = $this->pricesGet();
+		[$data, $minD1, $maxD1, $minD1Time, $minD2, $maxD2, $minD2Time] = $this->pricesGet();
+		#echo "<pre style=\"font-size:8px;\">";
 		#print_r($data);
 		#echo '</pre>';
 		$oData = new stdClass();
 		$oData->data = $data;
 		$oData->label = "Preis";
-		
-		echo "<div id=\"pricePlot\" style=\"height:400px;\"></div>";
-		echo OnEvent::script("
+		#continue;
+		$html = "<div id=\"pricePlot\" style=\"width:790px;height:300px;\"></div>";
+
+		$html .= OnEvent::script("
+
 			var options = {
 			xaxis: {
 				mode: 'time',
 				timezone: 'browser',
 				timeformat: '%H',
-				tickSize: [1, 'hour']
+				tickSize: [3, 'hour']
 			},
-			/*yaxis: {
-				min: 0
-			},*/
+			yaxis: {
+			},
 			series: {
 				lines: { show: true },
 				points: { show: false }
 			},
-			legend: {
-				show:true,
-				position: 'nw'
-			},
 
 			grid: {
-				hoverable: true,
-				clickable: true,
 				borderWidth: 1,
-				borderColor: '#AAAAAA'
+				borderColor: '#AAAAAA',
+				markings: [
+					{ color: '#ff9a9a', yaxis: { from: ". max($maxD1, $maxD2).", to: ". max($maxD1, $maxD2)." } },
+					{ color: '#85af7b', yaxis: { from: ". min($minD1, $minD2).", to: ". min($minD1, $minD2)." } }
+				]
 			}
 			};
-			
+
+			/*window.setTimeout(function(){ 
+				console.log(\$j('.touchHeader').width());
+				\$j('#pricePlot').css('width', \$j('.touchHeader').width()+'px');
+			}, 100);*/
 			\$j.plot(\$j('#pricePlot'), [".json_encode($oData)."], options);
-			
+
+
+
 			function showTooltip(x, y, contents) {
 				\$j('<div id=\"tooltip\"></div>').css({
 					position: 'absolute',
@@ -75,23 +81,19 @@ class StromanbieterGUI extends Stromanbieter implements iGUIHTML2 {
 				}).appendTo('body').qtip(\$j.extend({}, qTipSharedYellow, {
 					content: {text: contents}
 				}));
-			};
-			
-			\$j('#pricePlot').bind('plothover', function (event, pos, item) {
-				if (item) {
-					if (previousPoint != item.dataIndex) {
-						previousPoint = item.dataIndex;
+			};");
 
-						\$j('#tooltip').remove
-						var ts = new Date(item.datapoint[0]);
-						showTooltip(item.pageX, item.pageY, item.datapoint[1].toFixed(3));
-					}
-				}
-				else {
-					\$j('#tooltip').remove();
-					previousPoint = null;            
-				}
-			});");
+		$html .= "<p>Heute: Min $minD1 (".date("H:i", $minD1Time)."), Max $maxD1, Δ ".($maxD1 - $minD1).", ".round(100 - (100 / $maxD1 * $minD1))."%";
+		if($maxD2 > 0)
+			$html .= "<br>Morgen: Min $minD2 (".date("H:i", $minD2Time)."), Max $maxD2, Δ ".($maxD2 - $minD2).", ".round(100 - (100 / $maxD2 * $minD2))."%";
+
+
+		foreach($this->usageGet() AS $month => $monthData){
+			$html .= "<br>".Util::CLMonthName(substr($month, 4))." ".substr($month, 0, 4).": ".Util::CLFormatCurrency(Util::kRound($monthData[0]), true).", $monthData[1] kWh";
+		}
+		$html .= "</p>";
+		
+		echo $html;
 	}
 }
 ?>
