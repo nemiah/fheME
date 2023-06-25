@@ -47,7 +47,7 @@ class mStromanbieterGUI extends anyC implements iGUIHTMLMP2 {
 			$B->style("float:left;margin-right:5px;width:32px;");
 			
 			$content = "";
-			foreach($S->usageGet() AS $month => $monthData)
+			foreach($S->usageProcess($S->A("StromanbieterUsage")) AS $month => $monthData)
 				$content .= Util::CLMonthName(substr($month, 4))." ".substr($month, 0, 4).": ".Util::CLFormatCurrency(Util::kRound($monthData[0]), true).", $monthData[1] kWh";
 			
 			$html .= "
@@ -60,68 +60,6 @@ class mStromanbieterGUI extends anyC implements iGUIHTMLMP2 {
 				<div style=\"clear:both;\"></div>
 			</div>";
 			
-			#echo "<pre style=\"font-size:8px;\">";
-			#print_r($data);
-			#echo '</pre>';
-			#$oData = new stdClass();
-			#$oData->data = $data;
-			#$oData->label = "Preis";
-			#continue;
-			/*$html .= "<div id=\"pricePlot\" style=\"width:100%;height:180px;\"></div>";
-			
-			$html .= OnEvent::script("
-				
-				var options = {
-				xaxis: {
-					mode: 'time',
-					timezone: 'browser',
-					timeformat: '%H',
-					tickSize: [3, 'hour']
-				},
-				yaxis: {
-				},
-				series: {
-					lines: { show: true },
-					points: { show: false }
-				},
-				
-				grid: {
-					borderWidth: 1,
-					borderColor: '#AAAAAA',
-					markings: [
-						{ color: '#ff9a9a', yaxis: { from: ". max($maxD1, $maxD2).", to: ". max($maxD1, $maxD2)." } },
-						{ color: '#85af7b', yaxis: { from: ". min($minD1, $minD2).", to: ". min($minD1, $minD2)." } }
-					]
-				}
-				};
-
-				window.setTimeout(function(){ 
-					console.log(\$j('.touchHeader').width());
-					\$j('#pricePlot').css('width', \$j('.touchHeader').width()+'px');
-					\$j.plot(\$j('#pricePlot'), [".json_encode($oData)."], options);
-				}, 100);
-				
-				
-
-				function showTooltip(x, y, contents) {
-					\$j('<div id=\"tooltip\"></div>').css({
-						position: 'absolute',
-						top: y + 3,
-						left: x - 5
-					}).appendTo('body').qtip(\$j.extend({}, qTipSharedYellow, {
-						content: {text: contents}
-					}));
-				};");
-			
-			$html .= "Heute: Min $minD1 (".date("H:i", $minD1Time)."), Max $maxD1, Δ ".($maxD1 - $minD1);
-			if($maxD2 > 0)
-				$html .= "<br>Morgen: Min $minD2 (".date("H:i", $minD2Time)."), Max $maxD2, Δ ".($maxD2 - $minD2);
-			
-			
-			
-			foreach($S->usageGet() AS $month => $monthData){
-				$html .= "<br>".Util::CLMonthName(substr($month, 4))." ".substr($month, 0, 4).": ".Util::CLFormatCurrency(Util::kRound($monthData[0]), true).", $monthData[1] kWh";
-			}*/
 		}
 		
 		if($AC->numLoaded() == 0){
