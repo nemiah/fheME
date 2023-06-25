@@ -18,21 +18,19 @@
  *  2007 - 2022, open3A GmbH - Support@open3A.de
  */
 class Stromanbieter extends PersistentObject {
-	public function usageGet(){
-		$jsonLive = '{"query":"{ viewer { homes { consumption(resolution: DAILY, last: '.(date("d") - 1).') { nodes { from to cost unitPrice unitPriceVAT consumption consumptionUnit }}}}}"}';
-
-		# Create a connection
-		$ch = curl_init('https://api.tibber.com/v1-beta/gql');
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'Authorization: Bearer '.$this->A("StromanbieterAPIToken"))); // Demo token
-		curl_setopt($ch, CURLOPT_POST, true);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonLive);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-		# Get the response
-		$response = curl_exec($ch);
+	public static function update(){
+		$AC = anyC::get("Stromanbieter");
+		while($S = $AC->n()){
+			$data = $S->usageGet();
+			
+			$S->changeA("StromanbieterUsage", $data);
+			$S->changeA("StromanbieterLastUpdate", time());
+			$S->saveMe();
+		}
+	}
+	
+	public function usageProcess($response){
 		$r = json_decode($response);
-		curl_close($ch);
-		
 		$collector = [];
 		
 		foreach($r->data->viewer->homes[0]->consumption->nodes AS $consumption){
@@ -46,6 +44,23 @@ class Stromanbieter extends PersistentObject {
 		}
 		
 		return $collector;
+	}
+	
+	public function usageGet(){
+		$jsonLive = '{"query":"{ viewer { homes { consumption(resolution: DAILY, last: '.(date("d") - 1).') { nodes { from to cost unitPrice unitPriceVAT consumption consumptionUnit }}}}}"}';
+
+		# Create a connection
+		$ch = curl_init('https://api.tibber.com/v1-beta/gql');
+		curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'Authorization: Bearer '.$this->A("StromanbieterAPIToken"))); // Demo token
+		curl_setopt($ch, CURLOPT_POST, true);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonLive);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+		# Get the response
+		$response = curl_exec($ch);
+		curl_close($ch);
+		
+		return $response;
 	}
 	
 	public function pricesGet(){
