@@ -40,7 +40,7 @@ class mWetterstationGUI extends anyC implements iGUIHTMLMP2 {
 			
 			$html .= "<div style=\"display:flex;\">
 				<b style=\"flex:1;font-size:30px;font-weight:bold;color:#555;display:block;\">".Util::formatNumber("de_DE", (float) $W->A("WetterstationOutdoorTemp"), 1)." °C</b>
-				<b style=\"flex:1;font-size:30px;font-weight:bold;color:#555;display:block;text-align:center;\">".round($W->A("WetterstationOutdoorRainTotal") - $W->A("WetterstationOutdoorRainTotalYesterday"))." L</b>
+				<b style=\"flex:1;font-size:30px;font-weight:bold;color:#555;display:block;text-align:center;\">".round($W->A("WetterstationOutdoorRainTotal") - $W->A("WetterstationOutdoorRainTotalYesterday"), 1)." L</b>
 				</div>";
 			
 			$sunInfo = date_sun_info(time(), $W->A("WetterstationLat"), $W->A("WetterstationLon"));
