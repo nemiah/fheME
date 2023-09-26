@@ -48,7 +48,7 @@ class mStromanbieterGUI extends anyC implements iGUIHTMLMP2 {
 			
 			$content = "";
 			foreach($S->usageProcess($S->A("StromanbieterUsage")) AS $month => $monthData)
-				$content .= Util::CLMonthName(substr($month, 4))." ".substr($month, 0, 4).": ".Util::CLFormatCurrency(Util::kRound($monthData[0]), true).", $monthData[1] kWh";
+				$content .= substr($month, 4)."/".substr($month, 0, 4).": ".Util::CLFormatCurrency(Util::kRound($monthData[0]), true).", ".Util::CLFormatNumber($monthData[1])." kWh = ".Util::CLFormatCurrency($monthData[0] / $monthData[1], true)."/kWh";
 			
 			$html .= "
 			<div onclick=\"".OnEvent::popup("Preise", "Stromanbieter", $S->getID(), "pricesShow", "", "", "{width:800}")."\" class=\"touchButton\">
