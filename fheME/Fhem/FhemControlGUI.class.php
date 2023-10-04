@@ -802,7 +802,7 @@ class FhemControlGUI implements iGUIHTML2 {
 						}
 					}
 					
-					$result[$F->getID()] = array("model" => $F->A("FhemModel"), "state" => "$FS<b>".($F->A("FhemAlias") == "" ? $F->A("FhemName") : $F->A("FhemAlias"))."</b><br><small style=\"color:grey;\" id=\"FhemID_".$F->getID()."State\">".(count($trigger) ? (isset($trigger["ein"]) ? $trigger["ein"]." - " : "").$trigger["aus"] : "")."</small><div style=\"clear:both;\"></div>");
+					$result[$F->getID()] = array("model" => $F->A("FhemModel"), "state" => "$FS<b>".($F->A("FhemAlias") == "" ? $F->A("FhemName") : $F->A("FhemAlias"))."</b><br><small style=\"color:grey;\" id=\"FhemID_".$F->getID()."State\">".(count($trigger) ? (isset($trigger["ein"]) ? $trigger["ein"].(isset($trigger["aus"]) ? " - " : "") : "").$trigger["aus"] : "")."</small><div style=\"clear:both;\"></div>");
 					
 				}
 			
