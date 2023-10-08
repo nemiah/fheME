@@ -47,10 +47,10 @@ class NenaHome extends PersistentObject {
 	}
 	
 	public function batteryNight(){
-		if(date("Hi") < 2200)
+		if(date("Hi") < 2100)
 			return;
 		
-		if(date("Hi") > 2210)
+		if(date("Hi") > 2110)
 			return;
 		
 		$W = new Wechselrichter($this->A("NenaHomeWechselrichterID"));
