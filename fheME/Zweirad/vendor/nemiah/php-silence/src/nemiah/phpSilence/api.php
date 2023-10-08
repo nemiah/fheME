@@ -56,8 +56,16 @@ class api {
 
 		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-		$scooters = json_decode(curl_exec($ch));
+		$result = curl_exec($ch);
+		
+		$info = curl_getinfo($ch);
+		if($info["http_code"] != 200){
+			print_r($result);
+			print_r($info);
+			return [];
+		}
+			
+		$scooters = json_decode($result);
 		curl_close($ch);
 		
 		foreach($scooters AS $scooter)

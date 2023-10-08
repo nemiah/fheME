@@ -24,6 +24,7 @@ class NenaHome extends PersistentObject {
 		while($N = $AC->n()){
 			$N->data();
 			$N->charge();
+			$N->batteryNight();
 		}
 	}
 	
@@ -43,6 +44,98 @@ class NenaHome extends PersistentObject {
 		
 		if($this->A("NenaHomeOpenWeatherMapID"))
 			$this->dataWeather = new OpenWeatherMap($this->A("NenaHomeOpenWeatherMapID"));
+	}
+	
+	public function batteryNight(){
+		if(date("Hi") < 2250)
+			return;
+		
+		$W = new Wechselrichter($this->A("NenaHomeWechselrichterID"));
+		
+		$days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+		foreach($days AS $day)
+			shell_exec("python3 ".Util::getRootPath()."/fheME/Photovoltaik/kostal-RESTAPI.py -host \"".$W->A("WechselrichterIP")."\" -password \"".$W->A("WechselrichterPasswort")."\" -SetTimeControl$day \"000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"");
+		
+		#python3 kostal-RESTAPI.py -SetTimeControlSun "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002222"
+		$Strom = new Stromanbieter($this->A("NenaHomeStromanbieterID"));
+		$preise = $Strom->pricesGet();
+		
+		
+		$json = $this->dataWechselrichter;
+		$battSOC = 0;
+		#$pvCurrentPower = 0;
+		#$pvCurrentUsage = 0;
+		if($json === null)
+			echo "NenaHome: Keine Daten vom Wechselrichter ".__LINE__."!\n";
+		else {
+			$battSOC = $json->{"Battery SOC"};
+			#$pvCurrentPower = $json->{"Total DC power Panels"};
+			#$pvCurrentUsage = $json->{"Consumption power Home total"};
+		}
+		
+		if($battSOC > 50)
+			return;
+		
+		$minPrice = 9999999;
+		$minTime = 0;
+		
+		foreach($preise[0] AS $preis){
+			$preisSec = $preis[0] / 1000;
+			
+			if($preisSec < time())
+				continue;
+			
+			if($preisSec > time() + 12 * 3600)
+				continue;
+			
+			if($preis[1] < $minPrice){
+				$minPrice = $preis[1];
+				$minTime = $preisSec;
+			}
+			
+			#echo date("d. H:i", $preisSec).": ".$preis[1]."\n";
+		}
+		
+		echo $minTime.": $minPrice\n";
+		$noDischarge = [];
+		foreach($preise[0] AS $preis){
+			$preisSec = $preis[0] / 1000;
+			
+			if($preisSec < time())
+				continue;
+			
+			if($preisSec > time() + 12 * 3600)
+				continue;
+			
+			if($preis[1] - $minPrice < $minPrice * 0.02)
+				$noDischarge[] = [$preisSec, $preis[1]];
+		}
+		
+		
+		$days = [];
+		foreach($noDischarge AS $preis){
+			$cDay = $preis[0] - date("H", $preis[0]) * 3600;
+			
+			if(!isset($days[$cDay]))
+				$days[$cDay] = $this->emptyDay();
+			
+			$days[$cDay][(int) date("H", $preis[0])] = "2222";
+			
+			#echo date("d. H:i", $preis[0]).": ".$preis[1]."\n";
+			
+		}
+		
+		foreach($days AS $day => $value){
+			echo shell_exec("python3 ".Util::getRootPath()."/fheME/Photovoltaik/kostal-RESTAPI.py -host \"".$W->A("WechselrichterIP")."\" -password \"".$W->A("WechselrichterPasswort")."\" -SetTimeControl".date("D", $day)." \"".implode("", $value)."\"");
+		}
+	}
+	
+	private function emptyDay(){
+		$day = [];
+		for($i = 0; $i < 24; $i++)
+			$day[$i] = "0000";
+		
+		return $day;
 	}
 	
 	public function charge(){

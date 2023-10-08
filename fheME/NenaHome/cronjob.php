@@ -42,6 +42,7 @@ $e->loadPlugin("fheME", "Photovoltaik");
 $e->loadPlugin("fheME", "NenaHome");
 $e->loadPlugin("fheME", "Zweirad");
 $e->loadPlugin("ubiquitous", "OWM");
+$e->loadPlugin("fheME", "Stromanbieter");
 
 $e->useDefaultMySQLData();
 
