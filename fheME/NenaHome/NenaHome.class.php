@@ -24,7 +24,8 @@ class NenaHome extends PersistentObject {
 		while($N = $AC->n()){
 			$N->data();
 			$N->charge();
-			$N->batteryNight();
+			$N->battery(2100);
+			$N->battery(800);
 		}
 	}
 	
@@ -46,11 +47,11 @@ class NenaHome extends PersistentObject {
 			$this->dataWeather = new OpenWeatherMap($this->A("NenaHomeOpenWeatherMapID"));
 	}
 	
-	public function batteryNight(){
-		if(date("Hi") < 2100)
+	public function battery($hour){
+		if(date("Hi") < $hour + 1)
 			return;
 		
-		if(date("Hi") > 2110)
+		if(date("Hi") > $hour + 9)
 			return;
 		
 		$W = new Wechselrichter($this->A("NenaHomeWechselrichterID"));
@@ -59,22 +60,17 @@ class NenaHome extends PersistentObject {
 		foreach($days AS $day)
 			shell_exec("python3 ".Util::getRootPath()."/fheME/Photovoltaik/kostal-RESTAPI.py -host \"".$W->A("WechselrichterIP")."\" -password \"".$W->A("WechselrichterPasswort")."\" -SetTimeControl$day \"000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"");
 		
-		#python3 kostal-RESTAPI.py -SetTimeControlSun "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002222"
 		$Strom = new Stromanbieter($this->A("NenaHomeStromanbieterID"));
 		$preise = $Strom->pricesGet();
 		
 		
 		$json = $this->dataWechselrichter;
 		$battSOC = 0;
-		#$pvCurrentPower = 0;
-		#$pvCurrentUsage = 0;
 		if($json === null)
 			echo "NenaHome: Keine Daten vom Wechselrichter ".__LINE__."!\n";
-		else {
+		else 
 			$battSOC = $json->{"Battery SOC"};
-			#$pvCurrentPower = $json->{"Total DC power Panels"};
-			#$pvCurrentUsage = $json->{"Consumption power Home total"};
-		}
+		
 		
 		if($battSOC > 50 OR $battSOC == 0)
 			return;
@@ -128,9 +124,9 @@ class NenaHome extends PersistentObject {
 			
 		}
 		
-		foreach($days AS $day => $value){
+		foreach($days AS $day => $value)
 			echo shell_exec("python3 ".Util::getRootPath()."/fheME/Photovoltaik/kostal-RESTAPI.py -host \"".$W->A("WechselrichterIP")."\" -password \"".$W->A("WechselrichterPasswort")."\" -SetTimeControl".date("D", $day)." \"".implode("", $value)."\"");
-		}
+		
 	}
 	
 	private function emptyDay(){
