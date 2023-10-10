@@ -60,10 +60,6 @@ class NenaHome extends PersistentObject {
 		foreach($days AS $day)
 			shell_exec("python3 ".Util::getRootPath()."/fheME/Photovoltaik/kostal-RESTAPI.py -host \"".$W->A("WechselrichterIP")."\" -password \"".$W->A("WechselrichterPasswort")."\" -SetTimeControl$day \"000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"");
 		
-		$Strom = new Stromanbieter($this->A("NenaHomeStromanbieterID"));
-		$preise = $Strom->pricesGet();
-		
-		
 		$json = $this->dataWechselrichter;
 		$battSOC = 0;
 		if($json === null)
@@ -72,8 +68,11 @@ class NenaHome extends PersistentObject {
 			$battSOC = $json->{"Battery SOC"};
 		
 		
-		if($battSOC > 50 OR $battSOC == 0)
+		if($battSOC > 50 OR $battSOC == 0)#date("m") > 3 AND date("m") < 10)
 			return;
+		
+		$Strom = new Stromanbieter($this->A("NenaHomeStromanbieterID"));
+		$preise = $Strom->pricesGet();
 		
 		$minPrice = 9999999;
 		$minTime = 0;
