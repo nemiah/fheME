@@ -18,14 +18,25 @@
  *  2007 - 2022, open3A GmbH - Support@open3A.de
  */
 class HeizungGUI extends Heizung implements iGUIHTML2 {
+	function __construct($ID) {
+		parent::__construct($ID);
+		
+		$this->setParser("HeizungWaterShutdownTimeStart", "Util::CLTimeParserE");
+		$this->setParser("HeizungWaterShutdownTimeEnd", "Util::CLTimeParserE");
+	}
+	
 	function getHTML($id){
 		$gui = new HTMLGUIX($this);
 		$gui->name("Heizung");
 	
 		$gui->type("HeizungFhemServerID", "select", anyC::get("FhemServer"), "FhemServerName", "Bitte auswählen…");
+		$gui->type("HeizungWaterShutdownTimeStart", "time");
+		$gui->type("HeizungWaterShutdownTimeEnd", "time");
 		
 		$gui->label("HeizungFhemServerID", "Fhem-Server");
-		$gui->label("HeizungOpenWeatherMapID", "Wetter");
+		$gui->label("HeizungWaterShutdownTemp", "Shutdown Temp");
+		$gui->label("HeizungWaterShutdownTimeStart", "Shutdown start");
+		$gui->label("HeizungWaterShutdownTimeEnd", "Shutdown ende");
 		
 		#$B = $gui->addSideButton("Sonne", "new");
 		#$B->popup("", "Datenanzeigen", "Heizung", $this->getID(), "sun");

@@ -335,6 +335,21 @@ class Heizung extends PersistentObject {
 	}
 	
 	function water(){
+		#p05DHWsetNightTemp
+		$lastNightTemp = mUserdata::getGlobalSettingValue("p05DHWsetNightTemp", "0");
+		if($this->A("HeizungWaterShutdownTimeEnd") >= 0
+			AND $lastNightTemp == $this->A("HeizungWaterShutdownTemp")
+			AND Util::parseTime("de_DE", date("H:i")) > $this->A("HeizungWaterShutdownTimeEnd")){
+			$this->connection->fireAndForget("set ".$this->A("HeizungFhemName")." p05DHWsetNightTemp ".$this->A("HeizungWaterNightTemp"));
+			mUserdata::setUserdataS("p05DHWsetNightTemp", $this->A("HeizungWaterNightTemp"), "", -1);
+		}
+		
+		if($this->A("HeizungWaterShutdownTimeStart") >= 0 AND Util::parseTime("de_DE", date("H:i")) > $this->A("HeizungWaterShutdownTimeStart")){
+			$this->connection->fireAndForget("set ".$this->A("HeizungFhemName")." p05DHWsetNightTemp ".$this->A("HeizungWaterShutdownTemp"));
+			mUserdata::setUserdataS("p05DHWsetNightTemp", $this->A("HeizungWaterShutdownTemp"), "", -1);
+		}
+		
+		
 		if($this->A("HeizungWechselrichterID")){
 			#$W = new Wechselrichter($this->A("HeizungWechselrichterID"));
 			#$data = $W->getData();
