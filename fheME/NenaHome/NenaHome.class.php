@@ -25,7 +25,7 @@ class NenaHome extends PersistentObject {
 			$N->data();
 			$N->charge();
 			$N->battery(2100);
-			$N->battery(800);
+			$N->battery(900);
 		}
 	}
 	
@@ -54,11 +54,20 @@ class NenaHome extends PersistentObject {
 		if(date("Hi") > $hour + 9)
 			return;
 		
-		$W = new Wechselrichter($this->A("NenaHomeWechselrichterID"));
+		$isSet = mUserdata::getGlobalSettingValue("NenaHomeNoDischargeSet", "0");
 		
-		$days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-		foreach($days AS $day)
-			shell_exec("python3 ".Util::getRootPath()."/fheME/Photovoltaik/kostal-RESTAPI.py -host \"".$W->A("WechselrichterIP")."\" -password \"".$W->A("WechselrichterPasswort")."\" -SetTimeControl$day \"000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"");
+		if($isSet){
+			$days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+			foreach($days AS $day)
+				shell_exec("python3 ".Util::getRootPath()."/fheME/Photovoltaik/kostal-RESTAPI.py -host \"".$W->A("WechselrichterIP")."\" -password \"".$W->A("WechselrichterPasswort")."\" -SetTimeControl$day \"000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"");
+			
+			 mUserdata::setUserdataS("NenaHomeNoDischargeSet", "0", "", -1);
+		}
+		
+		if(date("m") > 3 AND date("m") < 10)
+			return;
+		
+		$W = new Wechselrichter($this->A("NenaHomeWechselrichterID"));
 		
 		$json = $this->dataWechselrichter;
 		$battSOC = 0;
@@ -67,9 +76,6 @@ class NenaHome extends PersistentObject {
 		else 
 			$battSOC = $json->{"Battery SOC"};
 		
-		
-		if($battSOC > 50 OR $battSOC == 0)#date("m") > 3 AND date("m") < 10)
-			return;
 		
 		$Strom = new Stromanbieter($this->A("NenaHomeStromanbieterID"));
 		$preise = $Strom->pricesGet();
@@ -94,6 +100,9 @@ class NenaHome extends PersistentObject {
 			#echo date("d. H:i", $preisSec).": ".$preis[1]."\n";
 		}
 		
+		if(($battSOC > 50 OR $battSOC == 0) AND $minPrice >= $this->A("NenaHomeBuyBelowCent"))#date("m") > 3 AND date("m") < 10)
+			return;
+		
 		echo $minTime.": $minPrice\n";
 		$noDischarge = [];
 		foreach($preise[0] AS $preis){
@@ -105,7 +114,7 @@ class NenaHome extends PersistentObject {
 			if($preisSec > time() + 12 * 3600)
 				continue;
 			
-			if($preis[1] - $minPrice < $minPrice * 0.02)
+			if($preis[1] - $minPrice < $minPrice * 0.02 OR $preis[1] < $this->A("NenaHomeBuyBelowCent"))
 				$noDischarge[] = [$preisSec, $preis[1]];
 		}
 		
@@ -126,6 +135,7 @@ class NenaHome extends PersistentObject {
 		foreach($days AS $day => $value)
 			echo shell_exec("python3 ".Util::getRootPath()."/fheME/Photovoltaik/kostal-RESTAPI.py -host \"".$W->A("WechselrichterIP")."\" -password \"".$W->A("WechselrichterPasswort")."\" -SetTimeControl".date("D", $day)." \"".implode("", $value)."\"");
 		
+		mUserdata::setUserdataS("NenaHomeNoDischargeSet", "1", "", -1);
 	}
 	
 	private function emptyDay(){
