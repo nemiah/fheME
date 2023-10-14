@@ -56,6 +56,7 @@ class NenaHome extends PersistentObject {
 		
 		$isSet = mUserdata::getGlobalSettingValue("NenaHomeNoDischargeSet", "0");
 		
+		$W = new Wechselrichter($this->A("NenaHomeWechselrichterID"));
 		if($isSet){
 			$days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 			foreach($days AS $day)
@@ -67,7 +68,6 @@ class NenaHome extends PersistentObject {
 		if(date("m") > 3 AND date("m") < 10)
 			return;
 		
-		$W = new Wechselrichter($this->A("NenaHomeWechselrichterID"));
 		
 		$json = $this->dataWechselrichter;
 		$battSOC = 0;
