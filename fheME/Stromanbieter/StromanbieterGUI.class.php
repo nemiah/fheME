@@ -46,7 +46,7 @@ class StromanbieterGUI extends Stromanbieter implements iGUIHTML2 {
 				mode: 'time',
 				timezone: 'browser',
 				timeformat: '%H',
-				tickSize: [3, 'hour']
+				tickSize: [2, 'hour']
 			},
 			yaxis: {
 			},
