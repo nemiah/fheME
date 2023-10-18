@@ -24,14 +24,15 @@ class NenaHome extends PersistentObject {
 		while($N = $AC->n()){
 			$N->data();
 			$N->charge();
-			$N->battery(2100);
-			$N->battery(900);
+			$N->battery(2000);
+			$N->battery(800);
 		}
 	}
 	
 	private $dataWechselrichter;
 	private $dataWeather;
 	private $connectionFhem;
+	private $dataFhem;
 	
 	public function data(){
 		$S = new FhemServer($this->A("NenaHomeFhemServerID"));
@@ -42,16 +43,34 @@ class NenaHome extends PersistentObject {
 			$this->dataWechselrichter = json_decode($W->getData());
 		}
 		
-		
 		if($this->A("NenaHomeOpenWeatherMapID"))
 			$this->dataWeather = new OpenWeatherMap($this->A("NenaHomeOpenWeatherMapID"));
+		
+		$data = $S->getListXML();
+		$xml = new SimpleXMLElement($data);
+		
+		$states = [];
+		foreach($xml->THZ_LIST->THZ[0]->STATE AS $STATE)
+			$states[$STATE["key"].""] = $STATE["value"]."";
+		
+		$states["sHC1"] = $this->parse($states["sHC1"]);
+		$this->dataFhem = $states;
+	}
+	
+	private function parse($data){
+		preg_match_all("/([a-zA-Z]+): ([a-zA-Z0-9\-\.]+) /", $data, $matches);
+		$parsed = [];
+		foreach($matches[1] AS $k => $v)
+			$parsed[$v] = $matches[2][$k];
+		
+		return $parsed;
 	}
 	
 	public function battery($hour){
-		if(date("Hi") < $hour + 1)
+		if(date("Hi") < $hour + 51)
 			return;
 		
-		if(date("Hi") > $hour + 9)
+		if(date("Hi") > $hour + 58)
 			return;
 		
 		$isSet = mUserdata::getGlobalSettingValue("NenaHomeNoDischargeSet", "0");
@@ -100,7 +119,10 @@ class NenaHome extends PersistentObject {
 			#echo date("d. H:i", $preisSec).": ".$preis[1]."\n";
 		}
 		
-		if(($battSOC > 50 OR $battSOC == 0) AND $minPrice >= $this->A("NenaHomeBuyBelowCent"))#date("m") > 3 AND date("m") < 10)
+		if(
+			($battSOC > 50 OR $battSOC == 0) 
+			AND $minPrice >= $this->A("NenaHomeBuyBelowCent")
+			AND $this->dataFhem["sHC1"]["seasonMode"] != "winter")#date("m") > 3 AND date("m") < 10)
 			return;
 		
 		echo $minTime.": $minPrice\n";
