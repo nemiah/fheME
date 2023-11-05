@@ -121,7 +121,7 @@ class NenaHome extends PersistentObject {
 		
 		if(
 			($battSOC > 50 OR $battSOC == 0) 
-			AND $minPrice >= $this->A("NenaHomeBuyBelowCent")
+			AND $minPrice >= $Strom->A("StromanbieterBuyBelowCent")
 			AND $this->dataFhem["sHC1"]["seasonMode"] != "winter")#date("m") > 3 AND date("m") < 10)
 			return;
 		
@@ -136,7 +136,7 @@ class NenaHome extends PersistentObject {
 			if($preisSec > time() + 12 * 3600)
 				continue;
 			
-			if($preis[1] - $minPrice < $minPrice * 0.02 OR $preis[1] < $this->A("NenaHomeBuyBelowCent"))
+			if($preis[1] - $minPrice < $minPrice * 0.02 OR $preis[1] < $Strom->A("StromanbieterBuyBelowCent"))
 				$noDischarge[] = [$preisSec, $preis[1]];
 		}
 		
@@ -154,6 +154,8 @@ class NenaHome extends PersistentObject {
 			
 		}
 		
+		mUserdata::setUserdataS("NoDischargeTimes", json_encode($days), "", -1);
+		
 		foreach($days AS $day => $value)
 			echo shell_exec("python3 ".Util::getRootPath()."/fheME/Photovoltaik/kostal-RESTAPI.py -host \"".$W->A("WechselrichterIP")."\" -password \"".$W->A("WechselrichterPasswort")."\" -SetTimeControl".date("D", $day)." \"".implode("", $value)."\"");
 		
@@ -169,6 +171,22 @@ class NenaHome extends PersistentObject {
 	}
 	
 	public function charge(){
+		$S = Stromanbieter::getDefault();
+		$prices = $S->pricesGetProcessed();
+		$isBelow = [];
+		$streak = false;
+		foreach($prices[0] AS $price){
+			if($price[0] / 1000 < time())
+				continue;
+			
+			if($streak AND $price[1] > $S->A("StromanbieterChargeBelowCent"))
+				break;
+			
+			if($price[1] < $S->A("StromanbieterChargeBelowCent")){
+				$isBelow[] = $price;
+				$streak = true;
+			}
+		}
 		
 		$json = $this->dataWechselrichter;
 		$battSOC = 0;
@@ -180,6 +198,12 @@ class NenaHome extends PersistentObject {
 			$battSOC = $json->{"Battery SOC"};
 			$pvCurrentPower = $json->{"Total DC power Panels"};
 			$pvCurrentUsage = $json->{"Consumption power Home total"};
+		}
+		
+		#print_r($isBelow);
+		if(count($isBelow) >= 4){
+			$pvCurrentPower = 10000;
+			$battSOC = 99;
 		}
 		
 		#echo $battSOC."\n";
