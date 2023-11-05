@@ -18,12 +18,18 @@
  *  2007 - 2022, open3A GmbH - Support@open3A.de
  */
 class Stromanbieter extends PersistentObject {
+	public static function getDefault(){
+		return anyC::getFirst("Stromanbieter", "StromanbieterIsDefault", "1");
+	}
+	
 	public static function update(){
 		$AC = anyC::get("Stromanbieter");
 		while($S = $AC->n()){
 			$data = $S->usageGet();
+			$prices = $S->pricesGet();
 			
 			$S->changeA("StromanbieterUsage", $data);
+			$S->changeA("StromanbieterPrices", $prices);
 			$S->changeA("StromanbieterLastUpdate", time());
 			$S->saveMe();
 		}
@@ -47,7 +53,7 @@ class Stromanbieter extends PersistentObject {
 	}
 	
 	public function usageGet(){
-		$jsonLive = '{"query":"{ viewer { homes { consumption(resolution: DAILY, last: '.(date("d") - 1).') { nodes { from to cost unitPrice unitPriceVAT consumption consumptionUnit }}}}}"}';
+		$jsonLive = '{"query":"{ viewer { homes { consumption(resolution: DAILY, last: 300) { nodes { from to cost unitPrice unitPriceVAT consumption consumptionUnit }}}}}"}';
 
 		# Create a connection
 		$ch = curl_init('https://api.tibber.com/v1-beta/gql');
@@ -63,6 +69,7 @@ class Stromanbieter extends PersistentObject {
 		return $response;
 	}
 	
+	
 	public function pricesGet(){
 		$jsonLive = '{"query":"{ viewer { homes { currentSubscription { priceInfo{ today { total startsAt } tomorrow { total startsAt }}}}}}"}';
 
@@ -76,11 +83,16 @@ class Stromanbieter extends PersistentObject {
 		# Get the response
 		$response = curl_exec($ch);
 		curl_close($ch);
-
 		
+		return $response;
+	}
+	
+	
+	public function pricesGetProcessed(){
+		$response = $this->A("StromanbieterPrices");
 		#echo '<pre>';
 		$r = json_decode($response);
-				
+		
 		$minD1 = 100;
 		$maxD1 = 0;
 		$minD2 = 100;

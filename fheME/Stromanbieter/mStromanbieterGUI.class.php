@@ -47,11 +47,13 @@ class mStromanbieterGUI extends anyC implements iGUIHTMLMP2 {
 			$B->style("float:left;margin-right:5px;width:32px;");
 			
 			$content = "";
-			foreach($S->usageProcess($S->A("StromanbieterUsage")) AS $month => $monthData)
-				$content .= substr($month, 4)."/".substr($month, 0, 4).": ".Util::CLFormatCurrency(Util::kRound($monthData[0]), true).", ".Util::CLFormatNumber($monthData[1])." kWh = ".Util::CLFormatCurrency($monthData[0] / $monthData[1], true)."/kWh";
+			$usage = $S->usageProcess($S->A("StromanbieterUsage"));
+			$usage = array_slice($usage, -2, 2, true);
+			foreach($usage AS $month => $monthData)
+				$content .= mb_substr(Util::CLMonthName(substr($month, 4)), 0, 3).": ".Util::CLFormatCurrency(Util::kRound($monthData[0]), true).", ".Util::CLFormatNumber($monthData[1])." kWh = ".Util::CLFormatCurrency($monthData[0] / $monthData[1], true)."/kWh<br>";
 			
 			$html .= "
-			<div onclick=\"".OnEvent::popup("Preise", "Stromanbieter", $S->getID(), "pricesShow", "", "", "{width:800}")."\" class=\"touchButton\">
+			<div onclick=\"".OnEvent::popup("Preise", "Stromanbieter", $S->getID(), "pricesShow", "", "", "{width:800, top: 20}")."\" class=\"touchButton\">
 				".$B."
 				<div class=\"label\" style=\"padding-top:0;\">
 					".$S->A("StromanbieterName")."<br>

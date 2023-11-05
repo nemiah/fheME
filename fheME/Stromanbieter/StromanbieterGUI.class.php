@@ -25,22 +25,42 @@ class StromanbieterGUI extends Stromanbieter implements iGUIHTML2 {
 		$B = $gui->addSideButton("Preise", "new");
 		$B->popup("", "Preise", "Stromanbieter", $this->getID(), "pricesShow", "", "", "{width:800}");
 		
+		$gui->type("StromanbieterUsage", "textarea");
+		$gui->type("StromanbieterIsDefault", "checkbox");
+		
 		return $gui->getEditHTML();
 	}
 	
 	public function pricesShow(){
-		[$data, $minD1, $maxD1, $minD1Time, $minD2, $maxD2, $minD2Time] = $this->pricesGet();
+		$noDischarge = json_decode(mUserdata::getGlobalSettingValue("NoDischargeTimes", "{}"));
+		
+		$markings = "";
+		foreach($noDischarge AS $day => $times)
+			foreach($times AS $hour => $time)
+				if($time == "2222")
+					$markings .= ",
+					{ color: '#ff9a9a', yaxis: {from: 0, to: 12}, xaxis: { from: ".(($day + $hour * 3600) * 1000).", to: ".(($day + ($hour + 1) * 3600) * 1000)." } }";
+		
+		
+		#echo "<pre>";
+		#echo $markings;
+		#echo "</pre>";
+		
+		[$data, $minD1, $maxD1, $minD1Time, $minD2, $maxD2, $minD2Time] = $this->pricesGetProcessed();
 		#echo "<pre style=\"font-size:8px;\">";
 		#print_r($data);
 		#echo '</pre>';
 		$oData = new stdClass();
 		$oData->data = $data;
 		$oData->label = "Preis";
+		$oData->color = "#df9900";
+		$oData->threshold = new stdClass();
+		$oData->threshold->below = $this->A("StromanbieterBuyBelowCent");
+		$oData->threshold->color = "#457c00";
 		#continue;
 		$html = "<div id=\"pricePlot\" style=\"width:790px;height:300px;\"></div>";
 
 		$html .= OnEvent::script("
-
 			var options = {
 			xaxis: {
 				mode: 'time',
@@ -49,18 +69,20 @@ class StromanbieterGUI extends Stromanbieter implements iGUIHTML2 {
 				tickSize: [2, 'hour']
 			},
 			yaxis: {
+				min: 10,
+				max: 40
 			},
 			series: {
-				lines: { show: true },
+				lines: { show: true, steps: true },
 				points: { show: false }
 			},
-
 			grid: {
 				borderWidth: 1,
 				borderColor: '#AAAAAA',
 				markings: [
-					{ color: '#ff9a9a', yaxis: { from: ". max($maxD1, $maxD2).", to: ". max($maxD1, $maxD2)." } },
-					{ color: '#85af7b', yaxis: { from: ". min($minD1, $minD2).", to: ". min($minD1, $minD2)." } }
+					{ color: '#efefef', yaxis: { from: 0, to: ".$this->A("StromanbieterBuyBelowCent")." } },
+					{ color: '#cccccc', yaxis: { from: 0, to: ".$this->A("StromanbieterChargeBelowCent")." } }$markings,
+					{ color: '#555555', xaxis: { from: ".(time() * 1000).", to: ".(time() * 1000)." } }
 				]
 			}
 			};
@@ -92,6 +114,42 @@ class StromanbieterGUI extends Stromanbieter implements iGUIHTML2 {
 			$html .= "<br>".Util::CLMonthName(substr($month, 4))." ".substr($month, 0, 4).": ".Util::CLFormatCurrency(Util::kRound($monthData[0]), true).", $monthData[1] kWh";
 		}
 		$html .= "</p>";
+		
+		$html .= "<div id=\"costPlot\" style=\"width:790px;height:300px;\"></div>";
+		
+		$data = [];
+		
+		foreach($this->usageProcess($this->A("StromanbieterUsage")) AS $month => $monthData)
+			$data[] = [mktime(0, 0, 0, substr($month, 4), 1, substr($month, 0, 4)) * 1000, $monthData[0]];
+		#print_r($data);
+		$oData = new stdClass();
+		$oData->data = $data;
+		$oData->label = "Kosten";
+		$oData->color = "#df9900";
+		
+		$html .= OnEvent::script("
+			var options = {
+			xaxis: {
+				mode: 'time',
+				timezone: 'browser',
+				timeformat: '%m.%Y',
+				tickSize: [1, 'month']
+			},
+			yaxis: {
+				
+			},
+			series: {
+				lines: { show: true },
+				points: { show: false }
+			},
+
+			grid: {
+				borderWidth: 1,
+				borderColor: '#AAAAAA',
+				markings: []
+			}
+			};
+			\$j.plot(\$j('#costPlot'), [".json_encode($oData)."], options);");
 		
 		echo $html;
 	}
