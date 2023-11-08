@@ -30,7 +30,9 @@ class PhotovoltaikForecastGUI extends PhotovoltaikForecast implements iGUIHTML2 
 	
 	public function showData(){
 		echo "<pre>";
-		echo json_encode(json_decode($this->A("PhotovoltaikForecastData")), JSON_PRETTY_PRINT);
+		$data = json_decode($this->A("PhotovoltaikForecastData"));
+		print_r($data->data);
+		#echo json_encode(json_decode($this->A("PhotovoltaikForecastData")), JSON_PRETTY_PRINT);
 		echo "</pre>";
 	}
 }

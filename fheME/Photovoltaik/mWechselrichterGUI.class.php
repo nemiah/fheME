@@ -117,20 +117,28 @@ class mWechselrichterGUI extends anyC implements iGUIHTMLMP2 {
 			
 			$forecastToday = 0;
 			$forecastTomorrow = 0;
-			$restToday = 0;
+			#$restToday = 0;
 			$AC = anyC::get("PhotovoltaikForecast");
 			while($F = $AC->n()){
-				if($F->A("PhotovoltaikForecastName") == "Süden")
-					continue;
+				#if($F->A("PhotovoltaikForecastName") == "Süden")
+				#	continue;
 				
 				if(trim($F->A("PhotovoltaikForecastData")) == "")
 					continue;
 				
 				$jsonF = json_decode($F->A("PhotovoltaikForecastData"));
-				$forecastToday += $jsonF->result->watt_hours_day->{date("Y-m-d")};
-				$forecastTomorrow += $jsonF->result->watt_hours_day->{date("Y-m-d", time() + 3600 * 24)};
+				foreach($jsonF->data AS $time => $watts){
+					if(date("Ymd", $time) == date("Ymd"))
+						$forecastToday = $watts[1];
+					
+					if(date("Ymd", $time) == date("Ymd", time() + 3600 * 24))
+						$forecastTomorrow = $watts[1];
+					
+				}
+				#$forecastToday += $jsonF->result->watt_hours_day->{date("Y-m-d")};
+				#$forecastTomorrow += $jsonF->result->watt_hours_day->{date("Y-m-d", time() + 3600 * 24)};
 				
-				foreach($jsonF->result->watt_hours_period AS $period => $wh){
+				/*foreach($jsonF->result->watt_hours_period AS $period => $wh){
 					if(strpos($period, date("Y-m-d")) === false)
 						continue;
 					
@@ -142,7 +150,7 @@ class mWechselrichterGUI extends anyC implements iGUIHTMLMP2 {
 					#echo Util::CLDateTimeParser(strtotime($period))."<br>";
 				}
 				
-				$restToday += 0;
+				$restToday += 0;*/
 			}
 			
 			$width = "130px";
@@ -155,8 +163,8 @@ class mWechselrichterGUI extends anyC implements iGUIHTMLMP2 {
 					<span style=\"display:inline-block;width:$width;\">Netz:</span> $grid<br>
 					<!--<span style=\"display:inline-block;width:$width;\">Batterie:</span> ".$json->{"Battery SOC"}."%<br>-->
 					<span style=\"display:inline-block;width:$width;\">PV heute:</span> ".Util::CLNumberParserZ(round($json->{"Daily yield"}/1000, 2))."kWh<br>
-					<span style=\"display:inline-block;width:$width;\">PV heute Vorhers.:</span> ".Util::CLNumberParserZ(round($restToday/1000, 2))."/".Util::CLNumberParserZ(round($forecastToday/1000, 2))."kWh<br>
-					<span style=\"display:inline-block;width:$width;\">PV morgen:</span> ".Util::CLNumberParserZ(round($forecastTomorrow/1000, 2))."kWh<br>
+					<span style=\"display:inline-block;width:$width;\">PV heute Vorhers.:</span> ".Util::CLNumberParserZ(round($forecastToday, 2))."kWh<br>
+					<span style=\"display:inline-block;width:$width;\">PV morgen:</span> ".Util::CLNumberParserZ(round($forecastTomorrow, 2))."kWh<br>
 				</span>";
 					#".Util::CLNumberParser($json->{"Consumption power Home Battery"})."W
 				
