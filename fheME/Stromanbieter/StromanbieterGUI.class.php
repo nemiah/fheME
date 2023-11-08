@@ -34,6 +34,22 @@ class StromanbieterGUI extends Stromanbieter implements iGUIHTML2 {
 	public function pricesShow(){
 		$noDischarge = json_decode(mUserdata::getGlobalSettingValue("NoDischargeTimes", "{}"));
 		
+		$pvForecast = [];
+		#$restToday = 0;
+		$AC = anyC::get("PhotovoltaikForecast");
+		while($F = $AC->n()){
+			if(trim($F->A("PhotovoltaikForecastData")) == "")
+				continue;
+
+			$jsonF = json_decode($F->A("PhotovoltaikForecastData"));
+			foreach($jsonF->data AS $time => $watts){
+				if(date("Ymd", $time) > date("Ymd", time() + 3600 * 24))
+					break;
+				
+				$pvForecast[] = [$time * 1000, $watts[0]];
+			}
+		}
+		
 		$markings = "";
 		foreach($noDischarge AS $day => $times)
 			foreach($times AS $hour => $time)
@@ -57,6 +73,14 @@ class StromanbieterGUI extends Stromanbieter implements iGUIHTML2 {
 		$oData->threshold = new stdClass();
 		$oData->threshold->below = $this->A("StromanbieterBuyBelowCent");
 		$oData->threshold->color = "#457c00";
+		
+		$pvData = new stdClass();
+		$pvData->data = $pvForecast;
+		$pvData->label = "Vorhersage PV";
+		$pvData->yaxis = 2;
+		$pvData->lines = new stdClass();
+		$pvData->lines->steps = false;
+		$pvData->lines->fill = true;
 		#continue;
 		$html = "<div id=\"pricePlot\" style=\"width:790px;height:300px;\"></div>";
 
@@ -68,10 +92,15 @@ class StromanbieterGUI extends Stromanbieter implements iGUIHTML2 {
 				timeformat: '%H',
 				tickSize: [2, 'hour']
 			},
-			yaxis: {
-				min: 10,
-				max: 40
-			},
+			yaxes: [{
+					min: 10,
+					max: 40
+				}, {
+					min: 0,
+					max: 5,
+					position: 'right'
+				}
+			],
 			series: {
 				lines: { show: true, steps: true },
 				points: { show: false }
@@ -91,7 +120,7 @@ class StromanbieterGUI extends Stromanbieter implements iGUIHTML2 {
 				console.log(\$j('.touchHeader').width());
 				\$j('#pricePlot').css('width', \$j('.touchHeader').width()+'px');
 			}, 100);*/
-			\$j.plot(\$j('#pricePlot'), [".json_encode($oData)."], options);
+			\$j.plot(\$j('#pricePlot'), [".json_encode($oData).", ".json_encode($pvData)."], options);
 
 
 
