@@ -25,7 +25,7 @@ class NenaHome extends PersistentObject {
 			$N->data();
 			$N->charge();
 			$N->battery(2000);
-			$N->battery(800);
+			#$N->battery(800);
 		}
 	}
 	
@@ -72,7 +72,7 @@ class NenaHome extends PersistentObject {
 		
 		if(date("Hi") > $hour + 58)
 			return;
-		
+
 		$isSet = mUserdata::getGlobalSettingValue("NenaHomeNoDischargeSet", "0");
 		
 		$W = new Wechselrichter($this->A("NenaHomeWechselrichterID"));
@@ -97,11 +97,11 @@ class NenaHome extends PersistentObject {
 		
 		
 		$Strom = new Stromanbieter($this->A("NenaHomeStromanbieterID"));
-		$preise = $Strom->pricesGet();
+		$preise = $Strom->pricesGetProcessed();
 		
 		$minPrice = 9999999;
 		$minTime = 0;
-		
+
 		foreach($preise[0] AS $preis){
 			$preisSec = $preis[0] / 1000;
 			
@@ -125,7 +125,7 @@ class NenaHome extends PersistentObject {
 			AND $this->dataFhem["sHC1"]["seasonMode"] != "winter")#date("m") > 3 AND date("m") < 10)
 			return;
 		
-		echo $minTime.": $minPrice\n";
+		#echo $minTime.": $minPrice\n";
 		$noDischarge = [];
 		foreach($preise[0] AS $preis){
 			$preisSec = $preis[0] / 1000;
