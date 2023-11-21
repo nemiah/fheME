@@ -149,16 +149,23 @@ class StromanbieterGUI extends Stromanbieter implements iGUIHTML2 {
 		$data = [];
 		
 		$dataUsage = [];
-		
+		$costMonth = [];
 		$r = json_decode($this->A("StromanbieterUsage"));
 		foreach($r->data->viewer->homes[0]->consumption->nodes AS $consumption){
 			#print_r($consumption);
 			$day = strtotime($consumption->from);
 			$dataUsage[] = [$day * 1000, $consumption->consumption];
+			
+			if(!isset($costMonth[date("Ym", $day)]))
+				$costMonth[date("Ym", $day)] = 0;
+			
+			$costMonth[date("Ym", $day)] += $consumption->cost;
+			
+			$data[] = [$day * 1000, $costMonth[date("Ym", $day)]];
 		}
 		
-		foreach($this->usageProcess($this->A("StromanbieterUsage")) AS $month => $monthData)
-			$data[] = [mktime(0, 0, 0, substr($month, 4), 1, substr($month, 0, 4)) * 1000, $monthData[0]];
+		#foreach($this->usageProcess($this->A("StromanbieterUsage")) AS $month => $monthData)
+		#	$data[] = [mktime(0, 0, 0, substr($month, 4), 1, substr($month, 0, 4)) * 1000, $monthData[0]];
 		#print_r($data);
 		$oData = new stdClass();
 		$oData->data = $data;
