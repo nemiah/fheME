@@ -148,13 +148,28 @@ class StromanbieterGUI extends Stromanbieter implements iGUIHTML2 {
 		
 		$data = [];
 		
+		$dataUsage = [];
+		
+		$r = json_decode($this->A("StromanbieterUsage"));
+		foreach($r->data->viewer->homes[0]->consumption->nodes AS $consumption){
+			#print_r($consumption);
+			$day = strtotime($consumption->from);
+			$dataUsage[] = [$day * 1000, $consumption->consumption];
+		}
+		
 		foreach($this->usageProcess($this->A("StromanbieterUsage")) AS $month => $monthData)
 			$data[] = [mktime(0, 0, 0, substr($month, 4), 1, substr($month, 0, 4)) * 1000, $monthData[0]];
 		#print_r($data);
 		$oData = new stdClass();
 		$oData->data = $data;
-		$oData->label = "Kosten";
+		$oData->label = "Kosten in €";
 		$oData->color = "#df9900";
+		
+		$uData = new stdClass();
+		$uData->data = $dataUsage;
+		$uData->label = "Verbrauch in kWh";
+		$uData->color = "#0a36ae";
+		$uData->yaxis = 2;
 		
 		$html .= OnEvent::script("
 			var options = {
@@ -164,9 +179,12 @@ class StromanbieterGUI extends Stromanbieter implements iGUIHTML2 {
 				timeformat: '%m.%Y',
 				tickSize: [1, 'month']
 			},
-			yaxis: {
-				
-			},
+			yaxes: [{
+			
+				}, {
+					position: 'right'
+				}
+			],
 			series: {
 				lines: { show: true },
 				points: { show: false }
@@ -178,7 +196,7 @@ class StromanbieterGUI extends Stromanbieter implements iGUIHTML2 {
 				markings: []
 			}
 			};
-			\$j.plot(\$j('#costPlot'), [".json_encode($oData)."], options);");
+			\$j.plot(\$j('#costPlot'), [".json_encode($oData).", ".json_encode($uData)."], options);");
 		
 		echo $html;
 	}
