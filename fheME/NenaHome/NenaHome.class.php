@@ -25,7 +25,7 @@ class NenaHome extends PersistentObject {
 			$N->data();
 			$N->charge();
 			$N->battery(2000);
-			#$N->battery(800);
+			$N->battery(800);
 		}
 	}
 	
@@ -88,41 +88,41 @@ class NenaHome extends PersistentObject {
 			return;
 		
 		
-		$json = $this->dataWechselrichter;
-		$battSOC = 0;
-		if($json === null)
-			echo "NenaHome: Keine Daten vom Wechselrichter ".__LINE__."!\n";
-		else 
-			$battSOC = $json->{"Battery SOC"};
+		#$json = $this->dataWechselrichter;
+		#$battSOC = 0;
+		#if($json === null)
+		#	echo "NenaHome: Keine Daten vom Wechselrichter ".__LINE__."!\n";
+		#else 
+		#	$battSOC = $json->{"Battery SOC"};
 		
 		
 		$Strom = new Stromanbieter($this->A("NenaHomeStromanbieterID"));
 		$preise = $Strom->pricesGetProcessed();
 		
-		$minPrice = 9999999;
-		$minTime = 0;
+		#$minPrice = 9999999;
+		#$minTime = 0;
 
-		foreach($preise[0] AS $preis){
-			$preisSec = $preis[0] / 1000;
+		#foreach($preise[0] AS $preis){
+			#$preisSec = $preis[0] / 1000;
 			
-			if($preisSec < time())
-				continue;
+			#if($preisSec < time())
+			#	continue;
 			
-			if($preisSec > time() + 12 * 3600)
-				continue;
+			#if($preisSec > time() + 12 * 3600)
+			#	continue;
 			
-			if($preis[1] < $minPrice){
-				$minPrice = $preis[1];
-				$minTime = $preisSec;
-			}
+			#if($preis[1] < $minPrice){
+				#$minPrice = $preis[1];
+				#$minTime = $preisSec;
+			#}
 			
 			#echo date("d. H:i", $preisSec).": ".$preis[1]."\n";
-		}
+		#}
 		
 		if(
-			($battSOC > 50 OR $battSOC == 0) 
-			AND $minPrice >= $Strom->A("StromanbieterBuyBelowCent")
-			AND $this->dataFhem["sHC1"]["seasonMode"] != "winter")#date("m") > 3 AND date("m") < 10)
+			#($battSOC > 50 OR $battSOC == 0) 
+			#$minPrice >= $Strom->A("StromanbieterBuyBelowCent")
+			$this->dataFhem["sHC1"]["seasonMode"] != "winter")#date("m") > 3 AND date("m") < 10)
 			return;
 		
 		#echo $minTime.": $minPrice\n";
@@ -135,8 +135,8 @@ class NenaHome extends PersistentObject {
 			
 			if($preisSec > time() + 12 * 3600)
 				continue;
-			
-			if($preis[1] - $minPrice < $minPrice * 0.02 OR $preis[1] < $Strom->A("StromanbieterBuyBelowCent"))
+			#$preis[1] - $minPrice < $minPrice * 0.02 OR 
+			if($preis[1] < $Strom->A("StromanbieterBuyBelowCent"))
 				$noDischarge[] = [$preisSec, $preis[1]];
 		}
 		
