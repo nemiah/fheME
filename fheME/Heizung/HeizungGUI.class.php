@@ -32,6 +32,7 @@ class HeizungGUI extends Heizung implements iGUIHTML2 {
 		$gui->type("HeizungFhemServerID", "select", anyC::get("FhemServer"), "FhemServerName", "Bitte auswählen…");
 		$gui->type("HeizungWaterShutdownTimeStart", "time");
 		$gui->type("HeizungWaterShutdownTimeEnd", "time");
+		$gui->type("HeizungStromanbieterID", "select", anyC::get("Stromanbieter"), "StromanbieterName", "Bitte auswählen…");
 		
 		$gui->label("HeizungFhemServerID", "Fhem-Server");
 		$gui->label("HeizungWaterShutdownTemp", "Shutdown Temp");
