@@ -117,6 +117,8 @@ class Heizung extends PersistentObject {
 	public static $summerModeTempHeat = 20;
 	
 	function heat(){
+		#$Stromanbieter = new Stromanbieter($this->A("HEizungStromanbieterID"));
+		#var_dump($Stromanbieter->pricesGet());
 		#programHC1_Mo-So_0 06:00--21:30
 		#programHC1_Mo-So_1 n.a.--n.a.
 		#programHC1_Mo-So_2 n.a.--n.a.
@@ -168,17 +170,17 @@ class Heizung extends PersistentObject {
 			#echo $c."\n";
 		}
 			
-		$lastTimes = mUserdata::getGlobalSettingValue("HeizungHeatLastTimes", "");
-		if($lastTimes != date("Ymd")){
+		#$lastTimes = mUserdata::getGlobalSettingValue("HeizungHeatLastTimes", "");
+		/*if($lastTimes != date("Ymd")){
 			$data = date_sun_info(time(), (float) $this->A("HeizungLat"), (float) $this->A("HeizungLon"));
 
 			$c = "set ".$this->A("HeizungFhemName")." programHC1_Mo-So_0 ".date("H:i", $this->round($data["sunrise"] + 1800))."--".date("H:i", $this->round($data["sunset"] - 1800));
 			$this->connection->fireAndForget($c);
 			
 			#echo $c."\n";
-		}
+		}*/
 		
-		mUserdata::setUserdataS("HeizungHeatLastTimes", date("Ymd"), "", -1);
+		#mUserdata::setUserdataS("HeizungHeatLastTimes", date("Ymd"), "", -1);
 	}
 	
 	function log(){
