@@ -84,6 +84,8 @@ class NenaHome extends PersistentObject {
 			 mUserdata::setUserdataS("NenaHomeNoDischargeSet", "0", "", -1);
 		}
 		
+		shell_exec("python3 ".Util::getRootPath()."/fheME/Photovoltaik/kostal-RESTAPI.py -host \"".$W->A("WechselrichterIP")."\" -password \"".$W->A("WechselrichterPasswort")."\" -SetMinsoc 5");
+		
 		if(date("m") > 3 AND date("m") < 10)
 			return;
 		
@@ -154,12 +156,19 @@ class NenaHome extends PersistentObject {
 			
 		}
 		
-		mUserdata::setUserdataS("NoDischargeTimes", json_encode($days), "", -1);
 		
-		foreach($days AS $day => $value)
-			echo shell_exec("python3 ".Util::getRootPath()."/fheME/Photovoltaik/kostal-RESTAPI.py -host \"".$W->A("WechselrichterIP")."\" -password \"".$W->A("WechselrichterPasswort")."\" -SetTimeControl".date("D", $day)." \"".implode("", $value)."\"");
+		if($hour == 800)
+			echo shell_exec("python3 ".Util::getRootPath()."/fheME/Photovoltaik/kostal-RESTAPI.py -host \"".$W->A("WechselrichterIP")."\" -password \"".$W->A("WechselrichterPasswort")."\" -SetMinsoc 50");
+		else {
+			mUserdata::setUserdataS("NoDischargeTimes", json_encode($days), "", -1);
+			
+			foreach($days AS $day => $value)
+				echo shell_exec("python3 ".Util::getRootPath()."/fheME/Photovoltaik/kostal-RESTAPI.py -host \"".$W->A("WechselrichterIP")."\" -password \"".$W->A("WechselrichterPasswort")."\" -SetTimeControl".date("D", $day)." \"".implode("", $value)."\"");
+			
+			mUserdata::setUserdataS("NenaHomeNoDischargeSet", "1", "", -1);
+		}
 		
-		mUserdata::setUserdataS("NenaHomeNoDischargeSet", "1", "", -1);
+		
 	}
 	
 	private function emptyDay(){
