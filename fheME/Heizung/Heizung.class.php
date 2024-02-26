@@ -170,17 +170,39 @@ class Heizung extends PersistentObject {
 			#echo $c."\n";
 		}
 			
-		#$lastTimes = mUserdata::getGlobalSettingValue("HeizungHeatLastTimes", "");
-		/*if($lastTimes != date("Ymd")){
-			$data = date_sun_info(time(), (float) $this->A("HeizungLat"), (float) $this->A("HeizungLon"));
+		$lastTimes = mUserdata::getGlobalSettingValue("HeizungHeatLastTimes", "");
+		if($lastTimes != date("Ymd")){
+			if(date("md") > 215 AND date("md") < 1015){
+				$data = date_sun_info(time(), (float) $this->A("HeizungLat"), (float) $this->A("HeizungLon"));
 
-			$c = "set ".$this->A("HeizungFhemName")." programHC1_Mo-So_0 ".date("H:i", $this->round($data["sunrise"] + 1800))."--".date("H:i", $this->round($data["sunset"] - 1800));
-			$this->connection->fireAndForget($c);
+				$c = "set ".$this->A("HeizungFhemName")." programHC1_Mo-So_0 ".date("H:i", $this->round($data["sunrise"] + 1800))."--".date("H:i", $this->round($data["sunset"] - 1800));
+				$this->connection->fireAndForget($c);
+				echo $c."\n";
+				
+				$c = "set ".$this->A("HeizungFhemName")." programHC1_Mo-So_1 01:00--05:00";
+				$this->connection->fireAndForget($c);
+				echo $c."\n";
+				
+				$c = "set ".$this->A("HeizungFhemName")." programHC1_Mo-So_2 n.a.--n.a.";
+				$this->connection->fireAndForget($c);
+				echo $c."\n";
+			} else {
+				$c = "set ".$this->A("HeizungFhemName")." programHC1_Mo-So_0 23:00--24:00";
+				$this->connection->fireAndForget($c);
+				echo $c."\n";
+				
+				$c = "set ".$this->A("HeizungFhemName")." programHC1_Mo-So_1 00:00--07:00";
+				$this->connection->fireAndForget($c);
+				echo $c."\n";
+				
+				$c = "set ".$this->A("HeizungFhemName")." programHC1_Mo-So_2 11:00--17:00";
+				$this->connection->fireAndForget($c);
+				echo $c."\n";
+			}
 			
-			#echo $c."\n";
-		}*/
+		}
 		
-		#mUserdata::setUserdataS("HeizungHeatLastTimes", date("Ymd"), "", -1);
+		mUserdata::setUserdataS("HeizungHeatLastTimes", date("Ymd"), "", -1);
 	}
 	
 	function log(){
