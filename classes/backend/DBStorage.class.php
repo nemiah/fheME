@@ -15,8 +15,9 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- *  2007 - 2021, open3A GmbH - Support@open3A.de
+ *  2007 - 2024, open3A GmbH - Support@open3A.de
  */
+#namespace open3A;
 
 class DBStorage {
 	private $parsers;
@@ -79,6 +80,10 @@ class DBStorage {
 		return $this->cWrite;
 	}
 	
+	private function namespace(){
+		return (__NAMESPACE__ != "" ? __NAMESPACE__."\\" : "");
+	}
+	
 	public static function disconnect(){ //has to be static or new connection will be built in __construct()
 		$status = self::$globalConnection[__CLASS__]->close();
 		if(isset(self::$globalConnectionWrite[__CLASS__]) AND self::$globalConnectionWrite[__CLASS__] != null)
@@ -102,7 +107,12 @@ class DBStorage {
 	}*/
 	
 	public function renewConnection(){
-		$this->c = new mysqli($this->data["host"],$this->data["user"],$this->data["password"],$this->data["datab"]);
+		try {
+			$this->c = new \mysqli($this->data["host"],$this->data["user"],$this->data["password"],$this->data["datab"]);
+		} catch (mysqli_sql_exception $e){
+			
+		}
+		
 		if(
 			mysqli_connect_error() 
 			AND (
@@ -110,6 +120,7 @@ class DBStorage {
 				OR mysqli_connect_errno() == 2002 
 				OR mysqli_connect_errno() == 2003 
 				OR mysqli_connect_errno() == 2005
+				OR mysqli_connect_errno() == 2006
 				OR mysqli_connect_errno() == 1698
 				OR mysqli_connect_errno() == 1130)) 
 			throw new NoDBUserDataException(mysqli_connect_errno().":".mysqli_connect_error()."; ".$this->data["user"]."@".$this->data["host"]);
@@ -124,6 +135,10 @@ class DBStorage {
 		
 		$this->c->set_charset("utf8mb4");
 		$this->c->query("SET SESSION sql_mode='';");
+		#$this->c->query("SET MAX_JOIN_SIZE=18446744073709551615;");
+		#$this->c->query("SET SQL_BIG_SELECTS=1;");
+		
+		Aspect::joinPoint("add", $this, __METHOD__, [$this->c]);
 		
 		self::$globalConnection[get_class($this)] = $this->c;
 	}
@@ -492,6 +507,9 @@ class DBStorage {
 	}
 	
 	public function fixUtf8($value){
+		if($value === null)
+			return $value;
+		
 		$value = str_replace("Ã„", "Ä", $value);
 		$value = str_replace("Ã–", "Ö", $value);
 		$value = str_replace("Ãœ", "Ü", $value);
