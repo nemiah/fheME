@@ -15,8 +15,9 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  2007 - 2021, open3A GmbH - Support@open3A.de
+ *  2007 - 2024, open3A GmbH - Support@open3A.de
  */
+#namespace open3A;
 
 class T {
 	public static $generate = false;
@@ -34,6 +35,8 @@ class T {
 	}
 	
 	public static function _($text){
+		$text = Aspect::joinPoint("alter", __CLASS__, __METHOD__, [$text], $text);
+		
 		if(!function_exists("bindtextdomain") OR strpos($_SERVER["DOCUMENT_ROOT"], "/Applications/MAMP") !== false){
 			$args = func_get_args();
 			if(count($args) > 1){
@@ -48,7 +51,7 @@ class T {
 		if(!function_exists("bind_textdomain_codeset"))
 			return $text;
 		
-		if(trim($text) == "" OR trim($text) == "&nbsp;")
+		if($text === null OR trim($text) == "" OR trim($text) == "&nbsp;")
 			return $text;
 		
 		if(self::$currentDomain != "" AND self::$generate AND self::$domainPaths[self::$currentDomain] != null AND Session::getLanguage() != "de_DE"){
@@ -120,8 +123,12 @@ class T {
 		
 		$args = func_get_args();
 		if(count($args) > 1){
-			for($i = count($args); $i > 1; $i--)
+			for($i = count($args); $i > 1; $i--){
+				if(!isset($args[$i - 1]))
+					continue;
+				
 				$text = str_replace("%".($i - 1), $args[$i - 1], $text);
+			}
 			
 		}
 		
@@ -131,7 +138,7 @@ class T {
 	}
 	
 	public static function load($pluginPath, $domain = ""){
-		if(!function_exists("bindtextdomain") OR strpos($_SERVER["SERVER_SOFTWARE"], "BitWebServer") !== false)
+		if(!function_exists("bindtextdomain") OR (isset($_SERVER["SERVER_SOFTWARE"]) AND strpos($_SERVER["SERVER_SOFTWARE"], "BitWebServer") !== false))
 			return;
 		
 		if(!function_exists("bind_textdomain_codeset"))
@@ -142,7 +149,7 @@ class T {
 		
 		self::$domainPaths[$domain] = $pluginPath."/locale";
 		
-		if(!self::$localeSet){
+		if(!self::$localeSet AND defined("LC_MESSAGES")){
 			setlocale(LC_MESSAGES, Session::getLanguage().".UTF-8");
 			self::$localeSet = true;
 			T::load(Util::getRootPath()."libraries");
