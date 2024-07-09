@@ -147,9 +147,10 @@ class Heizung extends PersistentObject {
 		} else 
 			if($json->{"Battery SOC"} >= 95)
 				$hasBatt = true;
-		
+			
+		$isSummer = (date("md") > 215 AND date("md") < 1015);
 		$last = mUserdata::getGlobalSettingValue("p01RoomTempDayHC1", "0");
-		if($json->{"Total DC power Panels"} > 1500 AND $hasBatt){
+		if($json->{"Total DC power Panels"} > 1500 AND $hasBatt AND !$isSummer){
 			#print_r($this->dataWechselrichter);
 			$c = "set ".$this->A("HeizungFhemName")." p01RoomTempDayHC1 ".self::$raumtempHeat;
 			$this->connection->fireAndForget($c);
@@ -172,7 +173,7 @@ class Heizung extends PersistentObject {
 			
 		$lastTimes = mUserdata::getGlobalSettingValue("HeizungHeatLastTimes", "");
 		if($lastTimes != date("Ymd")){
-			if(date("md") > 215 AND date("md") < 1015){
+			if($isSummer){
 				$data = date_sun_info(time(), (float) $this->A("HeizungLat"), (float) $this->A("HeizungLon"));
 
 				$c = "set ".$this->A("HeizungFhemName")." programHC1_Mo-So_0 ".date("H:i", $this->round($data["sunrise"] + 1800))."--".date("H:i", $this->round($data["sunset"] - 1800));
