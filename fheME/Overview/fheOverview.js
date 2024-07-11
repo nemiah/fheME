@@ -134,3 +134,22 @@ contentManager.rmePCR("mfheOverview", "-1", "checkAdmin", "", function(transport
 $j(window).ready(function(){
 	fheOverview.init();
 });
+
+const requestWakeLock = async () => {
+	if(typeof navigator.wakeLock == "undefined"){
+		$j('#imAwake').get(0).play();
+		return;
+	}
+	
+	try {
+		fheOverview.wakeLock = await navigator.wakeLock.request();
+		fheOverview.wakeLock.addEventListener('release', () => {
+			console.log('Screen Wake Lock released:', fheOverview.wakeLock.released);
+		});
+		console.log('Screen Wake Lock released:', fheOverview.wakeLock.released);
+	} catch (err) {
+		console.error(`${err.name}, ${err.message}`);
+	}
+};
+
+requestWakeLock();
