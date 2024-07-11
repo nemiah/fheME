@@ -1,0 +1,305 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: open3A Berichte\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: Nena Furtmeier <Support@Furtmeier.IT>\n"
+"Language-Team: ENGLISH <Support@Furtmeier.IT>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"Language: en_GB\n"
+"X-Generator: Poedit 1.8.7.1\n"
+
+msgid "Berichte"
+msgstr "Reports"
+
+msgid "Bericht anzeigen"
+msgstr "Display Report"
+
+msgid "PDF anzeigen"
+msgstr "Show PDF"
+
+msgid "Abfallregister"
+msgstr ""
+
+msgid "Abgelehnte Angebote nach Kunde"
+msgstr "Denied Offers by Customer"
+
+msgid "Artikelliste"
+msgstr "Item list"
+
+msgid "Belege von Kunde"
+msgstr "Documents of Customer"
+
+msgid "Container Prüfdatum"
+msgstr ""
+
+msgid "Differenzbesteuerung"
+msgstr ""
+
+msgid "Inventurliste"
+msgstr "Inventory list"
+
+msgid "Kassenbuch"
+msgstr "Cash book"
+
+msgid "Kundenpreisliste"
+msgstr "Customer price list"
+
+msgid "Lagerliste mit Barcodes"
+msgstr "Warehouse list with barcodes"
+
+msgid "Mengenbericht"
+msgstr "Amount report"
+
+msgid "Objekte Barcodes"
+msgstr ""
+
+msgid "Objekte Übersicht"
+msgstr ""
+
+msgid "Offene Angebote nach Artikel"
+msgstr "Open Offers by Item"
+
+msgid "Offene Angebote nach Kunde"
+msgstr "Open Offers by Customer"
+
+msgid "Offene Aufträge"
+msgstr "Open Offers"
+
+msgid "Offene Aufträge ohne Preise"
+msgstr "Open Offers without prices"
+
+msgid "Offene Lieferscheine nach Kunde"
+msgstr "Open Delivery Notes by Customer"
+
+msgid "Offene Posten Kunden"
+msgstr "Open Invoices Customers"
+
+msgid "Offene Posten Kunden/Lieferanten"
+msgstr "Open Invoices Customers/Suppliers"
+
+msgid "Offene Posten Lieferanten"
+msgstr "Open Invoices Suppliers"
+
+msgid "Provisionen"
+msgstr "Commissions"
+
+msgid "Rechnungsausgangsbuch"
+msgstr "Accounting ledger"
+
+msgid "Rechnungseingangsbuch"
+msgstr "Invoice ledger"
+
+msgid "Tagesbericht"
+msgstr "Daily report"
+
+msgid "Tagesbericht Barrechnungen"
+msgstr ""
+
+msgid "Per E-Mail verschicken"
+msgstr "Send via E-mail"
+
+msgid ""
+"Bericht\n"
+"anzeigen"
+msgstr ""
+"Show\n"
+"Report"
+
+msgid "Eintrag verschieben"
+msgstr "Move entry"
+
+msgid "UseBAOrder"
+msgstr ""
+
+msgid "UseBAShown"
+msgstr ""
+
+msgid "Bilder anzeigen?"
+msgstr "Show images?"
+
+msgid "Sortierung"
+msgstr "Order"
+
+msgid "Artikel-Kategorien"
+msgstr "Item Categories"
+
+msgid "Einstellungen speichern"
+msgstr "Save settings"
+
+msgid "Artikelname"
+msgstr "Item name"
+
+msgid "Kalender anzeigen"
+msgstr "Show Calendar"
+
+msgid "Start"
+msgstr "Start"
+
+msgid "Ende"
+msgstr "End"
+
+msgid "UseBKuAdresseID"
+msgstr ""
+
+msgid "Die Buchungen an diesem Tag werden noch berücksichtigt"
+msgstr "The bookings on this day will be included"
+
+msgid "Lager"
+msgstr "Warehouse"
+
+msgid "Ungleich Null"
+msgstr "Not zero"
+
+msgid "Zeige Nur Artikel/Varianten mit Lagerbestand ungleich Null"
+msgstr "Show only Items/Variants with Stock more than zero"
+
+msgid "EK"
+msgstr "PP"
+
+msgid "Preise"
+msgstr "Prices"
+
+msgid "Ohne Kategorie"
+msgstr "No Category"
+
+msgid "Brutto"
+msgstr "Gross"
+
+msgid "UseKPOrder"
+msgstr ""
+
+msgid "UseKPShown"
+msgstr ""
+
+msgid "Bitte auswählen..."
+msgstr "Please select..."
+
+msgid "Kalenderwoche"
+msgstr "Calendar week"
+
+msgid "Monat"
+msgstr "Month"
+
+msgid "Auswahl"
+msgstr "Selection"
+
+msgid "Modus"
+msgstr "Mode"
+
+msgid "Vorhersage"
+msgstr "Forecast"
+
+msgid "Benutzer"
+msgstr "User"
+
+msgid "Jahr"
+msgstr "Year"
+
+msgid "Tag"
+msgstr "Day"
+
+msgid "Zeitraum"
+msgstr "Period"
+
+msgid "Lassen Sie das Feld leer für den aktuellen Tag"
+msgstr "Leave field empty for current day"
+
+msgid "Artikel EK1"
+msgstr "Item PP1"
+
+msgid "Artikel EK1 + Stückliste"
+msgstr "Item PP1 + Parts list"
+
+msgid "Quartal"
+msgstr "Quarter"
+
+msgid "Hier klicken für Optionen"
+msgstr "Click here for options"
+
+msgid "Positionen"
+msgstr "Positions"
+
+msgid "anzeigen"
+msgstr "show"
+
+msgid "nicht anzeigen"
+msgstr "hide"
+
+msgid "Artikelliste mit Artikelnummer-Barcodes"
+msgstr "Item list with Item number barcodes"
+
+msgid "Artikelliste mit Barcodes"
+msgstr "Item list with barcodes"
+
+msgid "Artikelliste mit EAN-Barcodes"
+msgstr "Item list with EAN barcodes"
+
+msgid "Lagerbewegungen"
+msgstr "Warehouse movements"
+
+msgid "Verfallsdatum"
+msgstr ""
+
+msgid "Artikel-Nr"
+msgstr "Item No"
+
+msgid "Gebinde"
+msgstr "Unit"
+
+msgid "Gesamtpreis"
+msgstr "Total"
+
+msgid "Zwischensumme"
+msgstr "Subtotal"
+
+msgid "Gesamtsumme"
+msgstr "Grand total"
+
+msgid "Varianten von Artikel"
+msgstr "Variants of Item"
+
+msgid "Inventurliste alle Lager vom"
+msgstr "Inventory list all Warehouses from"
+
+msgid "Inventurliste Lager"
+msgstr "Inventory list Warehouse"
+
+msgid "vom"
+msgstr "from"
+
+msgid "Dieser Bericht wurde erstellt mit"
+msgstr "This Report was created with"
+
+msgid "Bitte wählen Sie ein Start- und ein Enddatum aus."
+msgstr "Please select a start and an end date."
+
+msgid "Richtung"
+msgstr "Direction"
+
+msgid "Zugänge zu"
+msgstr "Incoming to"
+
+msgid "Kommentar"
+msgstr "Comment"
+
+msgid "Wert"
+msgstr "Value"
+
+msgid "Zugang"
+msgstr "Incoming"
+
+msgid "Abgang"
+msgstr "Outgoing"
+
+msgid "Abgänge aus"
+msgstr "Outgoing from"
+
+msgid "Röth"
+msgstr ""
+
+msgid "Einstellungen:"
+msgstr "Settings:"

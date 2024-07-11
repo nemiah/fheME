@@ -1,0 +1,43 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: open3A Kategorien\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: Nena Furtmeier <Support@Furtmeier.IT>\n"
+"Language-Team: ENGLISH <Support@Furtmeier.IT>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"Language: en_GB\n"
+"X-Generator: Poedit 1.8.7.1\n"
+
+msgid "Elter"
+msgstr "Parent"
+
+msgid "Typ"
+msgstr "Type"
+
+msgid "Standard?"
+msgstr "Default?"
+
+msgid "Diesen Eintrag als Standard für diesen Kategorietyp verwenden?"
+msgstr "Use this entry as default for this Category type?"
+
+msgid "Kategorien"
+msgstr "Categories"
+
+msgid "Mehrwertsteuer"
+msgstr "VAT"
+
+msgid "Variante"
+msgstr "Variant"
+
+msgid "Verpackung"
+msgstr "Packaging"
+
+msgid "Objekttyp"
+msgstr "Object type"
+
+msgid "Kein Elternelement"
+msgstr "No parent element"

@@ -1,0 +1,305 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: open3A Berichte\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: Nena Furtmeier <Support@Furtmeier.IT>\n"
+"Language-Team: ENGLISH <Support@Furtmeier.IT>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"Language: en_GB\n"
+"X-Generator: Poedit 2.3\n"
+
+msgid "Berichte"
+msgstr "Informes"
+
+msgid "Bericht anzeigen"
+msgstr "Mostrar informe"
+
+msgid "PDF anzeigen"
+msgstr "Mostrar PDF"
+
+msgid "Abfallregister"
+msgstr "Registro de residuos"
+
+msgid "Abgelehnte Angebote nach Kunde"
+msgstr "Ofertas rechazadas por cliente"
+
+msgid "Artikelliste"
+msgstr "Lista de artículos"
+
+msgid "Belege von Kunde"
+msgstr "Documentos del cliente"
+
+msgid "Container Prüfdatum"
+msgstr "Fecha de verificación del contenedor"
+
+msgid "Differenzbesteuerung"
+msgstr "Régimen del margen de beneficio"
+
+msgid "Inventurliste"
+msgstr "Inventario"
+
+msgid "Kassenbuch"
+msgstr "Libro de caja"
+
+msgid "Kundenpreisliste"
+msgstr "Lista de precios de clientes"
+
+msgid "Lagerliste mit Barcodes"
+msgstr "Lista de existencias con códigos de barras"
+
+msgid "Mengenbericht"
+msgstr "Informe de cantidades"
+
+msgid "Objekte Barcodes"
+msgstr "Códigos de barras de los elementos"
+
+msgid "Objekte Übersicht"
+msgstr "Resumen de elementos"
+
+msgid "Offene Angebote nach Artikel"
+msgstr "Ofertas pendientes por artículo"
+
+msgid "Offene Angebote nach Kunde"
+msgstr "Ofertas pendientes por cliente"
+
+msgid "Offene Aufträge"
+msgstr "Ofertas pendientes"
+
+msgid "Offene Aufträge ohne Preise"
+msgstr "Ofertas pendientes sin precios"
+
+msgid "Offene Lieferscheine nach Kunde"
+msgstr "Albaranes pendientes por cliente"
+
+msgid "Offene Posten Kunden"
+msgstr "Partidas pendientes clientes"
+
+msgid "Offene Posten Kunden/Lieferanten"
+msgstr "Partidas pendientes clientes/proveedores"
+
+msgid "Offene Posten Lieferanten"
+msgstr "Partidas pendientes proveedores"
+
+msgid "Provisionen"
+msgstr "Comisiones"
+
+msgid "Rechnungsausgangsbuch"
+msgstr "Registro de facturas emitidas"
+
+msgid "Rechnungseingangsbuch"
+msgstr "Registro de facturas recibidas"
+
+msgid "Tagesbericht"
+msgstr "Informe diario"
+
+msgid "Tagesbericht Barrechnungen"
+msgstr "Informe diario de facturas de efectivo"
+
+msgid "Per E-Mail verschicken"
+msgstr "Enviar por correo electrónico"
+
+msgid ""
+"Bericht\n"
+"anzeigen"
+msgstr ""
+"Mostrar\n"
+"informe"
+
+msgid "Eintrag verschieben"
+msgstr "Mover entrada"
+
+msgid "UseBAOrder"
+msgstr "UseBAOrder"
+
+msgid "UseBAShown"
+msgstr "UseBAShown"
+
+msgid "Bilder anzeigen?"
+msgstr "¿Mostrar imágenes?"
+
+msgid "Sortierung"
+msgstr "Clasificación"
+
+msgid "Artikel-Kategorien"
+msgstr "Categorías de artículos"
+
+msgid "Einstellungen speichern"
+msgstr "Guardar ajustes"
+
+msgid "Artikelname"
+msgstr "Nombre de artículo"
+
+msgid "Kalender anzeigen"
+msgstr "Mostrar calendario"
+
+msgid "Start"
+msgstr "Inicio"
+
+msgid "Ende"
+msgstr "Final"
+
+msgid "UseBKuAdresseID"
+msgstr "UseBKuAdresseID"
+
+msgid "Die Buchungen an diesem Tag werden noch berücksichtigt"
+msgstr "Los asientos de este día se siguen teniendo en cuenta"
+
+msgid "Lager"
+msgstr "Almacén"
+
+msgid "Ungleich Null"
+msgstr "Distinto a cero"
+
+msgid "Zeige Nur Artikel/Varianten mit Lagerbestand ungleich Null"
+msgstr "Mostrar solo artículos/variantes con existencias distintas a cero"
+
+msgid "EK"
+msgstr "PC"
+
+msgid "Preise"
+msgstr "Precios"
+
+msgid "Ohne Kategorie"
+msgstr "Sin categoría"
+
+msgid "Brutto"
+msgstr "Bruto"
+
+msgid "UseKPOrder"
+msgstr "UseKPOrder"
+
+msgid "UseKPShown"
+msgstr "UseKPShown"
+
+msgid "Bitte auswählen..."
+msgstr "Seleccione, por favor,..."
+
+msgid "Kalenderwoche"
+msgstr "Semana natural"
+
+msgid "Monat"
+msgstr "Mes"
+
+msgid "Auswahl"
+msgstr "Selección"
+
+msgid "Modus"
+msgstr "Modo"
+
+msgid "Vorhersage"
+msgstr "Previsión"
+
+msgid "Benutzer"
+msgstr "Usuario"
+
+msgid "Jahr"
+msgstr "Año"
+
+msgid "Tag"
+msgstr "Día"
+
+msgid "Zeitraum"
+msgstr "Periodo"
+
+msgid "Lassen Sie das Feld leer für den aktuellen Tag"
+msgstr "Deje el campo vacío para el día actual"
+
+msgid "Artikel EK1"
+msgstr "Artículo PC1"
+
+msgid "Artikel EK1 + Stückliste"
+msgstr "Artículo PC1 + lista de piezas"
+
+msgid "Quartal"
+msgstr "Trimestre"
+
+msgid "Hier klicken für Optionen"
+msgstr "Haga clic aquí para ver opciones"
+
+msgid "Positionen"
+msgstr "Posiciones"
+
+msgid "anzeigen"
+msgstr "mostrar"
+
+msgid "nicht anzeigen"
+msgstr "ocultar"
+
+msgid "Artikelliste mit Artikelnummer-Barcodes"
+msgstr "Lista de artículos con códigos de barras de número de artículo"
+
+msgid "Artikelliste mit Barcodes"
+msgstr "Lista de artículos con códigos de barras"
+
+msgid "Artikelliste mit EAN-Barcodes"
+msgstr "Lista de artículos con códigos de barras EAN"
+
+msgid "Lagerbewegungen"
+msgstr "Movimientos de existencias"
+
+msgid "Verfallsdatum"
+msgstr "Fecha de vencimiento"
+
+msgid "Artikel-Nr"
+msgstr "Núm. de artículo"
+
+msgid "Gebinde"
+msgstr "Unidad"
+
+msgid "Gesamtpreis"
+msgstr "Precio total"
+
+msgid "Zwischensumme"
+msgstr "Subtotal"
+
+msgid "Gesamtsumme"
+msgstr "Total"
+
+msgid "Varianten von Artikel"
+msgstr "Variantes de artículo"
+
+msgid "Inventurliste alle Lager vom"
+msgstr "Inventario de todos los almacenes de"
+
+msgid "Inventurliste Lager"
+msgstr "Inventario de almacén"
+
+msgid "vom"
+msgstr "de"
+
+msgid "Dieser Bericht wurde erstellt mit"
+msgstr "Este informe se ha creado con"
+
+msgid "Bitte wählen Sie ein Start- und ein Enddatum aus."
+msgstr "Seleccione una fecha de inicio y de final, por favor."
+
+msgid "Richtung"
+msgstr "Sentido"
+
+msgid "Zugänge zu"
+msgstr "Entradas a"
+
+msgid "Kommentar"
+msgstr "Comentario"
+
+msgid "Wert"
+msgstr "Valor"
+
+msgid "Zugang"
+msgstr "Entrada"
+
+msgid "Abgang"
+msgstr "Salida"
+
+msgid "Abgänge aus"
+msgstr "Salidas de"
+
+msgid "Röth"
+msgstr "Röth"
+
+msgid "Einstellungen:"
+msgstr "Ajustes:"
