@@ -136,11 +136,6 @@ $j(window).ready(function(){
 });
 
 const requestWakeLock = async () => {
-	if(typeof navigator.wakeLock == "undefined"){
-		$j('#imAwake').get(0).play();
-		return;
-	}
-	
 	try {
 		fheOverview.wakeLock = await navigator.wakeLock.request();
 		fheOverview.wakeLock.addEventListener('release', () => {
@@ -153,3 +148,8 @@ const requestWakeLock = async () => {
 };
 
 requestWakeLock();
+document.addEventListener("visibilitychange", async () => {
+  if (fheOverview.wakeLock !== null && document.visibilityState === "visible") 
+    fheOverview.wakeLock = await navigator.wakeLock.request();
+  
+});
