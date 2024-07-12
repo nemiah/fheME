@@ -1,0 +1,11 @@
+{
+	"name": "fheME",
+	"short_name": "fheME",
+	"description": "fheME",
+	"display": "fullscreen",
+	"icons": [{
+			"src": "launcher.png",
+			"sizes": "192x192",
+			"type": "image/png"
+		}]
+}
