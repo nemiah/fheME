@@ -308,6 +308,10 @@ foreach($mandanten AS $ID => $host)
 		$selected = $ID;
 
 
+$manifest = "libraries/manifest.json";
+if(file_exists(Util::getRootPath()."fheME/Overview/manifest.json"))
+	$manifest = "fheME/Overview/manifest.json";
+	
 ?><!DOCTYPE html>
 <html>
 	<head>
@@ -317,7 +321,7 @@ foreach($mandanten AS $ID => $host)
 		<title><?php echo $title ?></title>
 
 		<link rel="shortcut icon" href="<?php echo $favico ?>" /> 
-		
+		<link rel="manifest" href='<?php echo $manifest; ?>' />
 		<script type="text/javascript">
 			window.paceOptions = {
 				ajax: {
