@@ -566,11 +566,13 @@ abstract class Bericht_default extends PersistentObject implements iGUIHTML2, ic
 
 		self::$pdf->SetFont($this->defaultFont,$this->defaultFontStyle,$this->defaultFontSize);
 		self::$pdf->Ln();
-		$this->append();
+		$output = $this->append();
 		
-		$tmpfname = $this->filename();
-		self::$pdf->Output($tmpfname, ($save ? "F" : "I"));
-		if($save) return $tmpfname;
+		if($output === null OR $output === true){
+			$tmpfname = $this->filename();
+			self::$pdf->Output($tmpfname, ($save ? "F" : "I"));
+			if($save) return $tmpfname;
+		}
 	}
 	
 	public function filename($overwriteName = null){
