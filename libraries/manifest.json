@@ -1,0 +1,11 @@
+{
+	"name": "open3A",
+	"short_name": "open3A",
+	"description": "open3A",
+	"display": "fullscreen",
+	"icons": [{
+			"src": "/images/open3APwa.png",
+			"sizes": "192x192",
+			"type": "image/png"
+		}]
+}
