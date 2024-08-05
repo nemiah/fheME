@@ -178,27 +178,27 @@ class Heizung extends PersistentObject {
 
 				$c = "set ".$this->A("HeizungFhemName")." programHC1_Mo-So_0 ".date("H:i", $this->round($data["sunrise"] + 1800))."--".date("H:i", $this->round($data["sunset"] - 1800));
 				$this->connection->fireAndForget($c);
-				echo $c."\n";
+				#echo $c."\n";
 				
 				$c = "set ".$this->A("HeizungFhemName")." programHC1_Mo-So_1 01:00--05:00";
 				$this->connection->fireAndForget($c);
-				echo $c."\n";
+				#echo $c."\n";
 				
 				$c = "set ".$this->A("HeizungFhemName")." programHC1_Mo-So_2 n.a.--n.a.";
 				$this->connection->fireAndForget($c);
-				echo $c."\n";
+				#echo $c."\n";
 			} else {
 				$c = "set ".$this->A("HeizungFhemName")." programHC1_Mo-So_0 23:00--24:00";
 				$this->connection->fireAndForget($c);
-				echo $c."\n";
+				#echo $c."\n";
 				
 				$c = "set ".$this->A("HeizungFhemName")." programHC1_Mo-So_1 00:00--07:00";
 				$this->connection->fireAndForget($c);
-				echo $c."\n";
+				#echo $c."\n";
 				
 				$c = "set ".$this->A("HeizungFhemName")." programHC1_Mo-So_2 11:00--17:00";
 				$this->connection->fireAndForget($c);
-				echo $c."\n";
+				#echo $c."\n";
 			}
 			
 		}
