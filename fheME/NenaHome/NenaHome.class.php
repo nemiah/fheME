@@ -85,7 +85,7 @@ class NenaHome extends PersistentObject {
 		}
 		
 		shell_exec("python3 ".Util::getRootPath()."/fheME/Photovoltaik/kostal-RESTAPI.py -host \"".$W->A("WechselrichterIP")."\" -password \"".$W->A("WechselrichterPasswort")."\" -SetMinsoc 5");
-		
+
 		if(date("m") > 3 AND date("m") < 10)
 			return;
 		
@@ -220,6 +220,7 @@ class NenaHome extends PersistentObject {
 		#echo $pvCurrentUsage;
 		
 		$AC = anyC::get("Zweirad");
+		$AC->addAssocV3("ZweiradFhemID", "!=", "0");
 		while($Z = $AC->n()){
 			$currentState = "unknown";
 			
