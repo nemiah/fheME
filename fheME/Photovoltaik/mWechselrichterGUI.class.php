@@ -46,10 +46,25 @@ class mWechselrichterGUI extends anyC implements iGUIHTMLMP2 {
 		
 		$AC = anyC::get("Wechselrichter");
 		
+		$KSMEID = null;
+		$totalSolar = 0;
+		$totalHouse = 0;
+		$totalBattery = 0;
+		$totalDaily = 0;
 		while($W = $AC->n()){
 			$data = shell_exec("python3 ".__DIR__."/kostal_modbusquery.py ".$W->A("WechselrichterIP")." ".$W->A("WechselrichterPort")." 2>&1");
 			$json = json_decode($data);
 			
+			$solar = $json->{$W->A("WechselrichterUsePVValue")};
+			if($solar < 0)
+				$solar = 0;
+			
+			$totalSolar += $solar;
+			$totalHouse += $json->{$W->A("WechselrichterUseHomeValue")};
+			$totalBattery += $json->{"Battery SOC"};
+			$totalDaily += $json->{"Daily yield"};
+			
+			#print_r($json);
 			#$x = $json->{"Battery SOC"} / 100;
 			#$myColor = array((2.0 * $x > 1 ? 1 : 1), 2.0 * (1 - $x) > 1 ? 1 : 2.0 * (1 - $x), 0);
 			
@@ -89,90 +104,96 @@ class mWechselrichterGUI extends anyC implements iGUIHTMLMP2 {
 			);
 		</script>";*/
 				
-			$grid = "";
-			if($W->A("WechselrichterSmartMeterID")){
-				$M = new SmartMeter($W->A("WechselrichterSmartMeterID"));
 				
-				$dataMeter = shell_exec("python3 ".__DIR__."/kostal_em_query_v02.py ".$M->A("SmartMeterIP")." ".$M->A("SmartMeterPort")." 2>&1");
-				$jsonMeter = json_decode($dataMeter);
-				#print_r($jsonMeter);
-				
-				$B = new Button("", "arrow_left", "iconicG");
-				$B->style("font-size:16px;margin-left:-5px;");
-				
-				$BR = new Button("", "arrow_right", "iconicG");
-				$BR->style("font-size:16px;margin-left:-5px;");
-				
-				$BH = new Button("", "home", "iconicG");
-				$BH->style("font-size:16px;");
-				
-				$grid = Util::CLNumberParser($jsonMeter->{"Active power-"})."W $BH$BR";
-				if($jsonMeter->{"Active power+"})
-					$grid = Util::CLNumberParser($jsonMeter->{"Active power+"})."W $BH$B";
-			}
-				
-			$solar = $json->{"Total DC power Panels"};
-			if($solar < 0)
-				$solar = 0;
 			
-			$forecastToday = 0;
-			$forecastTomorrow = 0;
-			#$restToday = 0;
-			$AC = anyC::get("PhotovoltaikForecast");
-			while($F = $AC->n()){
-				#if($F->A("PhotovoltaikForecastName") == "Süden")
-				#	continue;
+			
+			
+					#".Util::CLNumberParser($json->{"Consumption power Home Battery"})."W
 				
-				if(trim($F->A("PhotovoltaikForecastData")) == "")
+			if($W->A("WechselrichterSmartMeterID"))
+				$KSMEID = $W->A("WechselrichterSmartMeterID");
+		}
+		
+		$grid = "";
+		if($KSMEID){
+			$M = new SmartMeter($KSMEID);
+
+			$dataMeter = shell_exec("python3 ".__DIR__."/kostal_em_query_v02.py ".$M->A("SmartMeterIP")." ".$M->A("SmartMeterPort")." 2>&1");
+			$jsonMeter = json_decode($dataMeter);
+			#print_r($jsonMeter);
+
+			$B = new Button("", "arrow_left", "iconicG");
+			$B->style("font-size:16px;margin-left:-5px;");
+
+			$BR = new Button("", "arrow_right", "iconicG");
+			$BR->style("font-size:16px;margin-left:-5px;");
+
+			$BH = new Button("", "home", "iconicG");
+			$BH->style("font-size:16px;");
+
+			$grid = Util::CLNumberParser($jsonMeter->{"Active power-"})."W $BH$BR";
+			if($jsonMeter->{"Active power+"})
+				$grid = Util::CLNumberParser($jsonMeter->{"Active power+"})."W $BH$B";
+		}
+		
+		$width = "130px";
+
+		$html .= "
+			<span style=\"font-size:14px;\">
+				<span style=\"display:inline-block;width:$width;\">Photovoltaik:</span> ".Util::CLNumberParser($totalSolar)."W<br>
+				<!--<span style=\"display:inline-block;width:$width;\">Inverter:</span> ".Util::CLNumberParser($json->{"Inverter power generated"})."W<br>-->
+				<span style=\"display:inline-block;width:$width;\">Haus:</span> ".Util::CLNumberParser($totalHouse)."W<br>
+				<span style=\"display:inline-block;width:$width;\">Netz:</span> $grid<br>
+				<!--<span style=\"display:inline-block;width:$width;\">Batterie:</span> ".$totalBattery."%<br>-->
+				<span style=\"display:inline-block;width:$width;\">PV heute:</span> ".Util::CLNumberParserZ(round($totalDaily/1000, 2))."kWh<br>
+			</span>";
+					
+		$forecastToday = 0;
+		$forecastTomorrow = 0;
+		#$restToday = 0;
+		$ACF = anyC::get("PhotovoltaikForecast");
+		while($F = $ACF->n()){
+			#if($F->A("PhotovoltaikForecastName") == "Süden")
+			#	continue;
+
+			if(trim($F->A("PhotovoltaikForecastData")) == "")
+				continue;
+
+			$jsonF = json_decode($F->A("PhotovoltaikForecastData"));
+			foreach($jsonF->data AS $time => $watts){
+				if(date("Ymd", $time) == date("Ymd"))
+					$forecastToday = $watts[1];
+
+				if(date("Ymd", $time) == date("Ymd", time() + 3600 * 24))
+					$forecastTomorrow = $watts[1];
+
+			}
+			#$forecastToday += $jsonF->result->watt_hours_day->{date("Y-m-d")};
+			#$forecastTomorrow += $jsonF->result->watt_hours_day->{date("Y-m-d", time() + 3600 * 24)};
+
+			/*foreach($jsonF->result->watt_hours_period AS $period => $wh){
+				if(strpos($period, date("Y-m-d")) === false)
 					continue;
-				
-				$jsonF = json_decode($F->A("PhotovoltaikForecastData"));
-				foreach($jsonF->data AS $time => $watts){
-					if(date("Ymd", $time) == date("Ymd"))
-						$forecastToday = $watts[1];
-					
-					if(date("Ymd", $time) == date("Ymd", time() + 3600 * 24))
-						$forecastTomorrow = $watts[1];
-					
-				}
-				#$forecastToday += $jsonF->result->watt_hours_day->{date("Y-m-d")};
-				#$forecastTomorrow += $jsonF->result->watt_hours_day->{date("Y-m-d", time() + 3600 * 24)};
-				
-				/*foreach($jsonF->result->watt_hours_period AS $period => $wh){
-					if(strpos($period, date("Y-m-d")) === false)
-						continue;
-					
-					if(strtotime($period) < time() - 60 * 30)
-						continue;
-					
-					$restToday += $wh;
-					
-					#echo Util::CLDateTimeParser(strtotime($period))."<br>";
-				}
-				
-				$restToday += 0;*/
+
+				if(strtotime($period) < time() - 60 * 30)
+					continue;
+
+				$restToday += $wh;
+
+				#echo Util::CLDateTimeParser(strtotime($period))."<br>";
 			}
-			
-			$width = "130px";
-			
-			$html .= "
-				<span style=\"font-size:14px;\">
-					<span style=\"display:inline-block;width:$width;\">Photovoltaik:</span> ".Util::CLNumberParser($solar)."W<br>
-					<!--<span style=\"display:inline-block;width:$width;\">Inverter:</span> ".Util::CLNumberParser($json->{"Inverter power generated"})."W<br>-->
-					<span style=\"display:inline-block;width:$width;\">Haus:</span> ".Util::CLNumberParser($json->{"Consumption power Home total"})."W<br>
-					<span style=\"display:inline-block;width:$width;\">Netz:</span> $grid<br>
-					<!--<span style=\"display:inline-block;width:$width;\">Batterie:</span> ".$json->{"Battery SOC"}."%<br>-->
-					<span style=\"display:inline-block;width:$width;\">PV heute:</span> ".Util::CLNumberParserZ(round($json->{"Daily yield"}/1000, 2))."kWh<br>
+
+			$restToday += 0;*/
+		}
+		$html .= "
+			<span style=\"font-size:14px;\">
 					<span style=\"display:inline-block;width:$width;\">PV heute Vorhers.:</span> ".Util::CLNumberParserZ(round($forecastToday, 2))."kWh<br>
 					<span style=\"display:inline-block;width:$width;\">PV morgen:</span> ".Util::CLNumberParserZ(round($forecastTomorrow, 2))."kWh<br>
 				</span>";
-					#".Util::CLNumberParser($json->{"Consumption power Home Battery"})."W
-				
-		}
-		
+
 		$html .= "<div style=\"margin-top:10px;border-right:1px solid #bbb;\">";
 		
-		$html .= $this->bar("Batterie", $json->{"Battery SOC"}, "background: 15% top no-repeat url(./fheME/Photovoltaik/linie.png), 80% top no-repeat url(./fheME/Photovoltaik/linie.png);");
+		$html .= $this->bar("Batterie", $totalBattery, "background: 15% top no-repeat url(./fheME/Photovoltaik/linie.png), 80% top no-repeat url(./fheME/Photovoltaik/linie.png);");
 			
 		$AC = anyC::get("Zweirad");
 		while($Z = $AC->n())
