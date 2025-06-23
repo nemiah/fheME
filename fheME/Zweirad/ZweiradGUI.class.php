@@ -25,7 +25,7 @@ class ZweiradGUI extends Zweirad implements iGUIHTML2 {
 		$gui->type("ZweiradFhemID", "select", anyC::get("Fhem"), "FhemName", "Bitte auswählen…");
 		$gui->type("ZweiradInOverview", "checkbox");
 		
-		$gui->type("ZweiradAPI", "select", ["" => "ohne", "silence" => "Silence"]);
+		$gui->type("ZweiradAPI", "select", ["" => "ohne", "silence" => "Silence", "skoda" => "Skoda"]);
 		$gui->type("ZweiradAPIPassword", "password");
 		$gui->type("ZweiradAPIUpdate", "checkbox");
 		
