@@ -59,6 +59,24 @@ class Zweirad extends PersistentObject {
 				}
 				
 			break;
+			
+			case "skoda":
+				$data = shell_exec("ssh 192.168.122.69 -i /var/www/fheME/specifics/id_rsa \".local/bin/myskoda --format json --user '".$this->A("ZweiradAPIUser")."' --password '".$this->A("ZweiradAPIPassword")."' charging ".$this->A("ZweiradAPIID")." | ansi2txt\"");
+				#echo $data;
+				#$data = preg_replace('/\e[[][A-Za-z0-9];?[0-9]*m?/', '', $data);
+				#var_dump(trim($data));
+				$data = json_decode(mb_convert_encoding($data, 'UTF-8', 'UTF-8'), false, 512, JSON_THROW_ON_ERROR);
+				if($data){
+					$this->changeA("ZweiradSOC", $data->status->battery->state_of_charge_in_percent);
+					$this->changeA("ZweiradCharging", "0");
+					$this->changeA("ZweiradLastUpdate", strtotime($data->timestamp));
+					$this->changeA("ZweiradStatus", "OK");
+				} else {
+					$this->changeA("ZweiradStatus", "ERROR");
+				}
+				
+				$this->saveMe();
+			break;
 		}
 	}
 }
