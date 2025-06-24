@@ -68,9 +68,11 @@ class Zweirad extends PersistentObject {
 				$data = json_decode(mb_convert_encoding($data, 'UTF-8', 'UTF-8'), false, 512, JSON_THROW_ON_ERROR);
 				if($data){
 					$this->changeA("ZweiradSOC", $data->status->battery->state_of_charge_in_percent);
-					$this->changeA("ZweiradCharging", "0");
+					$this->changeA("ZweiradCharging", $data->status->state == "CHARGING" ? "1" : "0");
+					$this->changeA("ZweiradWatts", $data->status->charge_power_in_kw * 1000);
 					$this->changeA("ZweiradLastUpdate", strtotime($data->timestamp));
 					$this->changeA("ZweiradStatus", "OK");
+					$this->changeA("ZweiradTimeRemaining", $data->status->remaining_time_to_fully_charged_in_minutes);
 				} else {
 					$this->changeA("ZweiradStatus", "ERROR");
 				}
