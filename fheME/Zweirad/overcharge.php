@@ -94,27 +94,52 @@ try {
 				#}
 				#echo "Mögliche Phasen: $phase\n";
 				#echo "Mögliche Ampere: $amps\n";
+				$powerFromPV = floor($jsonInverter->{$W->A("WechselrichterUsePVValue")});
 				
-				$request = 'http://192.168.7.38/api/set?ids='. urlencode('{"pGrid": '.floor($powerToGrid * -1).'., "pAkku": '.floor($jsonInverter->{"Actual battery charge-discharge power"}).'., "pPv": '.floor($jsonInverter->{$W->A("WechselrichterUsePVValue")}).'.}');
-				#echo $request."\n";
-				$ch = curl_init($request);
-				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-				curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1); 
-				curl_setopt($ch, CURLOPT_TIMEOUT, 1);
-				$response = curl_exec($ch);
-				#echo "WB Antwort: ".$response."\n";
-				curl_close($ch);
+				$charge = true;
+				if($Z->A("ZweiradSOC") >= $Z->A("ZweiradSOCTarget")){
+					$powerFromPV = 0;
+					echo "target SOC reached, stop charging!\n";
+					if($jsonCharger->frc != "1"){
+						$ch = curl_init("http://192.168.7.38/api/set?frc=1");
+						curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+						curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1); 
+						curl_setopt($ch, CURLOPT_TIMEOUT, 1);
+						curl_exec($ch);
+						curl_close($ch);
+					}
+					
+					$charge = false;
+					#echo "".$Z->A("ZweiradName")." finished -----------------\n\n";
+					#continue;
+				}
 				
+				if($charge){
+				
+					if($jsonCharger->frc == "1"){
+						echo "Allowing charge…\n";
+						$ch = curl_init("http://192.168.7.38/api/set?frc=0");
+						curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+						curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1); 
+						curl_setopt($ch, CURLOPT_TIMEOUT, 1);
+						curl_exec($ch);
+						curl_close($ch);
+					}
+
+					$request = 'http://192.168.7.38/api/set?ids='. urlencode('{"pGrid": '.floor($powerToGrid * -1).'., "pAkku": '.floor($jsonInverter->{"Actual battery charge-discharge power"}).'., "pPv": '.$powerFromPV.'.}');
+					#echo $request."\n";
+					$ch = curl_init($request);
+					curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+					curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1); 
+					curl_setopt($ch, CURLOPT_TIMEOUT, 1);
+					$response = curl_exec($ch);
+					#echo "WB Antwort: ".$response."\n";
+					curl_close($ch);
+				}
 				#print_r($jsonCharger);
 				#echo "Aktuelle Ladeleistung: ".$jsonCharger->nrg[11]."\n";
 				#echo "Aktuelle Phasen: ".$jsonCharger->psm."\n";
 			}
-			
-			#if($Z->A("ZweiradSOC") > $Z->A("ZweiradSOCTarget")){
-				#echo "target SOC reached!\n";
-				#echo "".$Z->A("ZweiradName")." finished -----------------\n\n";
-				#continue;
-			#}
 			
 			#echo "".$Z->A("ZweiradName")." finished -----------------\n\n";
 		}
