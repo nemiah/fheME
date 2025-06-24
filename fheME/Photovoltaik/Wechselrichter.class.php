@@ -21,5 +21,8 @@ class Wechselrichter extends PersistentObject {
 	public function getData(){
 		return shell_exec("python3 ".__DIR__."/kostal_modbusquery.py ".$this->A("WechselrichterIP")." ".$this->A("WechselrichterPort")." 2>&1");
 	}
+	public function getDataNeu(){
+		return shell_exec("python3 ".__DIR__."/kostal_modbusquery_neu.py ".$this->A("WechselrichterIP")." ".$this->A("WechselrichterPort")." 2>&1");
+	}
 }
 ?>

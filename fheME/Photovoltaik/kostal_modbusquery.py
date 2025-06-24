@@ -624,9 +624,9 @@ class kostal_modbusquery:
     def ReadS16(self,myadr_dec):
         r1=self.client.read_holding_registers(myadr_dec,1,unit=71)
         S16register = BinaryPayloadDecoder.fromRegisters(r1.registers, byteorder=Endian.Big, wordorder=Endian.Little)
-        result_S16register = S16register.decode_16bit_uint()
+        result_S16register = S16register.decode_16bit_int()
         return(result_S16register)
-                          
+        
         
     try:
         def run(self):
