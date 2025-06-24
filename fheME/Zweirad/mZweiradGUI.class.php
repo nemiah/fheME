@@ -34,7 +34,7 @@ class mZweiradGUI extends anyC implements iGUIHTMLMP2 {
 		return $gui->getBrowserHTML($id);
 	}
 	public function getOverviewContent(){
-		$html = "<div class=\"touchHeader\"><span class=\"lastUpdate\" id=\"lastUpdatemZweiradGUI\"></span><p>Zweiräder</p></div>
+		$html = "<div class=\"touchHeader\"><span class=\"lastUpdate\" id=\"lastUpdatemZweiradGUI\"></span><p>Fahrzeuge</p></div>
 			<div style=\"padding:10px;overflow:auto;\">";
 
 		$AC = anyC::get("Zweirad", "ZweiradInOverview", "1");
