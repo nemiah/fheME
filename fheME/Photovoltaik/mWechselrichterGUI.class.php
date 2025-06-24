@@ -51,6 +51,7 @@ class mWechselrichterGUI extends anyC implements iGUIHTMLMP2 {
 		$totalHouse = 0;
 		$totalBattery = 0;
 		$totalDaily = 0;
+		$totalBatteryP = 0;
 		while($W = $AC->n()){
 			$data = shell_exec("python3 ".__DIR__."/kostal_modbusquery.py ".$W->A("WechselrichterIP")." ".$W->A("WechselrichterPort")." 2>&1");
 			$json = json_decode($data);
@@ -63,7 +64,7 @@ class mWechselrichterGUI extends anyC implements iGUIHTMLMP2 {
 			$totalHouse += $json->{$W->A("WechselrichterUseHomeValue")};
 			$totalBattery += $json->{"Battery SOC"};
 			$totalDaily += $json->{"Daily yield"};
-			
+			$totalBatteryP += $json->{"Actual battery charge-discharge power"};
 			#print_r($json);
 			#$x = $json->{"Battery SOC"} / 100;
 			#$myColor = array((2.0 * $x > 1 ? 1 : 1), 2.0 * (1 - $x) > 1 ? 1 : 2.0 * (1 - $x), 0);
@@ -141,7 +142,7 @@ class mWechselrichterGUI extends anyC implements iGUIHTMLMP2 {
 		$html .= "
 			<span style=\"font-size:14px;\">
 				<span style=\"display:inline-block;width:$width;\">Photovoltaik:</span> ".Util::CLNumberParser($totalSolar)."W<br>
-				<!--<span style=\"display:inline-block;width:$width;\">Inverter:</span> ".Util::CLNumberParser($json->{"Inverter power generated"})."W<br>-->
+				<span style=\"display:inline-block;width:$width;\">Batterie:</span> ".Util::CLNumberParser($totalBatteryP)."W<br>
 				<span style=\"display:inline-block;width:$width;\">Haus:</span> ".Util::CLNumberParser($totalHouse)."W<br>
 				<span style=\"display:inline-block;width:$width;\">Netz:</span> $grid<br>
 				<!--<span style=\"display:inline-block;width:$width;\">Batterie:</span> ".$totalBattery."%<br>-->
