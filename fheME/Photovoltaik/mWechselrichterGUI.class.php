@@ -64,7 +64,7 @@ class mWechselrichterGUI extends anyC implements iGUIHTMLMP2 {
 			$totalHouse += $json->{$W->A("WechselrichterUseHomeValue")};
 			$totalBattery += $json->{"Battery SOC"};
 			$totalDaily += $json->{"Daily yield"};
-			$totalBatteryP += $json->{"Actual battery charge-discharge power"};
+			$totalBatteryP += $json->{"Actual battery charge-discharge power"} * -1;
 			#print_r($json);
 			#$x = $json->{"Battery SOC"} / 100;
 			#$myColor = array((2.0 * $x > 1 ? 1 : 1), 2.0 * (1 - $x) > 1 ? 1 : 2.0 * (1 - $x), 0);
