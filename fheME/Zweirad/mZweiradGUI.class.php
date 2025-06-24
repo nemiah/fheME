@@ -44,12 +44,15 @@ class mZweiradGUI extends anyC implements iGUIHTMLMP2 {
 			$B = new Button("Zweirad", "./fheME/Zweirad/chevrons-right.svg", "icon");
 			$B->style("float:left;margin-right:5px;width:32px;");
 			
-			$BC = new Button("Lädt", "./fheME/Zweirad/zap.svg", "icon");
-			$BC->style("float:right;width:32px;margin-left:5px;");
-			
-			if($Z->A("ZweiradCharging") != 1)
-				$BC = "";
-			
+			$BC = "";
+			$chargeInfo = "";
+			if($Z->A("ZweiradCharging") == "1"){
+				$chargeInfo = "<div style=\"float:right;color:grey;\"><small>".Util::CLNumberParserZ($Z->A("ZweiradWatts") / 1000)."kW/".$Z->A("ZweiradTimeRemaining")."Min</small></div>";
+				
+				$BC = new Button("Lädt", "./fheME/Zweirad/zap.svg", "icon");
+				$BC->style("float:right;width:32px;margin-left:5px;");
+			}
+				
 			$onclick = "Touchy.wheelOnFire(event, {
 				data: {'30': '30%', '40': '40%', '50': '50%', '60': '60%', '70': '70%', '80': '80%', '90': '90%', '100': '100%'},
 				selection: function(value){
@@ -62,7 +65,7 @@ class mZweiradGUI extends anyC implements iGUIHTMLMP2 {
 					
 			$html .= "
 			<div onclick=\"$onclick\" class=\"touchButton ".(stripos($Z->A("ZweiradStatus"), "ERROR") !== false ? "error" : "")."\">
-				$BC".$B."
+				$BC$chargeInfo".$B."
 				<div class=\"label\" style=\"padding-top:0;\">
 					".$Z->A("ZweiradName")." ".$Z->A("ZweiradSOC")."%/".$Z->A("ZweiradSOCTarget")."%<br>
 					<small style=\"color:grey;\">".Util::CLDateTimeParser($Z->A("ZweiradLastUpdate"))." ".$Z->A("ZweiradStatus")."</small>
