@@ -23,7 +23,18 @@ class Wetterstation extends PersistentObject {
 		if(!$W)
 			throw new Exception("Does not exist!");
 		
-		$F = new Factory("WetterstationLog");
+		$W->changeA("WetterstationOutdoorTemp", $W->FtoC($data["tempf"]));
+		$W->changeA("WetterstationOutdoorHumidity", $data["humidity"]);
+		$W->changeA("WetterstationOutdoorRainTotal", $W->inchToMm($data["totalrainin"]));
+		$W->changeA("WetterstationOutdoorUVI", $data["uv"]);
+		$timeZone = date_default_timezone_get();
+		date_default_timezone_set('UTC');
+		$W->changeA("WetterstationLastUpdate", strtotime($data["dateutc"]));
+		date_default_timezone_set($timeZone);
+		
+		$W->saveMe();
+		
+		/*$F = new Factory("WetterstationLog");
 		
 		$F->sA("WetterstationLogWetterstationID", $W->getID());
 		$timeZone = date_default_timezone_get();
@@ -45,7 +56,7 @@ class Wetterstation extends PersistentObject {
 		$F->sA("WetterstationLogOutdoorUVI", $data["uv"]);
 		$F->sA("WetterstationLogOutdoorSunRadiation", $data["solarradiation"]);
 		
-		$F->store();
+		$F->store();*/
 	}
 	
 	public function FtoC($f){

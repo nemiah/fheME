@@ -54,7 +54,7 @@ class mWetterstationGUI extends anyC implements iGUIHTMLMP2 {
 			$BSU = new Button("UVI", "./fheME/Wetterstation/sun.svg", "icon");
 			$BSU->style("height:15px;margin-right:3px;vertical-align:bottom;");
 			
-			$html .= "<div style=\"margin-top:15px;\">$BSR ".date("H:i", $sunInfo["sunrise"])." $BSS ".date("H:i", $sunInfo["sunset"])." $BSU ".$W->A("WetterstationOutdoorUVI")." <span style=\"color:grey;\">(".$W->A("WetterstationKey").")</span></div>";
+			$html .= "<div style=\"margin-top:15px;\">$BSR ".date("H:i", $sunInfo["sunrise"])." $BSS ".date("H:i", $sunInfo["sunset"])." $BSU ".$W->A("WetterstationOutdoorUVI")."</div>";
 			
 			$MRS = new MoonRiseSet();
 			$moonInfo = $MRS->calculateMoonTimes(date("m"), date("d"), date("Y"), $W->A("WetterstationLat"), $W->A("WetterstationLon"));

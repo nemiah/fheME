@@ -35,36 +35,42 @@ $e->useDefaultMySQLData();
 
 $e->useUser();
 
-
+file_put_contents(__DIR__."/data.log", print_r($_POST, true));
 #echo "<pre>";
 try {
-	/*$data = [
-		"PASSKEY" => "86FBA8D673E41D9FB15C55D74218A5B2",
-		"stationtype" => "EasyWeatherPro_V5.0.2",
-		"dateutc" => "2022-08-26 13:08:32",
-		"tempinf" => "78.8",
-		"humidityin" => "57",
-		"baromrelin" => "29.728",
-		"baromabsin" => "28.585",
-		"tempf" => "79.9",
-		"humidity" => "57",
-		"winddir" => "286",
-		"windspeedmph" => "1.12",
-		"windgustmph" => "1.12",
-		"maxdailygust" => "9.17",
-		"solarradiation" => "481.99",
-		"uv" => "4",
-		"rainratein" => "0.000",
-		"eventrainin" => "0.000",
-		"hourlyrainin" => "0.000",
-		"dailyrainin" => "0.000",
-		"weeklyrainin" => "0.051",
-		"monthlyrainin" => "0.051",
-		"totalrainin" => "0.051",
-		"wh65batt" => "0",
-		"freq" => "868M",
-		"model" => "WS2900_V2.01.18"
-	];*/
+	/*Array
+(
+    [PASSKEY] => 86FBA8D673E41D9FB15C55D74218A5B2
+    [stationtype] => EasyWeatherPro_V5.2.2
+    [runtime] => 795
+    [heap] => 21428
+    [dateutc] => 2025-07-14 19:40:32
+    [tempinf] => 75.2
+    [humidityin] => 58
+    [baromrelin] => 29.949
+    [baromabsin] => 28.777
+    [tempf] => 63.0
+    [humidity] => 98
+    [winddir] => 277
+    [windspeedmph] => 0.00
+    [windgustmph] => 0.00
+    [maxdailygust] => 13.65
+    [solarradiation] => 0.10
+    [uv] => 0
+    [rainratein] => 0.000
+    [eventrainin] => 0.000
+    [hourlyrainin] => 0.000
+    [dailyrainin] => 0.000
+    [weeklyrainin] => 0.031
+    [monthlyrainin] => 0.142
+    [yearlyrainin] => 68.961
+    [totalrainin] => 68.961
+    [vpd] => 0.012
+    [wh65batt] => 0
+    [freq] => 868M
+    [model] => WS2900_V2.01.18
+    [interval] => 8
+)*/
 	
 	Wetterstation::log($_POST);
 } catch (FieldDoesNotExistException $e){
