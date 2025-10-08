@@ -46,7 +46,7 @@ class mHeizungGUI extends anyC implements iGUIHTMLMP2 {
 			try {
 				$states = $H->getParsedData();
 			} catch (Exception $e){
-				conitnue;
+				continue;
 			}
 			/*$C = $H->connect();
 			$C->setPrompt("</FHZINFO>");
