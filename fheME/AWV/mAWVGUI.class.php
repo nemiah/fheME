@@ -113,7 +113,7 @@ class mAWVGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 		#print_r($ex);
 		$days = array();
 		foreach($ex AS $event){
-			preg_match("/DTSTART:([0-9T]*)/", $event, $matchesDate);
+			preg_match("/DTSTART[;A-Za-z\/=]*:([0-9T]*)/", $event, $matchesDate);
 			
 			
 			if(isset($days[$matchesDate[1]]))
@@ -147,7 +147,8 @@ class mAWVGUI extends UnpersistentClass implements iGUIHTMLMP2 {
 		foreach($data->calendar AS $day){
 			if($day->fr == "")
 				continue;
-			
+			echo "HI";
+			print_r($day);
 			if($day->dt < date("Ymd"))
 				continue;
 			
